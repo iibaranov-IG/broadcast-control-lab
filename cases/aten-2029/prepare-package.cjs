@@ -3,7 +3,7 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const root = path.resolve(process.argv[2] || 'sources/aten')
 const passport = require('../../scripts/case.cjs').load('aten-2029')
-const source = passport.source
+const source = passport.sources[0]
 const revision = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
 if (revision !== source.commit) throw new Error('Unexpected upstream revision')
 const actions = fs.readFileSync(path.join(root, 'actions.js'), 'utf8')

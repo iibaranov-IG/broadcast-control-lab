@@ -5,7 +5,7 @@ const { execFileSync } = require('node:child_process')
 const root = path.resolve(process.argv[2] || 'sources/zynthian-1530')
 const passport = require('../../scripts/case.cjs').load('zynthian-1530')
 const revision = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
-if (revision !== passport.source.commit) throw new Error('Unexpected upstream revision')
+if (revision !== passport.sources[0].commit) throw new Error('Unexpected upstream revision')
 
 const patch = path.resolve(__dirname, 'repair.patch')
 execFileSync('git', ['-C', root, 'apply', '--check', patch], { stdio: 'inherit' })

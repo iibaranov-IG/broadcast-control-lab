@@ -1,0 +1,89 @@
+name: BCL v2
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: bcl-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    outputs:
+      cases: ${{ steps.selection.outputs.cases }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+      - id: selection
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            cases=$(node scripts/case.cjs select "$BASE")
+          else
+            cases=$(node scripts/case.cjs select)
+          fi
+          echo "cases=$cases" >> "$GITHUB_OUTPUT"
+  infrastructure:
+    needs: select
+    if: needs.select.outputs.cases != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+      - run: node scripts/bcl.cjs harness
+  cases:
+    needs: select
+    if: needs.select.outputs.cases != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        id: ${{ fromJSON(needs.select.outputs.cases) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+      - env:
+          CASE_ID: ${{ matrix.id }}
+        run: node scripts/bcl.cjs run "$CASE_ID"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.id }}-evidence
+          path: reports/${{ matrix.id }}/
+          if-no-files-found: error
+  result:
+    if: always()
+    needs: [select, infrastructure, cases]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          SELECT: ${{ needs.select.result }}
+          INFRA: ${{ needs.infrastructure.result }}
+          CASES: ${{ needs.cases.result }}
+        run: |
+          test "$SELECT" = success
+          test "$INFRA" = success -o "$INFRA" = skipped
+          test "$CASES" = success -o "$CASES" = skipped

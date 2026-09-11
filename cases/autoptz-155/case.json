@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "autoptz-155",
+  "status": "ready",
+  "title": "AutoPTZ UDP backend",
+  "issue": "https://github.com/AutoPTZ/autoptz/issues/155",
+  "problem": "AutoPTZ UDP backend",
+  "reproduce": "Run the recorded regression inputs against the pinned backend.",
+  "acceptance": "All documented regression checks pass.",
+  "repair": "Validate the existing pinned repair without modifying upstream code.",
+  "sources": [
+    {
+      "id": "candidate",
+      "repository": "iibaranov-IG/autoptz",
+      "commit": "39d8ebab461d86e8e06a683905829d21acec7adc",
+      "directory": "sources/autoptz"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": ".",
+        "argv": [
+          "python3",
+          "cases/autoptz-155/prepare.py"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/autoptz-155/test.mjs",
+          "sources/autoptz"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/autoptz-155.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "Isolated backend checks; no full application or physical hardware qualification.",
+    "ownerCheck": "Record hardware model, firmware, application version, tested revision and observed results in the BCL issue."
+  }
+}

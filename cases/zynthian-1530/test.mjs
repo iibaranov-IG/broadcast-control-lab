@@ -28,11 +28,12 @@ function oscFloat(path, value) {
 }
 
 async function check(name, callback) {
+  const started = performance.now()
   try {
     await callback()
-    report.results.push({ name, status: 'PASS' })
+    report.results.push({ name, status: 'PASS', durationMs: performance.now() - started })
   } catch (error) {
-    report.results.push({ name, status: 'FAIL', message: error.message })
+    report.results.push({ name, status: 'FAIL', message: error.message, durationMs: performance.now() - started })
   }
 }
 

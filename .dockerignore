@@ -1,0 +1,5 @@
+sources
+reports
+.git
+node_modules
+.cache

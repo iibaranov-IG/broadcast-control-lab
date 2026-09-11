@@ -21,8 +21,9 @@ async function run(factory, src, dst) {
   return self.sent
 }
 async function check(name, callback) {
-  try { await callback(); report.results.push({ name, status: 'PASS' }) }
-  catch (error) { report.results.push({ name, status: 'FAIL', message: error.message }) }
+  const started = performance.now()
+  try { await callback(); report.results.push({ name, status: 'PASS', durationMs: performance.now() - started }) }
+  catch (error) { report.results.push({ name, status: 'FAIL', message: error.message, durationMs: performance.now() - started }) }
 }
 await check('Baseline cannot offer variable-enabled crosspoint fields', () => {
   const fields = upstream(instance()).SS.options

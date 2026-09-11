@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "intelix",
+  "status": "ready",
+  "title": "Intelix routing and login",
+  "issue": "https://github.com/iibaranov-IG/broadcast-control-lab/blob/main/FINDINGS.md",
+  "problem": "Intelix routing and login",
+  "reproduce": "Run the recorded regression inputs against the pinned backend.",
+  "acceptance": "All documented regression checks pass.",
+  "repair": "Validate the existing pinned repair without modifying upstream code.",
+  "sources": [
+    {
+      "id": "candidate",
+      "repository": "iibaranov-IG/companion-module-intelix-digi88fs",
+      "commit": "3834e91d22580ea0faa49057e9f38166cadc1e75",
+      "directory": "sources/intelix"
+    },
+    {
+      "id": "baseline",
+      "repository": "iibaranov-IG/companion-module-intelix-digi88fs",
+      "commit": "619fcc10247f452a8ee2173a6ba037fcb6633b6f",
+      "directory": "sources/intelix-baseline"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [
+    "lab.cjs"
+  ],
+  "steps": {
+    "dependencies": [],
+    "prepare": [],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "lab.cjs",
+          "intelix"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/intelix.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "Companion API test double; no physical hardware or full application.",
+    "ownerCheck": "Record hardware model, firmware, application version, tested revision and observed results in the BCL issue."
+  }
+}

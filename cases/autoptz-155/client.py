@@ -1,7 +1,8 @@
 import json
 import sys
+from pathlib import Path
 
-sys.path.insert(0, sys.argv[1])
+sys.path.insert(0, str(Path(sys.argv[1]) / '.bcl-isolated'))
 from autoptz.engine.ptz.visca_ip import ViscaIPBackend
 
 backend = ViscaIPBackend('127.0.0.1', int(sys.argv[2]), mode=sys.argv[3], transport='udp', timeout=0.3)

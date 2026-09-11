@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { performance } from 'node:perf_hooks'
 import assert from 'node:assert/strict'
 import { ScriptedUdpDevice } from '../../lib/scripted-udp-device.mjs'
 
@@ -10,6 +11,7 @@ const report = { issue: 'https://github.com/AutoPTZ/autoptz/issues/155',
   evidence: 'actual Python PTZ backend against BCL loopback UDP socket', hardwareVerified: false, results: [] }
 const bytes = hex => Buffer.from(hex, 'hex')
 async function check(name, mode, action, steps, expected) {
+  const started = performance.now()
   const device = new ScriptedUdpDevice()
   let child
   try {
@@ -24,9 +26,9 @@ async function check(name, mode, action, steps, expected) {
     })
     await Promise.all([device.run(steps), completed])
     assert.deepEqual(JSON.parse(stdout).result, expected)
-    report.results.push({ name, status: 'PASS', transcript: device.report().transcript })
+    report.results.push({ name, status: 'PASS', durationMs: performance.now() - started, transcript: device.report().transcript })
   } catch (error) {
-    report.results.push({ name, status: 'FAIL', message: error.message, transcript: device.report().transcript })
+    report.results.push({ name, status: 'FAIL', durationMs: performance.now() - started, message: error.message, transcript: device.report().transcript })
   } finally {
     child?.kill()
     await device.stop()

@@ -1,10 +1,11 @@
 {
   "name": "broadcast-control-lab",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "bin": { "bcl": "scripts/bcl.cjs" },
   "private": true,
   "scripts": {
-    "test": "npm run test:contracts && npm run test:harness",
-    "test:contracts": "node lab.cjs",
+    "test": "npm run test:harness",
+    "bcl": "node scripts/bcl.cjs",
     "test:harness": "node --test test/*.test.mjs"
   },
   "engines": { "node": ">=22" }

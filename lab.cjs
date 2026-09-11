@@ -6,13 +6,16 @@ const { execFileSync } = require('node:child_process')
 
 // Execute reviewed, pinned module sources only. The VM supplies a Companion
 // test double; it is not a security sandbox or a full Companion runtime.
-const root = process.env.LAB_SOURCES || path.resolve(__dirname, '..')
+const selected = process.argv[2]
+if (!['intelix', 'tcc2'].includes(selected)) throw new Error('Select intelix or tcc2')
+const passport = require('./scripts/case.cjs').load(selected)
+const root = process.env.LAB_SOURCES || path.resolve(__dirname, 'sources')
 const revisions = {
-  oldIntelix: '619fcc10247f452a8ee2173a6ba037fcb6633b6f',
-  intelix: '3834e91d22580ea0faa49057e9f38166cadc1e75',
-  tcc2: '375e281ae819a7819f53328c4cf9c3689a1ab3b2',
+  [selected]: passport.sources[0].commit,
+  ...(selected === 'intelix' ? { oldIntelix: passport.sources[1].commit } : {}),
 }
 function source(repo, revision, file) {
+  if (repo === 'intelix' && revision === revisions.oldIntelix) repo = 'intelix-baseline'
   return execFileSync('git', ['-C', path.join(root, repo), 'show', `${revision}:${file}`], { encoding: 'utf8' })
 }
 function load(repo, revision, file, base = {}) {
@@ -39,10 +42,12 @@ class InstanceBase {
 const base = { InstanceBase, Regex: {}, combineRgb: () => 0, InstanceStatus: { Ok: 'ok', Connecting: 'connecting', ConnectionFailure: 'connection_failure' } }
 const results = []
 async function check(name, fn) {
-  try { await fn(); results.push({ name, status: 'PASS' }) }
-  catch (e) { results.push({ name, status: 'FAIL', error: e.message }) }
+  const started = performance.now()
+  try { await fn(); results.push({ name, status: 'PASS', durationMs: performance.now() - started }) }
+  catch (e) { results.push({ name, status: 'FAIL', error: e.message, durationMs: performance.now() - started }) }
 }
 async function main() {
+  if (selected === 'intelix') {
   const Old = load('intelix', revisions.oldIntelix, 'src/main.js', base)
   const Fixed = load('intelix', revisions.intelix, 'src/main.js', base)
   await check('Intelix negative control: old route command is rejected', async () => {
@@ -88,6 +93,8 @@ async function main() {
     fixed.handleData(Buffer.from('word: '))
     assert.deepEqual(sent, ['lab-user\r\n', 'lab-password\r\n'])
   })
+  }
+  if (selected === 'tcc2') {
   await check('BCL-002: TCC2 error-only reply must not mark connection healthy', () => {
     const Tcc2 = load('tcc2', revisions.tcc2, 'src/main.js', base)
     const instance = new Tcc2()
@@ -116,13 +123,14 @@ async function main() {
     assert.equal(ssc.azimuthInRange(180, 330, 30), false)
     assert.equal(ssc.azimuthInRange(null, 330, 30), false)
   })
+  }
   const report = {
     schema: 1, created: new Date().toISOString(), evidence: 'software-contract-tests',
     hardwareVerified: false, revisions, results,
     limitations: ['No physical hardware', 'No real network transport', 'Companion API test double, not full runtime', 'No reconnect or authentication qualification'],
   }
   fs.mkdirSync(path.join(__dirname, 'reports'), { recursive: true })
-  fs.writeFileSync(path.join(__dirname, 'reports/latest.json'), JSON.stringify(report, null, 2) + '\n')
+  fs.writeFileSync(path.join(__dirname, passport.artifacts.report), JSON.stringify(report, null, 2) + '\n')
   for (const r of results) console.log(`${r.status}: ${r.name}${r.error ? ': ' + r.error : ''}`)
   if (results.some(r => r.status === 'FAIL')) process.exitCode = 1
 }

@@ -126,6 +126,10 @@ async function main() {
     if (result.status !== 'PASS') process.exitCode = 1
     return
   }
+  if (mode === 'campaign') {
+    const campaign = require('./campaign.cjs')
+    return console.log(JSON.stringify(await campaign.run(root, arg, campaign.options(options)), null, 2))
+  }
   if (mode === 'run' || mode === 'test') {
     if (options.some(o => o !== '--legacy-contracts') || options.length > 1) throw new Error('Unknown test option')
     const c = load(arg); if (c.status !== 'ready' && !(c.status === 'diagnostic' && options.includes('--legacy-contracts'))) throw new Error('Use --legacy-contracts for diagnostics; drafts are not executable')
@@ -185,7 +189,7 @@ async function main() {
     require('./publication.cjs').hardwareKit(directory, c)
     return console.log(path.join(directory, 'HARDWARE-CHECK.md'))
   }
-  throw new Error('Usage: bcl triage <issue-url> [--assessment file.json] | new <issue-url> | batch <id> <id> ... | list | validate <id> | test <id> [--legacy-contracts] | publish <id> --fork owner/repo --run <url> [--dry-run] | track <id> <PR-url> | upstream-import <id> --file <manifest.json> | hardware-kit <id> | sync | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
+  throw new Error('Usage: bcl triage <issue-url> [--assessment file.json] | new <issue-url> | campaign <name> --file issues.txt [--concurrency 1..8] [--limit 1..100] [--retry-failed] | batch <id> <id> ... | list | validate <id> | test <id> [--legacy-contracts] | publish <id> --fork owner/repo --run <url> [--dry-run] | track <id> <PR-url> | upstream-import <id> --file <manifest.json> | hardware-kit <id> | sync | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
 }
 if (require.main === module) main().catch(e => { console.error(e.message); process.exitCode = 1 })
 module.exports = { scaffold }

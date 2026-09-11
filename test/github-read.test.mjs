@@ -33,6 +33,13 @@ test('reader resolves credentials once and authenticates both scaffold reads', a
   assert.equal(requests, 2)
   await assert.rejects(read('https://example.com'), /Invalid/)
 })
+test('reader accepts repository metadata roots but rejects lookalike prefixes', async () => {
+  const urls = []
+  const read = reader({ env: {}, execute: () => 'secret', request: async url => { urls.push(url); return { ok: true, json: async () => ({ ok: true }) } } })
+  await read('repos/team/project')
+  assert.equal(urls[0], 'https://api.github.com/repos/team/project')
+  await assert.rejects(read('repos/team/project-lookalike?x=1'), /Invalid/)
+})
 test('anonymous limit is actionable and never retried; tokens do not enter errors', async () => {
   for (const token of ['', 'private-secret']) {
     let calls = 0

@@ -1,6 +1,5 @@
 const fs = require('node:fs')
 const path = require('node:path')
-const { retryAsync } = require('./retry.cjs')
 const repository = /^[A-Za-z0-9][\w.-]*\/[A-Za-z0-9][\w.-]*$/
 function issueURL(url) {
   const m = /^https:\/\/github\.com\/([A-Za-z0-9][\w.-]*\/[A-Za-z0-9][\w.-]*)\/issues\/([1-9]\d*)\/?$/.exec(url || '')
@@ -27,18 +26,6 @@ function reference(url) {
   if (!m) throw new Error('Dependency must be a canonical GitHub issue/PR URL')
   return { repo: m[1], kind: m[2], number: m[3], url }
 }
-async function api(endpoint) {
-  // Only fixed GitHub API paths are read; issue text never becomes a command or URL host.
-  return retryAsync(async () => {
-    const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN
-    const response = await fetch(`https://api.github.com/${endpoint}`, {
-      headers: { Accept: 'application/vnd.github+json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      signal: AbortSignal.timeout(30000), redirect: 'error',
-    })
-    if (!response.ok) { const e = new Error(`GitHub read failed (HTTP ${response.status})`); e.httpStatus = response.status; throw e }
-    return response.json()
-  })
-}
 const buildNames = new Map([
   ['CMakeLists.txt', 'cpp-cmake'], ['configure.ac', 'cpp-autotools'], ['configure.in', 'cpp-autotools'],
   ['package.json', 'node'], ['pyproject.toml', 'python'], ['setup.py', 'python'],
@@ -51,7 +38,7 @@ function mentions(text, issue, sameRepo) {
   if (new RegExp(`(^|[^A-Za-z0-9_.\\/-])${full.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?!\\d)`, 'i').test(text)) return true
   return sameRepo && new RegExp(`(^|[\\s(])#${issue.number}(?!\\d)`).test(text || '')
 }
-async function inspect(url, opts = {}, request = api) {
+async function inspect(url, opts = {}, request = require('./github-read.cjs').reader()) {
   const issue = issueURL(url)
   opts = { dependencies: [], ...opts }
   if (opts.source && !repository.test(opts.source)) throw new Error('Invalid source repository')
@@ -96,7 +83,7 @@ async function inspect(url, opts = {}, request = api) {
         report.coverage.sourceTree = tree.truncated ? 'limited' : 'complete'
         const paths = tree.tree.filter(e => e.type === 'blob').map(e => e.path)
         report.source.licenseMissing = !tree.truncated && repo.license === null && !paths.some(p => /(^|\/)(licen[cs]e|copying)(\.|$)/i.test(p))
-        report.source.ruleFiles = paths.filter(p => /(^|\/)(AGENTS\.md|CONTRIBUTING(?:\.md)?|PULL_REQUEST_TEMPLATE(?:\.md)?|pull_request_template(?:\.md)?)$/.test(p) || /^\.github\/PULL_REQUEST_TEMPLATE\//.test(p)).map(p => ({ path: p, url: `https://github.com/${source}/blob/${commit.sha}/${p}` }))
+        report.source.ruleFiles = paths.filter(p => /(^|\/)(AGENTS\.md|CONTRIBUTING(?:\.md)?|PULL_REQUEST_TEMPLATE(?:\.md)?)$/i.test(p) || /^\.github\/PULL_REQUEST_TEMPLATE\//i.test(p)).map(p => ({ path: p, url: `https://github.com/${source}/blob/${commit.sha}/${p}` }))
         if (report.source.ruleFiles.length > 20) finding('RULE_READ_LIMIT', 'question', 'More than twenty rule files; review remaining scopes before work.', `https://github.com/${source}`)
         for (const rule of report.source.ruleFiles.slice(0, 20)) {
           const item = await read(`repos/${source}/contents/${rule.path}?ref=${commit.sha}`, `rules:${rule.path}`)
@@ -167,7 +154,7 @@ function markdown(r) {
   const clean = s => String(s || '').replace(/[\r\n]/g, ' ')
   return [`# BCL triage: ${clean(r.issue.title || r.issue.url)}`, '', `Decision: **${r.decision}**`, `Checked: ${r.checkedAt}`, `Issue: ${r.issue.url}`, `Source: ${r.source.repository}`, `Revision: ${r.source.commit || 'unresolved'}`, '', '## Findings', '', ...r.findings.map(f => `- **${f.code}** (${f.severity}): ${clean(f.detail)} [Source](${f.url})`), ...(r.findings.length ? [] : ['No metadata blocker found within the stated coverage.']), '', '## Related PRs', '', ...r.relatedPRs.map(p => `- [${clean(p.title)}](${p.url}) — ${p.merged ? 'merged' : p.state}${p.draft ? ', draft' : ''}; author: ${clean(p.author)}; ${p.relation}`), '', '## Next actions', '', ...r.nextActions.map(a => `- ${clean(a)}`), '', '## Read errors', '', ...r.errors.map(e => `- ${e.check}: ${clean(e.message)} — ${e.url}`), '', '## Limits', '', ...r.limitations.map(l => `- ${l}`), '', 'No clone, build, test execution, PR or owner message was performed.', ''].join('\n')
 }
-async function run(root, url, args = [], request = api) {
+async function run(root, url, args = [], request = require('./github-read.cjs').reader()) {
   const begin = Date.now(), opts = options(args)
   const report = await inspect(url, opts, request)
   const policyFile = path.join(root, 'selection-policy.json')

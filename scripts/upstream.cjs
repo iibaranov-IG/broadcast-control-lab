@@ -35,6 +35,10 @@ function session(root, c, execution) {
   const source = path.join(root, c.sources.find(s => s.id === u.source).directory)
   const directory = path.join(root, 'reports', c.id)
   fs.mkdirSync(directory, { recursive: true })
+  const pythonCache = path.join(directory, 'python-cache')
+  const pythonEnv = process.platform === 'darwin'
+    ? { ...process.env, PYTHONPYCACHEPREFIX: pythonCache }
+    : process.env
   const result = execution.upstream = { kind: u.kind, source: u.source, status: 'FAIL', commands: [], logs: [], testFiles: [] }
   const inside = p => {
     const real = fs.realpathSync(path.join(source, p))
@@ -58,7 +62,7 @@ function session(root, c, execution) {
     const fd = fs.openSync(filename, 'w')
     const begin = Date.now()
     let processResult
-    try { processResult = spawnSync(step.argv[0], step.argv.slice(1), { cwd: inside(step.cwd), shell: false, timeout: u.timeoutMs, stdio: ['ignore', fd, fd] }) }
+    try { processResult = spawnSync(step.argv[0], step.argv.slice(1), { cwd: inside(step.cwd), shell: false, timeout: u.timeoutMs, stdio: ['ignore', fd, fd], env: u.kind === 'python' ? pythonEnv : process.env }) }
     finally { fs.closeSync(fd) }
     const bytes = fs.readFileSync(filename)
     const entry = { label, argv: step.argv, cwd: step.cwd, exitCode: processResult.status, signal: processResult.signal, durationMs: Date.now() - begin, status: 'FAIL', log: name }
@@ -80,7 +84,7 @@ function session(root, c, execution) {
       if (fs.existsSync(path.join(source, '.git')) && trackedChanges().length) throw new Error('Upstream baseline already contains tracked modifications')
       u.setup.forEach(step => command('setup', step))
       if (fs.existsSync(path.join(source, '.git')) && trackedChanges().some(p => !u.testFiles.includes(p))) throw new Error('Baseline setup modified production files outside declared regression tests')
-      if (u.kind === 'python') clearBytecode(source)
+      if (u.kind === 'python') { clearBytecode(source); fs.rmSync(pythonCache, { recursive: true, force: true }) }
       u.build.forEach(step => command('baseline-build', step))
       result.testFiles = tests()
       command('baseline-red', u.regression, u.negative.exitCode, u.negative.outputIncludes)
@@ -90,7 +94,7 @@ function session(root, c, execution) {
     candidate() {
       if (result.baseline !== 'EXPECTED_FAILURE') throw new Error('Missing upstream negative control')
       if (JSON.stringify(tests()) !== JSON.stringify(result.testFiles)) throw new Error('Repair changed the upstream regression test files')
-      if (u.kind === 'python') clearBytecode(source)
+      if (u.kind === 'python') { clearBytecode(source); fs.rmSync(pythonCache, { recursive: true, force: true }) }
       u.build.forEach(step => command('candidate-build', step))
       command('candidate-green', u.regression)
       result.suiteSummary = suiteSummary(u.kind, command('candidate-suite', u.suite, 0, u.suiteOutputIncludes))

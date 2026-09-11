@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "id": "robtk-2",
+  "status": "diagnostic",
+  "title": "Rebuild robtk UIs when their plugin source changes",
+  "issue": "https://github.com/x42/robtk/issues/2",
+  "problem": "robtk UI recipes include gui/<plugin>.c through PLUGIN_SOURCE but do not list that file as a prerequisite, so Make can leave a stale UI binary after the plugin source changes.",
+  "reproduce": "Build a representative UI object, touch gui/demo.c, and ask Make whether the object is current; the baseline incorrectly returns current.",
+  "acceptance": "Changing gui/<plugin>.c invalidates GTK, OpenGL object, embedded OpenGL and OpenGL shared-library targets, and rebuilding returns each target to current state.",
+  "repair": "Enable secondary prerequisite expansion and add the stem-specific gui source to every robtk UI pattern rule that compiles it.",
+  "sources": [{
+    "id": "upstream",
+    "repository": "x42/robtk",
+    "commit": "c6c3ade30b1cffb12e4cd6eda5a46bf1c96cb318",
+    "directory": "sources/robtk-2"
+  }],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{ "cwd": "sources/robtk-2", "argv": ["git", "apply", "../../cases/robtk-2/repair.patch"] }],
+    "test": [{ "cwd": ".", "argv": ["node", "cases/robtk-2/test.mjs", "sources/robtk-2"] }],
+    "build": []
+  },
+  "artifacts": { "report": "reports/robtk-2.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL exercises GNU Make's real dependency decisions with a fake compiler. It does not link an LV2 UI against GTK or OpenGL.",
+    "ownerCheck": "Build an existing robtk-based plugin UI, edit only its gui/<plugin>.c source, and confirm the normal make command relinks the UI without make clean."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "x42/robtk",
+    "base": "master",
+    "paths": ["robtk.mk"]
+  }
+}

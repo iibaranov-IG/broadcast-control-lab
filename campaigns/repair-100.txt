@@ -73,7 +73,7 @@ https://github.com/jackaudio/jack2/issues/986
 https://github.com/jackaudio/jack2/issues/1001
 https://github.com/juce-framework/JUCE/issues/1742
 https://github.com/juce-framework/JUCE/issues/1741
-https://github.com/juce-framework/JUCE/issues/1738
+https://github.com/cavyion/yaatv/issues/19
 https://github.com/juce-framework/JUCE/issues/1725
 https://github.com/juce-framework/JUCE/issues/1724
 https://github.com/juce-framework/JUCE/issues/1721

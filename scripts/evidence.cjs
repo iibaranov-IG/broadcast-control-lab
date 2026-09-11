@@ -5,7 +5,7 @@ const hash = data => createHash('sha256').update(data).digest('hex')
 function writeEvidence(root, passport, execution) {
   const dir = path.join(root, 'reports', passport.id)
   fs.mkdirSync(dir, { recursive: true })
-  const logs = []
+  const logs = [...(execution.upstream?.logs || [])]
   const reportPath = passport.artifacts?.report && path.join(root, passport.artifacts.report)
   if (reportPath && fs.existsSync(reportPath)) {
     const data = fs.readFileSync(reportPath)
@@ -43,6 +43,7 @@ function writeEvidence(root, passport, execution) {
     '| Stage | Result | Duration (ms) |', '| --- | --- | --- |',
     ...execution.stages.map(s => `| ${s.name} | ${s.status} | ${s.durationMs ?? 'unknown'} |`), '',
     '## Automated checks', '',
+    ...(execution.upstream ? [`Upstream ${execution.upstream.kind}: **${execution.upstream.status}**; baseline: ${execution.upstream.baseline || 'not established'}.`, '', ...execution.upstream.commands.map(s => `- ${s.label}: ${s.status}; exit ${s.exitCode}; ${s.durationMs} ms; log: ${s.log}`), '', 'Suite coverage is defined by the configured upstream command; this does not certify hardware or unselected tests.', ''] : []),
     ...(execution.tests || []).map(t => `- ${t.status}: ${t.name} (${t.durationMs ?? 'unmeasured'} ms)`), '',
     '## Artifacts and hashes', '',
     ...[...(execution.packages || []), ...logs].map(p => `- ${p.path}: SHA-256 \`${p.sha256}\` (${p.bytes} bytes)`),

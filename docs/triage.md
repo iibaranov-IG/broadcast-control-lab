@@ -31,9 +31,10 @@ requests are made. Transient failures use the shared bounded retry helper.
 | `READY_TO_INVESTIGATE` | No metadata blocker found within the reported coverage; engineering review can begin. |
 | `NEEDS_INFO` | Review related work, source location, dependency hints or incomplete reads before scheduling a build. |
 | `DEFER` | The issue is closed, the source repository is inactive, or an explicitly declared prerequisite remains unresolved. |
+| `REJECT` | A selection exclusion applies, including a denied project, active related PR or established missing license. |
 
-An active related PR asks for review rather than automatically rejecting the issue.
-It may need help with validation, or cover a different part of the problem.
+The current selection policy rejects a candidate with an active explicitly related
+PR. Establish that work is unclaimed before selecting a new repair.
 Closed dependency issues and merged dependency PRs satisfy this metadata check;
 they do not prove the required change exists in the revision you intend to build.
 

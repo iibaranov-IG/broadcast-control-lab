@@ -41,7 +41,8 @@ async function create(url, options = []) {
   fs.writeFileSync(path.join(directory, 'REPORT-TEMPLATE.md'), '# Reproduction\n\nNot run.\n\n# Repair\n\nNot implemented.\n\n# Owner checks\n\nNot verified.\n')
   console.log(`Created draft ${c.id}; no tests or repair claimed.`)
 }
-function containerRun(c, { harness = false } = {}) {
+function containerRun(c, { harness = false, shared = null, legacy = false } = {}) {
+  if (!harness && !c.upstream && !legacy) throw new Error('A repair run requires upstream red → green; --legacy-contracts runs old diagnostics without publication qualification')
   const id = harness ? 'harness' : c.id
   const output = path.join(root, 'reports', id)
   fs.rmSync(output, { recursive: true, force: true })
@@ -58,18 +59,26 @@ function containerRun(c, { harness = false } = {}) {
         filter: p => !fs.lstatSync(p).isSymbolicLink() && !/^(\.env(?:\..*)?|\.git|node_modules|\.cache)$/.test(path.basename(p)) })
     }
     for (const source of c?.sources || []) {
-      const destination = path.join(stage, source.directory)
+      const prepare = destination => {
       fs.mkdirSync(destination, { recursive: true })
       const git = args => exec('git', ['-c', 'core.hooksPath=/dev/null', '-C', destination, ...args])
       git(['init', '--quiet'])
       git(['remote', 'add', 'origin', `https://github.com/${source.repository}.git`])
       require('./retry.cjs').retrySync(() => exec('git', ['-c', 'core.hooksPath=/dev/null', '-C', destination, 'fetch', '--quiet', '--depth=1', 'origin', source.commit], { stdio: 'pipe', timeout: 60000 }))
       git(['checkout', '--quiet', '--detach', 'FETCH_HEAD'])
+      }
+      const destination = path.join(stage, source.directory)
+      if (shared) shared.source(source, destination, prepare)
+      else prepare(destination)
     }
     const node = c?.runtime.node || '22.20.0'
     const tag = `bcl-runtime:${node}`
-    exec('docker', ['build', '--build-arg', `NODE_VERSION=${node}`, '-t', tag, '-f', path.join(root, 'Dockerfile'), root])
-    const imageId = exec('docker', ['image', 'inspect', '--format={{.Id}}', tag], { stdio: 'pipe', encoding: 'utf8' }).trim()
+    const prepareImage = () => {
+      exec('docker', ['build', '--build-arg', `NODE_VERSION=${node}`, '-t', tag, '-f', path.join(root, 'Dockerfile'), root])
+      return exec('docker', ['image', 'inspect', '--format={{.Id}}', tag], { stdio: 'pipe', encoding: 'utf8' }).trim()
+    }
+    const imageKey = node + ':' + require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(root, 'Dockerfile'))).digest('hex')
+    const imageId = shared ? shared.image(imageKey, prepareImage) : prepareImage()
     const base = ['run', '--rm', '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--pids-limit=256', '--memory=2g', '--cpus=2',
       '--user', `${process.getuid()}:${process.getgid()}`, '--tmpfs', '/tmp:rw,exec,nosuid,size=512m',
       '--mount', `type=bind,source=${stage},target=/work`, '--workdir=/work',
@@ -77,10 +86,10 @@ function containerRun(c, { harness = false } = {}) {
       '-e', `BCL_REVISION=${bclRevision}`, '-e', `BCL_IMAGE_ID=${imageId}`]
     if (c?.steps.dependencies.length) {
       // Only the audited registry installer runs with network access; never a passport command.
-      exec('docker', [...base, '--network=bridge', tag, 'node', 'scripts/dependencies.cjs', c.id])
+      exec('docker', [...base, '--network=bridge', imageId, 'node', 'scripts/dependencies.cjs', c.id])
     }
     const argv = harness ? ['node', '--test', ...fs.readdirSync(path.join(stage, 'test')).filter(n => n.endsWith('.test.mjs')).map(n => `test/${n}`)] : ['node', 'scripts/case.cjs', 'run', c.id]
-    try { exec('docker', [...base, '--network=none', '-e', 'BCL_SANDBOX=network-none', tag, ...argv]) }
+    try { exec('docker', [...base, '--network=none', '-e', 'BCL_SANDBOX=network-none', imageId, ...argv]) }
     finally {
       const bundle = path.join(stage, 'reports', id)
       if (fs.existsSync(bundle)) fs.cpSync(bundle, output, { recursive: true, filter: p => !fs.lstatSync(p).isSymbolicLink() })
@@ -101,10 +110,30 @@ async function main() {
   if (mode === 'list') return console.log(all().map(c => `${c.id}\t${c.status}`).join('\n'))
   if (mode === 'validate') return console.log(JSON.stringify(load(arg), null, 2))
   if (mode === 'harness') return containerRun(null, { harness: true })
-  if (mode === 'run' || mode === 'test') { const c = load(arg); if (c.status !== 'ready') throw new Error('Draft case is not executable'); return containerRun(c) }
+  if (mode === 'batch') {
+    const result = require('./batch.cjs').run(root, [arg, ...options].filter(Boolean).map(load), (c, shared) => containerRun(c, { shared }))
+    console.log(JSON.stringify(result, null, 2))
+    if (result.status !== 'PASS') process.exitCode = 1
+    return
+  }
+  if (mode === 'run' || mode === 'test') {
+    if (options.some(o => o !== '--legacy-contracts') || options.length > 1) throw new Error('Unknown test option')
+    const c = load(arg); if (c.status !== 'ready') throw new Error('Draft case is not executable')
+    return containerRun(c, { legacy: options.includes('--legacy-contracts') })
+  }
   if (mode === 'publish') {
+    const policy = fs.existsSync(path.join(root, 'selection-policy.json')) ? JSON.parse(fs.readFileSync(path.join(root, 'selection-policy.json'))) : {}
+    if (require('./selection-policy.cjs').blocked(load(arg).publish?.target || '', policy)) throw new Error('Publication target is denied by BCL policy')
     const { publish, parseOptions } = require('./publish.cjs')
     return console.log(JSON.stringify(publish(root, load(arg), parseOptions(options)), null, 2))
+  }
+  if (mode === 'track') {
+    if (options.length !== 1) throw new Error('Use bcl track <case-id> <PR-url>')
+    return console.log(JSON.stringify(require('./tracking.cjs').attach(root, load(arg), options[0], require('./publish.cjs').api), null, 2))
+  }
+  if (mode === 'upstream-import') {
+    if (options.length !== 2 || options[0] !== '--file') throw new Error('Use bcl upstream-import <case-id> --file <manifest.json>')
+    return console.log(JSON.stringify(require('./upstream-import.cjs').run(root, load(arg), options[1]), null, 2))
   }
   if (mode === 'sync') {
     const result = require('./tracking.cjs').sync(root, require('./publish.cjs').api)
@@ -145,7 +174,7 @@ async function main() {
     require('./publication.cjs').hardwareKit(directory, c)
     return console.log(path.join(directory, 'HARDWARE-CHECK.md'))
   }
-  throw new Error('Usage: bcl triage <issue-url> [--source owner/repo] [--ref revision] [--dependency url] | new <issue-url> | list | validate <id> | test <id> | publish <id> --fork owner/repo --run <url> [--dry-run] | hardware-kit <id> | sync | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
+  throw new Error('Usage: bcl triage <issue-url> [--assessment file.json] | new <issue-url> | batch <id> <id> ... | list | validate <id> | test <id> [--legacy-contracts] | publish <id> --fork owner/repo --run <url> [--dry-run] | track <id> <PR-url> | upstream-import <id> --file <manifest.json> | hardware-kit <id> | sync | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
 }
 if (require.main === module) main().catch(e => { console.error(e.message); process.exitCode = 1 })
 module.exports = { scaffold }

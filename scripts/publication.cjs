@@ -55,6 +55,16 @@ function bundle(directory, c) {
   const snapshot = JSON.parse(regular(directory, 'case.json'))
   if (JSON.stringify(snapshot) !== JSON.stringify(c)) throw new Error('Passport changed: test this case again')
   if (evidence.case !== c.id || evidence.status !== 'PASS' || !evidence.tests?.length || evidence.tests.some(t => t.status !== 'PASS') || !/^[a-f0-9]{40}$/.test(evidence.bclRevision)) throw new Error('Publication requires passing evidence with a BCL revision')
+  if (require('./selection-policy.cjs').blocked(c.publish?.target || '')) throw new Error('Publication target is denied by BCL policy')
+  if (!c.upstream || evidence.qualification !== 'RED_GREEN' || evidence.upstream?.status !== 'PASS' || evidence.upstream.baseline !== 'EXPECTED_FAILURE') throw new Error('Publication requires upstream red → green evidence; contract-only checks cannot qualify')
+  if (!(evidence.upstream.suiteSummary?.total > evidence.upstream.suiteSummary?.skipped)) throw new Error('Missing nonempty upstream suite summary')
+  for (const [label, step, code] of [['baseline-red', c.upstream.regression, c.upstream.negative.exitCode], ['candidate-green', c.upstream.regression, 0], ['candidate-suite', c.upstream.suite, 0]]) {
+    const records = evidence.upstream.commands.filter(r => r.label === label)
+    if (records.length !== 1) throw new Error(`Missing or ambiguous test claim: ${label}`)
+    const r = records[0]
+    if (r.status !== 'PASS' || r.exitCode !== code || r.signal || r.cwd !== step.cwd || JSON.stringify(r.argv) !== JSON.stringify(step.argv) || !evidence.logs.some(l => l.path === r.log)) throw new Error(`Unsupported test claim: ${label}`)
+  }
+  for (const text of [c.problem, c.repair, c.reproduce, c.acceptance]) if (/(?:tests?|suite|checks?)\s+(?:all\s+)?(?:passed|succeeded)|(?:passed|green)\s+(?:focused|full|all)\s+(?:tests?|suite)/i.test(text)) throw new Error('Put test-pass claims in generated evidence, not free-form passport prose')
   for (const log of evidence.logs || []) if (hash(regular(directory, log.path)) !== log.sha256) throw new Error('Evidence log hash mismatch')
   const bytes = regular(directory, 'candidate.json')
   if (hash(bytes) !== evidence.publication?.sha256) throw new Error('Candidate hash mismatch; rerun bcl test')
@@ -87,11 +97,11 @@ function plan(directory, c, options) {
   const { evidence, candidate, digest } = bundle(directory, c)
   if (!repoPattern.test(options.fork || '')) throw new Error('Supply --fork owner/repo (an existing writable fork or the target repository)')
   const branch = `bcl/${c.id}-${digest.slice(0, 16)}`
-  const checks = evidence.tests.map(t => `- ${t.status}: ${t.name}`).join('\n')
+  const checks = evidence.upstream.commands.filter(t => ['baseline-red', 'candidate-green', 'candidate-suite'].includes(t.label)).map(t => `- ${t.label}: ${t.status}; command: \`${t.argv.join(' ')}\`; exit: ${t.exitCode}; log: \`${t.log}\``).join('\n')
   const body = [c.problem, '', '## Change', '', c.repair, '', `Related issue: ${c.issue}`, '',
     '## Reproduction and acceptance', '', c.reproduce, '', c.acceptance, '',
     '## BCL evidence', '', `Run: ${options.run || 'Local preview; a successful Actions run is required to publish.'}`, '',
-    `Artifact: \`${c.id}-evidence\``, `BCL revision: \`${evidence.bclRevision}\``,
+    `Artifact: \`${options.batch ? 'batch-evidence/' + c.id : c.id + '-evidence'}\``, `BCL revision: \`${evidence.bclRevision}\``,
     `Tested baseline: \`${candidate.source.repository}@${candidate.source.commit}\``,
     `Candidate SHA-256: \`${digest}\``, '', checks, '',
     '## Owner check', '', c.verification.ownerCheck, '', c.verification.limitations, '',

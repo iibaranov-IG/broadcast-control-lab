@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "deniedOwners": ["bitfocus"],
+  "deniedRepositories": [],
+  "excludedWork": ["Daybreak", "security", "potential vulnerabilities", "artificial issue farms", "missing source or license", "occupied issues or active competing PRs", "required secrets or closed SDKs", "unavailable required hardware", "unwelcome external changes"]
+}

@@ -13,6 +13,12 @@ Each investigation adds reusable tools for the next one.
 
 ## What you can do with BCL
 
+Read the [batch and evidence guide](docs/batch-and-evidence.md),
+[candidate ranking policy](docs/candidate-ranking.md), and
+[remaining delivery work](docs/ROADMAP.md). New repair runs require explicit
+upstream red → green evidence; existing contract-only diagnostics remain labeled
+and cannot qualify a new publication.
+
 | Your task | What BCL provides today |
 | --- | --- |
 | Review an issue before cloning or building | [`bcl triage`](docs/triage.md): source metadata, related PRs, dependency hints and a decision with evidence links |
@@ -118,7 +124,9 @@ bcl validate aten-2029
 `bcl new` uses `GH_TOKEN`, then `GITHUB_TOKEN`, then an existing `gh auth login`
 session for github.com. Without credentials it falls back to anonymous reads.
 Credentials stay in memory and are never written into the passport. For batches,
-authenticate first; exhausted API limits produce an actionable error without repeated retries.
+authenticate first. Rate limits use `Retry-After` or the reset timestamp, wait up
+to one hour in total, and resume the same read (at most three rate-limit retries).
+Permission denials are not retried.
 
 `bcl new` reads a public GitHub issue, pins the issue repository's current commit,
 and creates a draft passport, a failing test placeholder, a README and a report

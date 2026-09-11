@@ -79,7 +79,7 @@ function syncEntry(entry, api, now) {
   const ci = bad ? 'failure' : pending ? 'pending' : (checks.length || status.total_count) ? 'success' : 'none'
   const old = new Map((entry.events || []).map(e => [e.key, e]))
   const fresh = events.map(e => ({ ...e, read: old.get(e.key)?.read === true && old.get(e.key)?.updatedAt === e.updatedAt && old.get(e.key)?.body === e.body && old.get(e.key)?.state === e.state }))
-  return { ...entry, state: info.merged_at ? 'merged' : info.draft && info.state === 'open' ? 'draft' : info.state, headSha: info.head.sha, reporter: owner, ci, events: fresh, unread: fresh.filter(e => !e.read).length, lastSync: now, syncError: null }
+  return { ...entry, state: info.merged_at ? 'merged' : info.draft && info.state === 'open' ? 'draft' : info.state, mergeable: info.mergeable ?? null, mergeableState: info.mergeable_state || 'unknown', headSha: info.head.sha, reporter: owner, ci, events: fresh, unread: fresh.filter(e => !e.read).length, lastSync: now, syncError: null }
 }
 function sync(root, api) {
   const db = read(root), errors = []
@@ -136,4 +136,17 @@ function remoteUpdate(root, mutate, message, api) {
   }
   throw new Error('Board changed concurrently; retry publication to register the existing PR')
 }
-module.exports = { read, save, register, render, syncEntry, sync, acknowledge, importHardware, remoteRegister, remoteUpdate }
+function attach(root, c, url, api, update = remoteUpdate) {
+  const ref = link(url, 'pull')
+  const info = api('GET', `repos/${ref.repo}/pulls/${ref.number}`)
+  if (!c.publish || ref.repo.toLowerCase() !== c.publish.target.toLowerCase() || info.base?.repo?.full_name?.toLowerCase() !== ref.repo.toLowerCase()) throw new Error('PR target does not match passport')
+  const related = require('./triage.cjs').mentions(info.body || '', { ...link(c.issue, 'issues'), repository: link(c.issue, 'issues').repo, url: c.issue }, ref.repo === link(c.issue, 'issues').repo)
+  if (!related) throw new Error('PR body must explicitly reference the passport issue before attachment')
+  // Attaching establishes tracking identity, never proof that these bytes passed BCL.
+  return update(root, db => {
+    const entry = register(db, c, { url, state: info.merged_at ? 'merged' : info.state })
+    const refreshed = syncEntry(entry, api, new Date().toISOString())
+    Object.assign(entry, refreshed, { attachment: 'EXTERNAL_PR', evidenceStatus: entry.candidateSha256 ? 'BOUND_CANDIDATE' : 'NOT_BOUND' })
+  }, `Attach existing PR for ${c.id}`, api)
+}
+module.exports = { read, save, register, render, syncEntry, sync, acknowledge, importHardware, remoteRegister, remoteUpdate, attach }

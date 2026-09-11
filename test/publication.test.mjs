@@ -27,11 +27,14 @@ function fixture(t) {
     sources: [{ id: 'baseline', repository: 'up/project', commit, directory: 'sources/example' }],
     publish: { source: 'baseline', target: 'up/project', base: 'main', paths: ['main.cpp', 'added.py', 'removed.txt'] },
     verification: { hardwareVerified: false, applicationVerified: false, limitations: 'Simulated only', ownerCheck: 'Check actual equipment' } }
+  c.upstream = { regression: { cwd: '.', argv: ['node', 'regression.mjs'] }, suite: { cwd: '.', argv: ['node', '--test'] }, negative: { exitCode: 1 } }
   const directory = path.join(root, 'reports/example')
   fs.mkdirSync(directory, { recursive: true })
   const bytes = publication.capture(root, c)
   fs.writeFileSync(path.join(directory, 'candidate.json'), bytes)
-  const e = writeEvidence(root, c, { status: 'PASS', bclRevision: 'a'.repeat(40), tests: [{ name: 'Repair', status: 'PASS' }], stages: [{ name: 'test', status: 'PASS' }], publication: { path: 'candidate.json', sha256: publication.hash(bytes) } })
+  const commands = [['baseline-red', c.upstream.regression, 1], ['candidate-green', c.upstream.regression, 0], ['candidate-suite', c.upstream.suite, 0]].map(([label, step, exitCode]) => ({ label, ...step, exitCode, status: 'PASS', signal: null, log: label + '.log' }))
+  const logs = commands.map(c => { fs.writeFileSync(path.join(directory, c.log), 'fixture evidence'); return { path: c.log, sha256: publication.hash('fixture evidence'), bytes: 16 } })
+  const e = writeEvidence(root, c, { qualification: 'RED_GREEN', upstream: { suiteSummary: { total: 1, skipped: 0 }, status: 'PASS', baseline: 'EXPECTED_FAILURE', commands, logs }, status: 'PASS', bclRevision: 'a'.repeat(40), tests: [{ name: 'Repair', status: 'PASS' }], stages: [{ name: 'test', status: 'PASS' }], publication: { path: 'candidate.json', sha256: publication.hash(bytes) } })
   const options = { fork: 'me/project', run: 'https://github.com/me/bcl/actions/runs/42' }
   return { root, src, c, directory, e, options, p: publication.plan(directory, c, options) }
 }
@@ -66,6 +69,14 @@ function github(p) {
   return { api, calls, state }
 }
 
+test('Publication refuses contract-only evidence and missing focused execution', t => {
+  const f = fixture(t)
+  const p = path.join(f.directory, 'evidence.json')
+  fs.writeFileSync(p, JSON.stringify({ ...f.e, qualification: 'CONTRACT_ONLY' }))
+  assert.throws(() => publication.bundle(f.directory, f.c), /red/)
+  fs.writeFileSync(p, JSON.stringify({ ...f.e, upstream: { ...f.e.upstream, commands: f.e.upstream.commands.filter(c => c.label !== 'candidate-green') } }))
+  assert.throws(() => publication.bundle(f.directory, f.c), /claim/)
+})
 test('Capture retains additions, deletions and executable mode; excludes unrelated untracked output', t => {
   const f = fixture(t)
   fs.writeFileSync(path.join(f.src, 'output.bin'), 'not source')

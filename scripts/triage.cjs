@@ -11,7 +11,7 @@ function options(args) {
   const result = { dependencies: [] }
   for (let i = 0; i < args.length; i += 2) {
     const name = args[i], value = args[i + 1]
-    if (!['--source', '--ref', '--dependency'].includes(name) || !value || value.startsWith('--')) throw new Error('Use --source owner/repo, --ref revision, or --dependency <GitHub issue/PR URL>')
+    if (!['--source', '--ref', '--dependency', '--assessment'].includes(name) || !value || value.startsWith('--')) throw new Error('Use --source owner/repo, --ref revision, --assessment file.json, or --dependency <GitHub issue/PR URL>')
     if (name === '--dependency') { reference(value); result.dependencies.push(value); continue }
     const key = name.slice(2)
     if (result[key]) throw new Error(`Duplicate ${name}`)
@@ -85,6 +85,7 @@ async function inspect(url, opts = {}, request = api) {
   if (repo) {
     report.source.defaultBranch = repo.default_branch
     report.source.archived = repo.archived
+    report.source.license = repo.license?.spdx_id || null
     if (repo.archived || repo.disabled) finding('REPOSITORY_INACTIVE', 'defer', 'Source repository is archived or disabled; establish a maintained destination.', `https://github.com/${source}`)
     const revision = opts.ref || repo.default_branch
     const commit = await read(`repos/${source}/commits/${encodeURIComponent(revision)}`, 'source-revision')
@@ -94,6 +95,16 @@ async function inspect(url, opts = {}, request = api) {
       if (tree?.tree) {
         report.coverage.sourceTree = tree.truncated ? 'limited' : 'complete'
         const paths = tree.tree.filter(e => e.type === 'blob').map(e => e.path)
+        report.source.licenseMissing = !tree.truncated && repo.license === null && !paths.some(p => /(^|\/)(licen[cs]e|copying)(\.|$)/i.test(p))
+        report.source.ruleFiles = paths.filter(p => /(^|\/)(AGENTS\.md|CONTRIBUTING(?:\.md)?|PULL_REQUEST_TEMPLATE(?:\.md)?|pull_request_template(?:\.md)?)$/.test(p) || /^\.github\/PULL_REQUEST_TEMPLATE\//.test(p)).map(p => ({ path: p, url: `https://github.com/${source}/blob/${commit.sha}/${p}` }))
+        if (report.source.ruleFiles.length > 20) finding('RULE_READ_LIMIT', 'question', 'More than twenty rule files; review remaining scopes before work.', `https://github.com/${source}`)
+        for (const rule of report.source.ruleFiles.slice(0, 20)) {
+          const item = await read(`repos/${source}/contents/${rule.path}?ref=${commit.sha}`, `rules:${rule.path}`)
+          if (!item || item.encoding !== 'base64' || item.size > 131072 || !item.content) { finding('RULE_UNREAD', 'question', `Could not read ${rule.path} within the metadata limit.`, rule.url); continue }
+          rule.content = Buffer.from(item.content, 'base64').toString('utf8')
+          rule.requirementHints = rule.content.split('\n').filter(line => /must|required|before|commit|test|sign.off|DCO|pull request|comment/i.test(line)).slice(0, 50)
+          rule.reviewStatus = 'HUMAN_REVIEW_REQUIRED'
+        }
         report.source.codeExamples = paths.filter(p => sourcePattern.test(p) && !/^(docs|vendor|node_modules)\//.test(p)).slice(0, 10)
         report.source.buildFiles = paths.filter(p => buildNames.has(path.posix.basename(p))).slice(0, 30).map(p => ({ path: p, kind: buildNames.get(path.posix.basename(p)), url: `https://github.com/${source}/blob/${commit.sha}/${p}` }))
         if (tree.truncated) finding('TREE_LIMIT', 'question', 'GitHub returned a truncated tree; file absence cannot be inferred.', `https://github.com/${source}/tree/${commit.sha}`)
@@ -157,11 +168,18 @@ function markdown(r) {
   return [`# BCL triage: ${clean(r.issue.title || r.issue.url)}`, '', `Decision: **${r.decision}**`, `Checked: ${r.checkedAt}`, `Issue: ${r.issue.url}`, `Source: ${r.source.repository}`, `Revision: ${r.source.commit || 'unresolved'}`, '', '## Findings', '', ...r.findings.map(f => `- **${f.code}** (${f.severity}): ${clean(f.detail)} [Source](${f.url})`), ...(r.findings.length ? [] : ['No metadata blocker found within the stated coverage.']), '', '## Related PRs', '', ...r.relatedPRs.map(p => `- [${clean(p.title)}](${p.url}) — ${p.merged ? 'merged' : p.state}${p.draft ? ', draft' : ''}; author: ${clean(p.author)}; ${p.relation}`), '', '## Next actions', '', ...r.nextActions.map(a => `- ${clean(a)}`), '', '## Read errors', '', ...r.errors.map(e => `- ${e.check}: ${clean(e.message)} — ${e.url}`), '', '## Limits', '', ...r.limitations.map(l => `- ${l}`), '', 'No clone, build, test execution, PR or owner message was performed.', ''].join('\n')
 }
 async function run(root, url, args = [], request = api) {
-  const report = await inspect(url, options(args), request)
+  const begin = Date.now(), opts = options(args)
+  const report = await inspect(url, opts, request)
+  const policyFile = path.join(root, 'selection-policy.json')
+  const policy = fs.existsSync(policyFile) ? JSON.parse(fs.readFileSync(policyFile)) : {}
+  const assessment = opts.assessment ? JSON.parse(fs.readFileSync(opts.assessment)) : {}
+  report.ranking = require('./selection-policy.cjs').evaluate(report, assessment, policy)
+  if (report.ranking.exclusions.length) report.decision = 'REJECT'
+  report.durationMs = Date.now() - begin
   const directory = path.join(root, 'reports', 'triage', ...report.issue.repository.split('/'), report.issue.number)
   fs.mkdirSync(directory, { recursive: true })
   fs.writeFileSync(path.join(directory, 'triage.json'), JSON.stringify(report, null, 2) + '\n')
-  fs.writeFileSync(path.join(directory, 'TRIAGE.md'), markdown(report))
+  fs.writeFileSync(path.join(directory, 'TRIAGE.md'), markdown(report) + '\n## Candidate ranking\n\n' + JSON.stringify(report.ranking, null, 2) + '\n')
   return { decision: report.decision, report: path.join(directory, 'TRIAGE.md'), data: path.join(directory, 'triage.json') }
 }
 module.exports = { options, issueURL, mentions, inspect, markdown, run }

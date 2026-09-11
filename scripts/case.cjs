@@ -40,6 +40,7 @@ function validate(c, id = c.id) {
   for (const key of ['hardwareVerified', 'applicationVerified']) if (typeof c.verification?.[key] !== 'boolean') throw new Error(`Missing ${key}`)
   for (const key of ['limitations', 'ownerCheck']) if (!c.verification?.[key]) throw new Error(`Missing ${key}`)
   require('./publication.cjs').validatePublication(c)
+  require('./upstream.cjs').validate(c, relative)
   return c
 }
 function load(id) {
@@ -77,11 +78,20 @@ function run(c) {
     if (c.artifacts.package) {
       for (const item of packages(root, c.artifacts.package, false)) fs.unlinkSync(path.join(root, item.path))
     }
+    const upstream = c.upstream ? require('./upstream.cjs').session(root, c, execution) : null
+    if (upstream) {
+      const stage = { name: 'upstream-baseline', status: 'FAIL', durationMs: 0 }
+      execution.stages.push(stage)
+      const begin = performance.now()
+      try { upstream.baseline(); stage.status = 'PASS' }
+      finally { stage.durationMs = Math.round(performance.now() - begin) }
+    }
     for (const phase of ['prepare', 'test', 'build']) {
       const stage = { name: phase, status: 'FAIL', durationMs: 0 }
       execution.stages.push(stage)
       const begin = performance.now()
       try {
+        if (phase === 'test' && upstream) upstream.candidate()
         c.steps[phase].forEach(command)
         if (phase === 'prepare' && c.publish) {
           const { capture, hash } = require('./publication.cjs')
@@ -104,6 +114,7 @@ function run(c) {
       const { capture, hash } = require('./publication.cjs')
       if (hash(capture(root, c)) !== execution.publication.sha256) throw new Error('Published source changed during test/build; move source edits to prepare')
     }
+    execution.qualification = execution.upstream?.status === 'PASS' ? 'RED_GREEN' : 'CONTRACT_ONLY'
     execution.status = 'PASS'
   } catch (error) { execution.error = error.message; throw error }
   finally {

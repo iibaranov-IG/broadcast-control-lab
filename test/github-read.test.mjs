@@ -36,7 +36,7 @@ test('reader resolves credentials once and authenticates both scaffold reads', a
 test('anonymous limit is actionable and never retried; tokens do not enter errors', async () => {
   for (const token of ['', 'private-secret']) {
     let calls = 0
-    const read = reader({ env: { GH_TOKEN: token }, execute: () => '', request: async (_, opts) => {
+    const read = reader({ maxWaitMs: 0, env: { GH_TOKEN: token }, execute: () => '', request: async (_, opts) => {
       calls++
       assert.equal(opts.headers.Authorization, token ? `Bearer ${token}` : undefined)
       return { ok: false, status: 403, headers: new Headers({ 'x-ratelimit-remaining': '0' }) }
@@ -49,4 +49,16 @@ test('anonymous limit is actionable and never retried; tokens do not enter error
     })
     assert.equal(calls, 1)
   }
+})
+test('rate limit waits using reset headers and resumes; permission denial does not wait', async () => {
+  const waits = [], notices = []
+  let count = 0
+  const read = reader({ env: {}, execute: () => '', now: () => 1000, sleep: async ms => waits.push(ms), notice: s => notices.push(s), request: async () => ++count === 1
+    ? { ok: false, status: 403, headers: new Headers({ 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '3' }) }
+    : { ok: true, json: async () => ({ resumed: true }) } })
+  assert.deepEqual(await read('repos/team/project/issues/12'), { resumed: true })
+  assert.deepEqual(waits, [3000])
+  assert.equal(notices.length, 1)
+  const denied = reader({ env: {}, execute: () => '', sleep: async () => assert.fail('must not wait'), request: async () => ({ ok: false, status: 403, headers: new Headers() }) })
+  await assert.rejects(denied('repos/team/project/issues/12'), /403/)
 })

@@ -24,6 +24,7 @@ function optional(api, endpoint) {
   try { return api('GET', endpoint) } catch (error) { if (error.status === 404) return null; throw error }
 }
 function publishPlan(p, request = api) {
+  if (require('./selection-policy.cjs').blocked(p.target)) throw new Error('Publication target is denied by BCL policy')
   const target = `repos/${p.target}`, fork = `repos/${p.fork}`
   const owner = p.fork.split('/')[0]
   const head = `${owner}:${p.branch}`
@@ -72,6 +73,7 @@ function parseOptions(args) {
   const options = {}
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--dry-run') { options.dryRun = true; continue }
+    if (args[i] === '--batch') { options.batch = true; continue }
     if (!['--fork', '--run'].includes(args[i]) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error('Use --fork owner/repo, --run <Actions URL>, and optionally --dry-run')
     const key = args[i].slice(2)
     if (options[key]) throw new Error('Duplicate option')
@@ -92,8 +94,9 @@ function publish(root, c, options) {
       require('./retry.cjs').retrySync(() => {
         fs.rmSync(directory, { recursive: true, force: true })
         fs.mkdirSync(directory)
-        execFileSync('gh', ['run', 'download', m[2], '--repo', m[1], '--name', `${c.id}-evidence`, '--dir', directory], { stdio: 'pipe', timeout: 60000 })
+        execFileSync('gh', ['run', 'download', m[2], '--repo', m[1], '--name', options.batch ? 'batch-evidence' : `${c.id}-evidence`, '--dir', directory], { stdio: 'pipe', timeout: 60000 })
       })
+      if (options.batch) directory = path.join(temporary, c.id)
       const p = plan(directory, c, options)
       const e = JSON.parse(fs.readFileSync(path.join(directory, 'evidence.json')))
       if (e.bclRevision !== run.head_sha) throw new Error('Evidence revision differs from Actions run')

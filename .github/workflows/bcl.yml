@@ -70,7 +70,9 @@ jobs:
           node-version: '22.20.0'
       - env:
           CASE_ID: ${{ matrix.id }}
-        run: node scripts/bcl.cjs run "$CASE_ID"
+        # Existing passports retain diagnostic coverage while being migrated.
+        # CONTRACT_ONLY evidence cannot qualify for publication or batch repair.
+        run: node scripts/bcl.cjs run "$CASE_ID" --legacy-contracts
       - if: always()
         uses: actions/upload-artifact@v4
         with:

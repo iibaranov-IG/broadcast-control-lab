@@ -1,0 +1,38 @@
+name: BCL batch
+on:
+  workflow_dispatch:
+    inputs:
+      cases:
+        description: Space-separated case ids with upstream red/green contracts
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+      - name: Run independent repairs with shared preparation
+        env:
+          BCL_CASE_IDS: ${{ inputs.cases }}
+        run: |
+          node - <<'JS'
+          const { spawnSync } = require('node:child_process')
+          const ids = process.env.BCL_CASE_IDS.trim().split(/\s+/)
+          if (!ids.length || ids.length > 50 || ids.some(id => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id))) throw new Error('Supply 1..50 valid case ids')
+          const r = spawnSync('node', ['scripts/bcl.cjs', 'batch', ...ids], { stdio: 'inherit' })
+          process.exitCode = r.status ?? 1
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: batch-evidence
+          path: reports/
+          if-no-files-found: error

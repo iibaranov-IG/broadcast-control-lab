@@ -98,6 +98,16 @@ test('Git dependency and submodule signals require review without running instal
   assert.ok(r.findings.some(f => f.code === 'NONREGISTRY_DEPENDENCIES'))
   assert.equal(r.source.nodeDependencyCount, 1)
 })
+test('contribution rules are discovered regardless of filename case', async () => {
+  const rule = '.github/contributing.md'
+  const f = fixture({
+    'repos/team/project/git/trees/tree?recursive=1': { tree: [{ type: 'blob', path: 'src/main.cpp' }, { type: 'blob', path: 'CMakeLists.txt' }, { type: 'blob', path: rule }] },
+    [`repos/team/project/contents/${rule}?ref=${sha}`]: { size: 80, encoding: 'base64', content: Buffer.from('Pull requests must run the required test suite.').toString('base64') },
+  })
+  const r = await triage.inspect(url, {}, f.api)
+  assert.equal(r.source.ruleFiles[0].path, rule)
+  assert.match(r.source.ruleFiles[0].content, /required test/)
+})
 test('Truncated tree and incomplete PR reads never yield an all-clear', async () => {
   const f = fixture({ 'repos/team/project/git/trees/tree?recursive=1': { truncated: true, tree: [{ type: 'blob', path: 'main.c' }, { type: 'blob', path: 'Makefile' }] }, 'repos/team/project/pulls?state=open&per_page=100&page=1': Object.assign(new Error('HTTP 403'), { httpStatus: 403 }) })
   const r = await triage.inspect(url, {}, f.api)

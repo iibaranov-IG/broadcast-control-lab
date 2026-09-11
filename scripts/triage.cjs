@@ -83,7 +83,7 @@ async function inspect(url, opts = {}, request = require('./github-read.cjs').re
         report.coverage.sourceTree = tree.truncated ? 'limited' : 'complete'
         const paths = tree.tree.filter(e => e.type === 'blob').map(e => e.path)
         report.source.licenseMissing = !tree.truncated && repo.license === null && !paths.some(p => /(^|\/)(licen[cs]e|copying)(\.|$)/i.test(p))
-        report.source.ruleFiles = paths.filter(p => /(^|\/)(AGENTS\.md|CONTRIBUTING(?:\.md)?|PULL_REQUEST_TEMPLATE(?:\.md)?|pull_request_template(?:\.md)?)$/.test(p) || /^\.github\/PULL_REQUEST_TEMPLATE\//.test(p)).map(p => ({ path: p, url: `https://github.com/${source}/blob/${commit.sha}/${p}` }))
+        report.source.ruleFiles = paths.filter(p => /(^|\/)(AGENTS\.md|CONTRIBUTING(?:\.md)?|PULL_REQUEST_TEMPLATE(?:\.md)?)$/i.test(p) || /^\.github\/PULL_REQUEST_TEMPLATE\//i.test(p)).map(p => ({ path: p, url: `https://github.com/${source}/blob/${commit.sha}/${p}` }))
         if (report.source.ruleFiles.length > 20) finding('RULE_READ_LIMIT', 'question', 'More than twenty rule files; review remaining scopes before work.', `https://github.com/${source}`)
         for (const rule of report.source.ruleFiles.slice(0, 20)) {
           const item = await read(`repos/${source}/contents/${rule.path}?ref=${commit.sha}`, `rules:${rule.path}`)

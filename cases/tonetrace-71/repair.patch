@@ -1,0 +1,129 @@
+diff --git a/README.md b/README.md
+index a002e33..deca3fb 100644
+--- a/README.md
++++ b/README.md
+@@ -161,6 +161,8 @@ section (handy for long files), pick a backend, and click **Analyze**. Then:
+   (WAV / MP3 / FLAC / OGG). Audio is synthesized with the built-in synth and
+   encoded via `soundfile`; MP3/FLAC/OGG need a libsndfile build with that codec
+   (libsndfile ≥ 1.1 for MP3), otherwise the export reports which format failed.
++  The save dialog starts with `<source>.tonetrace.mid` beside the source audio
++  and remembers the last export directory after the first save.
+ - **Switch themes** from **Appearance → Theme** in the left panel. The default
+   *Midnight* look ships alongside *Amber Rack* (a warm dark synth-rack skin) and
+   *ReBirth RB-338* (silver brushed-metal chrome with the TB-303's maroon red and
+diff --git a/src/notegrabber/gui/main_window.py b/src/notegrabber/gui/main_window.py
+index b21261c..010ee50 100644
+--- a/src/notegrabber/gui/main_window.py
++++ b/src/notegrabber/gui/main_window.py
+@@ -2232,12 +2232,27 @@ class MainWindow(QMainWindow):
+                 "All files (*)",
+             )
+         )
+-        path, selected_filter = QFileDialog.getSaveFileName(self, "Export", "analysis.mid", filters)
++        path, selected_filter = QFileDialog.getSaveFileName(
++            self, "Export", str(self._default_export_path()), filters
++        )
+         if not path:
+             return
+         output = self._resolve_export_path(Path(path), selected_filter)
++        self._settings.setValue("export/last_directory", str(output.parent))
+         self._run_export(gui_notes_to_midi(notes), output, len(notes))
+ 
++    def _default_export_path(self) -> Path:
++        source = self.state.audio_path
++        filename = f"{source.stem}.tonetrace.mid" if source is not None else "analysis.mid"
++        saved_directory = self._settings.value("export/last_directory", "")
++        if saved_directory:
++            directory = Path(str(saved_directory)).expanduser()
++        elif source is not None:
++            directory = source.parent
++        else:
++            directory = Path.home()
++        return directory / filename
++
+     @staticmethod
+     def _resolve_export_path(output: Path, selected_filter: str) -> Path:
+         """Give the output path an extension: keep a supported one, else use the filter's."""
+diff --git a/tests/test_gui_app.py b/tests/test_gui_app.py
+index b86c9d7..6600eba 100644
+--- a/tests/test_gui_app.py
++++ b/tests/test_gui_app.py
+@@ -3,12 +3,78 @@
+ from __future__ import annotations
+ 
+ import os
++from pathlib import Path
+ 
+ import pytest
+ 
+ from notegrabber.gui.app import build_parser
+ 
+ 
++@pytest.mark.gui
++def test_export_defaults_next_to_source_with_a_descriptive_name_offscreen(
++    tmp_path, monkeypatch
++) -> None:
++    pytest.importorskip("PySide6")
++    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
++
++    from PySide6.QtWidgets import QApplication, QFileDialog
++    from notegrabber.gui.main_window import MainWindow
++
++    app = QApplication.instance() or QApplication([])
++    window = MainWindow(render_midi=False)
++    window._settings.remove("export/last_directory")
++    window.state.audio_path = tmp_path / "lead guitar.wav"
++    window.state.heatmap = object()  # type: ignore[assignment]
++    starts: list[str] = []
++
++    def capture_start(_parent, _title, start, _filters):
++        starts.append(start)
++        return "", ""
++
++    monkeypatch.setattr(QFileDialog, "getSaveFileName", capture_start)
++
++    window._export_midi_dialog()
++
++    assert window._default_export_path() == tmp_path / "lead guitar.tonetrace.mid"
++    assert starts == [str(tmp_path / "lead guitar.tonetrace.mid")]
++
++    window.state.heatmap = None
++    window.close()
++    app.processEvents()
++
++
++@pytest.mark.gui
++def test_export_remembers_the_chosen_directory_offscreen(tmp_path, monkeypatch) -> None:
++    pytest.importorskip("PySide6")
++    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
++
++    from PySide6.QtWidgets import QApplication, QFileDialog
++    from notegrabber.gui.main_window import MainWindow
++
++    app = QApplication.instance() or QApplication([])
++    window = MainWindow(render_midi=False)
++    window._settings.remove("export/last_directory")
++    window.state.audio_path = tmp_path / "source.wav"
++    window.state.heatmap = object()  # type: ignore[assignment]
++    chosen = tmp_path / "exports" / "take.mid"
++    monkeypatch.setattr(
++        QFileDialog,
++        "getSaveFileName",
++        lambda *_args: (str(chosen), "MIDI files (*.mid *.midi)"),
++    )
++    monkeypatch.setattr(window, "_run_export", lambda *_args: None)
++
++    window._export_midi_dialog()
++
++    assert Path(str(window._settings.value("export/last_directory"))) == chosen.parent
++    window.state.audio_path = tmp_path / "next.wav"
++    assert window._default_export_path() == chosen.parent / "next.tonetrace.mid"
++
++    window.state.heatmap = None
++    window.close()
++    app.processEvents()
++
++
+ def test_gui_launcher_parser_documents_backend_without_qt() -> None:
+     parser = build_parser()
+     help_text = parser.format_help().lower()

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 2,
+  "id": "c64cast-370",
+  "status": "ready",
+  "title": "Share the VIC character-mode D018 default",
+  "issue": "https://github.com/kfox/c64cast/issues/370",
+  "problem": "Share the VIC character-mode D018 default.",
+  "reproduce": "Apply the issue-specific negative control or inspect the baseline source contract recorded in the issue.",
+  "acceptance": "The candidate patch applies cleanly to the pinned upstream revision, preserves Python syntax, and satisfies the issue-specific source contract.",
+  "repair": "Share the VIC character-mode D018 default. The public candidate is under upstream review.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "kfox/c64cast",
+      "commit": "b9abd3dd0447086c94c960665eb4a57b1172eef9",
+      "directory": "sources/c64cast-370"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/c64cast-370",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/c64cast-370/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/c64cast-370/test.mjs",
+          "sources/c64cast-370"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/c64cast-370.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL checks patch application, the issue-specific source contract, and Python syntax. The full upstream suite was run outside BCL; hardware was not required for PR #385.",
+    "ownerCheck": "Review and merge https://github.com/kfox/c64cast/pull/385 after CI and maintainer review."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "kfox/c64cast",
+    "base": "main",
+    "paths": [
+      "c64cast/hw/c64.py",
+      "c64cast/scenes/interstitial.py",
+      "c64cast/sid/voice_scope.py",
+      "c64cast/video/modes/blank.py",
+      "c64cast/video/modes/hires.py",
+      "c64cast/video/modes/mhires.py",
+      "c64cast/video/modes/petscii.py",
+      "docs/architecture/sid.md",
+      "tests/test_voice_scope.py"
+    ]
+  }
+}

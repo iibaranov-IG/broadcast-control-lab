@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "id": "c64cast-371",
+  "status": "ready",
+  "title": "Correct DEBUG verbosity guidance",
+  "issue": "https://github.com/kfox/c64cast/issues/371",
+  "problem": "Correct DEBUG verbosity guidance.",
+  "reproduce": "Apply the issue-specific negative control or inspect the baseline source contract recorded in the issue.",
+  "acceptance": "The candidate patch applies cleanly to the pinned upstream revision, preserves Python syntax, and satisfies the issue-specific source contract.",
+  "repair": "Correct DEBUG verbosity guidance. The public candidate is under upstream review.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "kfox/c64cast",
+      "commit": "b9abd3dd0447086c94c960665eb4a57b1172eef9",
+      "directory": "sources/c64cast-371"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/c64cast-371",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/c64cast-371/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/c64cast-371/test.mjs",
+          "sources/c64cast-371"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/c64cast-371.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL checks patch application, the issue-specific source contract, and Python syntax. The full upstream suite was run outside BCL; hardware was not required for PR #380.",
+    "ownerCheck": "Review and merge https://github.com/kfox/c64cast/pull/380 after CI and maintainer review."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "kfox/c64cast",
+    "base": "main",
+    "paths": [
+      "c64cast/app/playlist.py",
+      "c64cast/app/upgrade.py",
+      "docs/troubleshooting.md"
+    ]
+  }
+}

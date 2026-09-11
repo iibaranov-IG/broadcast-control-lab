@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "id": "tonetrace-71",
+  "status": "ready",
+  "title": "Use source-aware ToneTrace export defaults",
+  "issue": "https://github.com/harpomaxx/tonetrace/issues/71",
+  "problem": "The GUI export dialog starts at analysis.mid in the process working directory.",
+  "reproduce": "Open analyzed audio and choose Export; the baseline dialog uses analysis.mid instead of the source folder and name.",
+  "acceptance": "The first export defaults beside the source as <stem>.tonetrace.mid, and a successful export persists the selected directory.",
+  "repair": "Build the dialog path from the source audio and store the successful output directory in the existing QSettings.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "harpomaxx/tonetrace",
+      "commit": "f7e91668f1548918349a61f1f760da0e1511d952",
+      "directory": "sources/tonetrace-71"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/tonetrace-71",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/tonetrace-71/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/tonetrace-71/test.mjs",
+          "sources/tonetrace-71"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/tonetrace-71.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies patch application, Python syntax and source contracts. Two offscreen GUI tests and the 508-test available upstream suite passed separately.",
+    "ownerCheck": "Open the export dialog for two audio files, save the first to another folder, and confirm the second uses that folder with its own .tonetrace.mid name."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "harpomaxx/tonetrace",
+    "base": "main",
+    "paths": [
+      "README.md",
+      "src/notegrabber/gui/main_window.py",
+      "tests/test_gui_app.py"
+    ]
+  }
+}

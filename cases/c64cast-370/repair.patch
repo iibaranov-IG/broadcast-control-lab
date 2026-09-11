@@ -1,0 +1,198 @@
+diff --git a/c64cast/hw/c64.py b/c64cast/hw/c64.py
+index 005a08b..338cda4 100644
+--- a/c64cast/hw/c64.py
++++ b/c64cast/hw/c64.py
+@@ -39,6 +39,7 @@ class VIC:
+     D016_CONTROL_2: Final = 0xD016  # bit 4 = multicolor mode, 3 = 38/40-col
+     D017_SPRITE_YE: Final = 0xD017  # vertical expansion enable per sprite
+     D018_MEMORY: Final = 0xD018  # screen-mem + char-set / bitmap base
++    D018_CHAR_DEFAULT: Final = 0x14  # bank-0 char matrix at $0400
+     D019_IRQ_FLAGS: Final = 0xD019  # IRQ status; write to ack
+     D01A_IRQ_ENABLE: Final = 0xD01A  # IRQ enable mask (raster, sprite, ...)
+     D01B_SPRITE_PRI: Final = 0xD01B  # sprite priority (vs background)
+diff --git a/c64cast/scenes/interstitial.py b/c64cast/scenes/interstitial.py
+index d61f872..f3b21f3 100644
+--- a/c64cast/scenes/interstitial.py
++++ b/c64cast/scenes/interstitial.py
+@@ -15,7 +15,7 @@ import numpy as np
+ 
+ from c64cast.app.config import InterstitialCfg
+ from c64cast.hw.backend import C64Backend
+-from c64cast.hw.c64 import CIA2, RegionID
++from c64cast.hw.c64 import CIA2, VIC, RegionID
+ from c64cast.video.palette import C64_COLORS, resolve_color
+ 
+ from .backgrounds import build as build_background
+@@ -121,7 +121,7 @@ class InterstitialScene(Scene):
+         self.api.write_memory("d019", "01")
+         self.api.write_memory(f"{CIA2.PORT_A:04X}", f"{CIA2.PORT_A_BANK_0:02X}")
+         # Standard PETSCII char mode, black border/bg.
+-        self.api.write_memory("d018", "14")
++        self.api.write_memory("d018", f"{VIC.D018_CHAR_DEFAULT:02X}")
+         self.api.write_memory("d016", "08")
+         self.api.write_memory("d011", "1b")
+         self.api.write_regs("d020", 0x00, 0x00)
+diff --git a/c64cast/sid/voice_scope.py b/c64cast/sid/voice_scope.py
+index 32d4cbb..39cc449 100644
+--- a/c64cast/sid/voice_scope.py
++++ b/c64cast/sid/voice_scope.py
+@@ -52,7 +52,7 @@ from typing import TYPE_CHECKING
+ 
+ import numpy as np
+ 
+-from c64cast.hw.c64 import CIA2, SCREEN, RegionID
++from c64cast.hw.c64 import CIA2, SCREEN, VIC, RegionID
+ from c64cast.scenes.bitmap_text import ascii_to_screen_code as _ascii_to_screen_code
+ from c64cast.scenes.bitmap_text import load_glyphs as _load_glyphs
+ from c64cast.video.modes import engage_bitmap_mode
+@@ -120,7 +120,6 @@ D018_HIRES_BITMAP = 0x18  # bank-relative: screen +$0400, bitmap +$2000
+ # layout this renderer used. Same value every char-mode engage in the tree
+ # writes (video/modes/petscii.py, video/modes/blank.py, scenes/interstitial.py,
+ # and hires.py's own teardown): matrix at bank+$0400, bitmap bit clear.
+-D018_CHAR_DEFAULT = 0x14
+ 
+ COLOR_NIBBLE_MASK = 0x0F
+ 
+@@ -193,7 +192,7 @@ def restore_char_mode_display(api: C64Backend) -> None:
+     owns $D011 but not the matrix pointer, so a $D018 left on the bitmap layout
+     makes a char-mode scene read its matrix from the wrong offset."""
+     api.write_memory(f"{CIA2.PORT_A:04X}", f"{CIA2.PORT_A_BANK_0:02X}")
+-    api.write_memory("d018", f"{D018_CHAR_DEFAULT:02X}")
++    api.write_memory("d018", f"{VIC.D018_CHAR_DEFAULT:02X}")
+ 
+ 
+ def _mirror_glyph_h(glyph: bytes) -> bytes:
+diff --git a/c64cast/video/modes/blank.py b/c64cast/video/modes/blank.py
+index 2a08647..2a36ed1 100644
+--- a/c64cast/video/modes/blank.py
++++ b/c64cast/video/modes/blank.py
+@@ -5,7 +5,7 @@ from __future__ import annotations
+ import numpy as np
+ 
+ from c64cast.hw.backend import C64Backend
+-from c64cast.hw.c64 import SCREEN, RegionID
++from c64cast.hw.c64 import SCREEN, VIC, RegionID
+ from c64cast.scenes.text_surface import CharTextSurface
+ from c64cast.video.modes_irq import push_screen_via_reu
+ from c64cast.video.palette import C64_COLORS, color_display_name, resolve_color
+@@ -51,7 +51,7 @@ class BlankDisplayMode(CharDisplayMode):
+         # Clear-then-reveal (see PETSCIIDisplayMode.setup / engage_bitmap_mode):
+         # blank the screen before the register pokes, flip $D011 last.
+         clear_char_screen(api)
+-        api.write_memory("d018", "14")
++        api.write_memory("d018", f"{VIC.D018_CHAR_DEFAULT:02X}")
+         api.write_memory("d016", "08")
+         api.write_regs("d020", self.border, self.background)
+         api.write_memory("d011", "1b")
+diff --git a/c64cast/video/modes/hires.py b/c64cast/video/modes/hires.py
+index 5ec947e..e3c296c 100644
+--- a/c64cast/video/modes/hires.py
++++ b/c64cast/video/modes/hires.py
+@@ -384,7 +384,7 @@ class HiresDisplayMode(BitmapDisplayMode):
+                 # on the way into a char scene, which would then read its matrix
+                 # from the wrong offset. Safe only after uninstall — before it,
+                 # the next field's IRQ would put the page value straight back.
+-                api.write_memory(f"{VIC.D018_MEMORY:04X}", "14")
++                api.write_memory(f"{VIC.D018_MEMORY:04X}", f"{VIC.D018_CHAR_DEFAULT:02X}")
+             api.invalidate_cache()
+ 
+     def cycle_style(self, api):
+diff --git a/c64cast/video/modes/mhires.py b/c64cast/video/modes/mhires.py
+index d1c2108..350d0ab 100644
+--- a/c64cast/video/modes/mhires.py
++++ b/c64cast/video/modes/mhires.py
+@@ -585,7 +585,7 @@ class MultiHiresDisplayMode(BitmapDisplayMode):
+                 # on the way into a char scene, which would then read its matrix
+                 # from the wrong offset. Safe only after uninstall — before it,
+                 # the next field's IRQ would put the page value straight back.
+-                api.write_memory(f"{VIC.D018_MEMORY:04X}", "14")
++                api.write_memory(f"{VIC.D018_MEMORY:04X}", f"{VIC.D018_CHAR_DEFAULT:02X}")
+             api.invalidate_cache()
+ 
+     def _entry_penalty(self, table: BlendTable) -> np.ndarray:
+diff --git a/c64cast/video/modes/petscii.py b/c64cast/video/modes/petscii.py
+index 1ba7847..1150b95 100644
+--- a/c64cast/video/modes/petscii.py
++++ b/c64cast/video/modes/petscii.py
+@@ -5,7 +5,7 @@ from __future__ import annotations
+ import cv2
+ 
+ from c64cast.hw.backend import C64Backend
+-from c64cast.hw.c64 import SCREEN, RegionID
++from c64cast.hw.c64 import SCREEN, VIC, RegionID
+ from c64cast.scenes.text_surface import CharTextSurface
+ from c64cast.video.modes_irq import push_screen_via_reu
+ from c64cast.video.palette import COLOR_MATCH_MODES, apply_color_fit
+@@ -83,7 +83,7 @@ class PETSCIIDisplayMode(CharDisplayMode):
+         # coming from a bitmap scene, whose screen RAM holds nibble-packed
+         # colors that would otherwise render as garbled characters here.
+         clear_char_screen(api)
+-        api.write_memory("d018", "14")
++        api.write_memory("d018", f"{VIC.D018_CHAR_DEFAULT:02X}")
+         api.write_memory("d016", "08")
+         # Each style declares its own border + background; push them now
+         # so we don't carry the previous scene's choices into the first
+diff --git a/docs/architecture/sid.md b/docs/architecture/sid.md
+index f5db0de..334c2e9 100644
+--- a/docs/architecture/sid.md
++++ b/docs/architecture/sid.md
+@@ -480,7 +480,7 @@ Display is fixed bank-0 hires (no relocation — MidiScene uploads no SID payloa
+ **The wire bounds live here, at the decode boundary.** A `0x30` recipe is a SID *write order*, so it is capped at `MAX_TIMING_RECIPE_PAIRS` (28, the register-table length) and a register id repeated in the order keeps only its first position. Both bounds are load-bearing and neither substitutes for the other: SysEx has no length limit on a virtual/network MIDI port and the recipe persists until the next `0x30`, so an uncapped decode let a 400 KB message turn every subsequent four-register frame into 200,004 ops on the MIDI reader thread — while a fully spec-legal 28-pair recipe repeating one id still pushed a single chip past `asid_player.MAX_OPS_PER_CHIP`, which `pack_slot` then truncated, deleting the *later* chips' writes from the slot. `0x32`'s `chip_index` is likewise clamped to the range the multi-SID commands can produce, so no consumer is handed an index this decoder would never otherwise emit. Every register/type update carries a `chip_index` (0 for `0x4E`, `cmd - 0x50 + 1` for the multi-SID commands, `data0` for `0x32`) so the scene routes it to the matching SID address. The `0x4E` unpack reconstructs each present register's 8-bit value (7 low bits from `register_data`, 8th from the packed MSB bytes) and maps the ASID register ID → SID offset via `_ASID_REG_TO_OFFSET` (keyed by offset `addr - $D400`, so it doubles as a shadow index). **Double control write:** ASID orders the three voice control registers last (IDs 22-27) so a frame can carry a *second* write to each control reg — the gate-off→gate-on hard-restart trick. The decoder keeps the second (final) value in `regs` and surfaces the first in `control_first` for the scene's two-phase emit.
+ 
+ ### `asid_scene.py` — the scene
+- `AsidScene(VoiceScopeRenderer, Scene)`, `WANTS_AUDIO_LOCK = True`, is the sibling of `MidiScene` (see below): same VoiceScopeRenderer visualization, same MIDI-port plumbing, a 25-byte `$D400-$D418` shadow + `SIDEmulator` **per chip**. The difference is the input — MidiScene *synthesizes* SID writes from notes/CCs, AsidScene *relays* the finished register bytes — so all synth knobs (waveform/ADSR/filter/voice allocation) are gone; ASID carries that state. It has **two playback paths**, selected by `asid_buffered_player` (auto/on/off): the default *coalesced* path and the *buffered* ring player (next subsection). In the **coalesced** path the reader thread drains SysEx into the per-chip shadows and flushes a hardware block write at `_FLUSH_INTERVAL_S` (≤60 Hz) so a burst or high-multispeed tune can't outrun the ≈200 writes/s DMA ceiling (high multispeed is frame-decimated — this is the limitation the buffered path removes). Each flush is one `write_regs(<chip base>, *shadow)` block write **per dirty chip**; a within-frame hard restart first emits the `control_first` values as individual `write_memory` calls *before* that chip's block (so the gate-off pulse reaches the chip), passing a `retrigger` mask to `update_registers`. Bitmap-only ⇒ `_validate_asid` reports a `hires` display (PETSCII overlays rejected). Info rows: title = name + SID count + play state + SID type; meta = the host's `0x4F` "now playing" text if any, else a per-voice waveform + `VOL nn` summary of the primary chip. `0x31` PAL/NTSC switches every emulator clock live. Teardown stops the ring player first (if buffered), then silences every mapped SID, restores the SID-address config (below), and restores bank-0 + the **char-mode** `$D018` (`D018_CHAR_DEFAULT` = `$14`, matrix at bank+`$0400`, bitmap bit clear) — like MidiScene and WaveformScene, which write the same constant for the same reason. All three used to write `D018_HIRES_BITMAP` here while the comment claimed the char-mode default: the scope's own value, left pointing at the bitmap layout. Each scene's teardown test asserts the **literal** `"14"`, not the constant: comparing the byte teardown wrote against the constant it wrote it from compares the code to itself, and setting `D018_CHAR_DEFAULT = 0x18` left all three green. `tests/test_voice_scope.py` supplies the independent half by driving a real char-mode engage from another module and comparing the constant against what the VIC is actually left holding. The next scene's mode engage owns `$D011`; this write only puts the matrix pointer back where a char mode expects to find it, which is exactly what `hires.py`'s teardown does when its flicker handler may have moved it.
++ `AsidScene(VoiceScopeRenderer, Scene)`, `WANTS_AUDIO_LOCK = True`, is the sibling of `MidiScene` (see below): same VoiceScopeRenderer visualization, same MIDI-port plumbing, a 25-byte `$D400-$D418` shadow + `SIDEmulator` **per chip**. The difference is the input — MidiScene *synthesizes* SID writes from notes/CCs, AsidScene *relays* the finished register bytes — so all synth knobs (waveform/ADSR/filter/voice allocation) are gone; ASID carries that state. It has **two playback paths**, selected by `asid_buffered_player` (auto/on/off): the default *coalesced* path and the *buffered* ring player (next subsection). In the **coalesced** path the reader thread drains SysEx into the per-chip shadows and flushes a hardware block write at `_FLUSH_INTERVAL_S` (≤60 Hz) so a burst or high-multispeed tune can't outrun the ≈200 writes/s DMA ceiling (high multispeed is frame-decimated — this is the limitation the buffered path removes). Each flush is one `write_regs(<chip base>, *shadow)` block write **per dirty chip**; a within-frame hard restart first emits the `control_first` values as individual `write_memory` calls *before* that chip's block (so the gate-off pulse reaches the chip), passing a `retrigger` mask to `update_registers`. Bitmap-only ⇒ `_validate_asid` reports a `hires` display (PETSCII overlays rejected). Info rows: title = name + SID count + play state + SID type; meta = the host's `0x4F` "now playing" text if any, else a per-voice waveform + `VOL nn` summary of the primary chip. `0x31` PAL/NTSC switches every emulator clock live. Teardown stops the ring player first (if buffered), then silences every mapped SID, restores the SID-address config (below), and restores bank-0 + the **char-mode** `$D018` (`VIC.D018_CHAR_DEFAULT` = `$14`, matrix at bank+`$0400`, bitmap bit clear) — like MidiScene and WaveformScene, which write the same constant for the same reason. All three used to write `D018_HIRES_BITMAP` here while the comment claimed the char-mode default: the scope's own value, left pointing at the bitmap layout. Each scene's teardown test asserts the **literal** `"14"`, not the constant: comparing the byte teardown wrote against the constant it wrote it from compares the code to itself, and setting `D018_CHAR_DEFAULT = 0x18` left all three green. `tests/test_voice_scope.py` supplies the independent half by driving a real char-mode engage from another module and comparing the constant against what the VIC is actually left holding. The next scene's mode engage owns `$D011`; this write only puts the matrix pointer back where a char mode expects to find it, which is exactly what `hires.py`'s teardown does when its flicker handler may have moved it.
+ 
+ **Teardown steps are independent guarantees, not a transaction.** All three SID scenes — `AsidScene`, `MidiScene`, `WaveformScene` — owe the next scene a quiescent machine: kernal IRQ vector and CIA #1 latch, every mapped chip silenced, the SID-address config restored, the char-mode `$D018` put back. Each used to sequence that whole list inside a single `try`, so the first raise silently abandoned every restore after it. In `AsidScene` the starved call was `_restore_config`; worse, the comment directly above argued that the IRQ restore must *not* be delegated to the player's own bookkeeping, and then sequenced it behind the `self._player.stop()` that can raise. `WaveformScene` was the widest case — seven restores whose comment reasons carefully about their *order*, all sharing one `try`, with a `finally` protecting exactly one of them. They now run through `run_teardown_steps` (`c64cast/_teardown.py` — it started out in `scenes/scenes.py` beside its first caller and moved to the package root when the audio sources needed it too), which takes `(label, callable)` pairs, guards each one, and logs `teardown step '<label>' failed; continuing` at ERROR before moving on, so a link that dies during silencing still leaves the next scene a char-mode VIC. Catching `Exception` rather than `BaseException` is deliberate: teardown runs on the shutdown path, and a `KeyboardInterrupt` there must propagate instead of being logged as a failed step and discarded. The char-mode display restore all three duplicated is now one `voice_scope.restore_char_mode_display`. The step *order* carries a guarantee of its own in `AsidScene`: the MIDI port closes before anything restores the machine, because the reader's poll stop is a bounded join that `_pollthread` documents as abandoning a worker blocked on the link — and that worker's loop calls `_retune_if_due` on every pass. A closed port is what stops it reading a further `0x31` and putting CIA #1 back on the wire's rate after the restore has already run.
+ 
+diff --git a/tests/test_voice_scope.py b/tests/test_voice_scope.py
+index 566716c..7f87f24 100644
+--- a/tests/test_voice_scope.py
++++ b/tests/test_voice_scope.py
+@@ -23,13 +23,12 @@ from typing import cast
+ import numpy as np
+ from _fakes import FakeAPI
+ 
+-from c64cast.hw.c64 import RegionID
++from c64cast.hw.c64 import VIC, RegionID
+ from c64cast.scenes.bitmap_text import ascii_to_screen_code
+ from c64cast.sid.sidemu import ACCUMULATOR_RANGE, WAVE_TRIANGLE, Voice
+ from c64cast.sid.voice_scope import (
+     BITMAP_H,
+     BITMAP_W,
+-    D018_CHAR_DEFAULT,
+     D018_HIRES_BITMAP,
+     META_ROW,
+     SCREEN_W_CHARS,
+@@ -432,11 +431,11 @@ class PaintInfoRowsTest(unittest.TestCase):
+ 
+ 
+ class D018CharDefaultTest(unittest.TestCase):
+-    """`D018_CHAR_DEFAULT` is what all three scope scenes hand the next scene at
++    """`VIC.D018_CHAR_DEFAULT` is what all three scope scenes hand the next scene at
+     teardown, and its whole claim is that it equals what a char mode engages.
+ 
+     Each scene's teardown test asserts the byte it *wrote*, so on its own it can
+-    only ever compare the constant to itself: setting `D018_CHAR_DEFAULT = 0x18`
++    only ever compare the constant to itself: setting `VIC.D018_CHAR_DEFAULT = 0x18`
+     — the exact regression the CHANGELOG records as fixed — left all three green.
+     This is the independent half: it drives a real char-mode engage from another
+     module and compares against what the VIC is actually left holding there.
+@@ -448,14 +447,14 @@ class D018CharDefaultTest(unittest.TestCase):
+ 
+         api = FakeAPI()
+         BlankDisplayMode().setup(cast(C64Backend, api))
+-        self.assertEqual(api.memories["D018"], f"{D018_CHAR_DEFAULT:02X}")
++        self.assertEqual(api.memories["D018"], f"{VIC.D018_CHAR_DEFAULT:02X}")
+ 
+     def test_is_not_the_scope_s_own_bitmap_layout(self):
+         # The teardown these constants serve exists precisely to move the matrix
+         # pointer OFF the scope's layout, so equal values would make it a no-op.
+-        self.assertNotEqual(D018_CHAR_DEFAULT, D018_HIRES_BITMAP)
++        self.assertNotEqual(VIC.D018_CHAR_DEFAULT, D018_HIRES_BITMAP)
+         # $D018 bit 3 selects the bitmap at bank+$2000; a char mode has it clear.
+-        self.assertEqual(D018_CHAR_DEFAULT & 0x08, 0)
++        self.assertEqual(VIC.D018_CHAR_DEFAULT & 0x08, 0)
+ 
+ 
+ if __name__ == "__main__":

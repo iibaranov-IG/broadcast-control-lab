@@ -1,0 +1,155 @@
+diff --git a/tests/_fakes.py b/tests/_fakes.py
+index 70bce74..4d7a236 100644
+--- a/tests/_fakes.py
++++ b/tests/_fakes.py
+@@ -582,6 +582,28 @@ class FakeTime:
+         return getattr(time, name)
+ 
+ 
++class SleepDrivenClock:
++    """A time-module stand-in advanced only by positive ``sleep`` calls.
++
++    ``time``, ``monotonic`` and ``perf_counter`` share one nonzero timeline, so
++    code under test cannot accidentally mix host time with virtual time. Names
++    outside that explicit clock surface raise ``AttributeError``.
++    """
++
++    def __init__(self, start: float = 1000.0) -> None:
++        self._now = float(start)
++
++    def monotonic(self) -> float:
++        return self._now
++
++    perf_counter = monotonic
++    time = monotonic
++
++    def sleep(self, seconds: float) -> None:
++        if seconds > 0:
++            self._now += seconds
++
++
+ class FrozenClock(FakeTime):
+     """A [FakeTime] whose one pinned clock the test drives itself.
+ 
+diff --git a/tests/test_api.py b/tests/test_api.py
+index a802c69..4756ab6 100644
+--- a/tests/test_api.py
++++ b/tests/test_api.py
+@@ -10,7 +10,7 @@ import unittest
+ from dataclasses import replace
+ from unittest.mock import MagicMock, patch
+ 
+-from _fakes import FakeTime, make_psid
++from _fakes import FakeTime, SleepDrivenClock, make_psid
+ 
+ from c64cast.hw import api
+ from c64cast.hw.api import (
+@@ -1270,24 +1270,6 @@ class RefineCapabilitiesTest(unittest.TestCase):
+             self.api.reset()  # shutdown path — must not raise
+ 
+ 
+-class _VirtualClock:
+-    """A stand-in for the `time` module whose `sleep` advances its own `time`.
+-
+-    A poll loop bound to this clock advances exactly one poll interval per
+-    iteration however loaded the machine is, which is what makes a fake that
+-    answers "not yet" twice before signaling deterministic: on the real clock
+-    that fake raced the deadline whenever a parallel worker stalled between
+-    two of its reads."""
+-
+-    def __init__(self, now: float = 0.0) -> None:
+-        self._now = now
+-
+-    def time(self) -> float:
+-        return self._now
+-
+-    def sleep(self, seconds: float) -> None:
+-        self._now += seconds
+-
+ 
+ class DumpCharRomTest(unittest.TestCase):
+     """The shared dump orchestration on the Ultimate: upload the stub, SYS it
+@@ -1334,7 +1316,7 @@ class DumpCharRomTest(unittest.TestCase):
+         # arithmetic on it, and the full production budget costs no wall time.
+         # Bound over the module's own `time` name, never over an attribute of
+         # the stdlib module — see _fakes.FrozenClock for why.
+-        patch("c64cast.hw.api.time", _VirtualClock()).start()
++        patch("c64cast.hw.api.time", SleepDrivenClock()).start()
+ 
+     def tearDown(self):
+         patch.stopall()
+diff --git a/tests/test_audio_lifecycle.py b/tests/test_audio_lifecycle.py
+index 49c9814..b29b0ae 100644
+--- a/tests/test_audio_lifecycle.py
++++ b/tests/test_audio_lifecycle.py
+@@ -20,7 +20,7 @@ from typing import Any, cast
+ from unittest import mock
+ 
+ import numpy as np
+-from _fakes import FakeAPI, FakeTime
++from _fakes import FakeAPI, FakeTime, SleepDrivenClock
+ 
+ from c64cast.audio import audio as audio_mod
+ from c64cast.audio import audio_rate as audio_rate_mod
+@@ -66,34 +66,17 @@ def _written_stream(s: AudioStreamer) -> bytes:
+     return b"".join(data for _, data in cast(Any, s.api).writes)
+ 
+ 
+-class _VirtualClock:
+-    """A monotonic clock that advances only when the code under test sleeps.
+ 
+-    The drip schedule marks a slot late by comparing its deadline against the
+-    clock, so on a loaded machine one OS scheduling overshoot cascades — every
+-    remaining slot in that chunk has an already-past deadline. That makes any
+-    absolute late-slot assertion a claim about the host's scheduler rather than
+-    about the accounting, and it fails on contended CI runners while passing
+-    locally. Driving `audio.py`'s own clock removes the host from the question.
+-
+-    Only the worker sees this; the test harness keeps the real clock, so its
+-    timeout still bounds a hang.
+-    """
+-
+-    def __init__(self, start: float = 1000.0) -> None:
+-        self.t = start
+-
+-    def monotonic(self) -> float:
+-        return self.t
+-
+-    # audio.py reads all four; keeping them on one timeline means a virtual
+-    # sleep is visible to every deadline the worker computes.
+-    perf_counter = monotonic
+-    time = monotonic
+-
+-    def sleep(self, seconds: float) -> None:
+-        if seconds > 0:
+-            self.t += seconds
++class SleepDrivenClockContractTest(unittest.TestCase):
++    def test_clock_names_share_one_forward_only_timeline(self):
++        clock = SleepDrivenClock()
++        self.assertEqual((clock.time(), clock.monotonic(), clock.perf_counter()), (1000.0,) * 3)
++        clock.sleep(-1.0)
++        self.assertEqual(clock.time(), 1000.0)
++        clock.sleep(0.25)
++        self.assertEqual((clock.time(), clock.monotonic(), clock.perf_counter()), (1000.25,) * 3)
++        with self.assertRaises(AttributeError):
++            clock.process_time()
+ 
+ 
+ def _run_worker(s: AudioStreamer, until, timeout: float = 2.0) -> threading.Thread:
+@@ -326,14 +309,14 @@ class WorkerPacingUnderrunTest(unittest.TestCase):
+         # The negative control for the counter above: with writes that return
+         # immediately the drip keeps its deadlines, so a late slot means a real
+         # link/collection problem rather than an artifact of the accounting.
+-        # Run on a virtual clock — see _VirtualClock for why the host's
++        # Run on a virtual clock — see SleepDrivenClock for why the host's
+         # scheduler must not be able to answer this question.
+         s = _make_worker_streamer(chunk_size=256, sample_rate=8000)
+         for _ in range(PREBUFFER_CHUNKS + 8):
+             s.q.put(bytes([3] * 256))
+             s._queued_samples += 256
+ 
+-        clock = _VirtualClock()
++        clock = SleepDrivenClock()
+         with (
+             mock.patch.object(audio_mod, "time", clock),
+             mock.patch.object(audio_rate_mod, "time", clock),

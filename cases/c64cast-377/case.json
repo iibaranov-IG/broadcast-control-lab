@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "id": "c64cast-377",
+  "status": "ready",
+  "title": "Document the Vitest run in CI",
+  "issue": "https://github.com/kfox/c64cast/issues/377",
+  "problem": "Document the Vitest run in CI.",
+  "reproduce": "Apply the issue-specific negative control or inspect the baseline source contract recorded in the issue.",
+  "acceptance": "The candidate patch applies cleanly to the pinned upstream revision, preserves Python syntax, and satisfies the issue-specific source contract.",
+  "repair": "Document the Vitest run in CI. The public candidate is under upstream review.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "kfox/c64cast",
+      "commit": "b9abd3dd0447086c94c960665eb4a57b1172eef9",
+      "directory": "sources/c64cast-377"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/c64cast-377",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/c64cast-377/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/c64cast-377/test.mjs",
+          "sources/c64cast-377"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/c64cast-377.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL checks patch application, the issue-specific source contract, and Python syntax. The full upstream suite was run outside BCL; hardware was not required for PR #382.",
+    "ownerCheck": "Review and merge https://github.com/kfox/c64cast/pull/382 after CI and maintainer review."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "kfox/c64cast",
+    "base": "main",
+    "paths": [
+      ".github/workflows/ci.yml"
+    ]
+  }
+}

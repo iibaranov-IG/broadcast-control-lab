@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "id": "tuna-5",
+  "status": "diagnostic",
+  "title": "Make Tuna discoverable by its project name",
+  "issue": "https://github.com/x42/tuna.lv2/issues/5",
+  "problem": "The LV2 project and plugin names omit Tuna, so hosts that search only human-readable doap:name values cannot find the plugin by its project name.",
+  "reproduce": "Generate tuna.ttl from current templates and search its three doap:name values for Tuna; none match on the baseline.",
+  "acceptance": "The project, normal tuner and spectrum tuner names all contain Tuna, preserve their x42 branding and remain synchronized with compiled descriptor headers.",
+  "repair": "Include Tuna in the project and instance doap:name templates and update the checked-in generated descriptor names.",
+  "sources": [{
+    "id": "upstream",
+    "repository": "x42/tuna.lv2",
+    "commit": "d6d2341e4a0b5eb71b12943e8692e14dcf0645b1",
+    "directory": "sources/tuna-5"
+  }],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{ "cwd": "sources/tuna-5", "argv": ["git", "apply", "../../cases/tuna-5/repair.patch"] }],
+    "test": [{ "cwd": ".", "argv": ["node", "cases/tuna-5/test.mjs", "sources/tuna-5"] }],
+    "build": []
+  },
+  "artifacts": { "report": "reports/tuna-5.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL checks the generated metadata contract and compiled descriptor names. A separate clean dependency image builds the LV2 DSP and OpenGL UI; BCL does not launch a graphical plugin host.",
+    "ownerCheck": "Install the candidate in an LV2 host that searches doap:name and confirm searching Tuna lists both the normal and Spectrum variants."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "x42/tuna.lv2",
+    "base": "master",
+    "paths": ["lv2ttl/tuna.ttl.in", "lv2ttl/tuna.lv2.ttl.in", "lv2ttl/tuna1.h", "lv2ttl/tuna2.h"]
+  }
+}

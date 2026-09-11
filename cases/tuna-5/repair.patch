@@ -1,0 +1,51 @@
+diff --git a/lv2ttl/tuna.lv2.ttl.in b/lv2ttl/tuna.lv2.ttl.in
+index 10c8cc6..aa17299 100644
+--- a/lv2ttl/tuna.lv2.ttl.in
++++ b/lv2ttl/tuna.lv2.ttl.in
+@@ -4,7 +4,7 @@
+   a lv2:Plugin, doap:Project, lv2:AnalyserPlugin;
+   doap:license <http://usefulinc.com/doap/licenses/gpl> ;
+   doap:maintainer <http://gareus.org/rgareus#me> ;
+-  doap:name "x42 Instrument Tuner@NAME_SUFFIX@";
++  doap:name "x42 Tuna Instrument Tuner@NAME_SUFFIX@";
+   @VERSION@
+   @UITTL@
+   @MODBRAND@
+diff --git a/lv2ttl/tuna.ttl.in b/lv2ttl/tuna.ttl.in
+index 1b91752..116f79e 100644
+--- a/lv2ttl/tuna.ttl.in
++++ b/lv2ttl/tuna.ttl.in
+@@ -27,6 +27,6 @@ idpy:interface a lv2:ExtensionData .
+ <http://gareus.org/oss/lv2/@LV2NAME@>
+ 	a doap:Project;
+ 	doap:maintainer <http://gareus.org/rgareus#me> ;
+-	doap:name "x42 Instrument Tuner" .
++	doap:name "x42 Tuna Instrument Tuner" .
+ 
+ 
+diff --git a/lv2ttl/tuna1.h b/lv2ttl/tuna1.h
+index bba5e77..6c0fe4d 100644
+--- a/lv2ttl/tuna1.h
++++ b/lv2ttl/tuna1.h
+@@ -9,7 +9,7 @@ static const RtkLv2Description _plugin_tuna_one = {
+ 	&lv2ui_descriptor
+ 	, 0 // uint32_t dsp_descriptor_id
+ 	, 0 // uint32_t gui_descriptor_id
+-	, "x42 Instrument Tuner" // const char *plugin_human_id
++	, "x42 Tuna Instrument Tuner" // const char *plugin_human_id
+ 	, (const struct LV2Port[20])
+ 	{
+ 		{ "control", ATOM_IN, nan, nan, nan, "GUI to plugin communication"},
+diff --git a/lv2ttl/tuna2.h b/lv2ttl/tuna2.h
+index 77731aa..1ca24bb 100644
+--- a/lv2ttl/tuna2.h
++++ b/lv2ttl/tuna2.h
+@@ -9,7 +9,7 @@ static const RtkLv2Description _plugin_tuna_two = {
+ 	&lv2ui_descriptor
+ 	, 1 // uint32_t dsp_descriptor_id
+ 	, 0 // uint32_t gui_descriptor_id
+-	, "x42 Instrument Tuner[Spectrum]" // const char *plugin_human_id
++	, "x42 Tuna Instrument Tuner[Spectrum]" // const char *plugin_human_id
+ 	, (const struct LV2Port[20])
+ 	{
+ 		{ "control", ATOM_IN, nan, nan, nan, "GUI to plugin communication"},

@@ -1,0 +1,173 @@
+diff --git a/zyngine/zynthian_engine_audio_mixer.py b/zyngine/zynthian_engine_audio_mixer.py
+index aaa033a..581b229 100644
+--- a/zyngine/zynthian_engine_audio_mixer.py
++++ b/zyngine/zynthian_engine_audio_mixer.py
+@@ -102,6 +102,12 @@ class zynmixer(zynthian_engine):
+         self.lib_zynmixer.enableDpm.argtypes = [
+             ctypes.c_uint8, ctypes.c_uint8, ctypes.c_uint8]
+ 
++        self.lib_zynmixer.addOscClient.argtypes = [
++            ctypes.c_char_p, ctypes.c_uint16]
++        self.lib_zynmixer.addOscClient.restype = ctypes.c_int
++        self.lib_zynmixer.removeOscClient.argtypes = [
++            ctypes.c_char_p, ctypes.c_uint16]
++
+         self.lib_zynmixer.getMaxChannels.restype = ctypes.c_uint8
+ 
+         self.MAX_NUM_CHANNELS = self.lib_zynmixer.getMaxChannels()
+@@ -550,14 +556,17 @@ class zynmixer(zynthian_engine):
+ 
+     # Function to add OSC client registration
+     # client: IP address of OSC client
+-    def add_osc_client(self, client):
+-        return self.lib_zynmixer.addOscClient(ctypes.c_char_p(client.encode('utf-8')))
++    # port: UDP port of OSC client
++    def add_osc_client(self, client, port):
++        return self.lib_zynmixer.addOscClient(
++            ctypes.c_char_p(client.encode('utf-8')), port)
+ 
+     # Function to remove OSC client registration
+     # client: IP address of OSC client
+-    def remove_osc_client(self, client):
++    # port: UDP port of OSC client
++    def remove_osc_client(self, client, port):
+         self.lib_zynmixer.removeOscClient(
+-            ctypes.c_char_p(client.encode('utf-8')))
++            ctypes.c_char_p(client.encode('utf-8')), port)
+ 
+     # --------------------------------------------------------------------------
+     # State management (for snapshots)
+diff --git a/zyngui/zynthian_gui.py b/zyngui/zynthian_gui.py
+index 292a1d5..6315cae 100644
+--- a/zyngui/zynthian_gui.py
++++ b/zyngui/zynthian_gui.py
+@@ -394,15 +394,16 @@ class zynthian_gui:
+             self.state_manager.set_event_flag()
+             part2 = parts[2]
+             if part2 in ("HEARTBEAT", "SETUP"):
+-                if src.hostname not in self.osc_clients:
++                client = (src.hostname, int(src.port))
++                if client not in self.osc_clients:
+                     try:
+-                        if self.state_manager.zynmixer.add_osc_client(src.hostname) < 0:
+-                            logging.warning("Failed to add OSC client registration {}".format(src.hostname))
++                        if self.state_manager.zynmixer.add_osc_client(*client) < 0:
++                            logging.warning("Failed to add OSC client registration {}:{}".format(*client))
+                             return
+                     except:
+-                        logging.warning("Error trying to add OSC client registration {}".format(src.hostname))
++                        logging.warning("Error trying to add OSC client registration {}:{}".format(*client))
+                         return
+-                self.osc_clients[src.hostname] = monotonic()
++                self.osc_clients[client] = monotonic()
+                 self.state_manager.zynmixer.enable_dpm(0, self.state_manager.zynmixer.MAX_NUM_CHANNELS - 2, True)
+             else:
+                 if part2[:6] == "VOLUME":
+@@ -2583,7 +2584,7 @@ class zynthian_gui:
+                 if self.osc_clients[client] < self.watchdog_last_check - self.osc_heartbeat_timeout:
+                     self.osc_clients.pop(client)
+                     try:
+-                        self.state_manager.zynmixer.remove_osc_client(client)
++                        self.state_manager.zynmixer.remove_osc_client(*client)
+                     except:
+                         pass
+ 
+diff --git a/zynlibs/zynmixer/mixer.c b/zynlibs/zynmixer/mixer.c
+index 0fee76c..216f46f 100644
+--- a/zynlibs/zynmixer/mixer.c
++++ b/zynlibs/zynmixer/mixer.c
+@@ -349,7 +349,7 @@ int init() {
+     for (uint8_t i = 0; i < MAX_OSC_CLIENTS; ++i) {
+         memset(g_oscClient[i].sin_zero, '\0', sizeof g_oscClient[i].sin_zero);
+         g_oscClient[i].sin_family      = AF_INET;
+-        g_oscClient[i].sin_port        = htons(1370);
++        g_oscClient[i].sin_port        = 0;
+         g_oscClient[i].sin_addr.s_addr = 0;
+     }
+ 
+@@ -690,16 +690,25 @@ void enableDpm(uint8_t start, uint8_t end, uint8_t enable) {
+     }
+ }
+ 
+-int addOscClient(const char* client) {
++int addOscClient(const char* client, uint16_t port) {
++    struct in_addr address;
++    if (port == 0 || inet_pton(AF_INET, client, &address) != 1) {
++        fprintf(stderr, "libzynmixer: Failed to register client %s:%u\n", client, (unsigned int)port);
++        return -1;
++    }
++
++    for (uint8_t i = 0; i < MAX_OSC_CLIENTS; ++i) {
++        if (g_oscClient[i].sin_addr.s_addr == address.s_addr &&
++            g_oscClient[i].sin_port == htons(port))
++            return i;
++    }
++
+     for (uint8_t i = 0; i < MAX_OSC_CLIENTS; ++i) {
+         if (g_oscClient[i].sin_addr.s_addr != 0)
+             continue;
+-        if (inet_pton(AF_INET, client, &(g_oscClient[i].sin_addr)) != 1) {
+-            g_oscClient[i].sin_addr.s_addr = 0;
+-            fprintf(stderr, "libzynmixer: Failed to register client %s\n", client);
+-            return -1;
+-        }
+-        fprintf(stderr, "libzynmixer: Added OSC client %d: %s\n", i, client);
++        g_oscClient[i].sin_addr = address;
++        g_oscClient[i].sin_port = htons(port);
++        fprintf(stderr, "libzynmixer: Added OSC client %d: %s:%u\n", i, client, (unsigned int)port);
+         for (int nChannel = 0; nChannel < MAX_CHANNELS; ++nChannel) {
+             setBalance(nChannel, getBalance(nChannel));
+             setLevel(nChannel, getLevel(nChannel));
+@@ -715,19 +724,22 @@ int addOscClient(const char* client) {
+         g_bOsc = 1;
+         return i;
+     }
+-    fprintf(stderr, "libzynmixer: Not adding OSC client %s - Maximum client count reached [%d]\n", client, MAX_OSC_CLIENTS);
++    fprintf(stderr, "libzynmixer: Not adding OSC client %s:%u - Maximum client count reached [%d]\n",
++            client, (unsigned int)port, MAX_OSC_CLIENTS);
+     return -1;
+ }
+ 
+-void removeOscClient(const char* client) {
+-    char pClient[sizeof(struct in_addr)];
+-    if (inet_pton(AF_INET, client, pClient) != 1)
++void removeOscClient(const char* client, uint16_t port) {
++    struct in_addr address;
++    if (port == 0 || inet_pton(AF_INET, client, &address) != 1)
+         return;
+     g_bOsc = 0;
+     for (uint8_t i = 0; i < MAX_OSC_CLIENTS; ++i) {
+-        if (memcmp(pClient, &g_oscClient[i].sin_addr.s_addr, 4) == 0) {
++        if (g_oscClient[i].sin_addr.s_addr == address.s_addr &&
++            g_oscClient[i].sin_port == htons(port)) {
+             g_oscClient[i].sin_addr.s_addr = 0;
+-            fprintf(stderr, "libzynmixer: Removed OSC client %d: %s\n", i, client);
++            g_oscClient[i].sin_port        = 0;
++            fprintf(stderr, "libzynmixer: Removed OSC client %d: %s:%u\n", i, client, (unsigned int)port);
+         }
+         if (g_oscClient[i].sin_addr.s_addr != 0)
+             g_bOsc = 1;
+diff --git a/zynlibs/zynmixer/mixer.h b/zynlibs/zynmixer/mixer.h
+index a8f0cad..fca9a79 100644
+--- a/zynlibs/zynmixer/mixer.h
++++ b/zynlibs/zynmixer/mixer.h
+@@ -192,15 +192,17 @@ void enableDpm(uint8_t start, uint8_t end, uint8_t enable);
+ 
+ /** @brief  Adds client to list of registered OSC clients
+  *   @param  client IP address of client
++ *   @param  port UDP port of client
+  *   @retval int Index of client or -1 on failure
+  *   @note   Clients get all updates including DPM
+  */
+-int addOscClient(const char* client);
++int addOscClient(const char* client, uint16_t port);
+ 
+ /** @brief  Removes client from list of registered OSC clients
+  *   @param  client IP address of client
++ *   @param  port UDP port of client
+  */
+-void removeOscClient(const char* client);
++void removeOscClient(const char* client, uint16_t port);
+ 
+ /** @brief Get maximum quantity of channels
+  *   @retval size_t Maximum quantity of channels

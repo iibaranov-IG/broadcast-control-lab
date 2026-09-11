@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "id": "midimonster-150",
+  "status": "ready",
+  "title": "MIDIMonster value-less OSC mixer queries",
+  "issue": "https://github.com/cbdevnet/midimonster/issues/150",
+  "problem": "MIDIMonster cannot send the value-less OSC messages used to query current channel state from Behringer XAir and X32 mixers.",
+  "reproduce": "Map an incoming OSC trigger to /ch/01/mix/fader and capture the outgoing mixer datagram.",
+  "acceptance": "The query channel emits the OSC path with an empty type tag and no value bytes on every mapped event; ordinary float output remains unchanged.",
+  "repair": "Add an explicit query channel format that keeps an internal trigger parameter while serializing a standards-compliant zero-argument OSC message.",
+  "sources": [
+    {
+      "id": "candidate",
+      "repository": "cbdevnet/midimonster",
+      "commit": "c247b034e6e06850af8e58a6ba4adf85c0a18071",
+      "directory": "sources/midimonster-150"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/midimonster-150",
+        "argv": ["git", "apply", "../../cases/midimonster-150/repair.patch"]
+      },
+      {
+        "cwd": "sources/midimonster-150",
+        "argv": ["make", "PLUGINS=backends", "midimonster"]
+      },
+      {
+        "cwd": "sources/midimonster-150/backends",
+        "argv": ["cc", "-g", "-fPIC", "-I../", "-Wall", "-Wpedantic", "-c", "libmmbackend.c", "-o", "libmmbackend.o"]
+      },
+      {
+        "cwd": "sources/midimonster-150",
+        "argv": ["make", "-C", "backends", "osc.so"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": ["node", "cases/midimonster-150/test.mjs", "sources/midimonster-150"]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/midimonster-150.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "The test exercises the real MIDIMonster core and OSC backend over loopback. It does not verify a physical XAir or X32 mixer.",
+    "ownerCheck": "Run the candidate with an XAir/X32 destination, trigger the configured query, and confirm that the mixer returns the current fader value. Record mixer model, firmware and observed reply."
+  }
+}

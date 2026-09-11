@@ -36,6 +36,7 @@ application. Current cases include Companion modules and an AutoPTZ backend.
 | [Intelix DIGI-88FS](cases/intelix/case.json) | Routing commands, fragmented input, login prompts and disconnected behavior | Independent regression evidence bundle |
 | [Sennheiser TCC2](cases/tcc2/case.json) | SSC errors, valid state, malformed JSON and camera-sector boundaries | Independent regression evidence bundle |
 | [Zynthian OSC source ports](cases/zynthian-1530/) | Two clients on one host receive feedback on their own ports | Native loopback check, source-patch archive and evidence |
+| [MIDIMonster OSC mixer queries](cases/midimonster-150/) | Value-less XAir/X32 state requests and ordinary float output | Real core/backend build, exact UDP transcript and evidence |
 
 All five cases use v2 passports and one CI workflow. A case can be a diagnostic
 or produce a package. Different coverage levels remain explicit in each passport.

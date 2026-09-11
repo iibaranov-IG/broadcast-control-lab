@@ -1,0 +1,158 @@
+diff --git a/backends/osc.c b/backends/osc.c
+index e8673bb..eb9b43d 100644
+--- a/backends/osc.c
++++ b/backends/osc.c
+@@ -431,6 +431,7 @@ static int osc_configure(char* option, char* value){
+ static int osc_register_pattern(osc_instance_data* data, char* pattern_path, char* configuration){
+ 	size_t u, pattern;
+ 	char* format = NULL, *token = NULL;
++	uint8_t query = 0;
+ 
+ 	if(osc_path_validate(pattern_path, 1)){
+ 		LOGPF("Not a valid OSC pattern: %s", pattern_path);
+@@ -444,6 +445,9 @@ static int osc_register_pattern(osc_instance_data* data, char* pattern_path, cha
+ 		return 1;
+ 	}
+ 
++	//A query is triggered like a regular channel, but has no OSC arguments.
++	query = !strcmp(format, "query");
++
+ 	//create pattern
+ 	data->pattern = realloc(data->pattern, (data->patterns + 1) * sizeof(osc_channel));
+ 	if(!data->pattern){
+@@ -452,11 +456,12 @@ static int osc_register_pattern(osc_instance_data* data, char* pattern_path, cha
+ 	}
+ 	pattern = data->patterns;
+ 
+-	data->pattern[pattern].params = strlen(format);
++	data->pattern[pattern].params = query ? 1 : strlen(format);
++	data->pattern[pattern].query = query;
+ 	data->pattern[pattern].path = strdup(pattern_path);
+-	data->pattern[pattern].type = calloc(strlen(format), sizeof(osc_parameter_type));
+-	data->pattern[pattern].max = calloc(strlen(format), sizeof(osc_parameter_value));
+-	data->pattern[pattern].min = calloc(strlen(format), sizeof(osc_parameter_value));
++	data->pattern[pattern].type = calloc(data->pattern[pattern].params, sizeof(osc_parameter_type));
++	data->pattern[pattern].max = calloc(data->pattern[pattern].params, sizeof(osc_parameter_value));
++	data->pattern[pattern].min = calloc(data->pattern[pattern].params, sizeof(osc_parameter_value));
+ 
+ 	if(!data->pattern[pattern].path
+ 			|| !data->pattern[pattern].type
+@@ -468,8 +473,13 @@ static int osc_register_pattern(osc_instance_data* data, char* pattern_path, cha
+ 		return 1;
+ 	}
+ 
++	if(query){
++		data->pattern[pattern].type[0] = float32;
++		osc_defaults(float32, data->pattern[pattern].max, data->pattern[pattern].min);
++	}
++
+ 	//check format validity and store min/max values
+-	for(u = 0; u < strlen(format); u++){
++	for(u = 0; !query && u < strlen(format); u++){
+ 		if(!osc_data_length(format[u])){
+ 			LOGPF("Invalid format specifier %c for pattern %s", format[u], pattern_path);
+ 			return 1;
+@@ -620,6 +630,7 @@ static channel* osc_map_channel(instance* inst, char* spec, uint8_t flags){
+ 		if(p != data->patterns){
+ 			LOGPF("Matched pattern %s for %s", data->pattern[p].path, spec);
+ 			data->channel[u].params = data->pattern[p].params;
++			data->channel[u].query = data->pattern[p].query;
+ 			//just reuse the pointers from the pattern
+ 			data->channel[u].type = data->pattern[p].type;
+ 			data->channel[u].max = data->pattern[p].max;
+@@ -658,7 +669,7 @@ static int osc_output_channel(instance* inst, size_t channel){
+ 	}
+ 
+ 	//determine minimum packet size
+-	if(osc_align((data->root ? strlen(data->root) : 0) + strlen(data->channel[channel].path) + 1) + osc_align(data->channel[channel].params + 2)  >= sizeof(xmit_buf)){
++	if(osc_align((data->root ? strlen(data->root) : 0) + strlen(data->channel[channel].path) + 1) + osc_align((data->channel[channel].query ? 0 : data->channel[channel].params) + 2)  >= sizeof(xmit_buf)){
+ 		LOGPF("Insufficient buffer size for transmitting channel %s.%s", inst->name, data->channel[channel].path);
+ 		return 1;
+ 	}
+@@ -675,11 +686,11 @@ static int osc_output_channel(instance* inst, size_t channel){
+ 
+ 	//get format string offset, initialize
+ 	format = xmit_buf + offset;
+-	offset += osc_align(data->channel[channel].params + 2);
++	offset += osc_align((data->channel[channel].query ? 0 : data->channel[channel].params) + 2);
+ 	*format = ',';
+ 	format++;
+ 
+-	for(p = 0; p < data->channel[channel].params; p++){
++	for(p = 0; !data->channel[channel].query && p < data->channel[channel].params; p++){
+ 		//write format specifier
+ 		format[p] = data->channel[channel].type[p];
+ 
+@@ -726,6 +737,12 @@ static int osc_set(instance* inst, size_t num, channel** c, channel_value* v){
+ 			return 1;
+ 		}
+ 
++		if(data->channel[ident.fields.channel].query){
++			data->channel[ident.fields.channel].mark = 1;
++			mark = 1;
++			continue;
++		}
++
+ 		//if the format is unknown, don't output
+ 		if(!data->channel[ident.fields.channel].params){
+ 			LOGPF("Channel %s.%s requires format specification for output", inst->name, data->channel[ident.fields.channel].path);
+diff --git a/backends/osc.h b/backends/osc.h
+index ec75e3f..c2efc8c 100644
+--- a/backends/osc.h
++++ b/backends/osc.h
+@@ -37,6 +37,7 @@ typedef struct /*_osc_channel*/ {
+ 	char* path;
+ 	size_t params;
+ 	uint8_t mark;
++	uint8_t query;
+ 
+ 	osc_parameter_type* type;
+ 	osc_parameter_value* max;
+@@ -74,4 +75,3 @@ typedef union {
+ 	} fields;
+ 	uint64_t label;
+ } osc_channel_ident;
+-
+diff --git a/backends/osc.md b/backends/osc.md
+index 939c742..b4ab728 100644
+--- a/backends/osc.md
++++ b/backends/osc.md
+@@ -52,6 +52,16 @@ a range between 0.0 and 2.0 (for example, an X-Y control), would look as follows
+ /1/xy1 = ff 0.0 2.0 0.0 2.0
+ ```
+ 
++To transmit an OSC request without arguments when a mapped input event arrives,
++use the special `query` format:
++
++```
++/ch/01/mix/fader = query
++```
++
++This emits the path followed by an empty OSC type tag (`,`). The value of the
++mapped input is used only as a trigger and is not included in the packet.
++
+ To configure a range of faders, an expression similar to the following line could be used
+ 
+ ```
+diff --git a/configs/osc-query.cfg b/configs/osc-query.cfg
+new file mode 100644
+index 0000000..55d3214
+--- /dev/null
++++ b/configs/osc-query.cfg
+@@ -0,0 +1,16 @@
++; Send a value-less OSC query whenever the trigger receives an event.
++
++[backend osc]
++detect = on
++
++[osc trigger]
++bind = 127.0.0.1 19001
++/send = f 0.0 1.0
++
++[osc mixer]
++bind = 127.0.0.1 0
++destination = 127.0.0.1 19002
++/ch/01/mix/fader = query
++
++[map]
++trigger./send > mixer./ch/01/mix/fader

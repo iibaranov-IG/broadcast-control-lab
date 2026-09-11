@@ -43,6 +43,7 @@ application. Current cases include Companion modules and an AutoPTZ backend.
 | [OLA KiNET isolation](cases/ola-1850/) | Non-blocking KiNET socket setup and preserved packet tests | Kernel flag probe, source contract and owner kit |
 | [PiPedal Bluetooth MIDI reconnect](cases/pipedal-472/) | ALSA client-before-port hotplug ordering and stable-name rebinding | Deterministic event model, production contract and owner kit |
 | [OLA RDM interface list](cases/ola-2037/) | Duplicate OS interface indices are collapsed before packing `LIST_INTERFACES` | Compiled response model, upstream regression contract and owner kit |
+| [OLA Python reconnect callback](cases/ola-2031/) | `ClientWrapper` exposes one-shot socket closure notification when `olad` restarts | Production constructor probe, teardown contract and owner kit |
 
 All cases use v2 passports and one CI workflow. A case can be a diagnostic
 or produce a package. Different coverage levels remain explicit in each passport.

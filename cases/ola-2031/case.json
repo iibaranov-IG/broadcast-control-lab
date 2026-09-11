@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "ola-2031",
+  "status": "ready",
+  "title": "OLA Python client close callback",
+  "issue": "https://github.com/OpenLightingProject/ola/issues/2031",
+  "problem": "Python ClientWrapper does not expose OlaClient's socket close callback, preventing applications from reacting cleanly when olad restarts.",
+  "reproduce": "Construct ClientWrapper with close_callback; the unpatched constructor rejects the keyword argument before the client can run.",
+  "acceptance": "ClientWrapper accepts and forwards close_callback, socket closure is idempotent, and the callback runs at most once.",
+  "repair": "Add the close_callback argument to ClientWrapper, forward it to OlaClient, and consume the callback during the first safe socket teardown.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "OpenLightingProject/ola",
+      "commit": "99b26c65d45e807032c1337ca7ebf1ac51ff3995",
+      "directory": "sources/ola-2031"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/ola-2031",
+        "argv": ["git", "apply", "../../cases/ola-2031/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": ["node", "cases/ola-2031/test.mjs", "sources/ola-2031"]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/ola-2031.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL executes the production ClientWrapper constructor through a controlled OlaClient seam and verifies source contracts for idempotent teardown. Six upstream Python tests passed separately with generated protobuf bindings; this offline case does not run a live olad daemon restart.",
+    "ownerCheck": "Start a Python application with ClientWrapper(close_callback=...), restart olad, and confirm the callback runs once without an uncaught exception. Reconnect or stop from the callback, then record OLA revision, Python version and daemon logs."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "OpenLightingProject/ola",
+    "base": "master",
+    "paths": [
+      "python/ola/ClientWrapper.py",
+      "python/ola/OlaClient.py",
+      "python/ola/ClientWrapperTest.py"
+    ]
+  }
+}

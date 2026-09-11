@@ -1,0 +1,78 @@
+diff --git a/python/ola/ClientWrapper.py b/python/ola/ClientWrapper.py
+index 95e32d41..4cc11523 100644
+--- a/python/ola/ClientWrapper.py
++++ b/python/ola/ClientWrapper.py
+@@ -292,9 +292,16 @@ class SelectServer(object):
+ 
+ 
+ class ClientWrapper(object):
+-  def __init__(self, socket=None):
++  def __init__(self, socket=None, close_callback=None):
++    """Create a client and event-loop wrapper.
++
++    Args:
++      socket: The socket to use for communications. If omitted, OlaClient
++        connects to the local olad instance.
++      close_callback: A callable to run if the olad socket is closed.
++    """
+     self._ss = SelectServer()
+-    self._client = OlaClient(socket)
++    self._client = OlaClient(socket, close_callback=close_callback)
+     self._ss.AddReadDescriptor(self._client.GetSocket(),
+                                self._client.SocketReady)
+ 
+diff --git a/python/ola/ClientWrapperTest.py b/python/ola/ClientWrapperTest.py
+index d4252c7b..8b09b500 100644
+--- a/python/ola/ClientWrapperTest.py
++++ b/python/ola/ClientWrapperTest.py
+@@ -127,6 +127,20 @@ class ClientWrapperTest(unittest.TestCase):
+     sockets[0].close()
+     sockets[1].close()
+ 
++  def testCloseCallback(self):
++    sockets = socket.socketpair()
++    callback_count = []
++
++    def on_close():
++      callback_count.append(1)
++
++    wrapper = ClientWrapper(sockets[0], close_callback=on_close)
++    wrapper.Client()._SocketClosed()
++    wrapper.Client()._SocketClosed()
++
++    self.assertEqual([1], callback_count)
++    sockets[1].close()
++
+   # @timeout_decorator.timeout(2)
+   def testEventLoop(self):
+     sockets = socket.socketpair()
+diff --git a/python/ola/OlaClient.py b/python/ola/OlaClient.py
+index 327911ba..38e5cbee 100644
+--- a/python/ola/OlaClient.py
++++ b/python/ola/OlaClient.py
+@@ -813,15 +813,21 @@ class OlaClient(Ola_pb2.OlaClientService):
+ 
+   def _SocketClosed(self):
+     """Called by the RPCChannel if the socket is closed."""
++    if self._socket is None:
++      return
++
++    our_socket = self._socket
++    self._socket = None
+     try:
+-      self._socket.shutdown(socket.SHUT_RDWR)
++      our_socket.shutdown(socket.SHUT_RDWR)
+     except socket.error:
+       pass
+-    self._socket.close()
+-    self._socket = None
++    our_socket.close()
+ 
+     if self._close_callback:
+-      self._close_callback()
++      close_callback = self._close_callback
++      self._close_callback = None
++      close_callback()
+ 
+   def FetchPlugins(self, callback):
+     """Fetch the list of plugins.

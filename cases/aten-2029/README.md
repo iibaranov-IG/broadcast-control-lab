@@ -6,7 +6,7 @@ This is a feature request, not a hardware failure. The maintainer comment notes
 that future Companion versions may offer this automatically; this case only
 establishes behavior of the pinned module action implementation.
 
-SOURCE.json identifies the upstream commit. upstream.mjs is an unchanged copy
+case.json is the executable case passport and identifies the upstream commit. upstream.mjs is an unchanged copy
 of its actions.js (extension changed for isolated import). Original MIT license
 is included. candidate.mjs changes only the crosspoint action: variable-enabled
 text fields, asynchronous interpolation and integer/range validation. Saved

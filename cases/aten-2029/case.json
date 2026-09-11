@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "aten-2029",
+  "title": "ATEN variable crosspoints",
+  "issue": "https://github.com/bitfocus/companion-module-requests/issues/2029",
+  "problem": "Crosspoint source and destination fields do not accept Companion variables.",
+  "reproduce": "Use $(custom:source)=3 and $(custom:destination)=12 as crosspoint options.",
+  "acceptance": "Resolve both variables and send exactly SS 03,12; reject invalid ports without sending; preserve numeric options and profile recall.",
+  "repair": "Variable-enabled text fields with asynchronous interpolation and integer/range validation.",
+  "source": {
+    "repository": "bitfocus/companion-module-aten-matrix",
+    "commit": "c378e1598a21b87b58a9f5261bf0a48f1578374f",
+    "directory": "sources/aten-2029",
+    "path": "actions.js"
+  },
+  "runtime": { "node": "18.20.8" },
+  "packageVersion": "2.0.3-bcl.1",
+  "steps": {
+    "prepare": [{ "cwd": ".", "argv": ["node", "cases/aten-2029/prepare-package.cjs", "sources/aten-2029"] }],
+    "test": [{ "cwd": ".", "argv": ["node", "cases/aten-2029/test.mjs", "sources/aten-2029/actions.js"] }],
+    "build": [
+      { "cwd": "sources/aten-2029", "argv": ["corepack", "yarn@1.22.22", "install", "--frozen-lockfile", "--ignore-scripts"] },
+      { "cwd": "sources/aten-2029", "argv": ["corepack", "yarn@1.22.22", "companion-module-build"] }
+    ]
+  },
+  "artifacts": { "package": "sources/aten-2029/*.tgz", "report": "reports/aten-2029.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "companionUiVerified": false,
+    "limitations": "Action-contract tests use a Companion test double; transport and hardware behavior are unverified.",
+    "ownerCheck": "Install the test package in a separate Companion setup; record Companion version, matrix model and firmware; verify variable routing, numeric routing and profile recall; return logs and observed routes."
+  }
+}

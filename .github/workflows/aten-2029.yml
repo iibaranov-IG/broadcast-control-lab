@@ -1,4 +1,4 @@
-name: BCL external case - ATEN 2029
+name: BCL case pipeline
 on:
   push:
   pull_request:
@@ -6,31 +6,49 @@ on:
 permissions:
   contents: read
 jobs:
-  before-after:
+  discover:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    outputs:
+      cases: ${{ steps.cases.outputs.ids }}
     steps:
       - uses: actions/checkout@v4
+      - id: cases
+        run: echo "ids=$(node scripts/case.cjs list)" >> "$GITHUB_OUTPUT"
+  case:
+    needs: discover
+    strategy:
+      fail-fast: false
+      matrix:
+        id: ${{ fromJSON(needs.discover.outputs.cases) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - id: meta
+        env:
+          CASE_ID: ${{ matrix.id }}
+        run: node scripts/case.cjs metadata "$CASE_ID"
       - uses: actions/setup-node@v4
         with:
-          node-version: '18.20.8'
+          node-version: ${{ steps.meta.outputs.node }}
       - uses: actions/checkout@v4
         with:
-          repository: bitfocus/companion-module-aten-matrix
-          ref: c378e1598a21b87b58a9f5261bf0a48f1578374f
-          path: sources/aten
-      - run: node cases/aten-2029/prepare-package.cjs sources/aten
-      - run: node cases/aten-2029/test.mjs sources/aten/actions.js
-      - run: corepack yarn@1.22.22 install --frozen-lockfile --ignore-scripts && corepack yarn@1.22.22 companion-module-build
-        working-directory: sources/aten
+          repository: ${{ steps.meta.outputs.repository }}
+          ref: ${{ steps.meta.outputs.revision }}
+          path: ${{ steps.meta.outputs.directory }}
+      - env:
+          CASE_ID: ${{ matrix.id }}
+        run: node scripts/case.cjs run "$CASE_ID"
       - uses: actions/upload-artifact@v4
         with:
-          name: aten-2029-test-build
-          path: sources/aten/*.tgz
+          name: ${{ matrix.id }}-test-build
+          path: ${{ steps.meta.outputs.package }}
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.meta.outcome == 'success'
         with:
-          name: aten-2029-report
-          path: reports/aten-2029.json
+          name: ${{ matrix.id }}-report
+          path: |
+            ${{ steps.meta.outputs.report }}
+            cases/${{ matrix.id }}/case.json
           if-no-files-found: error

@@ -41,6 +41,7 @@ application. Current cases include Companion modules and an AutoPTZ backend.
 | [FPP PTP lock evidence](cases/fpp-2848-ptp-lock/) | Missing/malformed management replies, lock boundaries and integer extremes | Candidate patch and 25 C++ checks; the 1970-date issue remains open |
 | [OBS PTZ DataVideo framing](cases/obs-ptz-144/) | DataVideo length-prefixed VISCA/TCP commands, fragmented replies and unchanged raw VISCA | Compiled production framer, integration contract checks and owner kit |
 | [OLA KiNET isolation](cases/ola-1850/) | Non-blocking KiNET socket setup and preserved packet tests | Kernel flag probe, source contract and owner kit |
+| [PiPedal Bluetooth MIDI reconnect](cases/pipedal-472/) | ALSA client-before-port hotplug ordering and stable-name rebinding | Deterministic event model, production contract and owner kit |
 
 All cases use v2 passports and one CI workflow. A case can be a diagnostic
 or produce a package. Different coverage levels remain explicit in each passport.

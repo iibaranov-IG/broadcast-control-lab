@@ -101,6 +101,7 @@ function containerRun(c, { harness = false } = {}) {
 }
 async function main() {
   const [mode, arg, ...options] = process.argv.slice(2)
+  if (mode === 'triage') return console.log(JSON.stringify(await require('./triage.cjs').run(root, arg, options), null, 2))
   if (mode === 'new') return create(arg, options)
   if (mode === 'list') return console.log(all().map(c => `${c.id}\t${c.status}`).join('\n'))
   if (mode === 'validate') return console.log(JSON.stringify(load(arg), null, 2))
@@ -149,7 +150,7 @@ async function main() {
     require('./publication.cjs').hardwareKit(directory, c)
     return console.log(path.join(directory, 'HARDWARE-CHECK.md'))
   }
-  throw new Error('Usage: bcl new <issue-url> | list | validate <id> | test <id> | publish <id> --fork owner/repo --run <url> [--dry-run] | hardware-kit <id> | sync | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
+  throw new Error('Usage: bcl triage <issue-url> [--source owner/repo] [--ref revision] [--dependency url] | new <issue-url> | list | validate <id> | test <id> | publish <id> --fork owner/repo --run <url> [--dry-run] | hardware-kit <id> | sync | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
 }
 if (require.main === module) main().catch(e => { console.error(e.message); process.exitCode = 1 })
 module.exports = { scaffold }

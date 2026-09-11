@@ -15,6 +15,7 @@ Each investigation adds reusable tools for the next one.
 
 | Your task | What BCL provides today |
 | --- | --- |
+| Review an issue before cloning or building | [`bcl triage`](docs/triage.md): source metadata, related PRs, dependency hints and a decision with evidence links |
 | Reproduce a control-software failure without owning the device | Scripted TCP and UDP endpoints with controlled replies |
 | Check behavior when replies arrive in pieces or late | TCP chunks and delays; UDP delayed or omitted replies |
 | Check commands at the wire boundary | Captured traffic; exact binary datagram matching for UDP |

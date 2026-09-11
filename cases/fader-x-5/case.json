@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 2,
+  "id": "fader-x-5",
+  "status": "ready",
+  "title": "FADER_X X Air OSC address mapping",
+  "issue": "https://github.com/stagehacks/FADER_X/issues/5",
+  "problem": "FADER_X hides X Air auxiliary and FX return targets and its shared X32 code emits X32-only OSC addresses for them; X Air mixers also have no matrix buses.",
+  "reproduce": "Select X Air mode and inspect the addresses generated for Aux In, FX Return and Matrix targets.",
+  "acceptance": "X Air emits /rtn/aux/mix/fader for its single auxiliary return, /rtn/1-4/mix/fader for FX returns, rejects matrix and out-of-range targets, accepts matching inbound updates, and preserves X32 mappings.",
+  "repair": "Centralize mixer-aware address generation, expose the two valid X Air return targets, route their inbound updates and reject unsupported target/channel combinations.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "stagehacks/FADER_X",
+      "commit": "67d33542f5b9999a38a0165a65d882026958d058",
+      "directory": "sources/fader-x-5"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/fader-x-5",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/fader-x-5/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/fader-x-5/test.mjs",
+          "sources/fader-x-5"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/fader-x-5.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "The test compiles and executes the production address generator and checks the firmware receive/UI wiring. It does not flash a Teensy or connect to a physical X Air mixer.",
+    "ownerCheck": "On XR12/XR16/XR18 hardware, select X Air mode. Verify Aux In / USB Playback on channel 1 in both directions, FX Returns 1-4 in both directions, and confirm Matrix is absent. Record mixer model, firmware version and observed motor/fader behavior."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "stagehacks/FADER_X",
+    "base": "main",
+    "paths": [
+      "FADER_X/X32Address.h",
+      "FADER_X/X32.cpp",
+      "FADER_X/WebServer.ino",
+      "README.md"
+    ]
+  }
+}

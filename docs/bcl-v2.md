@@ -1,14 +1,19 @@
 # BCL v2 execution boundary
 
 One workflow replaces the previous ATEN/Zynthian matrix, standalone AutoPTZ and
-legacy Intelix/TCC2 workflow. Five passports use the same runner and evidence format.
+legacy Intelix/TCC2 workflow. All 23 passports use the same runner and evidence
+format; 22 remain explicit diagnostics, while c64cast-368 uses upstream red/green.
 
 ## Acquisition and execution
 
 The host reads passports, fetches public source commits with Git, and builds the
 runtime image. Checkout credentials are not persisted. No upstream application
 code executes on the host. Only an audited package installer receives network
-access; it uses a sanitized manifest and ignores package lifecycle scripts.
+access; reviewed recipes validate manifests and prohibit project lifecycle/build
+hooks during acquisition. The c64cast recipe validates the pinned lockfile and
+pyproject hashes, installs frozen dependency wheels, and acquires setuptools
+83.0.0 as its build backend. Editable project installation runs later via offline
+`uv sync --frozen --no-build-isolation`; its output is retained as a setup log.
 
 Actual case preparation, testing and packaging execute in a separate Docker run:
 
@@ -16,6 +21,7 @@ Actual case preparation, testing and packaging execute in a separate Docker run:
 - only an ephemeral staging directory mounted;
 - no GitHub token, SSH directory or Docker socket passed through;
 - host uid/gid, read-only image filesystem, temporary writable /tmp;
+- isolated `HOME=/work/.home`, separate from temporary roots and source checkouts;
 - all capabilities dropped, no-new-privileges, memory/CPU/process limits.
 
 The stage contains BCL scripts and public source checkouts. BCL's own .git,
@@ -38,5 +44,6 @@ draft generator, generic application verification, durations and hashed packet l
 
 Existing transport helpers remain reusable. The named OSC/VISCA/SSC examples do
 not constitute complete protocol profiles. Full protocol libraries, generalized
-loss/duplication/reordering/corruption controls, owner-result import, automatic
-repair-board updates and autonomous issue-to-PR repair are follow-up work.
+loss/duplication/reordering/corruption controls and autonomous issue-to-PR repair
+are follow-up work. Owner-result import and repair-board updates now exist; see
+[automation](automation.md) and the [current roadmap](ROADMAP.md) for their limits.

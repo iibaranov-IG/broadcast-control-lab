@@ -13,6 +13,7 @@ function read(root) {
   if (!fs.existsSync(p)) return empty()
   const db = JSON.parse(fs.readFileSync(p))
   if (db.schemaVersion !== 1 || !Array.isArray(db.repairs)) throw new Error('Unknown tracking database format')
+  if (new Set(db.repairs.map(r => r.pr)).size !== db.repairs.length) throw new Error('Duplicate PR in tracking registry')
   return db
 }
 function register(db, c, result, digest = null, run = null) {

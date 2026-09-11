@@ -35,7 +35,6 @@ Updated 2026-09-11.
 | ipcamlapse-33 | [Issue](https://github.com/KalyteraSystems/IPCamLapse/issues/33) | [PR](https://github.com/KalyteraSystems/IPCamLapse/pull/50) | open | success | 6 | NOT_REVIEWED | 2026-09-11T12:44:28.376Z |
 | midimonster-150 | [Issue](https://github.com/cbdevnet/midimonster/issues/150) | [PR](https://github.com/cbdevnet/midimonster/pull/151) | open | none | 0 | NOT_REVIEWED | 2026-09-11T12:44:31.288Z |
 | fader-x-5 | [Issue](https://github.com/stagehacks/FADER_X/issues/5) | [PR](https://github.com/stagehacks/FADER_X/pull/8) | open | none | 4 | NOT_REVIEWED | 2026-09-11T12:44:33.733Z |
-| fader-x-5 | [Issue](https://github.com/stagehacks/FADER_X/issues/5) | [PR](https://github.com/stagehacks/FADER_X/pull/8) | open | none | 4 | NOT_REVIEWED | 2026-09-11T12:44:36.162Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

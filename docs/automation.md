@@ -66,7 +66,7 @@ and statuses, source-issue comments, PR discussion, review comments and reviews.
 GitHub may delay scheduled runs. The workflow saves the registry and managed
 board section with a normal commit, without executing code from those projects.
 An external push race causes a failed save rather than overwriting another
-commit; the next run reads again. The initial registry includes the 13 existing
+commit; the next run reads again. The initial registry includes the 12 distinct existing
 manual-board repairs.
 
 The first sync imports existing discussion as unread. Later syncs preserve read

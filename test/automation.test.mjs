@@ -78,6 +78,9 @@ test('Publication registration is idempotent and preserves manual board content'
   assert.match(board, /Keep this entry/)
   assert.equal((board.match(/BCL:TRACKING:START/g) || []).length, 1)
   assert.equal(tracking.render(board, f.db), board)
+  f.db.repairs.push({ ...f.entry })
+  fs.writeFileSync(path.join(f.root, 'tracking/repairs.json'), JSON.stringify(f.db))
+  assert.throws(() => tracking.read(f.root), /Duplicate PR/)
 })
 test('Replies are unread, edits reopen them, and positive prose never verifies hardware', t => {
   const f = setup(t)

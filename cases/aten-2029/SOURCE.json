@@ -1,0 +1,8 @@
+{
+  "issue": "https://github.com/bitfocus/companion-module-requests/issues/2029",
+  "repository": "bitfocus/companion-module-aten-matrix",
+  "commit": "c378e1598a21b87b58a9f5261bf0a48f1578374f",
+  "path": "actions.js",
+  "status": "candidate-only",
+  "hardwareVerified": false
+}

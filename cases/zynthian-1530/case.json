@@ -55,7 +55,7 @@
     "ownerCheck": "Run the candidate on an Oram device; start two Open Stage Control instances on one host with different --osc-port values; send heartbeat to Zynthian; confirm both receive fader, mute and DPM feedback; let one heartbeat expire and confirm the other continues receiving updates.",
     "applicationVerified": false
   },
-  "status": "ready",
+  "status": "diagnostic",
   "sources": [
     {
       "id": "candidate",

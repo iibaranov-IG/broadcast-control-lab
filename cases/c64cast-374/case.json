@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "c64cast-374",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Remove the unused sampler version register",
   "issue": "https://github.com/kfox/c64cast/issues/374",
   "problem": "Remove the unused sampler version register.",

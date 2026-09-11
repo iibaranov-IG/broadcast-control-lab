@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "c64cast-377",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Document the Vitest run in CI",
   "issue": "https://github.com/kfox/c64cast/issues/377",
   "problem": "Document the Vitest run in CI.",

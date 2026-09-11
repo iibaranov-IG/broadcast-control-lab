@@ -27,14 +27,17 @@ function fixture(t) {
     sources: [{ id: 'baseline', repository: 'up/project', commit, directory: 'sources/example' }],
     publish: { source: 'baseline', target: 'up/project', base: 'main', paths: ['main.cpp', 'added.py', 'removed.txt'] },
     verification: { hardwareVerified: false, applicationVerified: false, limitations: 'Simulated only', ownerCheck: 'Check actual equipment' } }
-  c.upstream = { regression: { cwd: '.', argv: ['node', 'regression.mjs'] }, suite: { cwd: '.', argv: ['node', '--test'] }, negative: { exitCode: 1 } }
+  c.upstream = { source: 'baseline', regression: { cwd: '.', argv: ['node', 'regression.mjs'] }, suite: { cwd: '.', argv: ['node', '--test'] }, negative: { exitCode: 1 } }
   const directory = path.join(root, 'reports/example')
   fs.mkdirSync(directory, { recursive: true })
+  const selectionBytes = Buffer.from(JSON.stringify({ checkedAt: new Date().toISOString(), decision: 'READY_TO_INVESTIGATE', issue: { url: c.issue }, source: { repository: c.sources[0].repository, commit }, ranking: { eligible: true, assessmentBoundToRevision: true, score: 90, exclusions: [], unknownGates: [] } }))
+  c.selection = { report: 'triage.json', sha256: publication.hash(selectionBytes) }
+  fs.writeFileSync(path.join(directory, 'triage.json'), selectionBytes)
   const bytes = publication.capture(root, c)
   fs.writeFileSync(path.join(directory, 'candidate.json'), bytes)
   const commands = [['baseline-red', c.upstream.regression, 1], ['candidate-green', c.upstream.regression, 0], ['candidate-suite', c.upstream.suite, 0]].map(([label, step, exitCode]) => ({ label, ...step, exitCode, status: 'PASS', signal: null, log: label + '.log' }))
   const logs = commands.map(c => { fs.writeFileSync(path.join(directory, c.log), 'fixture evidence'); return { path: c.log, sha256: publication.hash('fixture evidence'), bytes: 16 } })
-  const e = writeEvidence(root, c, { qualification: 'RED_GREEN', upstream: { suiteSummary: { total: 1, skipped: 0 }, status: 'PASS', baseline: 'EXPECTED_FAILURE', commands, logs }, status: 'PASS', bclRevision: 'a'.repeat(40), tests: [{ name: 'Repair', status: 'PASS' }], stages: [{ name: 'test', status: 'PASS' }], publication: { path: 'candidate.json', sha256: publication.hash(bytes) } })
+  const e = writeEvidence(root, c, { selection: { sha256: c.selection.sha256 }, qualification: 'RED_GREEN', upstream: { source: 'baseline', suiteSummary: { total: 1, skipped: 0 }, status: 'PASS', baseline: 'EXPECTED_FAILURE', commands, logs }, status: 'PASS', bclRevision: 'a'.repeat(40), tests: [{ name: 'Repair', status: 'PASS' }], stages: [{ name: 'test', status: 'PASS' }], publication: { path: 'candidate.json', sha256: publication.hash(bytes) } })
   const options = { fork: 'me/project', run: 'https://github.com/me/bcl/actions/runs/42' }
   return { root, src, c, directory, e, options, p: publication.plan(directory, c, options) }
 }
@@ -55,7 +58,7 @@ function github(p) {
       return state.ref
     }
     if (method === 'POST' && endpoint.endsWith('/git/blobs')) return { sha: publication.hash(body.content) }
-    if (method === 'POST' && endpoint.endsWith('/git/trees')) return { sha: 'candidate-tree' }
+    if (method === 'POST' && endpoint.endsWith('/git/trees')) return { sha: p.candidate.tree }
     if (method === 'POST' && endpoint.endsWith('/git/commits')) { state.commits.commit = { tree: { sha: body.tree }, parents: body.parents.map(sha => ({ sha })) }; return { sha: 'commit' } }
     if (method === 'POST' && endpoint.endsWith('/git/refs')) { state.ref = { object: { sha: body.sha } }; return state.ref }
     if (method === 'POST' && endpoint.endsWith('/pulls')) {
@@ -77,9 +80,11 @@ test('Publication refuses contract-only evidence and missing focused execution',
   fs.writeFileSync(p, JSON.stringify({ ...f.e, upstream: { ...f.e.upstream, commands: f.e.upstream.commands.filter(c => c.label !== 'candidate-green') } }))
   assert.throws(() => publication.bundle(f.directory, f.c), /claim/)
 })
-test('Capture retains additions, deletions and executable mode; excludes unrelated untracked output', t => {
+test('Capture retains additions, deletions and executable mode; rejects omitted source changes', t => {
   const f = fixture(t)
   fs.writeFileSync(path.join(f.src, 'output.bin'), 'not source')
+  assert.throws(() => publication.capture(f.root, f.c), /outside publication/)
+  fs.unlinkSync(path.join(f.src, 'output.bin'))
   const candidate = JSON.parse(publication.capture(f.root, f.c))
   assert.equal(candidate.files.length, 3)
   assert.equal(candidate.files[1].mode, '100755')

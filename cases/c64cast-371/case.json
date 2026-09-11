@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "c64cast-371",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Correct DEBUG verbosity guidance",
   "issue": "https://github.com/kfox/c64cast/issues/371",
   "problem": "Correct DEBUG verbosity guidance.",

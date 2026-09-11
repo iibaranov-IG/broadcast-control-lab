@@ -6,7 +6,9 @@ const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 function suiteSummary(kind, text) {
   const totalMatch = kind === 'python' ? /Ran (\d+) tests?\b/.exec(text) : kind === 'cpp-cmake' ? /tests failed out of (\d+)/.exec(text) : kind === 'cpp-autotools' ? /# TOTAL:\s*(\d+)/.exec(text) : /(?:#|ℹ) tests\s+(\d+)/.exec(text)
   const skippedMatch = kind === 'python' ? /skipped=(\d+)/.exec(text) : kind === 'cpp-autotools' ? /# SKIP:\s*(\d+)/.exec(text) : kind === 'node' ? /(?:#|ℹ) skipped\s+(\d+)/.exec(text) : null
-  const total = Number(totalMatch?.[1] || 0), skipped = Number(skippedMatch?.[1] || 0)
+  const total = Number(totalMatch?.[1] || 0)
+  const skipped = kind === 'cpp-cmake' ? (text.match(/^\s*\d+\s+-\s+.*\((?:Skipped|Disabled|Not Run)\)\s*$/gm) || []).length : Number(skippedMatch?.[1] || 0)
+  if (kind === 'cpp-cmake' && /tests did not run/i.test(text) && skipped === 0) throw new Error('Unrecognized CTest skipped-test summary')
   if (total <= 0 || skipped >= total) throw new Error('Upstream suite has no recognized nonempty executed-test summary')
   return { total, skipped, parser: kind, source: 'upstream output; successful exit required' }
 }
@@ -15,6 +17,7 @@ function validate(c, relative) {
   if (!u) return
   if (!['cpp-cmake', 'cpp-autotools', 'python', 'node'].includes(u.kind)) throw new Error('Unsupported upstream kind')
   if (!c.sources.some(s => s.id === u.source)) throw new Error('Unknown upstream source')
+  if (c.publish && c.publish.source !== u.source) throw new Error('Upstream and publication must use the same source')
   for (const key of ['setup', 'build']) if (!Array.isArray(u[key])) throw new Error(`Missing upstream ${key}`)
   for (const step of [...u.setup, ...u.build, u.regression, u.suite]) {
     if (!step) throw new Error('Missing upstream command')
@@ -65,9 +68,11 @@ function session(root, c, execution) {
       const text = bytes.toString('utf8')
       entry.failureClass = processResult.error?.code === 'ENOENT' || /ModuleNotFoundError|No module named|cannot find -l|Could NOT find/.test(text) ? 'ENVIRONMENT_DEPENDENCY' : processResult.error?.code === 'ETIMEDOUT' || processResult.signal ? 'TIMEOUT_OR_SIGNAL' : /Could not resolve host|Network is unreachable|Connection timed out/.test(text) ? 'NETWORK' : /patch does not apply|patch failed:/.test(text) ? 'PATCH_APPLICATION' : /unsupported platform|not supported on this platform/i.test(text) ? 'PLATFORM' : 'TEST_OR_CONTRACT'
       entry.classificationConfidence = 'HEURISTIC_REVIEW_REQUIRED'
+      console.error(text.slice(-16000))
       throw new Error(`Upstream ${label} did not meet its exit/diagnostic contract (${entry.failureClass}); see ${name}`)
     }
     entry.status = 'PASS'
+    console.log(`[upstream] ${label}: PASS (exit ${processResult.status})`)
     return bytes.toString('utf8')
   }
   return {
@@ -89,6 +94,7 @@ function session(root, c, execution) {
       u.build.forEach(step => command('candidate-build', step))
       command('candidate-green', u.regression)
       result.suiteSummary = suiteSummary(u.kind, command('candidate-suite', u.suite, 0, u.suiteOutputIncludes))
+      console.log(`[upstream] suite total=${result.suiteSummary.total}, skipped=${result.suiteSummary.skipped}`)
       if (JSON.stringify(tests()) !== JSON.stringify(result.testFiles)) throw new Error('Upstream tests changed during candidate execution')
       result.status = 'PASS'
     },

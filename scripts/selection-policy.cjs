@@ -35,10 +35,12 @@ function evaluate(report, assessment = {}, policy = {}) {
     deliveryReadiness = Math.round((d.ownerContact * 0.35 + d.acceptancePath * 0.4 + d.validationAccess * 0.25) * 20)
   }
   const binding = Boolean(assessment.issue === report.issue.url && assessment.sourceCommit && assessment.sourceCommit === report.source.commit)
-  const eligible = !exclusions.length && !unknownGates.length && binding && report.decision === 'READY_TO_INVESTIGATE' && score !== null && deliveryReadiness !== null
+  const assessed = !exclusions.length && !unknownGates.length && binding && report.decision === 'READY_TO_INVESTIGATE' && score !== null && deliveryReadiness !== null
+  const eligible = assessed && score >= 70
   return { exclusions, unknownGates, assessmentBoundToRevision: binding, eligible, score, scoreRange: [Math.floor(earned), Math.ceil(earned + unknownWeight)], dimensions,
-    class: exclusions.length ? 'REJECT' : !eligible ? 'NEEDS_REVIEW' : score >= 85 ? 'TAKE_NOW' : score >= 70 ? 'QUICK_REVIEW' : score >= 50 ? 'RESERVE' : 'SKIP',
+    class: exclusions.length ? 'REJECT' : !assessed ? 'NEEDS_REVIEW' : score >= 85 ? 'TAKE_NOW' : score >= 70 ? 'QUICK_REVIEW' : score >= 50 ? 'RESERVE' : 'SKIP',
     deliveryReadiness, deliveryProbability: null, deliveryNote: 'Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.',
-    queueKey: eligible ? [deliveryReadiness, score] : null }
+    queueKey: eligible && score >= 70 ? [deliveryReadiness, score] : null,
+    selectable: eligible && score >= 70 }
 }
 module.exports = { weights, gates, blocked, evaluate }

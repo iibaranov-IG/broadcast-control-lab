@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "c64cast-375",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Pin MIDI port close before SID silence",
   "issue": "https://github.com/kfox/c64cast/issues/375",
   "problem": "Pin MIDI port close before SID silence.",

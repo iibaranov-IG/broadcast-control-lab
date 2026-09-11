@@ -14,7 +14,7 @@
 
 | Work | Done when |
 | --- | --- |
-| Migrate the nine c64cast cases | Tests-only setup is separated from each repair; the actual baseline assertion fails, candidate passes, and the configured upstream gate runs inside BCL. Current contract checks are not this evidence. |
+| Migrate the nine c64cast cases | Tests-only setup is separated from each repair; the actual baseline assertion fails, candidate passes, and the configured upstream gate runs inside BCL. c64cast-368 has been migrated to actual upstream commands; the other eight remain diagnostics. |
 | Reproducible dependency profiles | Python, Node, CMake, Autotools and Qt dependencies use reviewed pinned manifests/hashes; shared caches survive independent case execution without cross-contamination. |
 | Real batch benchmark | The nine same-revision c64cast cases use one download and one image preparation; actual timings and all individual results are retained. The harness reuse test is not this benchmark. |
 | Candidate refresh | A fresh immutable upstream revision is selected; patch conflicts produce a report; successful replay regenerates all evidence and never force-updates the old PR automatically. |

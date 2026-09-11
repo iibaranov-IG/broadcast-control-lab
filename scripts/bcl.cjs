@@ -24,17 +24,23 @@ function scaffold(url, sourceCommit, title) {
 async function create(url, options = []) {
   const m = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)\/issues\/(\d+)\/?$/.exec(url || '')
   if (!m) throw new Error('Usage: bcl new https://github.com/owner/repo/issues/123')
+  const triagePath = path.join(root, 'reports', 'triage', m[1], m[2], m[3], 'triage.json')
+  if (!fs.existsSync(triagePath)) throw new Error('Run bcl triage with a reviewed assessment before bcl new')
+  const triageBytes = fs.readFileSync(triagePath), triage = JSON.parse(triageBytes)
+  const c = scaffold(url, triage.source?.commit, triage.issue?.title || url)
+  c.sources[0].repository = triage.source.repository
+  require('./selection-gate.cjs').check(triage, c, { publishing: true })
   const read = require('./github-read.cjs').reader()
-  const api = p => read(`repos/${m[1]}/${m[2]}/${p}`)
-  const issue = await api(`issues/${m[3]}`)
-  if (issue.pull_request) throw new Error('Use an issue URL, not a pull request')
-  const commits = await api('commits?per_page=1')
-  const c = scaffold(url, commits[0].sha, issue.title)
+  const issue = await read(`repos/${m[1]}/${m[2]}/issues/${m[3]}`)
+  if (issue.pull_request || issue.state !== 'open' || (triage.issue.updatedAt && issue.updated_at !== triage.issue.updatedAt)) throw new Error('Issue changed or closed; refresh triage before creating the passport')
+  c.title = issue.title
+  c.selection = { report: `cases/${c.id}/triage.json`, sha256: require('./selection-gate.cjs').hash(triageBytes) }
   const templates = require('./templates.cjs')
   const templateFiles = templates.generate(c, templates.options(options))
   const directory = path.join(root, 'cases', c.id)
   if (fs.existsSync(directory)) throw new Error('Case already exists; nothing overwritten')
   fs.mkdirSync(directory)
+  fs.writeFileSync(path.join(directory, 'triage.json'), triageBytes)
   fs.writeFileSync(path.join(directory, 'case.json'), JSON.stringify(c, null, 2) + '\n')
   for (const [name, contents] of Object.entries(templateFiles)) fs.writeFileSync(path.join(directory, name), contents)
   fs.writeFileSync(path.join(directory, 'README.md'), `# ${c.title}\n\nDraft from ${url}.\n\nImplement a real negative control, candidate acceptance and owner checks before marking ready. The issue repository may differ from the actual source repository: verify the pinned source before working.\n`)
@@ -43,6 +49,7 @@ async function create(url, options = []) {
 }
 function containerRun(c, { harness = false, shared = null, legacy = false } = {}) {
   if (!harness && !c.upstream && !legacy) throw new Error('A repair run requires upstream red → green; --legacy-contracts runs old diagnostics without publication qualification')
+  if (!harness && c.upstream) require('./selection-gate.cjs').load(root, c)
   const id = harness ? 'harness' : c.id
   const output = path.join(root, 'reports', id)
   fs.rmSync(output, { recursive: true, force: true })
@@ -52,7 +59,7 @@ function containerRun(c, { harness = false, shared = null, legacy = false } = {}
   let bclRevision = 'unknown'
   try {
     try { bclRevision = exec('git', ['rev-parse', 'HEAD'], { encoding: 'utf8', stdio: 'pipe' }).trim() } catch {}
-    const allowed = new Set(['cases', 'scripts', 'lib', 'test', 'lab.cjs', 'package.json', 'Dockerfile'])
+    const allowed = new Set(['cases', 'scripts', 'lib', 'test', 'lab.cjs', 'package.json', 'Dockerfile', 'selection-policy.json'])
     for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
       if (!allowed.has(entry.name) || entry.isSymbolicLink()) continue
       fs.cpSync(path.join(root, entry.name), path.join(stage, entry.name), { recursive: true,
@@ -111,17 +118,20 @@ async function main() {
   if (mode === 'validate') return console.log(JSON.stringify(load(arg), null, 2))
   if (mode === 'harness') return containerRun(null, { harness: true })
   if (mode === 'batch') {
-    const result = require('./batch.cjs').run(root, [arg, ...options].filter(Boolean).map(load), (c, shared) => containerRun(c, { shared }))
+    const cases = [arg, ...options].filter(Boolean).map(load)
+    for (const c of cases) require('./selection-gate.cjs').load(root, c)
+    const result = require('./batch.cjs').run(root, cases, (c, shared) => containerRun(c, { shared }))
     console.log(JSON.stringify(result, null, 2))
     if (result.status !== 'PASS') process.exitCode = 1
     return
   }
   if (mode === 'run' || mode === 'test') {
     if (options.some(o => o !== '--legacy-contracts') || options.length > 1) throw new Error('Unknown test option')
-    const c = load(arg); if (c.status !== 'ready') throw new Error('Draft case is not executable')
+    const c = load(arg); if (c.status !== 'ready' && !(c.status === 'diagnostic' && options.includes('--legacy-contracts'))) throw new Error('Use --legacy-contracts for diagnostics; drafts are not executable')
     return containerRun(c, { legacy: options.includes('--legacy-contracts') })
   }
   if (mode === 'publish') {
+    require('./selection-gate.cjs').load(root, load(arg), { publishing: true })
     const policy = fs.existsSync(path.join(root, 'selection-policy.json')) ? JSON.parse(fs.readFileSync(path.join(root, 'selection-policy.json'))) : {}
     if (require('./selection-policy.cjs').blocked(load(arg).publish?.target || '', policy)) throw new Error('Publication target is denied by BCL policy')
     const { publish, parseOptions } = require('./publish.cjs')

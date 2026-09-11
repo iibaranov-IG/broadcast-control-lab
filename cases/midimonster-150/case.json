@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "midimonster-150",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "MIDIMonster value-less OSC mixer queries",
   "issue": "https://github.com/cbdevnet/midimonster/issues/150",
   "problem": "MIDIMonster cannot send the value-less OSC messages used to query current channel state from Behringer XAir and X32 mixers.",
@@ -26,25 +26,53 @@
     "prepare": [
       {
         "cwd": "sources/midimonster-150",
-        "argv": ["git", "apply", "../../cases/midimonster-150/repair.patch"]
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/midimonster-150/repair.patch"
+        ]
       },
       {
         "cwd": "sources/midimonster-150",
-        "argv": ["make", "PLUGINS=backends", "midimonster"]
+        "argv": [
+          "make",
+          "PLUGINS=backends",
+          "midimonster"
+        ]
       },
       {
         "cwd": "sources/midimonster-150/backends",
-        "argv": ["cc", "-g", "-fPIC", "-I../", "-Wall", "-Wpedantic", "-c", "libmmbackend.c", "-o", "libmmbackend.o"]
+        "argv": [
+          "cc",
+          "-g",
+          "-fPIC",
+          "-I../",
+          "-Wall",
+          "-Wpedantic",
+          "-c",
+          "libmmbackend.c",
+          "-o",
+          "libmmbackend.o"
+        ]
       },
       {
         "cwd": "sources/midimonster-150",
-        "argv": ["make", "-C", "backends", "osc.so"]
+        "argv": [
+          "make",
+          "-C",
+          "backends",
+          "osc.so"
+        ]
       }
     ],
     "test": [
       {
         "cwd": ".",
-        "argv": ["node", "cases/midimonster-150/test.mjs", "sources/midimonster-150"]
+        "argv": [
+          "node",
+          "cases/midimonster-150/test.mjs",
+          "sources/midimonster-150"
+        ]
       }
     ],
     "build": []

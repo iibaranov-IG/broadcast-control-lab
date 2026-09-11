@@ -48,7 +48,8 @@ The weighted score is 0..100. Classes: 85–100 `TAKE_NOW`, 70–84 `QUICK_REVIE
 produce a score range and `NEEDS_REVIEW`, never invented points or eligibility.
 
 Delivery readiness weights contact 35%, acceptance path 40% and validation access
-25%. The queue key orders delivery readiness first, candidate score second.
+25%. The queue key orders delivery readiness first, candidate score second. SKIP and
+RESERVE have no queue key and are not eligible for automatic execution.
 This is a prioritization index, **not a calibrated probability of merge**;
 `deliveryProbability` remains null until outcome history supports calibration.
 

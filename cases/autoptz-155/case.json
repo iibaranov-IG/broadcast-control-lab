@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "autoptz-155",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "AutoPTZ UDP backend",
   "issue": "https://github.com/AutoPTZ/autoptz/issues/155",
   "problem": "AutoPTZ UDP backend",

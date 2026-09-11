@@ -10,7 +10,7 @@ function relative(value) {
 }
 function validate(c, id = c.id) {
   if (!idPattern.test(id || '') || c.id !== id || c.schemaVersion !== 2) throw new Error('Expected v2 passport and matching id')
-  if (!['ready', 'draft'].includes(c.status)) throw new Error('Invalid case status')
+  if (!['ready', 'draft', 'diagnostic'].includes(c.status)) throw new Error('Invalid case status')
   for (const key of ['title', 'issue', 'problem', 'reproduce', 'acceptance', 'repair']) if (typeof c[key] !== 'string' || !c[key].trim()) throw new Error(`Missing ${key}`)
   if (!Array.isArray(c.sources) || !c.sources.length) throw new Error('Missing sources')
   const dirs = new Set(), ids = new Set()
@@ -56,11 +56,18 @@ function select(cases, changed) {
 }
 function command(step) { execFileSync(step.argv[0], step.argv.slice(1), { cwd: path.join(root, step.cwd), stdio: 'inherit', shell: false }) }
 function run(c) {
-  if (c.status !== 'ready') throw new Error('Draft case: implement reproduction and acceptance before execution')
+  if (!['ready', 'diagnostic'].includes(c.status)) throw new Error('Draft case: implement reproduction and acceptance before execution')
   if (process.env.BCL_SANDBOX !== 'network-none') throw new Error('Use bcl run: case execution requires the offline container')
   const started = performance.now()
   const execution = { status: 'FAIL', bclRevision: process.env.BCL_REVISION || 'unknown', environment: {}, stages: [], packages: [] }
   try {
+    if (c.upstream) {
+      const selection = require('./selection-gate.cjs').load(root, c)
+      const directory = path.join(root, 'reports', c.id)
+      fs.mkdirSync(directory, { recursive: true })
+      fs.writeFileSync(path.join(directory, 'triage.json'), selection.bytes)
+      execution.selection = { path: 'triage.json', sha256: c.selection.sha256 }
+    }
     fs.rmSync(path.join(root, c.artifacts.report), { force: true })
     if (process.versions.node !== c.runtime.node) throw new Error(`Use Node ${c.runtime.node}`)
     execution.environment.node = process.versions.node

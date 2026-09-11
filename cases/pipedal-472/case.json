@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "pipedal-472",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "PiPedal Bluetooth MIDI reconnect",
   "issue": "https://github.com/rerdavies/pipedal/issues/472",
   "problem": "After a Bluetooth MIDI controller is powered off and on, ALSA announces the client before its port exists; PiPedal tries to reconnect too early and ignores the later port announcement.",
@@ -26,13 +26,21 @@
     "prepare": [
       {
         "cwd": "sources/pipedal-472",
-        "argv": ["git", "apply", "../../cases/pipedal-472/repair.patch"]
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/pipedal-472/repair.patch"
+        ]
       }
     ],
     "test": [
       {
         "cwd": ".",
-        "argv": ["node", "cases/pipedal-472/test.mjs", "sources/pipedal-472"]
+        "argv": [
+          "node",
+          "cases/pipedal-472/test.mjs",
+          "sources/pipedal-472"
+        ]
       }
     ],
     "build": []
@@ -50,6 +58,8 @@
     "source": "upstream",
     "target": "rerdavies/pipedal",
     "base": "main",
-    "paths": ["PiPedalCommon/src/AlsaSequencer.cpp"]
+    "paths": [
+      "PiPedalCommon/src/AlsaSequencer.cpp"
+    ]
   }
 }

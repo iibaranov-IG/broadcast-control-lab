@@ -49,6 +49,7 @@ function publishPlan(p, request = api) {
     return { path: f.path, mode: f.mode, type: 'blob', sha: blob.sha }
   })
   const tree = request('POST', `${fork}/git/trees`, { base_tree: parent.tree.sha, tree: entries })
+  if (tree.sha !== p.candidate.tree) throw new Error('Constructed PR tree differs from the tested candidate')
   if (tree.sha === parent.tree.sha) throw new Error('Candidate contains no changes')
   const refPath = `${fork}/git/ref/heads/${p.branch}`
   let ref = optional(request, refPath)
@@ -61,7 +62,7 @@ function publishPlan(p, request = api) {
   if (headCommit.tree.sha !== tree.sha || headCommit.parents.length !== 1 || headCommit.parents[0].sha !== p.candidate.source.commit) throw new Error('Existing branch differs from tested candidate; refusing to overwrite')
   try {
     const pr = request('POST', `${target}/pulls`, { title: p.title, body: p.body, head, head_repo: p.fork.split('/')[1], base: p.base, draft: true, maintainer_can_modify: true })
-    return { url: pr.html_url, reused: false, state: pr.state }
+    return { url: pr.html_url, reused: false, state: pr.state, headSha: ref.object.sha }
   } catch (error) {
     if (error.status !== 422) throw error
     const raced = existingPRs().find(pr => pr.body?.includes(marker))
@@ -81,6 +82,10 @@ function parseOptions(args) {
   }
   return options
 }
+function validateBatchManifest(manifest, id) {
+  const entries = (manifest.cases || []).filter(item => item.case === id)
+  if (manifest.completed !== true || entries.length !== 1 || entries[0].status !== 'PASS') throw new Error('Selected case did not pass a completed batch')
+}
 function publish(root, c, options) {
   let directory = path.join(root, 'reports', c.id), temporary
   try {
@@ -88,7 +93,7 @@ function publish(root, c, options) {
       const m = /^https:\/\/github\.com\/([\w.-]+\/[\w.-]+)\/actions\/runs\/(\d+)\/?$/.exec(options.run)
       if (!m) throw new Error('Use a GitHub Actions run URL')
       const run = api('GET', `repos/${m[1]}/actions/runs/${m[2]}`)
-      if (run.status !== 'completed' || run.conclusion !== 'success') throw new Error('Evidence run must complete successfully')
+      if (run.status !== 'completed' || (run.conclusion !== 'success' && !(options.batch && run.conclusion === 'failure'))) throw new Error('Evidence run must be completed; only a completed batch may contain failed peers')
       temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'bcl-publish-'))
       directory = temporary
       require('./retry.cjs').retrySync(() => {
@@ -96,7 +101,14 @@ function publish(root, c, options) {
         fs.mkdirSync(directory)
         execFileSync('gh', ['run', 'download', m[2], '--repo', m[1], '--name', options.batch ? 'batch-evidence' : `${c.id}-evidence`, '--dir', directory], { stdio: 'pipe', timeout: 60000 })
       })
-      if (options.batch) directory = path.join(temporary, c.id)
+      if (options.batch) {
+        const batchDir = path.join(temporary, 'batches')
+        const files = fs.readdirSync(batchDir).filter(p => p.endsWith('.json'))
+        if (files.length !== 1) throw new Error('Expected one completed batch manifest')
+        const manifest = JSON.parse(require('./publication.cjs').regular(batchDir, files[0]))
+        validateBatchManifest(manifest, c.id)
+        directory = path.join(temporary, c.id)
+      }
       const p = plan(directory, c, options)
       const e = JSON.parse(fs.readFileSync(path.join(directory, 'evidence.json')))
       if (e.bclRevision !== run.head_sha) throw new Error('Evidence revision differs from Actions run')
@@ -124,4 +136,4 @@ function publish(root, c, options) {
     return result
   }
 }
-module.exports = { publish, publishPlan, parseOptions, api }
+module.exports = { publish, publishPlan, parseOptions, api, validateBatchManifest }

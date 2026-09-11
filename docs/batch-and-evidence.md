@@ -22,16 +22,19 @@ The `BCL batch` manual Actions workflow accepts space-separated ids and uploads
 npm run bcl -- publish case-one --batch --fork owner/project --run https://github.com/owner/bcl/actions/runs/123
 ```
 
-The Actions run must finish successfully; failed batches retain diagnostics but do
-not qualify publication. Re-run the desired passing subset after addressing failures.
+A completed batch may contain failed peers. Publication requires its completed
+batch manifest to identify the selected case as PASS, plus all ordinary per-case
+selection, tree, red/green and hash checks. Cancelled or incomplete batches cannot
+qualify publication.
 
 ## Red → green contract
 
-`ready` means a passport is configured; it is not proof of a repair. Normal
+`ready` means a passport is configured; it is not proof of a repair. The 22
+unmigrated cases are explicitly `diagnostic`; c64cast-368 now exercises the actual
+upstream red/green path. Normal
 `bcl test` and `bcl batch` require upstream evidence. Existing diagnostic cases can
 run with `bcl test <id> --legacy-contracts`; their `CONTRACT_ONLY` result cannot
-qualify for publication. The existing CI matrix explicitly uses that compatibility
-mode until its passports are migrated. A configured upstream case still runs all
+qualify for publication. CI uses compatibility mode only for passports explicitly marked `diagnostic`. A configured upstream case still runs all
 red/green checks when this flag is present.
 
 Add an `upstream` object to a passport (paths are relative to the selected source):
@@ -134,3 +137,26 @@ its issue. The command registers it on the configured board and reads CI, review
 comments, mergeability and closure. Existing tracking automation continues updates.
 Attachment does not establish that the PR's bytes passed BCL; unbound external PRs
 remain `NOT_BOUND`. No comment is posted and the PR is not modified.
+
+## Audit hardening
+
+Every upstream run requires a hash-bound `selection.report` matching the exact
+issue, repository and commit. New passports copy their approved triage report;
+publish requires a report no older than seven days. `SKIP` and `RESERVE` do not
+enter the automatic queue. Existing-PR revalidation can record
+`selection.purpose: EXISTING_PR_VALIDATION`, an explicitly linked `existingPR` and
+a review reason. It still requires bound readable source metadata and respects
+the denylist; it can never authorize a new publication. c64cast-368 uses this mode
+for our existing PR #387, with the actual read-only triage report preserved.
+
+Upstream and publication sources must match. Every tracked/nonignored changed
+source or test file must appear in `publish.paths`. BCL constructs an independent
+Git index and records the candidate tree; tests cannot change that tree, and GitHub
+must construct exactly the same tree before a PR is created. Ignored build outputs
+and acquired dependencies are outside that source-tree identity and remain subject
+to their dependency/runtime profiles.
+
+Shared downloads are promoted atomically after successful preparation. A failed
+attempt is cleaned before the next case retries. When tracking observes a changed
+PR head, evidence and previous hardware results become STALE; old hardware reports
+cannot be imported as fresh proof until the candidate is rebound.

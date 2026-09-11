@@ -30,6 +30,20 @@ function capture(root, c) {
   const sourceRoot = path.join(root, s.directory)
   const git = args => execFileSync('git', ['-C', sourceRoot, ...args], { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 })
   if (git(['rev-parse', 'HEAD']).trim() !== s.commit) throw new Error('Publication baseline changed')
+  let tree = null
+  if (c.upstream) {
+    if (c.upstream.source !== c.publish.source) throw new Error('Tested and published source differ')
+    const changed = [...git(['diff', '--name-only', '-z', 'HEAD']).split('\0'), ...git(['ls-files', '--others', '--exclude-standard', '-z']).split('\0')].filter(Boolean)
+    if (changed.some(p => !c.publish.paths.includes(p))) throw new Error('Working tree has changes outside publication paths; include every source/test change or remove it')
+    const directory = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bcl-index-'))
+    const env = { ...process.env, GIT_INDEX_FILE: path.join(directory, 'index') }
+    const indexed = args => execFileSync('git', ['-C', sourceRoot, ...args], { encoding: 'utf8', env })
+    try {
+      indexed(['read-tree', s.commit])
+      if (changed.length) indexed(['add', '-A', '--', ...changed])
+      tree = indexed(['write-tree']).trim()
+    } finally { fs.rmSync(directory, { recursive: true, force: true }) }
+  }
   let size = 0
   const files = c.publish.paths.map(p => {
     const listed = git(['ls-tree', '-z', s.commit, '--', p]).split('\0').filter(Boolean)
@@ -47,13 +61,16 @@ function capture(root, c) {
       return { path: p, mode: match[1], prior, content: null }
     }
   })
-  const candidate = { schemaVersion: 1, case: c.id, source: s, publish: c.publish, files }
+  const candidate = { schemaVersion: 1, case: c.id, source: s, publish: c.publish, files, ...(tree ? { tree } : {}) }
   return Buffer.from(JSON.stringify(candidate, null, 2) + '\n')
 }
 function bundle(directory, c) {
   const evidence = JSON.parse(regular(directory, 'evidence.json'))
   const snapshot = JSON.parse(regular(directory, 'case.json'))
   if (JSON.stringify(snapshot) !== JSON.stringify(c)) throw new Error('Passport changed: test this case again')
+  const selectionBytes = regular(directory, 'triage.json')
+  if (hash(selectionBytes) !== c.selection?.sha256 || evidence.selection?.sha256 !== c.selection.sha256) throw new Error('Missing matching selection evidence')
+  require('./selection-gate.cjs').check(JSON.parse(selectionBytes), c, { publishing: true })
   if (evidence.case !== c.id || evidence.status !== 'PASS' || !evidence.tests?.length || evidence.tests.some(t => t.status !== 'PASS') || !/^[a-f0-9]{40}$/.test(evidence.bclRevision)) throw new Error('Publication requires passing evidence with a BCL revision')
   if (require('./selection-policy.cjs').blocked(c.publish?.target || '')) throw new Error('Publication target is denied by BCL policy')
   if (!c.upstream || evidence.qualification !== 'RED_GREEN' || evidence.upstream?.status !== 'PASS' || evidence.upstream.baseline !== 'EXPECTED_FAILURE') throw new Error('Publication requires upstream red → green evidence; contract-only checks cannot qualify')
@@ -69,6 +86,7 @@ function bundle(directory, c) {
   const bytes = regular(directory, 'candidate.json')
   if (hash(bytes) !== evidence.publication?.sha256) throw new Error('Candidate hash mismatch; rerun bcl test')
   const candidate = JSON.parse(bytes)
+  if (c.upstream.source !== c.publish.source || evidence.upstream.source !== c.publish.source || !/^[a-f0-9]{40}$/.test(candidate.tree || '')) throw new Error('Missing consistent tested/published tree identity')
   validatePublication(c)
   if (!c.publish || candidate.case !== c.id || JSON.stringify(candidate.publish) !== JSON.stringify(c.publish) || JSON.stringify(candidate.source) !== JSON.stringify(c.sources.find(s => s.id === c.publish.source))) throw new Error('Candidate does not match passport')
   if (JSON.stringify(candidate.files.map(f => f.path)) !== JSON.stringify(c.publish.paths)) throw new Error('Candidate paths differ from publication allowlist')

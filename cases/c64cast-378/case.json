@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "c64cast-378",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Stop assuming eager generator finalization",
   "issue": "https://github.com/kfox/c64cast/issues/378",
   "problem": "Stop assuming eager generator finalization.",

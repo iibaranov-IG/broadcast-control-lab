@@ -22,13 +22,22 @@
   },
   "watch": [],
   "steps": {
-    "dependencies": [],
+    "dependencies": [
+      {
+        "cwd": "sources/c64cast-368",
+        "argv": [
+          "audited-profile",
+          "c64cast-368-uv-lock"
+        ]
+      }
+    ],
     "prepare": [
       {
         "cwd": "sources/c64cast-368",
         "argv": [
           "git",
           "apply",
+          "--exclude=tests/test_audio_lifecycle.py",
           "../../cases/c64cast-368/repair.patch"
         ]
       }
@@ -51,7 +60,7 @@
   "verification": {
     "hardwareVerified": false,
     "applicationVerified": false,
-    "limitations": "BCL checks patch application, the issue-specific source contract, and Python syntax. The full upstream suite was run outside BCL; hardware was not required for PR #387.",
+    "limitations": "Runs the actual upstream focused regression and complete unittest discovery on Linux/Python 3.12 with the frozen dev+web dependency profile; optional/platform skips are reported. This does not run every upstream CI platform, lint/typecheck gate, hardware check, or qualify a new PR.",
     "ownerCheck": "Review and merge https://github.com/kfox/c64cast/pull/387 after CI and maintainer review."
   },
   "publish": {
@@ -64,5 +73,61 @@
       "docs/architecture/audio.md",
       "tests/test_audio_lifecycle.py"
     ]
+  },
+  "selection": {
+    "report": "cases/c64cast-368/triage.json",
+    "sha256": "1cd555d01665ed11feeb9c53c9d0331192c89d7b23ca20b50a29d8a5d672e27e",
+    "purpose": "EXISTING_PR_VALIDATION",
+    "existingPR": "https://github.com/kfox/c64cast/pull/387",
+    "reason": "Owner requested repair of BCL audit findings, including a real red/green upstream validation. Revalidate our existing PR; do not select or publish a competing repair."
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "upstream",
+    "timeoutMs": 600000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/c64cast-368/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "tests/test_audio_lifecycle.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "env",
+        "PYTHONPATH=tests",
+        ".venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_audio_lifecycle.LifecycleTest.test_stop_swallows_teardown_write_errors"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "no logs of level ERROR or higher triggered on c64cast.audio.audio"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "env",
+        "PYTHONPATH=tests",
+        ".venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-b"
+      ]
+    },
+    "suiteOutputIncludes": "Ran "
   }
 }

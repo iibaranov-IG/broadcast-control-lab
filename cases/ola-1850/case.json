@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "ola-1850",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "OLA KiNET unreachable-device isolation",
   "issue": "https://github.com/OpenLightingProject/ola/issues/1850",
   "problem": "A blocking KiNET UDP socket can stall OLA's shared event loop when one configured power supply disappears, making healthy universes stutter and later burst queued frames.",
@@ -26,13 +26,21 @@
     "prepare": [
       {
         "cwd": "sources/ola-1850",
-        "argv": ["git", "apply", "../../cases/ola-1850/repair.patch"]
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/ola-1850/repair.patch"
+        ]
       }
     ],
     "test": [
       {
         "cwd": ".",
-        "argv": ["node", "cases/ola-1850/test.mjs", "sources/ola-1850"]
+        "argv": [
+          "node",
+          "cases/ola-1850/test.mjs",
+          "sources/ola-1850"
+        ]
       }
     ],
     "build": []

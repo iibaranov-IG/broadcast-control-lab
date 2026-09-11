@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "obs-ptz-144",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "OBS PTZ DataVideo VISCA-over-TCP framing",
   "issue": "https://github.com/glikely/obs-ptz/issues/144",
   "problem": "DataVideo PTC cameras accept a TCP connection but do not respond to raw VISCA packets because their TCP dialect prefixes every packet with its two-byte total length.",
@@ -26,13 +26,21 @@
     "prepare": [
       {
         "cwd": "sources/obs-ptz-144",
-        "argv": ["git", "apply", "../../cases/obs-ptz-144/repair.patch"]
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/obs-ptz-144/repair.patch"
+        ]
       }
     ],
     "test": [
       {
         "cwd": ".",
-        "argv": ["node", "cases/obs-ptz-144/test.mjs", "sources/obs-ptz-144"]
+        "argv": [
+          "node",
+          "cases/obs-ptz-144/test.mjs",
+          "sources/obs-ptz-144"
+        ]
       }
     ],
     "build": []

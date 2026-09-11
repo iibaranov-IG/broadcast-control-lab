@@ -37,6 +37,13 @@ test('attach existing PR validates issue and target, syncs conflict state and re
   attach('', c, 'https://github.com/team/project/pull/2', api, update)
   assert.equal(db.repairs.length, 1); assert.equal(db.repairs[0].mergeable, false)
   assert.equal(db.repairs[0].evidenceStatus, 'NOT_BOUND')
+  db.repairs[0].hardware = { status: 'REPORTED_PASS' }
+  info.head.sha = 'b'.repeat(40)
+  attach('', c, 'https://github.com/team/project/pull/2', api, update)
+  assert.equal(db.repairs[0].evidenceStatus, 'STALE')
+  assert.equal(db.repairs[0].hardware.status, 'STALE')
+  attach('', c, 'https://github.com/team/project/pull/2', api, update)
+  assert.equal(db.repairs[0].evidenceStatus, 'STALE')
   info.body = 'unrelated'; assert.throws(() => attach('', c, 'https://github.com/team/project/pull/2', api, update), /explicitly reference/)
   assert.throws(() => attach('', c, 'https://github.com/other/project/pull/2', api, update), /target/)
 })

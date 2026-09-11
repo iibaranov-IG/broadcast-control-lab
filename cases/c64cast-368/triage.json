@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-11T14:52:06.500Z",
+  "issue": {
+    "repository": "kfox/c64cast",
+    "number": "368",
+    "url": "https://github.com/kfox/c64cast/issues/368",
+    "title": "`AudioStreamer.stop()` puts four independent U64 teardown guarantees under one `try`, so the first link hiccup starves the rest \u2014 including the KERNAL NMI vector restore.",
+    "state": "open",
+    "updatedAt": "2026-09-09T21:57:22Z"
+  },
+  "source": {
+    "repository": "kfox/c64cast",
+    "requestedRef": "b9abd3dd0447086c94c960665eb4a57b1172eef9",
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "b9abd3dd0447086c94c960665eb4a57b1172eef9",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": ".github/PULL_REQUEST_TEMPLATE.md",
+        "url": "https://github.com/kfox/c64cast/blob/b9abd3dd0447086c94c960665eb4a57b1172eef9/.github/PULL_REQUEST_TEMPLATE.md",
+        "content": "<!--\nThanks for the pull request. Fill in what applies and delete what doesn't \u2014\na one-line fix does not need a long form. CONTRIBUTING.md has the conventions\nin full.\n-->\n\n## What this changes\n\n<!-- What the change does, and why. If it fixes an open issue: \"Fixes #123\". -->\n\n## How it was verified\n\n<!--\n`make check` is the gate (lint + typecheck + tests). Say what else you ran \u2014\nespecially anything hardware-side, since CI cannot do that part.\n-->\n\n- [ ] `make check` is green\n- [ ] Tests added or updated for the change\n- [ ] Verified on real hardware (say which machine, firmware, and connection\n      scheme \u2014 or note that the change does not touch a hardware path)\n\n## Documentation\n\n<!--\nDocs are part of the change, not a follow-up. Tick what applied; delete the\nlines that didn't.\n-->\n\n- [ ] Architecture notes updated (`docs/architecture/\u2026`) for a module whose\n      behavior changed\n- [ ] User-facing docs updated (the User's Guide, the Reference Guide, the\n      Performance Card, `caveats.md`, `troubleshooting.md`, `extending.md`)\n- [ ] `CHANGELOG.md` entry added under `## [Unreleased]`\n- [ ] New config knob: field `help`/`choices` metadata filled in,\n      `c64cast/examples/` updated, `make schema` re-run\n- [ ] Not applicable \u2014 no behavior or config surface changed\n\n## Anything reviewers should know\n\n<!--\nTrade-offs you made, approaches you rejected, parts you are unsure about, or\nfollow-up work you deliberately left out of scope.\n-->\n",
+        "requirementHints": [
+          "Thanks for the pull request. Fill in what applies and delete what doesn't \u2014",
+          "`make check` is the gate (lint + typecheck + tests). Say what else you ran \u2014",
+          "- [ ] Tests added or updated for the change"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/kfox/c64cast/blob/b9abd3dd0447086c94c960665eb4a57b1172eef9/CONTRIBUTING.md",
+        "content": "# Contributing to c64cast\n\nBug reports, feature ideas, and pull requests are all welcome. This file covers\nthe development setup and the conventions the repo follows. If you only want to\n*use* c64cast, the [README](README.md) has what you need \u2014 you do not need any\nof this.\n\nSecurity issues go through [SECURITY.md](SECURITY.md), not a public issue.\nEveryone participating is expected to follow the\n[Code of Conduct](CODE_OF_CONDUCT.md).\n\n## Development setup\n\nc64cast uses the [uv](https://github.com/astral-sh/uv) project workflow.\n\n```bash\ngit clone https://github.com/kfox/c64cast\ncd c64cast\nuv sync --all-extras    # creates/updates .venv from uv.lock: every runtime\n                        # extra + the dev tool group\npre-commit install      # ruff + pyright + tests run before every commit\n```\n\nThen either prefix one-off commands with `uv run`, or let\n[direnv](https://direnv.net/) activate `.venv` for you \u2014 `.envrc` is gitignored,\nso write your own with `layout uv` in it (plus `use mise` if you use mise, and\nan `export C64CAST_URL=\u2026` so you can drop `-u` while developing).\nThe maintainer's setup is mise + direnv + uv; none of that is\nrequired, but `uv` itself effectively is \u2014 `uv.lock` is the reproducible\ndefinition of the environment CI runs.\n\n> [!IMPORTANT]\n> **Do not use `uv pip install -e .[...]` in this repo.** mise sets\n> `UV_PYTHON` to the bare toolchain interpreter, and `uv pip` honors that over\n> the active `.venv` \u2014 so packages land in the mise install while\n> `python -m c64cast` runs from `.venv`. The symptom is a silent\n> \"PyAV unavailable\" or a missing extra that you just installed.\n> `uv sync` and `uv run` target the project environment and are immune.\n>\n> Note also that `dev` is a PEP 735 dependency *group*, not an extra, so\n> `.[all,dev]` can never resolve it no matter which installer you use. With\n> plain pip: `pip install -e .[all] && pip install --group dev`.\n\nIf you use VS Code, point the interpreter at `.venv/bin/python` rather than the\nmise interpreter, or editor diagnostics will diverge from what actually runs.\n\n`make doctor` is the fast offline self-check for all of the above: it reports the\nc64cast version, flags a wrong interpreter, a hard dependency that will not\nimport, and `uv.lock` drift, before any of those cost you a debugging session.\n\n## Running from a checkout\n\n```bash\npython -m c64cast --config example:hello -u u64://192.168.2.64\n```\n\n[`scripts/c64cast.sh`](scripts/c64cast.sh) is an equivalent launcher that `cd`s\nto the repo root and forwards every argument, running through `uv run` when `uv`\nis on `PATH` (so the project `.venv` is always used) and falling back to a bare\n`python` otherwise. Use it from another directory, or from a context where\ndirenv has not activated `.venv` \u2014 cron, systemd, an ssh one-liner:\n\n```bash\nscripts/c64cast.sh --config example:hello\nscripts/c64cast.sh --doctor --skip-probe\n```\n\n## The pre-PR gate\n\n```bash\nmake check      # lint + typecheck + test \u2014 run this before opening a PR\n```\n\nEvery target routes through `uv run`, so they hit the synced project env\nwhether or not the current shell has `.venv` activated:\n\n| Target | What it does |\n|---|---|\n| `make sync` | `uv sync --all-extras` (refresh the project env) |\n| `make lint` | `ruff check` |\n| `make fmt` | `ruff format` |\n| `make test` | the unittest suite, parallel across cores (`T=tests.test_foo` runs just that, serially) |\n| `make coverage` | tests under coverage \u2192 report + HTML + `coverage.xml` + JUnit XML |\n| `make typecheck` | `mypy --strict` on the state-bearing modules + `pyright` across the tree |\n| `make doctor` | offline environment + config diagnostics |\n| `make schema` | regenerate `c64cast/data/c64cast.schema.json` from the config metadata |\n| `make web` | rebuild the web console into `c64cast/web/dist` (needs Node \u2014 only if you changed `web/`) |\n| `make guide` | render the User's Guide to a typeset PDF (needs `typst`) |\n| `make bench` | the async write-pipeline benchmark |\n| `make mutation-ready` | arm the tree's bytecode for a mutation proof (see [Proving a test can fail](#proving-a-test-can-fail)) |\n| `make mutation-check` | verify it is still armed \u2014 a clean, a new worktree or a `uv sync` un-arms it silently |\n\nCI runs the same lint, typecheck, and tests on every push and pull request\nacross Python 3.11\u20133.14 \u2014 see\n[`.github/workflows/ci.yml`](.github/workflows/ci.yml). Type-checking is\ndeliberately two-tiered: `pyright` in basic mode across the whole tree\n(including tests), matching Pylance's VS Code defaults so editor diagnostics\nalign with CI, plus `mypy --strict` on the state-bearing modules listed in\n`[tool.mypy] files` where a type slip would corrupt state.\n\n## Tests\n\nThe suite is stdlib `unittest`, one module per subject under `tests/`, and it\nruns entirely without hardware \u2014 the hardware backends are faked. A test run\nshould print **only** pass/fail/skip indicators: wrap any path that raises an\nexpected exception in `assertRaises`, any path that logs an expected\nwarning/error in `self.assertLogs(\"c64cast.<module>\", \u2026)`, and any path that\nwrites to stdout in a `redirect_stdout`. Expected output left to print buries\nreal failures. When a call both logs and raises, nest `assertLogs` *outside*\n`assertRaises` so the records are actually verified.\n\nWhere the message is incidental \u2014 a warning from a subsystem the test only had\nto set up \u2014 `quiet_logging()` from [`tests/_fakes.py`](tests/_fakes.py) swallows\nit instead of asserting it. It also restores the root logger, which anything\ndriving `cli.main()` needs: `configure_logging` replaces the root handlers\nprocess-wide, so without it that handler outlives the test and every later INFO\nrecord in the same worker prints, from modules with no connection to the CLI.\n\n**The suite may not touch your own files, and a hook enforces that rather than\ntrusting the convention.** Every entry point runs with `PYTHONPATH=tests`, which\nmakes `site` import [`tests/sitecustomize.py`](tests/sitecustomize.py) at\ninterpreter startup \u2014 in `unittest_parallel`'s worker processes as well as the\nparent, since only the environment reaches those. That points the machine\nsettings and the data dir at a throwaway directory for the whole run, blanks\n`char_rom`'s cwd-relative ROM fallback, and installs an audit hook that fails\nany test reading or writing outside the checkout and the temp directories, plus\nanything under `assets/` that git does not carry. The rule, the reasoning and\nthe two known blind spots are in\n[`tests/_fs_sandbox.py`](tests/_fs_sandbox.py)'s docstring.\n\nIf a test trips it, the fix is almost always to point the code under test at a\nfile the test writes under `tempfile.mkdtemp()`, or to run the block from\n`tmp_cwd()` (in [`tests/_fakes.py`](tests/_fakes.py)) when what it resolves is a\n*relative* default like `assets/videos/`. `MachineSettingsIsolation` is still\nthere for a module that wants a settings/data directory of its own, fresh and\nuntouched by anything else.\n\n### Proving a test can fail\n\n\"A test covers this\" is an argument; a test you watched go red is evidence. The\ncheap way to get the evidence is to break the line under test on purpose, run\nthe suite, and check that a *named* assertion failed \u2014 then revert and re-run\ngreen. A fix whose test would have passed either way is a fix nobody can\nmaintain.\n\nRun `make mutation-ready` first. CPython validates a compiled module against\nits source's modification time in **whole seconds**, so an edit applied and\nreverted inside one second, with the file's length unchanged, leaves both the\ntimestamp and the size where they were: the interpreter reads the cached\nbytecode from before your edit and reports a green run that means nothing.\n`PYTHONDONTWRITEBYTECODE=1` does not help \u2014 it suppresses writing, not reading\n\u2014 and neither does `touch`. The target recompiles the tree in PEP 552\nhash-based mode, where the check is over the source's contents instead, and\nthen verifies that every module an import here could read really is armed \u2014\nwhich includes having bytecode at all. Absence is not a gap in what the check\ncan see: `compileall` compiles every source under a root whether or not\nanything imports it, so a missing `.pyc` after arming means the arming lapsed,\nand it is the dangerous shape rather than a benign one, because the first\nimport then writes a *timestamp-mode* file.\n\nIt has to be re-run more often than it looks: `make clean` deletes every\n`__pycache__`, a fresh worktree has none to begin with, and a `uv sync` that\nmoves the Python minor invalidates the lot. Every one of those is silent, and\nthey all happen *after* the arming \u2014 so `make mutation-check` is the check on\nits own, to run at the moment a proof's green is about to be believed. It is\ndeliberately not part of `make test`: arming matters only for a mutation proof,\nand failing every ordinary run on an unarmed tree would teach everyone to\nbypass it.\n\nSeveral tests exist purely to stop documentation from drifting \u2014 the JSON schema\nagainst the config metadata, the annotated example TOML against the dataclass\nfields, the `all` extra against the union of the other extras. If one of those\nfails, the fix is usually to regenerate rather than to edit the test.\n\nThe web console is the same idea in build output rather than in docs: its\nsources are in `web/` and its compiled bundle is committed under\n`c64cast/web/dist` so that installing c64cast never needs Node. Change the\nsources and `make web` in the same commit \u2014 CI rebuilds it and fails on a diff.\n\n## Hardware for development\n\nAn HDMI capture device (Elgato Cam Link 4K, Genki ShadowCast, \u2026) is highly\nrecommended: a RAM dump cannot prove what the VIC-II actually drew, so visual\nchanges need a capture to verify. [`scripts/diags/`](scripts/diags) holds the\ncommitted diagnostic tooling that drives one \u2014 a U64 REST/DMA probe, HDMI still\ncapture, audio capture with level analysis, and a launch-capture-reset harness.\nImprove those rather than writing fresh throwaway scripts.\n\nIf you touch the hardware paths, leave every machine you tested against silent\nand reset when you are done.\n\n## Commits and pull requests\n\n- **Conventional commits**: `feat(scope): \u2026`, `fix(scope): \u2026`, plus `docs`,\n  `build`, `test`, `refactor`, `perf`, `chore`, `ci`. The subject is a lowercase\n  imperative phrase. The changelog is written from this history, so a subject\n  line that reads as a user-visible statement is worth the extra few seconds.\n- **One logical change per commit**, and per PR. Unrelated cleanup goes in its\n  own commit.\n- **Work on a branch and open a PR** \u2014 `main` is protected by CI and every\n  change lands through review.\n- `make check` must be green before you open the PR.\n- Do not commit user media, personal configs, or machine-specific details (IP\n  addresses, capture-device names, local paths). `assets/` tracks only its\n  per-directory READMEs by design; everything else there is gitignored.\n\n## Documentation is part of the change\n\nA behavior change updates its documentation **in the same change set** \u2014 not in\na follow-up. Concretely, when you change functionality:\n\n- [`docs/architecture.md`](docs/architecture.md) and the topic notes under\n  [`docs/architecture/`](docs/architecture) carry the *why* for each module:\n  design rationale, hardware constraints, and the dead ends that the code alone\n  does not show. Read the relevant section before modifying a module, and update\n  it in the same PR. The index's module table routes any module to its section.\n- The three books under [`docs/`](docs) are the user-facing surface: the\n  [User's Guide](docs/guide/README.md), the [Programmer's Reference\n  Guide](docs/reference/README.md) and the [Performance\n  Card](docs/card/README.md). [`caveats.md`](docs/caveats.md),\n  [`troubleshooting.md`](docs/troubleshooting.md) and\n  [`extending.md`](docs/extending.md) sit alongside them.\n- New config knobs, scenes, or overlays: fill in the field's `help`/`choices`\n  metadata (in [`c64cast/app/config.py`](c64cast/app/config.py)) or the overlay's\n  `HELP`/`PARAM_HELP`, update\n  [`c64cast/examples/c64cast.example.toml`](c64cast/examples/c64cast.example.toml)\n  and add a demo under [`c64cast/examples/`](c64cast/examples), then run\n  `make schema`. That single metadata model drives `--describe`, `--list-*`,\n  `--compat`, the JSON schema, the config serializer, and the `--init` wizard,\n  so filling it in is what keeps all of them from drifting \u2014 and the drift tests\n  will tell you if you skipped it.\n- Add `CHANGELOG.md` entries under `## [Unreleased]` for anything users would\n  notice.\n- Hand-encoded 6502 bytes (the NMI DAC handler, the REU pump, the SID player\n  PRG, BASIC stubs) are annotated with the assembly they represent and why each\n  instruction is there. Keep that up when you touch a byte array \u2014 a wall of hex\n  is not reviewable.\n- Write documentation in the present tense, describing what the code does now.\n  It is not a record of what changed; that is what the changelog and git history\n  are for.\n- Write in American English \u2014 `color`, `behavior`, `serialize`, `center` \u2014 in\n  prose, code, comments and identifiers alike. The config keys the reader types\n  are spelled that way, so British prose disagrees with its own examples.\n  `grey`/`gray` and `canceled`/`cancelled` are interchangeable and both fine.\n\n[`docs/extending.md`](docs/extending.md) is the starting point for adding a new\nScene, Overlay, DisplayMode, or interstitial Background.\n\n## What counts as a breaking change\n\nc64cast's stable surface is the part users depend on: the **CLI flags**, the\n**config schema**, the **`example:` names**, and the **data directory layout**.\nRemoving or renaming any of those needs a deprecation warning for one minor\nrelease first. The Python API carries no stability promise while the version is\n`0.x` \u2014 internal modules may be reshaped freely, as long as the four surfaces\nabove keep working.\n\nCutting a release is a maintainer task and lives in\n[`RELEASING.md`](RELEASING.md). The one thing worth knowing as a contributor is\nthat the `## [Unreleased]` section of the changelog becomes the release notes\nverbatim, so write an entry as the announcement it will be.\n",
+        "requirementHints": [
+          "Bug reports, feature ideas, and pull requests are all welcome. This file covers",
+          "pre-commit install      # ruff + pyright + tests run before every commit",
+          "required, but `uv` itself effectively is \u2014 `uv.lock` is the reproducible",
+          "import, and `uv.lock` drift, before any of those cost you a debugging session.",
+          "make check      # lint + typecheck + test \u2014 run this before opening a PR",
+          "| `make test` | the unittest suite, parallel across cores (`T=tests.test_foo` runs just that, serially) |",
+          "| `make coverage` | tests under coverage \u2192 report + HTML + `coverage.xml` + JUnit XML |",
+          "| `make mutation-ready` | arm the tree's bytecode for a mutation proof (see [Proving a test can fail](#proving-a-test-can-fail)) |",
+          "CI runs the same lint, typecheck, and tests on every push and pull request",
+          "(including tests), matching Pylance's VS Code defaults so editor diagnostics",
+          "## Tests",
+          "The suite is stdlib `unittest`, one module per subject under `tests/`, and it",
+          "runs entirely without hardware \u2014 the hardware backends are faked. A test run",
+          "Where the message is incidental \u2014 a warning from a subsystem the test only had",
+          "to set up \u2014 `quiet_logging()` from [`tests/_fakes.py`](tests/_fakes.py) swallows",
+          "process-wide, so without it that handler outlives the test and every later INFO",
+          "trusting the convention.** Every entry point runs with `PYTHONPATH=tests`, which",
+          "makes `site` import [`tests/sitecustomize.py`](tests/sitecustomize.py) at",
+          "interpreter startup \u2014 in `unittest_parallel`'s worker processes as well as the",
+          "any test reading or writing outside the checkout and the temp directories, plus",
+          "[`tests/_fs_sandbox.py`](tests/_fs_sandbox.py)'s docstring.",
+          "If a test trips it, the fix is almost always to point the code under test at a",
+          "file the test writes under `tempfile.mkdtemp()`, or to run the block from",
+          "`tmp_cwd()` (in [`tests/_fakes.py`](tests/_fakes.py)) when what it resolves is a",
+          "### Proving a test can fail",
+          "\"A test covers this\" is an argument; a test you watched go red is evidence. The",
+          "cheap way to get the evidence is to break the line under test on purpose, run",
+          "green. A fix whose test would have passed either way is a fix nobody can",
+          "bytecode from before your edit and reports a green run that means nothing.",
+          "deliberately not part of `make test`: arming matters only for a mutation proof,",
+          "Several tests exist purely to stop documentation from drifting \u2014 the JSON schema",
+          "fails, the fix is usually to regenerate rather than to edit the test.",
+          "sources are in `web/` and its compiled bundle is committed under",
+          "sources and `make web` in the same commit \u2014 CI rebuilds it and fails on a diff.",
+          "committed diagnostic tooling that drives one \u2014 a U64 REST/DMA probe, HDMI still",
+          "If you touch the hardware paths, leave every machine you tested against silent",
+          "## Commits and pull requests",
+          "- **Conventional commits**: `feat(scope): \u2026`, `fix(scope): \u2026`, plus `docs`,",
+          "  `build`, `test`, `refactor`, `perf`, `chore`, `ci`. The subject is a lowercase",
+          "- **One logical change per commit**, and per PR. Unrelated cleanup goes in its",
+          "  own commit.",
+          "- `make check` must be green before you open the PR.",
+          "- Do not commit user media, personal configs, or machine-specific details (IP",
+          "  does not show. Read the relevant section before modifying a module, and update",
+          "  so filling it in is what keeps all of them from drifting \u2014 and the drift tests",
+          "  prose, code, comments and identifiers alike. The config keys the reader types"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      ".claude/hooks/redirect-bash-search.py",
+      ".claude/hooks/redirect-to-make-test.py",
+      ".claude/hooks/redirect-to-uv.py",
+      ".claude/hooks/require-resolvable-search-target.py",
+      "c64cast.py",
+      "c64cast/__init__.py",
+      "c64cast/__main__.py",
+      "c64cast/_midi.py",
+      "c64cast/_native_io.py",
+      "c64cast/_pollthread.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/kfox/c64cast/blob/b9abd3dd0447086c94c960665eb4a57b1172eef9/Makefile"
+      },
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/kfox/c64cast/blob/b9abd3dd0447086c94c960665eb4a57b1172eef9/pyproject.toml"
+      },
+      {
+        "path": "web/package.json",
+        "kind": "node",
+        "url": "https://github.com/kfox/c64cast/blob/b9abd3dd0447086c94c960665eb4a57b1172eef9/web/package.json"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "ACTIVE_RELATED_PR",
+      "severity": "question",
+      "detail": "A related PR is active. Review its scope: help validate it or identify a distinct repair; do not assume it already solves this issue.",
+      "url": "https://github.com/kfox/c64cast/issues/368"
+    }
+  ],
+  "relatedPRs": [
+    {
+      "url": "https://github.com/kfox/c64cast/pull/387",
+      "relation": "open PR explicitly mentions issue",
+      "title": "fix(audio): complete teardown after individual failures",
+      "author": "iibaranov-IG",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "headSha": "ab9d5f2d851994fc2f13d2e0d9b029511eaf52da",
+      "updatedAt": "2026-09-11T13:42:04Z"
+    }
+  ],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:kfox/c64cast": "complete"
+  },
+  "decision": "NEEDS_INFO",
+  "nextActions": [
+    "A related PR is active. Review its scope: help validate it or identify a distinct repair; do not assume it already solves this issue."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ]
+}

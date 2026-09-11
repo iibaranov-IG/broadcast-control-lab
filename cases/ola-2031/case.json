@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "ola-2031",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "OLA Python client close callback",
   "issue": "https://github.com/OpenLightingProject/ola/issues/2031",
   "problem": "Python ClientWrapper does not expose OlaClient's socket close callback, preventing applications from reacting cleanly when olad restarts.",
@@ -26,13 +26,21 @@
     "prepare": [
       {
         "cwd": "sources/ola-2031",
-        "argv": ["git", "apply", "../../cases/ola-2031/repair.patch"]
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/ola-2031/repair.patch"
+        ]
       }
     ],
     "test": [
       {
         "cwd": ".",
-        "argv": ["node", "cases/ola-2031/test.mjs", "sources/ola-2031"]
+        "argv": [
+          "node",
+          "cases/ola-2031/test.mjs",
+          "sources/ola-2031"
+        ]
       }
     ],
     "build": []

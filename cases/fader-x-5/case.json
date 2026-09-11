@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "fader-x-5",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "FADER_X X Air OSC address mapping",
   "issue": "https://github.com/stagehacks/FADER_X/issues/5",
   "problem": "FADER_X hides X Air auxiliary and FX return targets and its shared X32 code emits X32-only OSC addresses for them; X Air mixers also have no matrix buses.",

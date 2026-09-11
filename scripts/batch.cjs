@@ -12,8 +12,11 @@ function context(directory) {
       const key = digest(`${s.repository}@${s.commit}`)
       if (!sources.has(key)) {
         const cache = path.join(directory, key), begin = Date.now()
-        prepare(cache)
-        metrics.downloadMs += Date.now() - begin
+        const staging = `${cache}.partial`
+        fs.rmSync(staging, { recursive: true, force: true })
+        try { prepare(staging); fs.renameSync(staging, cache) }
+        catch (error) { fs.rmSync(staging, { recursive: true, force: true }); throw error }
+        finally { metrics.downloadMs += Date.now() - begin }
         metrics.downloads++
         sources.set(key, cache)
       } else metrics.sourceReuses++
@@ -50,6 +53,7 @@ function run(root, cases, execute) {
       report.cases.push(item)
     }
     report.status = report.cases.every(c => c.status === 'PASS') ? 'PASS' : 'FAIL'
+    report.completed = true
   } finally {
     report.durationMs = Date.now() - begin
     report.shared = shared.metrics

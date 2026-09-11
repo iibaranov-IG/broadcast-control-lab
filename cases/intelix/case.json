@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "intelix",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Intelix routing and login",
   "issue": "https://github.com/iibaranov-IG/broadcast-control-lab/blob/main/FINDINGS.md",
   "problem": "Intelix routing and login",

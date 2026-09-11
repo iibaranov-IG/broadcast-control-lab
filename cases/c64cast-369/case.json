@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "c64cast-369",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Fence a surviving audio-file decoder",
   "issue": "https://github.com/kfox/c64cast/issues/369",
   "problem": "Fence a surviving audio-file decoder.",

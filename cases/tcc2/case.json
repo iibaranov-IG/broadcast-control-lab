@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "tcc2",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Sennheiser TCC2 SSC state handling",
   "issue": "https://github.com/iibaranov-IG/broadcast-control-lab/blob/main/FINDINGS.md",
   "problem": "Sennheiser TCC2 SSC state handling",

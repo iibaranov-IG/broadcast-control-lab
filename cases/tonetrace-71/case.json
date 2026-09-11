@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "tonetrace-71",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Use source-aware ToneTrace export defaults",
   "issue": "https://github.com/harpomaxx/tonetrace/issues/71",
   "problem": "The GUI export dialog starts at analysis.mid in the process working directory.",

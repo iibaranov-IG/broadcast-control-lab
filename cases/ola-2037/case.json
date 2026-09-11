@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "ola-2037",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "OLA unique RDM LIST_INTERFACES response",
   "issue": "https://github.com/OpenLightingProject/ola/issues/2037",
   "problem": "Multiple addresses for one OS network interface can make OLA return the same interface index more than once in the E1.37-7 LIST_INTERFACES response.",
@@ -26,13 +26,21 @@
     "prepare": [
       {
         "cwd": "sources/ola-2037",
-        "argv": ["git", "apply", "../../cases/ola-2037/repair.patch"]
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/ola-2037/repair.patch"
+        ]
       }
     ],
     "test": [
       {
         "cwd": ".",
-        "argv": ["node", "cases/ola-2037/test.mjs", "sources/ola-2037"]
+        "argv": [
+          "node",
+          "cases/ola-2037/test.mjs",
+          "sources/ola-2037"
+        ]
       }
     ],
     "build": []

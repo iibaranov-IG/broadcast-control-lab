@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "fpp-2848-ptp-lock",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "FPP PTP lock requires valid management evidence",
   "issue": "https://github.com/FalconChristmas/fpp/issues/2848",
   "problem": "A missing or malformed master_offset defaults to zero and falsely settles SLAVE; a failed TIME_STATUS_NP query also falsely settles LISTENING. This is a separate lock-validation defect found while investigating the software-PTP epoch issue.",

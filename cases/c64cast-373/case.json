@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "c64cast-373",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Share a forward-only sleep-driven clock",
   "issue": "https://github.com/kfox/c64cast/issues/373",
   "problem": "Share a forward-only sleep-driven clock.",

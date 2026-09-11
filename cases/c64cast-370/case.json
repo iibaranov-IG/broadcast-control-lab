@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "c64cast-370",
-  "status": "ready",
+  "status": "diagnostic",
   "title": "Share the VIC character-mode D018 default",
   "issue": "https://github.com/kfox/c64cast/issues/370",
   "problem": "Share the VIC character-mode D018 default.",

@@ -54,7 +54,7 @@ application. Current cases include Companion modules and an AutoPTZ backend.
 | c64cast speed series [#368](cases/c64cast-368/), [#369](cases/c64cast-369/), [#370](cases/c64cast-370/), [#371](cases/c64cast-371/), [#373](cases/c64cast-373/), [#374](cases/c64cast-374/), [#375](cases/c64cast-375/), [#377](cases/c64cast-377/), [#378](cases/c64cast-378/) | Nine focused MIDI, audio, VIC, lifecycle, test and documentation repairs | Pinned patches, Python syntax checks, repair-specific contracts and upstream PR links |
 | [ToneTrace export defaults](cases/tonetrace-71/) | Source-derived MIDI filename and remembered export directory | Pinned patch, source contract, offscreen GUI evidence and upstream PR link |
 
-All cases use v2 passports and one CI workflow. A case can be a diagnostic
+All cases use v2 passports. CI distinguishes ready upstream cases from legacy diagnostics. A case can be a diagnostic
 or produce a package. Different coverage levels remain explicit in each passport.
 
 ## Get a test build or report
@@ -128,8 +128,8 @@ authenticate first. Rate limits use `Retry-After` or the reset timestamp, wait u
 to one hour in total, and resume the same read (at most three rate-limit retries).
 Permission denials are not retried.
 
-`bcl new` reads a public GitHub issue, pins the issue repository's current commit,
-and creates a draft passport, a failing test placeholder, a README and a report
+`bcl new` requires an approved triage report, verifies the issue is still open
+and unchanged, uses the reviewed source repository/revision, and creates a draft passport, a failing test placeholder, a README and a report
 template. It will not overwrite a case. Check that the issue repository is the
 actual code repository; then implement the negative control and repair acceptance,
 review dependencies, and set status to `ready`. A scaffold is not a reproduced bug.
@@ -139,8 +139,8 @@ a configured, tested candidate as a draft PR.
 Source/dependency acquisition happens before execution. Test and build commands
 run with Docker `--network=none`, no host credentials, no Docker socket, dropped
 capabilities and resource limits. Local TCP/UDP works inside that container.
-Dependency acquisition currently has one audited, script-disabled registry recipe
-for ATEN; new dependency recipes require review. See [v2 design and limits](docs/bcl-v2.md).
+Dependency acquisition has an audited script-disabled ATEN recipe and a frozen,
+wheel-only uv recipe for c64cast-368; new profiles require review. See [v2 design and limits](docs/bcl-v2.md).
 
 Use [ScriptedTcpDevice](lib/scripted-tcp-device.mjs) for stream interactions and
 [ScriptedUdpDevice](lib/scripted-udp-device.mjs) for whole datagrams.

@@ -23,16 +23,17 @@ function register(db, c, result, digest = null, run = null) {
     if (prior.id !== c.id || (prior.candidateSha256 && digest && prior.candidateSha256 !== digest)) throw new Error('Tracking identity conflict')
     if (digest) prior.candidateSha256 = digest
     if (run) prior.run = run
+    if (digest && result.headSha) { prior.testedHeadSha = result.headSha; prior.evidenceStatus = 'BOUND_CANDIDATE' }
     return prior
   }
-  const entry = { id: c.id, title: c.title, issue: c.issue, pr: result.url, candidateSha256: digest, run, state: result.state || 'unknown', hardware: { status: 'NOT_REVIEWED' }, events: [], unread: 0 }
+  const entry = { id: c.id, title: c.title, issue: c.issue, pr: result.url, candidateSha256: digest, testedHeadSha: result.headSha || null, evidenceStatus: digest && result.headSha ? 'BOUND_CANDIDATE' : 'NOT_BOUND', run, state: result.state || 'unknown', hardware: { status: 'NOT_REVIEWED' }, events: [], unread: 0 }
   db.repairs.push(entry)
   return entry
 }
 const cell = s => String(s ?? '').replace(/[|\r\n<>\[\]]/g, ' ')
 function render(board, db) {
-  const rows = db.repairs.map(r => `| ${cell(r.id)} | [Issue](${r.issue}) | [PR](${r.pr}) | ${cell(r.state)} | ${cell(r.ci || 'unknown')} | ${r.unread || 0} | ${cell(r.hardware.status)} | ${r.syncError ? 'Sync failed; prior data retained' : cell(r.lastSync || 'Not synced')} |`)
-  const block = [START, '## Automatically tracked repairs', '', '| Case | Source | Repair | PR | CI | Unread events | Hardware | Last read (UTC) |', '| --- | --- | --- | --- | --- | --- | --- | --- |', ...rows, '', 'Hardware status records an explicitly imported report; comments never grant hardware verification.', END].join('\n')
+  const rows = db.repairs.map(r => `| ${cell(r.id)} | [Issue](${r.issue}) | [PR](${r.pr}) | ${cell(r.state)} | ${cell(r.ci || 'unknown')} | ${cell(r.evidenceStatus || 'NOT_BOUND')} | ${r.unread || 0} | ${cell(r.hardware.status)} | ${r.syncError ? 'Sync failed; prior data retained' : cell(r.lastSync || 'Not synced')} |`)
+  const block = [START, '## Automatically tracked repairs', '', '| Case | Source | Repair | PR | CI | Evidence | Unread events | Hardware | Last read (UTC) |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- |', ...rows, '', 'Hardware status records an explicitly imported report; comments never grant hardware verification.', END].join('\n')
   if (board.includes(START)) {
     const a = board.indexOf(START), b = board.indexOf(END, a)
     if (b < 0) throw new Error('Incomplete managed board section')
@@ -79,7 +80,8 @@ function syncEntry(entry, api, now) {
   const ci = bad ? 'failure' : pending ? 'pending' : (checks.length || status.total_count) ? 'success' : 'none'
   const old = new Map((entry.events || []).map(e => [e.key, e]))
   const fresh = events.map(e => ({ ...e, read: old.get(e.key)?.read === true && old.get(e.key)?.updatedAt === e.updatedAt && old.get(e.key)?.body === e.body && old.get(e.key)?.state === e.state }))
-  return { ...entry, state: info.merged_at ? 'merged' : info.draft && info.state === 'open' ? 'draft' : info.state, mergeable: info.mergeable ?? null, mergeableState: info.mergeable_state || 'unknown', headSha: info.head.sha, reporter: owner, ci, events: fresh, unread: fresh.filter(e => !e.read).length, lastSync: now, syncError: null }
+  const changed = Boolean((entry.testedHeadSha || entry.headSha) && (entry.testedHeadSha || entry.headSha) !== info.head.sha)
+  return { ...entry, ...(changed ? { evidenceStatus: 'STALE', evidenceStaleSince: now, hardware: { ...entry.hardware, status: entry.hardware?.status === 'NOT_REVIEWED' ? 'NOT_REVIEWED' : 'STALE', priorStatus: entry.hardware?.status, testedHeadSha: entry.headSha } } : {}), state: info.merged_at ? 'merged' : info.draft && info.state === 'open' ? 'draft' : info.state, mergeable: info.mergeable ?? null, mergeableState: info.mergeable_state || 'unknown', headSha: info.head.sha, reporter: owner, ci, events: fresh, unread: fresh.filter(e => !e.read).length, lastSync: now, syncError: null }
 }
 function sync(root, api) {
   const db = read(root), errors = []
@@ -102,6 +104,7 @@ function importHardware(root, id, filename) {
   for (const field of ['deviceModel', 'firmware', 'applicationVersion', 'steps', 'observed']) if (typeof result[field] !== 'string' || !result[field].trim()) throw new Error(`Hardware report needs ${field}`)
   const entry = db.repairs.find(r => r.id === id && r.candidateSha256 === result.candidateSha256)
   if (!entry) throw new Error('No tracked candidate matches the hardware report')
+  if (entry.evidenceStatus === 'STALE') throw new Error('PR changed: bind fresh candidate evidence before importing hardware results')
   entry.hardware = { status: `REPORTED_${result.result}`, importedAt: new Date().toISOString(), report: result }
   save(root, db)
 }
@@ -146,7 +149,7 @@ function attach(root, c, url, api, update = remoteUpdate) {
   return update(root, db => {
     const entry = register(db, c, { url, state: info.merged_at ? 'merged' : info.state })
     const refreshed = syncEntry(entry, api, new Date().toISOString())
-    Object.assign(entry, refreshed, { attachment: 'EXTERNAL_PR', evidenceStatus: entry.candidateSha256 ? 'BOUND_CANDIDATE' : 'NOT_BOUND' })
+    Object.assign(entry, refreshed, { attachment: 'EXTERNAL_PR', evidenceStatus: refreshed.evidenceStatus === 'STALE' ? 'STALE' : entry.candidateSha256 ? 'BOUND_CANDIDATE' : 'NOT_BOUND' })
   }, `Attach existing PR for ${c.id}`, api)
 }
 module.exports = { read, save, register, render, syncEntry, sync, acknowledge, importHardware, remoteRegister, remoteUpdate, attach }

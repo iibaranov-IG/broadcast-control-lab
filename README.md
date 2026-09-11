@@ -9,11 +9,13 @@ Required commits are pinned in lab.cjs and the Actions workflow.
 
 The Intelix negative control checks the real historical routing implementation.
 The fixed action is exercised through a Companion API test double, including
-fragmented input and absence of fabricated route confirmation.
-TCC2 checks cover JSON parsing and camera-sector boundaries.
+fragmented input, unterminated login prompts, and absence of fabricated route
+confirmation. TCC2 checks cover protocol errors, JSON parsing, and camera-sector
+boundaries.
 
 Every report contains exact revisions, individual results, limitations and
-hardwareVerified=false. Reports must not be advertised as hardware certification.
+hardwareVerified=false. The suite fails when a pinned software contract regresses.
+Reports must not be advertised as hardware certification.
 
 Next milestones: independent TCP/UDP device simulators, authentication and
 reconnect scenarios, full Companion runtime smoke test, owner-operated hardware

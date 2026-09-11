@@ -9,8 +9,8 @@ const { execFileSync } = require('node:child_process')
 const root = process.env.LAB_SOURCES || path.resolve(__dirname, '..')
 const revisions = {
   oldIntelix: '619fcc10247f452a8ee2173a6ba037fcb6633b6f',
-  intelix: 'c789f20a12de58b84d28c0d76699e0f0e1ae7017',
-  tcc2: 'dadb40eb06cf9865c92689a20656df1d50488c11',
+  intelix: '3834e91d22580ea0faa49057e9f38166cadc1e75',
+  tcc2: '375e281ae819a7819f53328c4cf9c3689a1ab3b2',
 }
 function source(repo, revision, file) {
   return execFileSync('git', ['-C', path.join(root, repo), 'show', `${revision}:${file}`], { encoding: 'utf8' })

@@ -17,13 +17,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: iibaranov-IG/companion-module-intelix-digi88fs
-          ref: c789f20a12de58b84d28c0d76699e0f0e1ae7017
+          ref: 3834e91d22580ea0faa49057e9f38166cadc1e75
           fetch-depth: 0
           path: sources/intelix
       - uses: actions/checkout@v4
         with:
           repository: iibaranov-IG/companion-module-sennheiser-tcc2
-          ref: dadb40eb06cf9865c92689a20656df1d50488c11
+          ref: 375e281ae819a7819f53328c4cf9c3689a1ab3b2
           path: sources/tcc2
       - run: npm test
         env:

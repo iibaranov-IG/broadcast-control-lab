@@ -78,6 +78,7 @@ function containerRun(c, { harness = false, shared = null, legacy = false } = {}
       if (shared) shared.source(source, destination, prepare)
       else prepare(destination)
     }
+    fs.mkdirSync(path.join(stage, '.home'), { recursive: true })
     const node = c?.runtime.node || '22.20.0'
     const tag = `bcl-runtime:${node}`
     const prepareImage = () => {
@@ -89,7 +90,7 @@ function containerRun(c, { harness = false, shared = null, legacy = false } = {}
     const base = ['run', '--rm', '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--pids-limit=256', '--memory=2g', '--cpus=2',
       '--user', `${process.getuid()}:${process.getgid()}`, '--tmpfs', '/tmp:rw,exec,nosuid,size=512m',
       '--mount', `type=bind,source=${stage},target=/work`, '--workdir=/work',
-      '-e', 'HOME=/tmp', '-e', 'COREPACK_HOME=/work/.cache/corepack', '-e', 'YARN_CACHE_FOLDER=/work/.cache/yarn',
+      '-e', 'HOME=/work/.home', '-e', 'COREPACK_HOME=/work/.cache/corepack', '-e', 'YARN_CACHE_FOLDER=/work/.cache/yarn',
       '-e', `BCL_REVISION=${bclRevision}`, '-e', `BCL_IMAGE_ID=${imageId}`]
     if (c?.steps.dependencies.length) {
       // Only the audited registry installer runs with network access; never a passport command.

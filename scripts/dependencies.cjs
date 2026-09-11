@@ -9,6 +9,8 @@ if (c.id === 'c64cast-368' && c.sources.length === 1 && c.sources[0].repository 
   const expected = { 'uv.lock': '264c5ebc1d59562b854af2ab63d2bd030b360088ad559b85e0cb1f6cf52f5a05', 'pyproject.toml': '19ef7e9ab0791bc64331e6d5a482fd97002b4182370ccec622b3b18f1e0f390b' }
   for (const [name, sha] of Object.entries(expected)) if (require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(source, name))).digest('hex') !== sha) throw new Error('c64cast dependency manifest changed; review required')
   execFileSync('uv', ['sync', '--frozen', '--no-install-project', '--no-default-groups', '--group', 'dev', '--extra', 'web', '--no-build', '--python', '/usr/local/bin/python3'], { cwd: source, stdio: 'inherit', env: { ...process.env, UV_CACHE_DIR: '/work/.cache/uv', UV_PYTHON_DOWNLOADS: 'never', UV_LINK_MODE: 'copy' } })
+  // Acquire only the pinned build backend wheel online; project hooks run offline.
+  execFileSync('uv', ['pip', 'install', '--python', '.venv/bin/python', '--no-build', 'setuptools==83.0.0'], { cwd: source, stdio: 'inherit', env: { ...process.env, UV_CACHE_DIR: '/work/.cache/uv', UV_PYTHON_DOWNLOADS: 'never', UV_LINK_MODE: 'copy' } })
   process.exit(0)
 }
 if (c.id !== 'aten-2029' || c.sources[0].repository !== 'bitfocus/companion-module-aten-matrix') throw new Error('No audited dependency acquisition recipe for this case')

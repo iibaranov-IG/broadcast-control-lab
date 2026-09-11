@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { getActions as upstream } from './upstream.mjs'
-import { getActions as candidate } from './candidate.mjs'
+import { pathToFileURL } from 'node:url'
+import { resolve } from 'node:path'
+const { getActions: candidate } = await import(process.argv[2] ? pathToFileURL(resolve(process.argv[2])).href : './candidate.mjs')
 
 const report = { issue: 'https://github.com/bitfocus/companion-module-requests/issues/2029', evidence: 'action-contract-test', hardwareVerified: false, results: [] }
 function instance() {

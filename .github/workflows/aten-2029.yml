@@ -14,7 +14,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node cases/aten-2029/test.mjs
+      - uses: actions/checkout@v4
+        with:
+          repository: bitfocus/companion-module-aten-matrix
+          ref: c378e1598a21b87b58a9f5261bf0a48f1578374f
+          path: sources/aten
+      - run: node cases/aten-2029/prepare-package.cjs sources/aten
+      - run: node cases/aten-2029/test.mjs sources/aten/actions.js
+      - run: corepack yarn@1.22.22 install --frozen-lockfile --ignore-scripts && corepack yarn@1.22.22 companion-module-build
+        working-directory: sources/aten
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aten-2029-test-build
+          path: sources/aten/*.tgz
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -81,6 +81,12 @@ async function main() {
     fixed.handleData(Buffer.from('name: '))
     await Promise.resolve()
     assert.deepEqual(sent, ['lab-user\r\n'], 'Telnet prompts may be fragmented and omit a newline')
+    fixed.handleData(Buffer.from('\r\n'))
+    assert.equal(sent.length, 1, 'trailing newline must not repeat login')
+    fixed.config.password = 'lab-password'
+    fixed.handleData(Buffer.from('Pass'))
+    fixed.handleData(Buffer.from('word: '))
+    assert.deepEqual(sent, ['lab-user\r\n', 'lab-password\r\n'])
   })
   await check('BCL-002: TCC2 error-only reply must not mark connection healthy', () => {
     const Tcc2 = load('tcc2', revisions.tcc2, 'src/main.js', base)
@@ -88,6 +94,10 @@ async function main() {
     instance.status = 'connecting'
     instance.handleMessage(Buffer.from('{"osc":{"error":[400,{"desc":"not understood"}]}}'))
     assert.notEqual(instance.status, 'ok', 'A protocol error is not successful device state')
+    instance.handleMessage(Buffer.from('{}'))
+    assert.notEqual(instance.status, 'ok', 'empty response does not establish health')
+    instance.handleMessage(Buffer.from('{"audio":{"mute":false}}'))
+    assert.equal(instance.status, 'ok', 'valid state restores health')
   })
   const ssc = load('tcc2', revisions.tcc2, 'src/ssc-protocol.js')
   await check('TCC2 preserves zero angles and false activity', () => {

@@ -26,3 +26,13 @@ Protocol references:
 
 Commercial pilot: define one supported hardware/firmware combination and one
 workflow, agree acceptance tests with its owner, then deliver and support it.
+
+## External repair board
+
+[REPAIRS.md](REPAIRS.md) tracks focused fixes submitted to the original
+projects. Each entry links the reported problem, the public pull request, the
+checks already completed, and any remaining hardware validation.
+
+Equipment owners can also open a structured repair request in this repository.
+Include the exact model and version, reproduction steps, evidence, and whether
+you can test a proposed fix on the affected hardware.

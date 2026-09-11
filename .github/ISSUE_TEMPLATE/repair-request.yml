@@ -1,0 +1,56 @@
+name: Repair request
+description: Report a concrete broadcast, audio, video, or control-system problem
+title: "[Repair]: "
+labels:
+  - repair
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for bringing a real workflow problem to the lab. Public, reproducible details help us produce a focused repair.
+  - type: input
+    id: equipment
+    attributes:
+      label: Equipment or software
+      description: Include the exact model and firmware or software version.
+      placeholder: Yamaha MG10XU with Yamaha Steinberg USB ASIO 2.x
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is broken?
+      description: Describe the practical effect on your workflow.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Connect ...
+        2. Open ...
+        3. Select ...
+        4. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs, captures, screenshots, or protocol references
+      description: Remove credentials and private information before attaching files.
+  - type: dropdown
+    id: hardware-test
+    attributes:
+      label: Can you test a proposed fix on the affected equipment?
+      options:
+        - "Yes"
+        - "No"
+        - "Maybe, with instructions"
+    validations:
+      required: true

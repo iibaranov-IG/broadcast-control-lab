@@ -9,8 +9,7 @@ Each investigation adds reusable tools for the next one.
 
 [Report a problem](https://github.com/iibaranov-IG/broadcast-control-lab/issues/new?template=repair-request.yml) ·
 [Browse repairs](REPAIRS.md) ·
-[Get builds and reports](https://github.com/iibaranov-IG/broadcast-control-lab/actions) ·
-[Русская версия](README.ru.md)
+[Get builds and reports](https://github.com/iibaranov-IG/broadcast-control-lab/actions)
 
 ## What you can do with BCL
 

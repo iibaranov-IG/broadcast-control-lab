@@ -32,5 +32,5 @@ jobs:
         if: always()
         with:
           name: lab-report
-          path: reports/latest.json
+          path: reports/*.json
           if-no-files-found: error

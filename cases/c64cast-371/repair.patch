@@ -1,0 +1,39 @@
+diff --git a/c64cast/app/playlist.py b/c64cast/app/playlist.py
+index c51701c..203725e 100644
+--- a/c64cast/app/playlist.py
++++ b/c64cast/app/playlist.py
+@@ -902,7 +902,7 @@ class Playlist:
+         feats = scene.features()
+         self.tempo.audio_drive(feats.bpm if feats is not None else 0.0, now)
+         # Announce lock/loss transitions at INFO (rare); trickle the live BPM at
+-        # DEBUG (~2 s) while locked so `-vv` shows the grid tracking the beat.
++        # DEBUG (~2 s) while locked so `-v` shows the grid tracking the beat.
+         locked = self.tempo.running
+         if locked != self._tempo_audio_locked:
+             self._tempo_audio_locked = locked
+diff --git a/c64cast/app/upgrade.py b/c64cast/app/upgrade.py
+index 8769b0b..c5318f0 100644
+--- a/c64cast/app/upgrade.py
++++ b/c64cast/app/upgrade.py
+@@ -186,7 +186,7 @@ def latest_release(*, timeout: float = 5.0) -> str | None:
+     `{"info": null}` raises `TypeError` from the subscript, and the lazy
+     `import requests` sat outside the guard, so a half-installed `requests`
+     — the state an upgrade exists to fix — raised `ImportError` straight
+-    through. The caught exception is logged at debug, so `-vv` can still tell
++    through. The caught exception is logged at debug, so `-v` can still tell
+     a DNS failure from a proxy's 403 from a change in the shape of
+     `info.version`; without it, every one of those was the same
+     indistinguishable None and the only trace on an appliance was an
+diff --git a/docs/troubleshooting.md b/docs/troubleshooting.md
+index 4a768d5..6e06341 100644
+--- a/docs/troubleshooting.md
++++ b/docs/troubleshooting.md
+@@ -350,7 +350,7 @@ The CTRL key (skip) also relies on `$028D`, so the same applies.
+ ### "Playlist freezes between scenes"
+ 
+ Usually the new scene's `setup()` is blocking — the U64 might be
+-unreachable. Run with `-vv` to see the per-write debug log; you'll
++unreachable. Run with `-v` to see the per-write debug log; you'll
+ see retries piling up if so. Eventually the scene gives up and the
+ playlist advances to the next interstitial.
+ 

@@ -45,6 +45,8 @@ application. Current cases include Companion modules and an AutoPTZ backend.
 | [PiPedal Bluetooth MIDI reconnect](cases/pipedal-472/) | ALSA client-before-port hotplug ordering and stable-name rebinding | Deterministic event model, production contract and owner kit |
 | [OLA RDM interface list](cases/ola-2037/) | Duplicate OS interface indices are collapsed before packing `LIST_INTERFACES` | Compiled response model, upstream regression contract and owner kit |
 | [OLA Python reconnect callback](cases/ola-2031/) | `ClientWrapper` exposes one-shot socket closure notification when `olad` restarts | Production constructor probe, teardown contract and owner kit |
+| c64cast speed series [#368](cases/c64cast-368/), [#369](cases/c64cast-369/), [#370](cases/c64cast-370/), [#371](cases/c64cast-371/), [#373](cases/c64cast-373/), [#374](cases/c64cast-374/), [#375](cases/c64cast-375/), [#377](cases/c64cast-377/), [#378](cases/c64cast-378/) | Nine focused MIDI, audio, VIC, lifecycle, test and documentation repairs | Pinned patches, Python syntax checks, repair-specific contracts and upstream PR links |
+| [ToneTrace export defaults](cases/tonetrace-71/) | Source-derived MIDI filename and remembered export directory | Pinned patch, source contract, offscreen GUI evidence and upstream PR link |
 
 All cases use v2 passports and one CI workflow. A case can be a diagnostic
 or produce a package. Different coverage levels remain explicit in each passport.

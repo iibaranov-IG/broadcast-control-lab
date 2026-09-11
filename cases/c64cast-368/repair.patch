@@ -1,0 +1,185 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 3db3f8b..4d3ff99 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -95,6 +95,8 @@ in practice not read at all. Releases that ask nothing of anyone leave it out.
+ 
+ ### Fixed
+ 
++- **Audio shutdown completes every hardware and microphone cleanup step after an earlier one fails.** A transient link error no longer leaves SID volume, DAC bias, or the KERNAL NMI vector unrestored, and a microphone stream is still closed when its `stop()` call raises.
++
+ - **A CIA-timed SID tune could peg a core for the whole scene, and the guard
+   against it was skipped on exactly those tunes.** The oscilloscope and the
+   reactive-visuals feature stream size their poll period so one emulated PLAY
+diff --git a/c64cast/audio/audio.py b/c64cast/audio/audio.py
+index 5f10fb8..88098bb 100644
+--- a/c64cast/audio/audio.py
++++ b/c64cast/audio/audio.py
+@@ -53,6 +53,7 @@ from typing import Any
+ 
+ import numpy as np
+ 
++from c64cast._teardown import run_teardown_steps
+ from c64cast.hw.backend import C64Backend
+ from c64cast.hw.c64 import (
+     CIA1,
+@@ -2201,6 +2202,15 @@ class AudioStreamer:
+             self.api.write_memory_file(f"{addr:04X}", neutral * ln)
+ 
+     # ---- shutdown ------------------------------------------------------------
++    def _close_mic_stream(self) -> None:
++        stream, self.mic_stream = self.mic_stream, None
++        if stream is not None:
++            run_teardown_steps(
++                log,
++                type(self).__name__,
++                [("mic stop", stream.stop), ("mic close", stream.close)],
++            )
++
+     def stop(self) -> None:
+         # Listen-only sessions never touched the NMI/DAC/SID, so skip all of
+         # that teardown (writing $D418/NMI vectors would be spurious U64 traffic)
+@@ -2208,13 +2218,7 @@ class AudioStreamer:
+         if self._listen_mode:
+             self.running = False
+             self._listen_mode = False
+-            if self.mic_stream:
+-                try:
+-                    self.mic_stream.stop()
+-                    self.mic_stream.close()
+-                except Exception as e:
+-                    log.debug("listen close: %s", e)
+-                self.mic_stream = None
++            self._close_mic_stream()
+             return
+         # Order matters for clean audio cutoff:
+         #  - REU pump (if armed): restore IRQ vector + CIA #1 latch FIRST
+@@ -2231,27 +2235,33 @@ class AudioStreamer:
+         # The governor lives entirely in the C64-side handler, so disarming the
+         # IRQ vector stops it — no host thread to join.
+         self._disarm_reu_pump()
+-        try:
+-            self.api.write_regs(f"{CIA2.ICR:04X}", CIA2_ICR_DISABLE_ALL, CIA2_CRA_STOP)
+-            self.api.write_memory("D418", "00")
+-            if self.digi_boost:
+-                self._disable_digi_boost()
+-            elif self._dac_curve is not None:
+-                self._disable_mahoney_env()
+-            self.api.write_regs(
+-                f"{VECTORS.NMI:04X}", KERNAL.DEFAULT_NMI & 0xFF, (KERNAL.DEFAULT_NMI >> 8) & 0xFF
++        steps: list[tuple[str, Callable[[], object]]] = [
++            (
++                "NMI source disable",
++                lambda: self.api.write_regs(
++                    f"{CIA2.ICR:04X}", CIA2_ICR_DISABLE_ALL, CIA2_CRA_STOP
++                ),
++            ),
++            ("SID volume mute", lambda: self.api.write_memory("D418", "00")),
++        ]
++        if self.digi_boost:
++            steps.append(("digi-boost disable", self._disable_digi_boost))
++        elif self._dac_curve is not None:
++            steps.append(("Mahoney envelope disable", self._disable_mahoney_env))
++        steps.append(
++            (
++                "KERNAL NMI vector restore",
++                lambda: self.api.write_regs(
++                    f"{VECTORS.NMI:04X}",
++                    KERNAL.DEFAULT_NMI & 0xFF,
++                    (KERNAL.DEFAULT_NMI >> 8) & 0xFF,
++                ),
+             )
+-        except Exception as e:
+-            log.debug("teardown write failed: %s", e)
++        )
++        run_teardown_steps(log, type(self).__name__, steps)
+         # NMI is already silenced; let the worker / mic threads tear down
+         # at their own pace.
+-        if self.mic_stream:
+-            try:
+-                self.mic_stream.stop()
+-                self.mic_stream.close()
+-            except Exception as e:
+-                log.debug("mic close: %s", e)
+-            self.mic_stream = None
++        self._close_mic_stream()
+         if self._worker_thread:
+             # A plain bounded join, not session.join_bounded: this is a daemon
+             # thread joined off the main thread (so nothing is waiting to run a
+diff --git a/docs/architecture/audio.md b/docs/architecture/audio.md
+index 42df87e..0c0b7d2 100644
+--- a/docs/architecture/audio.md
++++ b/docs/architecture/audio.md
+@@ -79,6 +79,8 @@ The `device` argument to the `start_*` methods is an `int | str`: an int index,
+ * `start_for_external_source()` — no input thread; the caller (the PyAV demuxer) pushes via `push_samples(int16)`.
+ * `start_listen(device, sens, *, sample_rate=None)` — **analysis-only capture**: opens the input, feeds `analysis_sink` from `_listen_callback`, and stops there. No NMI, no worker thread, no DAC/SID writes, so nothing reaches the C64 — the input drives reactive visuals only (the `audio_source = "listen"` VJ case). Because nothing downstream is bound to the DAC rate, it opens at `sample_rate` when given — the listen path passes a higher rate (44.1 kHz) for full-bandwidth analysis (real hi-hat energy above the DAC's 6 kHz Nyquist, cleaner onsets). A `_listen_mode` flag makes `stop()` short-circuit its DAC teardown to a bare stream-close; the other `start_*` methods clear it (the streamer is reused across scenes). See [`audio_features.py`](#audio_featurespy--audio-input-music-features-reactive-visuals-from-live-input).
+ 
++`AudioStreamer.stop()` treats the NMI disable, SID mute, DAC-bias disable, KERNAL NMI-vector restore, microphone stop, and microphone close as independent teardown guarantees. Each runs through `run_teardown_steps`, so a failed DMA write or stream `stop()` is logged at ERROR while the remaining cleanup still runs. The order remains the clean-cutoff order documented below.
++
+ ### The worker thread and its pacing
+ 
+ The worker drains the queue at `chunk_size / sample_rate` — the NMI consumption rate — so it can never lap the NMI read pointer and overwrite real audio with neutral padding. Each iteration:
+diff --git a/tests/test_audio_lifecycle.py b/tests/test_audio_lifecycle.py
+index 49c9814..39d987c 100644
+--- a/tests/test_audio_lifecycle.py
++++ b/tests/test_audio_lifecycle.py
+@@ -36,7 +36,7 @@ from c64cast.audio.audio_handlers import (
+     nmi_rate_step,
+ )
+ from c64cast.hw.api import Ultimate64API
+-from c64cast.hw.c64 import CIA2, SID
++from c64cast.hw.c64 import CIA2, SID, VECTORS
+ 
+ 
+ def _make(**kw: Any) -> AudioStreamer:
+@@ -1503,13 +1503,22 @@ class LifecycleTest(unittest.TestCase):
+ 
+     def test_stop_swallows_teardown_write_errors(self):
+         s = _make()
++        api = cast(Any, s.api)
++        write_regs = api.write_regs
++        calls = 0
+ 
+         def boom(*a: Any, **k: Any) -> None:
+-            raise RuntimeError("teardown write failed")
+-
+-        cast(Any, s).api.write_regs = boom
+-        with self.assertLogs("c64cast.audio.audio", level="DEBUG"):
++            nonlocal calls
++            calls += 1
++            if calls == 1:
++                raise RuntimeError("teardown write failed")
++            write_regs(*a, **k)
++
++        api.write_regs = boom
++        with self.assertLogs("c64cast.audio.audio", level="ERROR"):
+             s.stop()  # must not raise
++        self.assertEqual(api.memories["D418"], "00")
++        self.assertIn(f"{VECTORS.NMI:04X}", api.regs)
+ 
+     def test_stop_drains_leftover_queue(self):
+         s = _make()
+@@ -1523,15 +1532,20 @@ class LifecycleTest(unittest.TestCase):
+         s = _make()
+ 
+         class _BadStream:
++            def __init__(self) -> None:
++                self.closed = False
++
+             def stop(self):
+                 raise RuntimeError("mic stop failed")
+ 
+             def close(self):
+-                raise RuntimeError("mic close failed")
++                self.closed = True
+ 
+-        s.mic_stream = cast(Any, _BadStream())
+-        with self.assertLogs("c64cast.audio.audio", level="DEBUG"):
++        stream = _BadStream()
++        s.mic_stream = cast(Any, stream)
++        with self.assertLogs("c64cast.audio.audio", level="ERROR"):
+             s.stop()  # must not raise
++        self.assertTrue(stream.closed)
+         self.assertIsNone(s.mic_stream)
+ 
+     def test_disarm_reu_pump_swallows_errors(self):

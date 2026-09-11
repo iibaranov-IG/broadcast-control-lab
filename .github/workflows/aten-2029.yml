@@ -51,4 +51,5 @@ jobs:
           path: |
             ${{ steps.meta.outputs.report }}
             cases/${{ matrix.id }}/case.json
+            reports/${{ matrix.id }}/
           if-no-files-found: error

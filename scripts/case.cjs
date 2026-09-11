@@ -2,6 +2,7 @@ const fs = require('node:fs')
 const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const root = path.resolve(__dirname, '..')
+const { writeEvidence, packages } = require('./evidence.cjs')
 function load(id) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id || '')) throw new Error('Invalid case id')
   const c = JSON.parse(fs.readFileSync(path.join(root, 'cases', id, 'case.json'), 'utf8'))
@@ -42,12 +43,31 @@ function main() {
   }
   if (mode === 'validate') { console.log(`${id}: passport valid`); return }
   if (mode !== 'run') throw new Error('Usage: node scripts/case.cjs list|validate|metadata|run [case-id]')
+  const execution = { status: 'FAIL', node: process.versions.node, stages: [] }
+  try {
+  execution.bclRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim()
   if (process.versions.node !== c.runtime.node) throw new Error(`Use Node ${c.runtime.node}`)
   const revision = execFileSync('git', ['-C', path.join(root, c.source.directory), 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
   if (revision !== c.source.commit) throw new Error('Checkout does not match passport')
+  // Clear previous test output so a failed run cannot reuse an old PASS report.
+  fs.rmSync(path.join(root, c.artifacts.report), { force: true })
   for (const phase of ['prepare', 'test', 'build']) {
+    const stage = { name: phase, status: 'FAIL' }
+    execution.stages.push(stage)
     console.log(`${id}: ${phase}`)
     for (const { cwd, argv } of c.steps[phase]) execFileSync(argv[0], argv.slice(1), { cwd: path.resolve(root, cwd), stdio: 'inherit', shell: false })
+    stage.status = 'PASS'
+  }
+  execution.packages = packages(root, c.artifacts.package)
+  const report = JSON.parse(fs.readFileSync(path.join(root, c.artifacts.report), 'utf8'))
+  if (!Array.isArray(report.results) || !report.results.length || report.results.some(r => r.status !== 'PASS')) throw new Error('Missing or unsuccessful test results')
+  execution.tests = report.results
+  execution.status = 'PASS'
+  } catch (error) {
+    execution.error = error.message
+    throw error
+  } finally {
+    writeEvidence(root, c, execution)
   }
 }
 if (require.main === module) main()

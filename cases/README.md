@@ -37,3 +37,10 @@ expected/observed behavior and logs. Test packages in a separate setup first.
 
 ATEN is the first migrated case. The Intelix/TCC2 regression suite remains in
 `lab.cjs`; it is not yet represented as separate executable passports.
+
+Every case run now writes `reports/<id>/evidence.json`, a passport snapshot and
+`PR-REPORT.md`. These include stage results, upstream/BCL revisions, package
+SHA-256 hashes and remaining owner checks. Actions publishes them with the report
+and shows the Markdown in the run summary. A failed execution also writes failure
+evidence. The Markdown is prepared for review; it is not automatically posted.
+Case test reports must contain a nonempty `results` array with PASS statuses.

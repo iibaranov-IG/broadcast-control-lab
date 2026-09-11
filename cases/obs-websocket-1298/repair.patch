@@ -1,0 +1,50 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a8e7ff2..1139e4b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -111,6 +111,7 @@ target_sources(
+           src/utils/Compat.h
+           src/utils/Crypto.cpp
+           src/utils/Crypto.h
++          src/utils/ImageFormat.h
+           src/utils/Json.cpp
+           src/utils/Json.h
+           src/utils/Obs.cpp
+diff --git a/src/requesthandler/RequestHandler_Sources.cpp b/src/requesthandler/RequestHandler_Sources.cpp
+index b3da789..0e18c0b 100644
+--- a/src/requesthandler/RequestHandler_Sources.cpp
++++ b/src/requesthandler/RequestHandler_Sources.cpp
+@@ -24,6 +24,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
+ #include <QDir>
+ 
+ #include "RequestHandler.h"
++#include "utils/ImageFormat.h"
+ 
+ QImage TakeSourceScreenshot(obs_source_t *source, bool &success, uint32_t requestedWidth = 0, uint32_t requestedHeight = 0)
+ {
+@@ -227,7 +228,9 @@ RequestResult RequestHandler::GetSourceScreenshot(const Request &request)
+ 
+ 	buffer.close();
+ 
+-	QString encodedPicture = QString("data:image/%1;base64,").arg(imageFormat.c_str()).append(encodedImgBytes.toBase64());
++	QString encodedPicture = QString("data:%1;base64,")
++				 .arg(ImageMimeType(imageFormat).c_str())
++				 .append(encodedImgBytes.toBase64());
+ 
+ 	json responseData;
+ 	responseData["imageData"] = encodedPicture.toStdString();
+diff --git a/src/utils/ImageFormat.h b/src/utils/ImageFormat.h
+new file mode 100644
+index 0000000..ed47e33
+--- /dev/null
++++ b/src/utils/ImageFormat.h
+@@ -0,0 +1,9 @@
++#pragma once
++
++#include <string>
++#include <string_view>
++
++inline std::string ImageMimeType(std::string_view imageFormat)
++{
++	return imageFormat == "jpg" ? "image/jpeg" : "image/" + std::string(imageFormat);
++}

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 2,
+  "id": "obs-websocket-1298",
+  "status": "diagnostic",
+  "title": "Return the registered JPEG MIME type in screenshot data URIs",
+  "issue": "https://github.com/obsproject/obs-websocket/issues/1298",
+  "problem": "GetSourceScreenshot prefixes JPEG data encoded with the jpg alias as image/jpg, which is not the registered JPEG media type and is rejected by some consumers.",
+  "reproduce": "Request a screenshot with imageFormat jpg; the baseline response begins data:image/jpg;base64 instead of data:image/jpeg;base64.",
+  "acceptance": "Both jpg and jpeg produce image/jpeg while formats such as png and webp retain their corresponding image media types.",
+  "repair": "Map the Qt jpg writer alias to image/jpeg in a small independently testable helper and use it when constructing the Data URI.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "obsproject/obs-websocket",
+      "commit": "1ef34bf48110c2a18184e50e41cd0b1a855e2147",
+      "directory": "sources/obs-websocket-1298"
+    }
+  ],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      { "cwd": "sources/obs-websocket-1298", "argv": ["git", "apply", "../../cases/obs-websocket-1298/repair.patch"] }
+    ],
+    "test": [
+      { "cwd": ".", "argv": ["node", "cases/obs-websocket-1298/test.mjs", "sources/obs-websocket-1298"] }
+    ],
+    "build": []
+  },
+  "artifacts": { "report": "reports/obs-websocket-1298.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL compiles and executes the production MIME helper and verifies that GetSourceScreenshot uses it. The case does not build or run the complete OBS plugin.",
+    "ownerCheck": "Request GetSourceScreenshot with imageFormat jpg on OBS and confirm imageData begins data:image/jpeg;base64 and decodes in the previously failing SVG consumer."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "obsproject/obs-websocket",
+    "base": "master",
+    "paths": ["CMakeLists.txt", "src/requesthandler/RequestHandler_Sources.cpp", "src/utils/ImageFormat.h"]
+  }
+}

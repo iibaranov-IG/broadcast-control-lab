@@ -1,5 +1,21 @@
 # Batch repairs and upstream evidence
 
+## Long triage campaigns
+
+For a persistent queue of up to one hundred distinct public GitHub issues, put
+one canonical issue URL per line and run:
+
+```sh
+npm run bcl -- campaign repair-100 --file campaigns/repair-100.txt --concurrency 4
+```
+
+The campaign performs metadata triage only. It checkpoints after every issue in
+`reports/campaigns/<name>/state.json`, so repeating the command resumes pending
+work without rereading completed issues. Use `--retry-failed` to retry failed
+reads. The concurrency range is 1..8. Campaign results do not claim reproduction,
+repair or permission to publish; selected issues still require a real red/green
+case and independent publication evidence.
+
 ```sh
 npm run bcl -- batch case-one case-two case-three
 ```

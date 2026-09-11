@@ -16,7 +16,7 @@ function reader({ env = process.env, execute = execFileSync, request = fetch, no
   // Resolve once per command, keeping credentials in memory only.
   const token = credentials(env, execute)
   return async endpoint => {
-    if (!/^repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\//.test(endpoint) || endpoint.includes('..')) throw new Error('Invalid GitHub repository API path')
+    if (!/^repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/|$)/.test(endpoint) || endpoint.includes('..')) throw new Error('Invalid GitHub repository API path')
     let waited = 0
     for (let attempt = 0; ; attempt++) {
     const response = await retryAsync(async () => {

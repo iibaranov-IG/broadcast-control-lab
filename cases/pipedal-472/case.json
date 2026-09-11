@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "pipedal-472",
+  "status": "ready",
+  "title": "PiPedal Bluetooth MIDI reconnect",
+  "issue": "https://github.com/rerdavies/pipedal/issues/472",
+  "problem": "After a Bluetooth MIDI controller is powered off and on, ALSA announces the client before its port exists; PiPedal tries to reconnect too early and ignores the later port announcement.",
+  "reproduce": "Start PiPedal with an M-VAVE Chocolate connected, power the controller off and on, then observe that aconnect lists it without a connection to PiPedal until pipedald restarts.",
+  "acceptance": "Client-start and port-start announcements both trigger idempotent configuration refresh, the later port event finds the saved stable port ID, no daemon restart is needed, and existing MIDI input behavior remains unchanged.",
+  "repair": "Forward ALSA port-start events through the existing device-added callback so saved sequencer connections are applied after the recreated port becomes enumerable.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "rerdavies/pipedal",
+      "commit": "32c45bf2d1714221eac2c2c62cafcbb77cee899e",
+      "directory": "sources/pipedal-472"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/pipedal-472",
+        "argv": ["git", "apply", "../../cases/pipedal-472/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": ["node", "cases/pipedal-472/test.mjs", "sources/pipedal-472"]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/pipedal-472.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL deterministically checks the event-order policy and production callback wiring. AlsaSequencer.cpp also passes a C++20 syntax build against ALSA 1.2.14 in Debian; this case does not emulate the ALSA sequencer kernel or Bluetooth hardware.",
+    "ownerCheck": "On the Raspberry Pi from issue #472, start with the M-VAVE Chocolate connected, power it off until it disappears from aconnect -l, then power it on. Confirm aconnect shows it connected to PiPedal and preset/snapshot switching works without restarting pipedald. Repeat three times and record PiPedal, kernel and BlueZ versions."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "rerdavies/pipedal",
+    "base": "main",
+    "paths": ["PiPedalCommon/src/AlsaSequencer.cpp"]
+  }
+}

@@ -115,6 +115,11 @@ bcl new https://github.com/owner/repo/issues/123
 bcl validate aten-2029
 ```
 
+`bcl new` uses `GH_TOKEN`, then `GITHUB_TOKEN`, then an existing `gh auth login`
+session for github.com. Without credentials it falls back to anonymous reads.
+Credentials stay in memory and are never written into the passport. For batches,
+authenticate first; exhausted API limits produce an actionable error without repeated retries.
+
 `bcl new` reads a public GitHub issue, pins the issue repository's current commit,
 and creates a draft passport, a failing test placeholder, a README and a report
 template. It will not overwrite a case. Check that the issue repository is the

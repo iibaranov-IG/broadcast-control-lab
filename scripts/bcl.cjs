@@ -24,13 +24,8 @@ function scaffold(url, sourceCommit, title) {
 async function create(url, options = []) {
   const m = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)\/issues\/(\d+)\/?$/.exec(url || '')
   if (!m) throw new Error('Usage: bcl new https://github.com/owner/repo/issues/123')
-  async function api(p) {
-    return require('./retry.cjs').retryAsync(async () => {
-      const response = await fetch(`https://api.github.com/repos/${m[1]}/${m[2]}/${p}`, { headers: { Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(30000) })
-      if (!response.ok) { const error = new Error(`GitHub read failed: ${response.status}`); error.httpStatus = response.status; throw error }
-      return response.json()
-    })
-  }
+  const read = require('./github-read.cjs').reader()
+  const api = p => read(`repos/${m[1]}/${m[2]}/${p}`)
   const issue = await api(`issues/${m[3]}`)
   if (issue.pull_request) throw new Error('Use an issue URL, not a pull request')
   const commits = await api('commits?per_page=1')

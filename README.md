@@ -45,6 +45,11 @@ or produce a package. Different coverage levels remain explicit in each passport
 
 ## Get a test build or report
 
+For a configured repair, `bcl test <id>` builds and tests it, `bcl publish <id>`
+creates a draft PR from its successful Actions evidence, and `bcl hardware-kit <id>`
+prepares the owner's check instructions and result form. See the
+[publication guide](docs/publication.md) for configuration and exact commands.
+
 1. Open [GitHub Actions](https://github.com/iibaranov-IG/broadcast-control-lab/actions).
 2. Choose a successful run for the case and revision you want.
 3. Download the artifacts at the bottom of the run page. GitHub may require sign-in.
@@ -102,7 +107,8 @@ and creates a draft passport, a failing test placeholder, a README and a report
 template. It will not overwrite a case. Check that the issue repository is the
 actual code repository; then implement the negative control and repair acceptance,
 review dependencies, and set status to `ready`. A scaffold is not a reproduced bug.
-The runner does not invent fixes or automatically publish PRs.
+The runner does not invent fixes. Use the explicit `bcl publish` command to publish
+a configured, tested candidate as a draft PR.
 
 Source/dependency acquisition happens before execution. Test and build commands
 run with Docker `--network=none`, no host credentials, no Docker socket, dropped

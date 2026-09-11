@@ -39,6 +39,7 @@ function validate(c, id = c.id) {
   c.watch.forEach(relative)
   for (const key of ['hardwareVerified', 'applicationVerified']) if (typeof c.verification?.[key] !== 'boolean') throw new Error(`Missing ${key}`)
   for (const key of ['limitations', 'ownerCheck']) if (!c.verification?.[key]) throw new Error(`Missing ${key}`)
+  require('./publication.cjs').validatePublication(c)
   return c
 }
 function load(id) {
@@ -82,6 +83,14 @@ function run(c) {
       const begin = performance.now()
       try {
         c.steps[phase].forEach(command)
+        if (phase === 'prepare' && c.publish) {
+          const { capture, hash } = require('./publication.cjs')
+          const bytes = capture(root, c)
+          const directory = path.join(root, 'reports', c.id)
+          fs.mkdirSync(directory, { recursive: true })
+          fs.writeFileSync(path.join(directory, 'candidate.json'), bytes)
+          execution.publication = { path: 'candidate.json', sha256: hash(bytes) }
+        }
         if (phase === 'test') {
           const report = JSON.parse(fs.readFileSync(path.join(root, c.artifacts.report), 'utf8'))
           execution.tests = report.results
@@ -91,9 +100,17 @@ function run(c) {
       } finally { stage.durationMs = Math.round(performance.now() - begin) }
     }
     if (c.artifacts.package) execution.packages = packages(root, c.artifacts.package)
+    if (c.publish) {
+      const { capture, hash } = require('./publication.cjs')
+      if (hash(capture(root, c)) !== execution.publication.sha256) throw new Error('Published source changed during test/build; move source edits to prepare')
+    }
     execution.status = 'PASS'
   } catch (error) { execution.error = error.message; throw error }
-  finally { execution.durationMs = Math.round(performance.now() - started); writeEvidence(root, c, execution) }
+  finally {
+    execution.durationMs = Math.round(performance.now() - started)
+    writeEvidence(root, c, execution)
+    require('./publication.cjs').hardwareKit(path.join(root, 'reports', c.id), c)
+  }
 }
 function main() {
   const [mode, id] = process.argv.slice(2)

@@ -96,13 +96,22 @@ function containerRun(c, { harness = false } = {}) {
   } finally { fs.rmSync(stage, { recursive: true, force: true }) }
 }
 async function main() {
-  const [mode, arg] = process.argv.slice(2)
+  const [mode, arg, ...options] = process.argv.slice(2)
   if (mode === 'new') return create(arg)
   if (mode === 'list') return console.log(all().map(c => `${c.id}\t${c.status}`).join('\n'))
   if (mode === 'validate') return console.log(JSON.stringify(load(arg), null, 2))
   if (mode === 'harness') return containerRun(null, { harness: true })
-  if (mode === 'run') { const c = load(arg); if (c.status !== 'ready') throw new Error('Draft case is not executable'); return containerRun(c) }
-  throw new Error('Usage: bcl new <issue-url> | list | validate <id> | run <id> | harness')
+  if (mode === 'run' || mode === 'test') { const c = load(arg); if (c.status !== 'ready') throw new Error('Draft case is not executable'); return containerRun(c) }
+  if (mode === 'publish') {
+    const { publish, parseOptions } = require('./publish.cjs')
+    return console.log(JSON.stringify(publish(root, load(arg), parseOptions(options)), null, 2))
+  }
+  if (mode === 'hardware-kit') {
+    const c = load(arg), directory = path.join(root, 'reports', c.id)
+    require('./publication.cjs').hardwareKit(directory, c)
+    return console.log(path.join(directory, 'HARDWARE-CHECK.md'))
+  }
+  throw new Error('Usage: bcl new <issue-url> | list | validate <id> | test <id> | publish <id> --fork owner/repo --run <url> [--dry-run] | hardware-kit <id> | harness')
 }
 if (require.main === module) main().catch(e => { console.error(e.message); process.exitCode = 1 })
 module.exports = { scaffold }

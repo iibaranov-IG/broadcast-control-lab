@@ -36,6 +36,9 @@ function session(root, c, execution) {
   const directory = path.join(root, 'reports', c.id)
   fs.mkdirSync(directory, { recursive: true })
   const pythonCache = path.join(directory, 'python-cache')
+  const pythonEnv = process.platform === 'darwin'
+    ? { ...process.env, PYTHONPYCACHEPREFIX: pythonCache }
+    : process.env
   const result = execution.upstream = { kind: u.kind, source: u.source, status: 'FAIL', commands: [], logs: [], testFiles: [] }
   const inside = p => {
     const real = fs.realpathSync(path.join(source, p))
@@ -59,7 +62,7 @@ function session(root, c, execution) {
     const fd = fs.openSync(filename, 'w')
     const begin = Date.now()
     let processResult
-    try { processResult = spawnSync(step.argv[0], step.argv.slice(1), { cwd: inside(step.cwd), shell: false, timeout: u.timeoutMs, stdio: ['ignore', fd, fd], env: u.kind === 'python' ? { ...process.env, PYTHONDONTWRITEBYTECODE: '1', PYTHONPYCACHEPREFIX: pythonCache } : process.env }) }
+    try { processResult = spawnSync(step.argv[0], step.argv.slice(1), { cwd: inside(step.cwd), shell: false, timeout: u.timeoutMs, stdio: ['ignore', fd, fd], env: u.kind === 'python' ? pythonEnv : process.env }) }
     finally { fs.closeSync(fd) }
     const bytes = fs.readFileSync(filename)
     const entry = { label, argv: step.argv, cwd: step.cwd, exitCode: processResult.status, signal: processResult.signal, durationMs: Date.now() - begin, status: 'FAIL', log: name }

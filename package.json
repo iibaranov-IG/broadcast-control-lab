@@ -2,6 +2,10 @@
   "name": "broadcast-control-lab",
   "version": "0.1.0",
   "private": true,
-  "scripts": { "test": "node lab.cjs" },
+  "scripts": {
+    "test": "npm run test:contracts && npm run test:harness",
+    "test:contracts": "node lab.cjs",
+    "test:harness": "node --test test/*.test.mjs"
+  },
   "engines": { "node": ">=22" }
 }

@@ -22,6 +22,10 @@ reconnect scenarios, full Companion runtime smoke test, owner-operated hardware
 test package, redacted report export. No access to production devices is required
 for this milestone. No client installer or autonomous repair workflow is included.
 
+The first reusable TCP harness is in `lib/scripted-tcp-device.mjs`. It can emit
+fragmented or delayed replies, disconnect a client, accept a reconnection, record
+both directions, and redact configured secrets from its software-only report.
+
 Protocol references:
 - https://www.cs1.net/pic/intelix/DIGI-88FS_manual.pdf
 - https://github.com/bitfocus/companion-module-requests/issues/2061

@@ -33,8 +33,10 @@ class InstanceBase {
   setVariableDefinitions() {}
   setVariableValues() {}
   checkFeedbacks() {}
+  updateStatus(status) { this.status = status }
+  log() {}
 }
-const base = { InstanceBase, Regex: {}, combineRgb: () => 0 }
+const base = { InstanceBase, Regex: {}, combineRgb: () => 0, InstanceStatus: { Ok: 'ok', Connecting: 'connecting', ConnectionFailure: 'connection_failure' } }
 const results = []
 async function check(name, fn) {
   try { await fn(); results.push({ name, status: 'PASS' }) }
@@ -69,6 +71,23 @@ async function main() {
   await check('Intelix disconnected command fails', async () => {
     const fixed = new Fixed()
     await assert.rejects(() => fixed.send('read'), /not connected/)
+  })
+  await check('BCL-001: Intelix responds to a login prompt without newline', async () => {
+    const fixed = new Fixed()
+    fixed.config = { username: 'lab-user' }
+    const sent = []
+    fixed.socket = { isConnected: true, sendAsync: async (s) => sent.push(s) }
+    fixed.handleData(Buffer.from('User'))
+    fixed.handleData(Buffer.from('name: '))
+    await Promise.resolve()
+    assert.deepEqual(sent, ['lab-user\r\n'], 'Telnet prompts may be fragmented and omit a newline')
+  })
+  await check('BCL-002: TCC2 error-only reply must not mark connection healthy', () => {
+    const Tcc2 = load('tcc2', revisions.tcc2, 'src/main.js', base)
+    const instance = new Tcc2()
+    instance.status = 'connecting'
+    instance.handleMessage(Buffer.from('{"osc":{"error":[400,{"desc":"not understood"}]}}'))
+    assert.notEqual(instance.status, 'ok', 'A protocol error is not successful device state')
   })
   const ssc = load('tcc2', revisions.tcc2, 'src/ssc-protocol.js')
   await check('TCC2 preserves zero angles and false activity', () => {

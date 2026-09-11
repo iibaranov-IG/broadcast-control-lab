@@ -1,0 +1,111 @@
+diff --git a/common/rdm/ResponderHelper.cpp b/common/rdm/ResponderHelper.cpp
+index 21febde0..473840b6 100644
+--- a/common/rdm/ResponderHelper.cpp
++++ b/common/rdm/ResponderHelper.cpp
+@@ -669,6 +669,13 @@ RDMResponse *ResponderHelper::GetListInterfaces(
+ 
+   std::sort(interfaces.begin(), interfaces.end(),
+             ola::network::InterfaceIndexOrdering());
++  interfaces.erase(
++      std::unique(
++          interfaces.begin(), interfaces.end(),
++          [](const Interface &a, const Interface &b) {
++            return a.index == b.index;
++          }),
++      interfaces.end());
+ 
+   uint16_t interface_count = std::count_if(
+       interfaces.begin(), interfaces.end(), IsInterfaceIndexValidInterface);
+diff --git a/common/rdm/ResponderHelperTest.cpp b/common/rdm/ResponderHelperTest.cpp
+index 2a226bea..9dce0640 100644
+--- a/common/rdm/ResponderHelperTest.cpp
++++ b/common/rdm/ResponderHelperTest.cpp
+@@ -22,23 +22,32 @@
+ #include <string.h>
+ #include <memory>
+ #include <string>
++#include <vector>
+ 
++#include "common/rdm/FakeNetworkManager.h"
+ #include "common/rdm/TestHelper.h"
+ #include "ola/base/Array.h"
++#include "ola/network/Interface.h"
++#include "ola/network/NetworkUtils.h"
+ #include "ola/rdm/RDMCommand.h"
+ #include "ola/rdm/ResponderHelper.h"
+ #include "ola/rdm/UID.h"
+ #include "ola/testing/TestUtils.h"
+ 
+ using ola::io::ByteString;
++using ola::network::HostToNetwork;
++using ola::network::Interface;
++using ola::rdm::FakeNetworkManager;
+ using ola::rdm::RDMGetRequest;
+ using ola::rdm::ResponderHelper;
+ using ola::rdm::UID;
+ using std::string;
++using std::vector;
+ 
+ class ResponderHelperTest: public CppUnit::TestFixture {
+   CPPUNIT_TEST_SUITE(ResponderHelperTest);
+   CPPUNIT_TEST(testExtractString);
++  CPPUNIT_TEST(testListInterfacesIsUnique);
+   CPPUNIT_TEST_SUITE_END();
+ 
+  public:
+@@ -50,6 +59,7 @@ class ResponderHelperTest: public CppUnit::TestFixture {
+   void setUp();
+ 
+   void testExtractString();
++  void testListInterfacesIsUnique();
+ 
+  private:
+   UID m_source;
+@@ -161,3 +171,47 @@ void ResponderHelperTest::testExtractString() {
+   OLA_ASSERT_FALSE(ResponderHelper::ExtractString(&request6, &str6));
+   OLA_ASSERT_TRUE(str6.empty());
+ }
++
++
++void ResponderHelperTest::testListInterfacesIsUnique() {
++  Interface first;
++  first.index = 3;
++  first.type = Interface::ARP_ETHERNET_TYPE;
++  Interface second_address = first;
++  Interface second;
++  second.index = 7;
++  second.type = Interface::ARP_ETHERNET_TYPE;
++  vector<Interface> interfaces;
++  interfaces.push_back(second_address);
++  interfaces.push_back(second);
++  interfaces.push_back(first);
++
++  FakeNetworkManager network_manager(
++      interfaces, 3, ola::network::IPV4Address::Loopback(),
++      "host", "example", vector<ola::network::IPV4Address>());
++  RDMGetRequest request(m_source,
++                        m_destination,
++                        0,  // transaction #
++                        1,  // port id
++                        0,  // sub device
++                        ola::rdm::PID_LIST_INTERFACES,
++                        NULL,
++                        0);
++  std::auto_ptr<ola::rdm::RDMResponse> response(
++      ResponderHelper::GetListInterfaces(&request, &network_manager));
++
++  PACK(
++  struct list_interface_s {
++    uint32_t index;
++    uint16_t type;
++  });
++  const list_interface_s expected[] = {
++    {HostToNetwork(static_cast<uint32_t>(3)),
++     HostToNetwork(Interface::ARP_ETHERNET_TYPE)},
++    {HostToNetwork(static_cast<uint32_t>(7)),
++     HostToNetwork(Interface::ARP_ETHERNET_TYPE)}
++  };
++  OLA_ASSERT_DATA_EQUALS(
++      reinterpret_cast<const uint8_t*>(expected), sizeof(expected),
++      response->ParamData(), response->ParamDataSize());
++}

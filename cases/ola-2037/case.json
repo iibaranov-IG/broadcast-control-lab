@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "ola-2037",
+  "status": "ready",
+  "title": "OLA unique RDM LIST_INTERFACES response",
+  "issue": "https://github.com/OpenLightingProject/ola/issues/2037",
+  "problem": "Multiple addresses for one OS network interface can make OLA return the same interface index more than once in the E1.37-7 LIST_INTERFACES response.",
+  "reproduce": "Supply interface records with indices 3, 7 and 3, then request LIST_INTERFACES; the unpatched response contains three entries instead of two.",
+  "acceptance": "The response contains each interface index once, remains ordered by index, preserves the interface type, and the dedicated OLA regression test passes.",
+  "repair": "Sort network interfaces and erase adjacent records whose OS interface indices match before counting and packing the RDM response.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "OpenLightingProject/ola",
+      "commit": "99b26c65d45e807032c1337ca7ebf1ac51ff3995",
+      "directory": "sources/ola-2037"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/ola-2037",
+        "argv": ["git", "apply", "../../cases/ola-2037/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": ["node", "cases/ola-2037/test.mjs", "sources/ola-2037"]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/ola-2037.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL compiles the response-ordering model and verifies the patched production and regression-test contracts. OLA's full ResponderHelperTester passed separately in clean Debian; the offline case does not rebuild all of OLA or query host interfaces.",
+    "ownerCheck": "Run an RDMnet controller against an OLA host whose interface discovery returns multiple addresses for one NIC. Request LIST_INTERFACES and confirm every OS interface index appears once with the expected hardware type. Record OLA revision, OS and interface configuration."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "OpenLightingProject/ola",
+    "base": "master",
+    "paths": [
+      "common/rdm/ResponderHelper.cpp",
+      "common/rdm/ResponderHelperTest.cpp"
+    ]
+  }
+}

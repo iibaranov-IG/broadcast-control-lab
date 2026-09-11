@@ -33,12 +33,12 @@ application. Current cases include Companion modules and an AutoPTZ backend.
 | --- | --- | --- |
 | [ATEN variable crosspoints](cases/aten-2029/) | Variable expansion, port validation, saved numeric options and profile recall; 7 action-contract checks | Candidate module package, passport and evidence bundle |
 | [AutoPTZ VISCA-over-UDP](cases/autoptz-155/) | Actual Python backend over loopback UDP: stop packets, complete Sony-framed reply, short reply and timeout; 4 checks | Reproducible diagnostic and packet transcript |
-| [Intelix DIGI-88FS](FINDINGS.md) | Routing commands, fragmented input, login prompts and disconnected behavior | Regression results in the main BCL report |
-| [Sennheiser TCC2](FINDINGS.md) | SSC errors, valid state, malformed JSON and camera-sector boundaries | Regression results in the main BCL report |
+| [Intelix DIGI-88FS](cases/intelix/case.json) | Routing commands, fragmented input, login prompts and disconnected behavior | Independent regression evidence bundle |
+| [Sennheiser TCC2](cases/tcc2/case.json) | SSC errors, valid state, malformed JSON and camera-sector boundaries | Independent regression evidence bundle |
+| [Zynthian OSC source ports](cases/zynthian-1530/) | Two clients on one host receive feedback on their own ports | Native loopback check, source-patch archive and evidence |
 
-ATEN uses the common executable passport pipeline. AutoPTZ currently has a
-dedicated diagnostic workflow. Intelix and TCC2 share the original regression
-suite. These are different levels of coverage, not claims of full device support.
+All five cases use v2 passports and one CI workflow. A case can be a diagnostic
+or produce a package. Different coverage levels remain explicit in each passport.
 
 ## Get a test build or report
 
@@ -46,46 +46,42 @@ suite. These are different levels of coverage, not claims of full device support
 2. Choose a successful run for the case and revision you want.
 3. Download the artifacts at the bottom of the run page. GitHub may require sign-in.
 
-| Workflow | Artifacts |
-| --- | --- |
-| BCL case pipeline | `aten-2029-test-build` and `aten-2029-report` |
-| BCL AutoPTZ UDP diagnostic | `autoptz-155-report` |
-| Broadcast Control Lab | `lab-report` |
+The **BCL v2** workflow produces one `<case-id>-evidence` artifact per case.
+It contains `case.json`, `evidence.json`, `PR-REPORT.md`, the raw test report,
+separate packet transcripts when available, and any package produced by the case.
 
-The ATEN report bundle includes a passport snapshot, `evidence.json` and
-`PR-REPORT.md`: source revisions, stage/test results, package SHA-256 and remaining
-owner checks. Failure evidence is written when an execution fails inside the case
-runner. Workflow setup failures remain visible in Actions logs. Artifacts expire
+Evidence includes source revisions, runtime versions, the container image ID,
+stage/test durations, SHA-256 hashes of packages and exchange logs, and remaining
+owner checks. Setup and execution errors produce FAIL evidence where the runner
+can still write; cancelled jobs and runner loss may leave only Actions logs. Artifacts expire
 according to the retention date shown by GitHub; save the exact build you test.
 
 ## Run the lab yourself
 
-You need Git and Node.js 22+ for the lab tools. AutoPTZ's diagnostic also uses
-Python 3.12. Individual package builds use the runtime pinned in their passport.
+You need Git, Node.js 22+ and Docker on Linux (or the provided GitHub Actions
+runner). Docker supplies the pinned Node/Python runtime and native compiler.
+The first run downloads sources and builds a runtime image.
 
 ```bash
 git clone https://github.com/iibaranov-IG/broadcast-control-lab.git
 cd broadcast-control-lab
 
-# Exercise the reusable TCP/UDP stand and evidence helper.
-npm run test:harness
-
-# Run ATEN action checks without installing Companion or connecting a matrix.
-node cases/aten-2029/test.mjs
-
-# Fetch the pinned AutoPTZ backend, then test it against the BCL UDP stand.
-python3 cases/autoptz-155/prepare.py
-node cases/autoptz-155/test.mjs
+npm link
+bcl list
+bcl run autoptz-155
+bcl run aten-2029
+bcl harness
 ```
 
-These focused commands do not require a full AutoPTZ installation or ML
-dependencies. The AutoPTZ check isolates the backend and two unchanged dependencies.
+Without linking, use `node scripts/bcl.cjs run <id>`. Results appear in
+`reports/<id>/`. Fresh source checkouts are staged automatically and removed
+after execution. AutoPTZ runs its backend without the full application or ML stack.
+`npm test` runs BCL's own infrastructure unit tests; use `bcl run` for external cases.
 
-`npm test` additionally requires Intelix and TCC2 source checkouts. Set
-`LAB_SOURCES` to their parent directory, using the directory names `intelix` and
-`tcc2` and the revisions in [the lab workflow](.github/workflows/lab.yml).
-For the complete managed run, use Actions; a repository owner or fork owner can
-start it with **Run workflow**.
+PRs select affected cases from changed paths. Shared runner, library, workflow or
+test changes run all cases. Pushes to main, manual runs and the nightly run
+(02:17 UTC) run the full matrix. Superseded runs are cancelled. See
+[the single workflow](.github/workflows/bcl.yml).
 
 ## Build your own case
 
@@ -94,20 +90,22 @@ acceptance criteria, immutable source revision, runtime, commands, artifacts and
 remaining hardware checks. Start with [ATEN's passport](cases/aten-2029/case.json).
 
 ```bash
-node scripts/case.cjs list
-node scripts/case.cjs validate aten-2029
+bcl new https://github.com/owner/repo/issues/123
+bcl validate aten-2029
 ```
 
-To execute the complete case, prepare a fresh source checkout at the passport's
-revision and directory, select its exact Node runtime, then run:
+`bcl new` reads a public GitHub issue, pins the issue repository's current commit,
+and creates a draft passport, a failing test placeholder, a README and a report
+template. It will not overwrite a case. Check that the issue repository is the
+actual code repository; then implement the negative control and repair acceptance,
+review dependencies, and set status to `ready`. A scaffold is not a reproduced bug.
+The runner does not invent fixes or automatically publish PRs.
 
-```bash
-node scripts/case.cjs run aten-2029
-```
-
-The common workflow discovers `case.json` files automatically and runs preparation,
-tests and packaging in order. New cases still need their own reproduction and
-test logic; adding a passport alone does not implement a protocol.
+Source/dependency acquisition happens before execution. Test and build commands
+run with Docker `--network=none`, no host credentials, no Docker socket, dropped
+capabilities and resource limits. Local TCP/UDP works inside that container.
+Dependency acquisition currently has one audited, script-disabled registry recipe
+for ATEN; new dependency recipes require review. See [v2 design and limits](docs/bcl-v2.md).
 
 Use [ScriptedTcpDevice](lib/scripted-tcp-device.mjs) for stream interactions and
 [ScriptedUdpDevice](lib/scripted-udp-device.mjs) for whole datagrams.

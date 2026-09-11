@@ -104,7 +104,6 @@ function main() {
   }
   const c = load(id)
   if (mode === 'validate') { console.log(`${id}: valid v2 ${c.status}`); return }
-  if (mode === 'dependencies') { c.steps.dependencies.forEach(command); return }
   if (mode === 'run') { run(c); return }
   throw new Error('Use bcl list|validate|new|run, or case.cjs select')
 }

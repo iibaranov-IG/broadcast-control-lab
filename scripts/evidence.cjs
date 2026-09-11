@@ -60,7 +60,9 @@ function packages(root, pattern, required = true) {
   const found = fs.existsSync(path.join(root, directory)) ? fs.readdirSync(path.join(root, directory)).filter(n => re.test(n)).sort() : []
   if (required && !found.length) throw new Error('Build produced no matching package')
   return found.map(name => {
-    const relative = path.join(directory, name), data = fs.readFileSync(path.join(root, relative))
+    const relative = path.join(directory, name), filename = path.join(root, relative)
+    if (!fs.lstatSync(filename).isFile() || !fs.realpathSync(filename).startsWith(fs.realpathSync(root) + path.sep)) throw new Error('Package must be a regular file inside the workspace')
+    const data = fs.readFileSync(filename)
     return { path: relative, bytes: data.length, sha256: hash(data) }
   })
 }

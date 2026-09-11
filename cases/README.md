@@ -1,46 +1,43 @@
-# BCL case passports — version 1
+# Executable case passports — v2
 
-Each repair lives in `cases/<id>/` with one executable `case.json` passport.
-Start from [the ATEN example](aten-2029/case.json). The common workflow discovers
-passports automatically; adding a case does not require another workflow.
+All cases use `cases/<id>/case.json`, validated by `scripts/case.cjs`.
+Start with ATEN for a Node package, AutoPTZ for a Python diagnostic, Zynthian for
+a native build, or Intelix for multiple source revisions. Run `bcl validate <id>`.
 
 | Field | Meaning |
 | --- | --- |
-| schemaVersion, id, title | Format version, stable directory id, readable name |
-| issue, problem, reproduce | Original report, practical problem, reproducible input |
-| acceptance, repair | Observable success condition and proposed change |
-| source | Repository, immutable 40-character commit, checkout directory, affected file |
-| runtime.node | Exact Node version used for testing and packaging |
-| packageVersion | Clearly marked candidate version |
-| steps | Ordered prepare, test and build commands; each has cwd and argv |
-| artifacts | Package pattern and machine-readable test report |
-| verification | Hardware/UI status, limitations and owner-operated acceptance task |
+| schemaVersion | Must be 2 |
+| id, status, title | Stable directory id; draft or ready; readable name |
+| issue, problem, reproduce | Source discussion, practical problem, failing input |
+| acceptance, repair | Observable success condition and change |
+| sources[] | Unique id, repository, immutable commit, distinct sources/ directory |
+| runtime | Exact Node and optional Python versions |
+| watch[] | Additional file paths or directory prefixes affecting this case |
+| steps | dependencies, prepare, test, build arrays of cwd/argv commands; only test must be nonempty |
+| artifacts.report | JSON with nonempty results[]; each result has name, status and measured durationMs |
+| artifacts.package, packageVersion | Optional package glob and candidate version; omitted for diagnostics |
+| verification | hardwareVerified, applicationVerified, limitations, ownerCheck |
 
-Commands are reviewed repository code, executed as argument arrays without a
-shell. Passports are not an input format for executing unreviewed external issue
-text. Paths are relative to the BCL repository. The runner validates required
-fields, source revision and runtime and stops immediately on a failed step.
+`bcl new <public-github-issue-url>` creates a draft and a failing placeholder.
+It pins the issue repository, which may need replacing with the actual code
+repository. Review and implement the case before setting status to ready.
 
-Local workflow:
+`bcl run <id>` stages a fresh workspace, checks out each source, prepares the
+runtime image, acquires approved dependencies, and executes prepare/test/build
+offline. Preparation patches run inside the same offline container as the tests.
+Passports are reviewed executable repository content, not untrusted issue text.
 
-1. `node scripts/case.cjs list` discovers and validates all passports.
-2. `node scripts/case.cjs validate aten-2029` checks one passport.
-3. Check out its source repository at its pinned commit into source.directory.
-4. With the declared Node runtime, `node scripts/case.cjs run aten-2029` prepares,
-   tests and packages the same checkout. Start with a fresh checkout on each run.
+Dependency commands in a passport describe acquisition intent; arbitrary commands
+are not executed with network access. The separate audited installer currently
+supports only the pinned ATEN registry dependency set with package scripts disabled.
+Cases with no dependencies use an empty dependencies array.
 
-The Actions run provides `<id>-test-build` and `<id>-report`; the latter includes
-the exact passport. A successful run proves only the documented automated checks.
-Keep hardware and UI verification false until evidence from those checks exists.
-Owner feedback should include model, firmware, Companion version, the exact build,
-expected/observed behavior and logs. Test packages in a separate setup first.
+One `<id>-evidence` artifact includes the passport, execution JSON, Markdown report,
+raw test JSON, hashed transcript files and optional package. No package is invented
+for a diagnostic. The runner fails on an unsuccessful/missing test report and does
+not reuse stale test output or packages. Runtime/image versions and durations are
+recorded. Hardware and full-application verification remain independent.
 
-ATEN is the first migrated case. The Intelix/TCC2 regression suite remains in
-`lab.cjs`; it is not yet represented as separate executable passports.
-
-Every case run now writes `reports/<id>/evidence.json`, a passport snapshot and
-`PR-REPORT.md`. These include stage results, upstream/BCL revisions, package
-SHA-256 hashes and remaining owner checks. Actions publishes them with the report
-and shows the Markdown in the run summary. A failed execution also writes failure
-evidence. The Markdown is prepared for review; it is not automatically posted.
-Case test reports must contain a nonempty `results` array with PASS statuses.
+PR selection matches case directories and watch prefixes. Shared infrastructure
+changes rerun the full matrix; main/manual/nightly runs always select all cases.
+Unknown or malformed passports fail selection instead of silently disappearing.

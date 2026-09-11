@@ -52,11 +52,11 @@ function containerRun(c, { harness = false } = {}) {
   let bclRevision = 'unknown'
   try {
     try { bclRevision = exec('git', ['rev-parse', 'HEAD'], { encoding: 'utf8', stdio: 'pipe' }).trim() } catch {}
-    const ignored = new Set(['.git', 'sources', 'reports', 'node_modules', '.cache'])
+    const allowed = new Set(['cases', 'scripts', 'lib', 'test', 'lab.cjs', 'package.json', 'Dockerfile'])
     for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
-      if (ignored.has(entry.name) || entry.isSymbolicLink()) continue
+      if (!allowed.has(entry.name) || entry.isSymbolicLink()) continue
       fs.cpSync(path.join(root, entry.name), path.join(stage, entry.name), { recursive: true,
-        filter: p => !fs.lstatSync(p).isSymbolicLink() })
+        filter: p => !fs.lstatSync(p).isSymbolicLink() && !/^(\.env(?:\..*)?|\.git|node_modules|\.cache)$/.test(path.basename(p)) })
     }
     for (const source of c?.sources || []) {
       const destination = path.join(stage, source.directory)
@@ -84,7 +84,7 @@ function containerRun(c, { harness = false } = {}) {
     try { exec('docker', [...base, '--network=none', '-e', 'BCL_SANDBOX=network-none', tag, ...argv]) }
     finally {
       const bundle = path.join(stage, 'reports', id)
-      if (fs.existsSync(bundle)) fs.cpSync(bundle, output, { recursive: true })
+      if (fs.existsSync(bundle)) fs.cpSync(bundle, output, { recursive: true, filter: p => !fs.lstatSync(p).isSymbolicLink() })
       if (c?.artifacts.package) {
         for (const p of require('./evidence.cjs').packages(stage, c.artifacts.package, false)) fs.copyFileSync(path.join(stage, p.path), path.join(output, path.basename(p.path)))
       }

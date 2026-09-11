@@ -15,7 +15,7 @@ numeric options and profile recall retain their behavior.
 Run: `node cases/aten-2029/test.mjs` with Node 22 or newer.
 Generate an applicable patch: `git diff --no-index -- cases/aten-2029/upstream.mjs cases/aten-2029/candidate.mjs`
 The workflow also packages the pinned upstream module with this candidate as
-version `2.0.3-bcl.1`. Download `aten-2029-test-build` from the successful
+version `2.0.3-bcl.1`. Run `bcl run aten-2029`, or download `aten-2029-evidence` from the successful
 GitHub Actions run and extract the module package for a local Companion test.
 This is a BCL test build, not an official Bitfocus release.
 

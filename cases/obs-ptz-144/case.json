@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "id": "obs-ptz-144",
+  "status": "ready",
+  "title": "OBS PTZ DataVideo VISCA-over-TCP framing",
+  "issue": "https://github.com/glikely/obs-ptz/issues/144",
+  "problem": "DataVideo PTC cameras accept a TCP connection but do not respond to raw VISCA packets because their TCP dialect prefixes every packet with its two-byte total length.",
+  "reproduce": "Send the issue's 81 09 7e 7e 00 ff inquiry to a DataVideo camera as raw VISCA/TCP and observe repeated timeouts.",
+  "acceptance": "DataVideo mode sends 00 08 81 09 7e 7e 00 ff, parses fragmented and coalesced length-prefixed replies, rejects invalid lengths, and leaves ordinary raw VISCA/TCP unchanged.",
+  "repair": "Add a bounded DataVideo stream framer, route send and receive through it only when selected, and expose a separate DataVideo VISCA TCP camera choice with a persisted compatibility option.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "glikely/obs-ptz",
+      "commit": "e15fdeabcb76098a7cc1154aeb836e6f6eee91a7",
+      "directory": "sources/obs-ptz-144"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/obs-ptz-144",
+        "argv": ["git", "apply", "../../cases/obs-ptz-144/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": ["node", "cases/obs-ptz-144/test.mjs", "sources/obs-ptz-144"]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/obs-ptz-144.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "The test compiles and executes the production framing helper and checks the OBS wiring. It does not build the complete plugin or connect to a physical DataVideo camera.",
+    "ownerCheck": "In OBS, add DataVideo VISCA TCP, enter the PTC-150 address and port, and verify pan/tilt, release-to-stop, zoom, one preset recall, state inquiries and reconnect after power cycling. Attach the OBS log and record camera model and firmware."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "glikely/obs-ptz",
+    "base": "main",
+    "paths": [
+      "src/datavideo-visca-framing.hpp",
+      "src/ptz-visca-tcp.hpp",
+      "src/ptz-visca-tcp.cpp",
+      "src/settings.cpp",
+      "data/locale/en-US.ini",
+      "README.md"
+    ]
+  }
+}

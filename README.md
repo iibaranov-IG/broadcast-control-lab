@@ -37,7 +37,7 @@ application. Current cases include Companion modules and an AutoPTZ backend.
 | [Sennheiser TCC2](cases/tcc2/case.json) | SSC errors, valid state, malformed JSON and camera-sector boundaries | Independent regression evidence bundle |
 | [Zynthian OSC source ports](cases/zynthian-1530/) | Two clients on one host receive feedback on their own ports | Native loopback check, source-patch archive and evidence |
 | [MIDIMonster OSC mixer queries](cases/midimonster-150/) | Value-less XAir/X32 state requests and ordinary float output | Real core/backend build, exact UDP transcript and evidence |
-
+| [FADER_X X Air mappings](cases/fader-x-5/) | Mixer-specific Aux, FX Return and Matrix address selection; 3 checks | Compiled production mapper, firmware contract checks and owner kit |
 | [FPP PTP lock evidence](cases/fpp-2848-ptp-lock/) | Missing/malformed management replies, lock boundaries and integer extremes | Candidate patch and 25 C++ checks; the 1970-date issue remains open |
 
 All cases use v2 passports and one CI workflow. A case can be a diagnostic

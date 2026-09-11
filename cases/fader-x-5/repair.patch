@@ -1,0 +1,244 @@
+diff --git a/FADER_X/WebServer.ino b/FADER_X/WebServer.ino
+index 4aaa206..049f26f 100644
+--- a/FADER_X/WebServer.ino
++++ b/FADER_X/WebServer.ino
+@@ -153,6 +153,8 @@ String xAirTemplate = "<table class='block mode'>"
+     "<option value='1' {x1-1}>Channel</option>"
+     "<option value='2' {x1-2}>DCA</option>"
+     "<option value='3' {x1-3}>Bus</option>"
++    "<option value='4' {x1-4}>Aux In / USB Playback</option>"
++    "<option value='5' {x1-5}>FX Return</option>"
+   "</select></td><td></td></tr>"
+ "</table>";
+ 
+diff --git a/FADER_X/X32.cpp b/FADER_X/X32.cpp
+index 8f9efd3..3837d3b 100644
+--- a/FADER_X/X32.cpp
++++ b/FADER_X/X32.cpp
+@@ -1,4 +1,5 @@
+ #include "X32.h"
++#include "X32Address.h"
+ #include "Net.h"
+ 
+ extern Net net;
+@@ -63,25 +64,12 @@ void X32::loop(){
+ 
+ 
+ void X32::touchEvent(int channel, Fader *fader){
+-  char ch[2];
+-  sprintf(ch, "%02i", channel); //leftpad with 0
+-
+-  String oscStr = "";
+-
+-  if(xTarget == 1){
+-    oscStr = "/ch/"+String(ch)+"/mix/fader";
+-  }else if(xTarget == 2){
+-    oscStr = "/dca/"+String(channel)+"/fader";
+-  }else if(xTarget == 3){
+-    oscStr = "/bus/"+String(ch)+"/mix/fader";
+-  }else if(xTarget == 4){
+-    oscStr = "/auxin/"+String(ch)+"/mix/fader";
+-  }else if(xTarget == 5){
+-    oscStr = "/fxrtn/"+String(ch)+"/mix/fader";
+-  }else if(xTarget == 6){
+-    oscStr = "/mtx/"+String(ch)+"/mix/fader"; 
++  char oscAddr[32];
++  if(!x32FaderAddress(globalMode == OP_XAIR, xTarget, channel, oscAddr, sizeof(oscAddr))){
++    Serial.println("Unsupported X32/X Air fader target");
++    return;
+   }
+-  OSCMessage msg(oscStr);
++  OSCMessage msg(String(oscAddr));
+   msg.addFloat(fader->getPositionTrimmed()/1023.0);
+   
+   udp.beginPacket(net.IP_Destination, udpPort);
+@@ -101,6 +89,7 @@ void X32::processOSC(OSCMessage msg){
+ 
+   if(xTarget == 1 && msg.match("/ch/*/mix/fader")){
+     byte channel = msg.addressPart(1).toInt();
++    if(!x32FaderTargetSupported(globalMode == OP_XAIR, xTarget, channel)) return;
+     setFaderTarget(channel, msg.getFloat(0)*1023);
+     receivedFaderValues = true;
+     if(channel == lastRequestedInitChannel){
+@@ -109,6 +98,7 @@ void X32::processOSC(OSCMessage msg){
+     
+   }else if(xTarget == 2 && msg.match("/dca/*/fader")){
+     byte channel = msg.addressPart(1).toInt();
++    if(!x32FaderTargetSupported(globalMode == OP_XAIR, xTarget, channel)) return;
+     setFaderTarget(channel, msg.getFloat(0)*1023);
+     receivedFaderValues = true;  
+     if(channel == lastRequestedInitChannel){
+@@ -117,36 +107,56 @@ void X32::processOSC(OSCMessage msg){
+     
+   }else if(xTarget == 3 && msg.match("/bus/*/mix/fader")){
+     byte channel = msg.addressPart(1).toInt();
++    if(!x32FaderTargetSupported(globalMode == OP_XAIR, xTarget, channel)) return;
+     setFaderTarget(channel, msg.getFloat(0)*1023);
+     receivedFaderValues = true;
+     if(channel == lastRequestedInitChannel){
+       initialRequest();
+     }
+     
+-  }else if(xTarget == 4 && msg.match("/auxin/*/mix/fader")){
++  }else if(globalMode == OP_X32 && xTarget == 4 && msg.match("/auxin/*/mix/fader")){
+     byte channel = msg.addressPart(1).toInt();
++    if(!x32FaderTargetSupported(false, xTarget, channel)) return;
+     setFaderTarget(channel, msg.getFloat(0)*1023);
+     receivedFaderValues = true;
+     if(channel == lastRequestedInitChannel){
+       initialRequest();
+     }
+     
+-  }else if(xTarget == 5 && msg.match("/fxrtn/*/mix/fader")){
++  }else if(globalMode == OP_X32 && xTarget == 5 && msg.match("/fxrtn/*/mix/fader")){
+     byte channel = msg.addressPart(1).toInt();
++    if(!x32FaderTargetSupported(false, xTarget, channel)) return;
+     setFaderTarget(channel, msg.getFloat(0)*1023);
+     receivedFaderValues = true;
+     if(channel == lastRequestedInitChannel){
+       initialRequest();
+     }
+     
+-  }else if(xTarget == 6 && msg.match("/mtx/*/mix/fader")){
++  }else if(globalMode == OP_X32 && xTarget == 6 && msg.match("/mtx/*/mix/fader")){
+     byte channel = msg.addressPart(1).toInt();
++    if(!x32FaderTargetSupported(false, xTarget, channel)) return;
+     setFaderTarget(channel, msg.getFloat(0)*1023);
+     receivedFaderValues = true;
+     if(channel == lastRequestedInitChannel){
+       initialRequest();
+     }
+     
++  }else if(globalMode == OP_XAIR && xTarget == 4 && msg.match("/rtn/aux/mix/fader")){
++    setFaderTarget(1, msg.getFloat(0)*1023);
++    receivedFaderValues = true;
++    if(lastRequestedInitChannel == 1){
++      initialRequest();
++    }
++
++  }else if(globalMode == OP_XAIR && xTarget == 5 && msg.match("/rtn/*/mix/fader")){
++    byte channel = msg.addressPart(1).toInt();
++    if(!x32FaderTargetSupported(true, xTarget, channel)) return;
++    setFaderTarget(channel, msg.getFloat(0)*1023);
++    receivedFaderValues = true;
++    if(channel == lastRequestedInitChannel){
++      initialRequest();
++    }
++
+   }else if(msg.match("/info")){
+     initialRequest();
+     updateSubscription();
+@@ -172,29 +182,11 @@ void X32::initialRequest(){
+   }
+   lastRequestedInitChannel = globalFaderChannels[initialIndex];
+ 
+-  char ch[2];
+-  sprintf(ch, "%02i", globalFaderChannels[initialIndex]); //leftpad with 0
+-  String oscStr = "";
+-
+-  if(xTarget == 1 && globalFaderChannels[initialIndex]<=32){
+-    oscStr = "/ch/"+String(ch)+"/mix/fader";
+-  }else if(xTarget == 2 && globalFaderChannels[initialIndex]<=8){
+-    oscStr = "/dca/"+String(globalFaderChannels[initialIndex])+"/fader";
+-  }else if(xTarget == 3 && globalFaderChannels[initialIndex]<=16){
+-    oscStr = "/bus/"+String(ch)+"/mix/fader";
+-  }else if(xTarget == 4 && globalFaderChannels[initialIndex]<=8){
+-    oscStr = "/auxin/"+String(ch)+"/mix/fader";
+-  }else if(xTarget == 5 && globalFaderChannels[initialIndex]<=8){
+-    oscStr = "/fxrtn/"+String(ch)+"/mix/fader";
+-  }else if(xTarget == 6 && globalFaderChannels[initialIndex]<=8){
+-    oscStr = "/mtx/"+String(ch)+"/mix/fader"; 
+-  }
+-
+-
+-  if(oscStr!="" && globalFaderChannels[initialIndex]>0){
++  char oscAddr[32];
++  if(x32FaderAddress(globalMode == OP_XAIR, xTarget, globalFaderChannels[initialIndex], oscAddr, sizeof(oscAddr))){
+     //Serial.print("sent: ");
+-    //Serial.println(oscStr);
+-    OSCMessage msg(oscStr);
++    //Serial.println(oscAddr);
++    OSCMessage msg(String(oscAddr));
+     udp.beginPacket(net.IP_Destination, udpPort);
+     msg.writeUDP(&udp);
+     udp.endPacket();
+diff --git a/FADER_X/X32Address.h b/FADER_X/X32Address.h
+new file mode 100644
+index 0000000..f1979af
+--- /dev/null
++++ b/FADER_X/X32Address.h
+@@ -0,0 +1,49 @@
++#ifndef X32_ADDRESS_H
++#define X32_ADDRESS_H
++
++#include <stddef.h>
++#include <stdint.h>
++#include <stdio.h>
++
++inline uint8_t x32FaderTargetLimit(bool xAir, uint8_t target){
++  if(target == 1) return xAir ? 16 : 32;
++  if(target == 2) return xAir ? 4 : 8;
++  if(target == 3) return xAir ? 6 : 16;
++  if(target == 4) return xAir ? 1 : 8;
++  if(target == 5) return xAir ? 4 : 8;
++  if(target == 6) return xAir ? 0 : 8;
++  return 0;
++}
++
++inline bool x32FaderTargetSupported(bool xAir, uint8_t target, uint8_t channel){
++  return channel > 0 && channel <= x32FaderTargetLimit(xAir, target);
++}
++
++inline bool x32FaderAddress(bool xAir, uint8_t target, uint8_t channel, char* address, size_t size){
++  if(!address || !size || !x32FaderTargetSupported(xAir, target, channel)){
++    return false;
++  }
++
++  int written = -1;
++  if(target == 1){
++    written = snprintf(address, size, "/ch/%02u/mix/fader", channel);
++  }else if(target == 2){
++    written = snprintf(address, size, "/dca/%u/fader", channel);
++  }else if(target == 3){
++    written = snprintf(address, size, "/bus/%02u/mix/fader", channel);
++  }else if(target == 4 && xAir){
++    written = snprintf(address, size, "/rtn/aux/mix/fader");
++  }else if(target == 4 && !xAir){
++    written = snprintf(address, size, "/auxin/%02u/mix/fader", channel);
++  }else if(target == 5 && xAir){
++    written = snprintf(address, size, "/rtn/%u/mix/fader", channel);
++  }else if(target == 5 && !xAir){
++    written = snprintf(address, size, "/fxrtn/%02u/mix/fader", channel);
++  }else if(target == 6 && !xAir){
++    written = snprintf(address, size, "/mtx/%02u/mix/fader", channel);
++  }
++
++  return written > 0 && static_cast<size_t>(written) < size;
++}
++
++#endif
+diff --git a/README.md b/README.md
+index 2b66091..e982386 100644
+--- a/README.md
++++ b/README.md
+@@ -10,6 +10,7 @@ Teensy Firmware for FADER_4 and FADER_8 motorized fader banks from [Stage Hacks]
+ - QLab (MIDI + UDP OSC)
+ - ETC Eos (TCP OSC)
+ - X32/M32 (UDP OSC)
++- X Air/MR (UDP OSC)
+ - DiGiCo (UDP OSC)
+ 
+ 
+@@ -100,6 +101,12 @@ On FADER_X Configuration web app
+ - Connects to the console via UDP OSC on port `10023`. 
+ - `OSC Destination Port` parameter is ignored.
+ 
++## X Air/MR
++- Connects to the mixer via UDP OSC on port `10024`.
++- Channel 1 selects the single Aux In / USB Playback return.
++- FX Return channels 1-4 select `/rtn/1` through `/rtn/4`.
++- Matrix targets are unavailable because X Air mixers do not provide matrix buses.
++
+ ---
+ 
+ &nbsp;

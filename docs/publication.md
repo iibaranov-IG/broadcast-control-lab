@@ -98,9 +98,10 @@ fresh publishable evidence. The FPP patch is a lock-validation repair, **not**
 a fix for the reported 1970-date problem.
 
 C++, Python and Node projects can use the same publication mechanism: it copies
-tested files without knowing their language. Language/build and protocol-specific
-scaffolding remains separate work; the existing `bcl new` draft behavior is
-unchanged. Hardware installation remains case-specific.
+tested files without knowing their language. Language and TCP/UDP starters,
+automatic board registration, reply tracking and hardware-result import are
+described in the [automation guide](automation.md). Hardware installation remains
+case-specific.
 
 Implementation uses the official [GitHub Git database API](https://docs.github.com/en/rest/git/trees)
 through [`gh api`](https://cli.github.com/manual/gh_api). Local regression tests

@@ -21,23 +21,27 @@ function scaffold(url, sourceCommit, title) {
     verification: { hardwareVerified: false, applicationVerified: false,
       limitations: 'Draft scaffold: no bug has been reproduced or repaired.', ownerCheck: 'TODO: specify the owner-operated hardware check.' } })
 }
-async function create(url) {
+async function create(url, options = []) {
   const m = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)\/issues\/(\d+)\/?$/.exec(url || '')
   if (!m) throw new Error('Usage: bcl new https://github.com/owner/repo/issues/123')
   async function api(p) {
-    const response = await fetch(`https://api.github.com/repos/${m[1]}/${m[2]}/${p}`, { headers: { Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(30000) })
-    if (!response.ok) throw new Error(`GitHub read failed: ${response.status}`)
-    return response.json()
+    return require('./retry.cjs').retryAsync(async () => {
+      const response = await fetch(`https://api.github.com/repos/${m[1]}/${m[2]}/${p}`, { headers: { Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(30000) })
+      if (!response.ok) { const error = new Error(`GitHub read failed: ${response.status}`); error.httpStatus = response.status; throw error }
+      return response.json()
+    })
   }
   const issue = await api(`issues/${m[3]}`)
   if (issue.pull_request) throw new Error('Use an issue URL, not a pull request')
   const commits = await api('commits?per_page=1')
   const c = scaffold(url, commits[0].sha, issue.title)
+  const templates = require('./templates.cjs')
+  const templateFiles = templates.generate(c, templates.options(options))
   const directory = path.join(root, 'cases', c.id)
   if (fs.existsSync(directory)) throw new Error('Case already exists; nothing overwritten')
   fs.mkdirSync(directory)
   fs.writeFileSync(path.join(directory, 'case.json'), JSON.stringify(c, null, 2) + '\n')
-  fs.writeFileSync(path.join(directory, 'test.mjs'), `import { mkdirSync, writeFileSync } from 'node:fs'\nconst report = { results: [{ name: 'Implement a real negative control and repair acceptance', status: 'FAIL' }], hardwareVerified: false }\nmkdirSync('reports', { recursive: true })\nwriteFileSync(${JSON.stringify(c.artifacts.report)}, JSON.stringify(report, null, 2))\nprocess.exitCode = 1\n`)
+  for (const [name, contents] of Object.entries(templateFiles)) fs.writeFileSync(path.join(directory, name), contents)
   fs.writeFileSync(path.join(directory, 'README.md'), `# ${c.title}\n\nDraft from ${url}.\n\nImplement a real negative control, candidate acceptance and owner checks before marking ready. The issue repository may differ from the actual source repository: verify the pinned source before working.\n`)
   fs.writeFileSync(path.join(directory, 'REPORT-TEMPLATE.md'), '# Reproduction\n\nNot run.\n\n# Repair\n\nNot implemented.\n\n# Owner checks\n\nNot verified.\n')
   console.log(`Created draft ${c.id}; no tests or repair claimed.`)
@@ -64,7 +68,7 @@ function containerRun(c, { harness = false } = {}) {
       const git = args => exec('git', ['-c', 'core.hooksPath=/dev/null', '-C', destination, ...args])
       git(['init', '--quiet'])
       git(['remote', 'add', 'origin', `https://github.com/${source.repository}.git`])
-      git(['fetch', '--quiet', '--depth=1', 'origin', source.commit])
+      require('./retry.cjs').retrySync(() => exec('git', ['-c', 'core.hooksPath=/dev/null', '-C', destination, 'fetch', '--quiet', '--depth=1', 'origin', source.commit], { stdio: 'pipe', timeout: 60000 }))
       git(['checkout', '--quiet', '--detach', 'FETCH_HEAD'])
     }
     const node = c?.runtime.node || '22.20.0'
@@ -97,7 +101,7 @@ function containerRun(c, { harness = false } = {}) {
 }
 async function main() {
   const [mode, arg, ...options] = process.argv.slice(2)
-  if (mode === 'new') return create(arg)
+  if (mode === 'new') return create(arg, options)
   if (mode === 'list') return console.log(all().map(c => `${c.id}\t${c.status}`).join('\n'))
   if (mode === 'validate') return console.log(JSON.stringify(load(arg), null, 2))
   if (mode === 'harness') return containerRun(null, { harness: true })
@@ -106,12 +110,46 @@ async function main() {
     const { publish, parseOptions } = require('./publish.cjs')
     return console.log(JSON.stringify(publish(root, load(arg), parseOptions(options)), null, 2))
   }
+  if (mode === 'sync') {
+    const result = require('./tracking.cjs').sync(root, require('./publish.cjs').api)
+    console.log(JSON.stringify(result, null, 2))
+    if (result.errors.length) process.exitCode = 1
+    return
+  }
+  if (mode === 'inbox') {
+    const db = require('./tracking.cjs').read(root)
+    return console.log(JSON.stringify(db.repairs.filter(r => !arg || r.id === arg).map(r => ({ id: r.id, pr: r.pr, syncError: r.syncError, events: r.events.filter(e => !e.read) })), null, 2))
+  }
+  if (mode === 'ack') {
+    const t = require('./tracking.cjs')
+    t.acknowledge(root, arg)
+    const local = t.read(root).repairs.filter(r => r.id === arg)
+    return console.log(JSON.stringify(t.remoteUpdate(root, db => {
+      for (const r of db.repairs.filter(r => r.id === arg)) {
+        const prior = local.find(p => p.pr === r.pr)
+        for (const e of r.events) if (prior?.events.some(p => p.key === e.key && p.updatedAt === e.updatedAt && p.body === e.body && p.state === e.state && p.read)) e.read = true
+        r.unread = r.events.filter(e => !e.read).length
+      }
+    }, `Acknowledge ${arg} replies`, require('./publish.cjs').api), null, 2))
+  }
+  if (mode === 'hardware-result') {
+    if (options[0] !== '--file' || options.length !== 2) throw new Error('Use bcl hardware-result <id> --file <owner-result.json>')
+    const t = require('./tracking.cjs')
+    t.importHardware(root, arg, options[1])
+    const report = JSON.parse(fs.readFileSync(options[1]))
+    const local = t.read(root).repairs.find(r => r.id === arg && r.candidateSha256 === report.candidateSha256)
+    return console.log(JSON.stringify(t.remoteUpdate(root, db => {
+      const remote = db.repairs.find(r => r.id === arg && r.candidateSha256 === report.candidateSha256)
+      if (!remote) throw new Error('Remote board has no matching candidate')
+      remote.hardware = local.hardware
+    }, `Record ${arg} hardware report`, require('./publish.cjs').api), null, 2))
+  }
   if (mode === 'hardware-kit') {
     const c = load(arg), directory = path.join(root, 'reports', c.id)
     require('./publication.cjs').hardwareKit(directory, c)
     return console.log(path.join(directory, 'HARDWARE-CHECK.md'))
   }
-  throw new Error('Usage: bcl new <issue-url> | list | validate <id> | test <id> | publish <id> --fork owner/repo --run <url> [--dry-run] | hardware-kit <id> | harness')
+  throw new Error('Usage: bcl new <issue-url> | list | validate <id> | test <id> | publish <id> --fork owner/repo --run <url> [--dry-run] | hardware-kit <id> | sync | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
 }
 if (require.main === module) main().catch(e => { console.error(e.message); process.exitCode = 1 })
 module.exports = { scaffold }

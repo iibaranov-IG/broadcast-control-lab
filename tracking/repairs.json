@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "repairs": [
+    {
+      "id": "openmixercontrol-8",
+      "title": "Stereo pairs consume two strips and lack linked routing and controls",
+      "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/8",
+      "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/91",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "openmixercontrol-54",
+      "title": "Main Select LED lights after changing fader layers",
+      "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/54",
+      "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/92",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "wirelessboard-93",
+      "title": "Audio-Technica receivers are unsupported",
+      "issue": "https://github.com/willcgage/wirelessboard/issues/93",
+      "pr": "https://github.com/willcgage/wirelessboard/pull/103",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "network-audio-controller-55",
+      "title": "Biamp and Shure receiver-flow packets are rejected",
+      "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/55",
+      "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/58",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "network-audio-controller-47",
+      "title": "DHCP gateway and DNS addresses appear swapped",
+      "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/47",
+      "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/57",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "jammernetz-35",
+      "title": "Yamaha Steinberg ASIO opens but JammerNetz cannot start duplex audio",
+      "issue": "https://github.com/christofmuc/JammerNetz/issues/35",
+      "pr": "https://github.com/christofmuc/JammerNetz/pull/108",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "low-latency-audio-32",
+      "title": "Long ASIO channel names crash the host application",
+      "issue": "https://github.com/microsoft/low-latency-audio/issues/32",
+      "pr": "https://github.com/microsoft/low-latency-audio/pull/35",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "dometools-47",
+      "title": "DomeTools installs video-only KlakNDI and shows no audio controls",
+      "issue": "https://github.com/prefrontalcortex/DomeTools/issues/47",
+      "pr": "https://github.com/prefrontalcortex/DomeTools/pull/49",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "wirelessboard-92",
+      "title": "Sennheiser SSCv2 data has no vendor-neutral mapping",
+      "issue": "https://github.com/willcgage/wirelessboard/issues/92",
+      "pr": "https://github.com/willcgage/wirelessboard/pull/101",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "ipcamlapse-33",
+      "title": "Schedules behave ambiguously around local time and DST",
+      "issue": "https://github.com/KalyteraSystems/IPCamLapse/issues/33",
+      "pr": "https://github.com/KalyteraSystems/IPCamLapse/pull/50",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "midimonster-150",
+      "title": "XAir/X32 state queries cannot be sent without an OSC value",
+      "issue": "https://github.com/cbdevnet/midimonster/issues/150",
+      "pr": "https://github.com/cbdevnet/midimonster/pull/151",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "fader-x-5",
+      "title": "X Air mode hides return targets and emits X32-only OSC addresses",
+      "issue": "https://github.com/stagehacks/FADER_X/issues/5",
+      "pr": "https://github.com/stagehacks/FADER_X/pull/8",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    },
+    {
+      "id": "fader-x-5",
+      "title": "FADER_X emits X32-only OSC addresses for X Air returns",
+      "issue": "https://github.com/stagehacks/FADER_X/issues/5",
+      "pr": "https://github.com/stagehacks/FADER_X/pull/8",
+      "candidateSha256": null,
+      "run": null,
+      "state": "unknown",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
+    }
+  ]
+}

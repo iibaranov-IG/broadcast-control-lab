@@ -93,6 +93,11 @@ test changes run all cases. Pushes to main, manual runs and the nightly run
 
 ## Build your own case
 
+Use `bcl new <issue-url> --template cpp|node|python --protocol tcp|udp|none`
+for a language and transport starter. Publication now registers the PR on the
+repair board; an hourly workflow reads CI and replies. See the
+[automation guide](docs/automation.md) for retries, inbox commands and hardware-result import.
+
 A [case passport](cases/README.md) records the problem, source issue, reproduction,
 acceptance criteria, immutable source revision, runtime, commands, artifacts and
 remaining hardware checks. Start with [ATEN's passport](cases/aten-2029/case.json).

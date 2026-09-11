@@ -5,6 +5,9 @@ const { execFileSync } = require('node:child_process')
 const { plan } = require('./publication.cjs')
 
 function api(method, endpoint, body) {
+  return method === 'GET' ? require('./retry.cjs').retrySync(() => requestOnce(method, endpoint, body)) : requestOnce(method, endpoint, body)
+}
+function requestOnce(method, endpoint, body) {
   const args = ['api', '--hostname', 'github.com', '--method', method, endpoint]
   if (body !== undefined) args.push('--input', '-')
   try {
@@ -13,6 +16,7 @@ function api(method, endpoint, body) {
     const status = /HTTP (\d{3})/.exec(String(cause.stderr))?.[1]
     const error = new Error(`GitHub ${method} ${endpoint.split('?')[0]} failed${status ? ` (HTTP ${status})` : ''}. Check gh authentication and repository access; rerunning is safe.`)
     error.status = Number(status)
+    error.cause = cause
     throw error
   }
 }
@@ -85,7 +89,11 @@ function publish(root, c, options) {
       if (run.status !== 'completed' || run.conclusion !== 'success') throw new Error('Evidence run must complete successfully')
       temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'bcl-publish-'))
       directory = temporary
-      execFileSync('gh', ['run', 'download', m[2], '--repo', m[1], '--name', `${c.id}-evidence`, '--dir', directory], { stdio: 'pipe', timeout: 60000 })
+      require('./retry.cjs').retrySync(() => {
+        fs.rmSync(directory, { recursive: true, force: true })
+        fs.mkdirSync(directory)
+        execFileSync('gh', ['run', 'download', m[2], '--repo', m[1], '--name', `${c.id}-evidence`, '--dir', directory], { stdio: 'pipe', timeout: 60000 })
+      })
       const p = plan(directory, c, options)
       const e = JSON.parse(fs.readFileSync(path.join(directory, 'evidence.json')))
       if (e.bclRevision !== run.head_sha) throw new Error('Evidence revision differs from Actions run')
@@ -102,7 +110,15 @@ function publish(root, c, options) {
     if (options.dryRun) return { preview: path.join(output, 'PUBLISH-PR.md'), branch: p.branch }
     const result = publishPlan(p)
     fs.writeFileSync(path.join(output, 'publication.json'), JSON.stringify(result, null, 2) + '\n')
+    const tracking = require('./tracking.cjs')
+    try {
+      const db = tracking.read(root)
+      tracking.register(db, c, result, p.digest, options.run)
+      tracking.save(root, db)
+      result.board = tracking.remoteRegister(root, c, result, p.digest, options.run, api)
+    } catch (error) { result.boardPending = true; result.boardError = error.message }
+    fs.writeFileSync(path.join(output, 'publication.json'), JSON.stringify(result, null, 2) + '\n')
     return result
   }
 }
-module.exports = { publish, publishPlan, parseOptions }
+module.exports = { publish, publishPlan, parseOptions, api }

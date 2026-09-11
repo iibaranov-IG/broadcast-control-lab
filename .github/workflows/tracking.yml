@@ -1,0 +1,38 @@
+name: Repair tracking
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/tracking.cjs'
+      - '.github/workflows/tracking.yml'
+      - 'bcl.config.json'
+permissions:
+  contents: write
+concurrency:
+  group: bcl-repair-tracking
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+      - name: Read PRs, CI and replies
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/bcl.cjs sync
+      - name: Save tracking snapshot
+        if: always()
+        run: |
+          git add -- tracking/repairs.json REPAIRS.md
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='BCL tracking' -c user.email='bcl-tracking@users.noreply.github.com' commit -m 'Update repair tracking [skip ci]'
+          git push origin HEAD:main

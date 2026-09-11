@@ -17,3 +17,25 @@ Updated 2026-09-11.
 | Digital mixing | XAir/X32 state queries cannot be sent without an OSC value | [MIDIMonster #150](https://github.com/cbdevnet/midimonster/issues/150) | [PR #151](https://github.com/cbdevnet/midimonster/pull/151) | In review; three offline protocol checks pass; mixer check invited |
 | Motorized faders | X Air mode hides return targets and emits X32-only OSC addresses | [FADER_X #5](https://github.com/stagehacks/FADER_X/issues/5) | [PR #8](https://github.com/stagehacks/FADER_X/pull/8) | In review; three BCL checks pass; XR12/XR16/XR18 hardware check invited |
 | Digital mixing | FADER_X emits X32-only OSC addresses for X Air returns | [FADER_X #5](https://github.com/stagehacks/FADER_X/issues/5) | [PR #8](https://github.com/stagehacks/FADER_X/pull/8) | In review; three BCL checks pass; XR12/XR16/XR18 hardware check invited |
+
+<!-- BCL:TRACKING:START -->
+## Automatically tracked repairs
+
+| Case | Source | Repair | PR | CI | Unread events | Hardware | Last read (UTC) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| openmixercontrol-8 | [Issue](https://github.com/OpenMixerProject/OpenMixerControl/issues/8) | [PR](https://github.com/OpenMixerProject/OpenMixerControl/pull/91) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| openmixercontrol-54 | [Issue](https://github.com/OpenMixerProject/OpenMixerControl/issues/54) | [PR](https://github.com/OpenMixerProject/OpenMixerControl/pull/92) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| wirelessboard-93 | [Issue](https://github.com/willcgage/wirelessboard/issues/93) | [PR](https://github.com/willcgage/wirelessboard/pull/103) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| network-audio-controller-55 | [Issue](https://github.com/chris-ritsen/network-audio-controller/issues/55) | [PR](https://github.com/chris-ritsen/network-audio-controller/pull/58) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| network-audio-controller-47 | [Issue](https://github.com/chris-ritsen/network-audio-controller/issues/47) | [PR](https://github.com/chris-ritsen/network-audio-controller/pull/57) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| jammernetz-35 | [Issue](https://github.com/christofmuc/JammerNetz/issues/35) | [PR](https://github.com/christofmuc/JammerNetz/pull/108) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| low-latency-audio-32 | [Issue](https://github.com/microsoft/low-latency-audio/issues/32) | [PR](https://github.com/microsoft/low-latency-audio/pull/35) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| dometools-47 | [Issue](https://github.com/prefrontalcortex/DomeTools/issues/47) | [PR](https://github.com/prefrontalcortex/DomeTools/pull/49) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| wirelessboard-92 | [Issue](https://github.com/willcgage/wirelessboard/issues/92) | [PR](https://github.com/willcgage/wirelessboard/pull/101) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| ipcamlapse-33 | [Issue](https://github.com/KalyteraSystems/IPCamLapse/issues/33) | [PR](https://github.com/KalyteraSystems/IPCamLapse/pull/50) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| midimonster-150 | [Issue](https://github.com/cbdevnet/midimonster/issues/150) | [PR](https://github.com/cbdevnet/midimonster/pull/151) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| fader-x-5 | [Issue](https://github.com/stagehacks/FADER_X/issues/5) | [PR](https://github.com/stagehacks/FADER_X/pull/8) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+| fader-x-5 | [Issue](https://github.com/stagehacks/FADER_X/issues/5) | [PR](https://github.com/stagehacks/FADER_X/pull/8) | unknown | unknown | 0 | NOT_REVIEWED | Not synced |
+
+Hardware status records an explicitly imported report; comments never grant hardware verification.
+<!-- BCL:TRACKING:END -->

@@ -17,14 +17,19 @@ Every report contains exact revisions, individual results, limitations and
 hardwareVerified=false. The suite fails when a pinned software contract regresses.
 Reports must not be advertised as hardware certification.
 
-Next milestones: independent TCP/UDP device simulators, authentication and
-reconnect scenarios, full Companion runtime smoke test, owner-operated hardware
-test package, redacted report export. No access to production devices is required
-for this milestone. No client installer or autonomous repair workflow is included.
+Next milestones: protocol-specific simulator profiles, authentication and reconnect
+scenarios, full Companion runtime smoke test, owner-operated hardware test package,
+and redacted report export. No access to production devices is required for this
+milestone. No client installer or autonomous repair workflow is included.
 
 The first reusable TCP harness is in `lib/scripted-tcp-device.mjs`. It can emit
 fragmented or delayed replies, disconnect a client, accept a reconnection, record
 both directions, and redact configured secrets from its software-only report.
+
+The reusable UDP harness is in `lib/scripted-udp-device.mjs`. It preserves binary
+datagram boundaries, can delay or omit replies, checks retries and records exact
+packet evidence. Protocol behavior is claimed only by an executable case passport,
+never by the transport harness alone.
 
 Protocol references:
 - https://www.cs1.net/pic/intelix/DIGI-88FS_manual.pdf

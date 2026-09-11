@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "zynthian-1530",
+  "title": "Zynthian OSC feedback source ports",
+  "issue": "https://github.com/zynthian/zynthian-issue-tracking/issues/1530",
+  "problem": "Multiple OSC mixer controllers on one host cannot receive independent feedback because Zynthian identifies clients by host and sends every update to UDP port 1370.",
+  "reproduce": "Register two OSC clients at 127.0.0.1 with different source ports, emit a fader update, remove one endpoint, then emit a balance update.",
+  "acceptance": "Both registered endpoints receive the first update on their own ports; removing one host-port pair leaves the other endpoint active and receiving updates.",
+  "repair": "Carry the heartbeat source port through the GUI registry, Python wrapper and native mixer endpoint table, and remove clients by the full host-port pair.",
+  "source": {
+    "repository": "zynthian/zynthian-ui",
+    "commit": "11d4e858367db465a431c701d9035432742a5a7d",
+    "directory": "sources/zynthian-1530",
+    "path": "zynlibs/zynmixer/mixer.c"
+  },
+  "runtime": { "node": "22.20.0" },
+  "packageVersion": "oram-bcl.1",
+  "steps": {
+    "prepare": [{ "cwd": ".", "argv": ["node", "cases/zynthian-1530/prepare-package.cjs", "sources/zynthian-1530"] }],
+    "test": [{ "cwd": ".", "argv": ["node", "cases/zynthian-1530/test.mjs", "sources/zynthian-1530"] }],
+    "build": [{ "cwd": ".", "argv": ["node", "cases/zynthian-1530/package.cjs", "sources/zynthian-1530"] }]
+  },
+  "artifacts": {
+    "package": "sources/zynthian-1530/zynthian-osc-client-port-oram-bcl.1.tgz",
+    "report": "reports/zynthian-1530.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "companionUiVerified": false,
+    "limitations": "The loopback test exercises the patched native OSC sender and exact UDP destinations with JACK replaced by a build stub. It does not run the complete Zynthian UI or verify a physical Zynthian.",
+    "ownerCheck": "Run the candidate on an Oram device; start two Open Stage Control instances on one host with different --osc-port values; send heartbeat to Zynthian; confirm both receive fader, mute and DPM feedback; let one heartbeat expire and confirm the other continues receiving updates."
+  }
+}

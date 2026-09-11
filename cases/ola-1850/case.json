@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "ola-1850",
+  "status": "ready",
+  "title": "OLA KiNET unreachable-device isolation",
+  "issue": "https://github.com/OpenLightingProject/ola/issues/1850",
+  "problem": "A blocking KiNET UDP socket can stall OLA's shared event loop when one configured power supply disappears, making healthy universes stutter and later burst queued frames.",
+  "reproduce": "Start several KiNET outputs on one subnet, remove one destination, and observe delayed or bursty frames on destinations that remain online.",
+  "acceptance": "The KiNET socket is non-blocking before use, send failure drops only the current frame, existing DMX and PORTOUT packet tests still pass, and healthy outputs continue at their normal cadence when another destination is absent.",
+  "repair": "Set the KiNET socket descriptor to non-blocking mode during network initialization and add a unit test that inspects the actual descriptor flags.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "OpenLightingProject/ola",
+      "commit": "99b26c65d45e807032c1337ca7ebf1ac51ff3995",
+      "directory": "sources/ola-1850"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/ola-1850",
+        "argv": ["git", "apply", "../../cases/ola-1850/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": ["node", "cases/ola-1850/test.mjs", "sources/ola-1850"]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/ola-1850.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies the Linux non-blocking descriptor behavior and production source contract. The repository's KiNetTester passed separately in clean Debian; this offline case does not rebuild OLA or reproduce ARP queue pressure against physical KiNET supplies.",
+    "ownerCheck": "Run three KiNET devices at continuous DMX rate, power one off for at least 30 seconds, and capture output cadence on one device that stays online. Restore the missing device and confirm there is no catch-up burst or need to recreate OlaClientWrapper. Record OLA version, OS, NIC and KiNET models."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "OpenLightingProject/ola",
+    "base": "master",
+    "paths": [
+      "plugins/kinet/KiNetNode.cpp",
+      "plugins/kinet/KiNetNodeTest.cpp"
+    ]
+  }
+}

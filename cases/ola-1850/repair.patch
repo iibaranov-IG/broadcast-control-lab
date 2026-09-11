@@ -1,0 +1,77 @@
+diff --git a/plugins/kinet/KiNetNode.cpp b/plugins/kinet/KiNetNode.cpp
+index 895d989..809cf4b 100644
+--- a/plugins/kinet/KiNetNode.cpp
++++ b/plugins/kinet/KiNetNode.cpp
+@@ -23,6 +23,7 @@
+ 
+ #include "ola/Constants.h"
+ #include "ola/Logging.h"
++#include "ola/io/Descriptor.h"
+ #include "ola/network/IPV4Address.h"
+ #include "ola/network/SocketAddress.h"
+ #include "ola/util/SequenceNumber.h"
+@@ -218,6 +219,12 @@ bool KiNetNode::InitNetwork() {
+     return false;
+   }
+ 
++  if (!ola::io::ConnectedDescriptor::SetNonBlocking(
++          socket->WriteDescriptor())) {
++    OLA_WARN << "Failed to make KiNet socket non-blocking";
++    return false;
++  }
++
+   if (!socket->Bind(IPV4SocketAddress(IPV4Address::WildCard(), KINET_PORT))) {
+     return false;
+   }
+diff --git a/plugins/kinet/KiNetNodeTest.cpp b/plugins/kinet/KiNetNodeTest.cpp
+index edeab7a..13d8e20 100644
+--- a/plugins/kinet/KiNetNodeTest.cpp
++++ b/plugins/kinet/KiNetNodeTest.cpp
+@@ -19,6 +19,9 @@
+  */
+ 
+ #include <cppunit/extensions/HelperMacros.h>
++#ifndef _WIN32
++#include <fcntl.h>
++#endif  // _WIN32
+ 
+ #include "ola/DmxBuffer.h"
+ #include "ola/Logging.h"
+@@ -36,6 +39,7 @@ using ola::testing::MockUDPSocket;
+ 
+ class KiNetNodeTest: public CppUnit::TestFixture {
+   CPPUNIT_TEST_SUITE(KiNetNodeTest);
++  CPPUNIT_TEST(testSocketIsNonBlocking);
+   CPPUNIT_TEST(testSendDMX);
+   CPPUNIT_TEST(testSendPortOut);
+   CPPUNIT_TEST_SUITE_END();
+@@ -48,6 +52,8 @@ class KiNetNodeTest: public CppUnit::TestFixture {
+     }
+     void setUp();
+ 
++    void testSocketIsNonBlocking();
++
+     void testSendDMX();
+ 
+     void testSendPortOut();
+@@ -68,6 +74,20 @@ void KiNetNodeTest::setUp() {
+   ola::network::IPV4Address::FromString("10.0.0.11", &target_ip);
+ }
+ 
++/**
++ * Unreachable KiNet targets must not block every other output.
++ */
++void KiNetNodeTest::testSocketIsNonBlocking() {
++  KiNetNode node(&ss, m_socket);
++  OLA_ASSERT_TRUE(node.Start());
++#ifndef _WIN32
++  int flags = fcntl(m_socket->WriteDescriptor(), F_GETFL, 0);
++  OLA_ASSERT_NE(-1, flags);
++  OLA_ASSERT_TRUE(flags & O_NONBLOCK);
++#endif  // _WIN32
++  OLA_ASSERT(node.Stop());
++}
++
+ /**
+  * Check sending DMX works.
+  */

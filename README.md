@@ -38,7 +38,9 @@ application. Current cases include Companion modules and an AutoPTZ backend.
 | [Zynthian OSC source ports](cases/zynthian-1530/) | Two clients on one host receive feedback on their own ports | Native loopback check, source-patch archive and evidence |
 | [MIDIMonster OSC mixer queries](cases/midimonster-150/) | Value-less XAir/X32 state requests and ordinary float output | Real core/backend build, exact UDP transcript and evidence |
 
-All five cases use v2 passports and one CI workflow. A case can be a diagnostic
+| [FPP PTP lock evidence](cases/fpp-2848-ptp-lock/) | Missing/malformed management replies, lock boundaries and integer extremes | Candidate patch and 25 C++ checks; the 1970-date issue remains open |
+
+All cases use v2 passports and one CI workflow. A case can be a diagnostic
 or produce a package. Different coverage levels remain explicit in each passport.
 
 ## Get a test build or report

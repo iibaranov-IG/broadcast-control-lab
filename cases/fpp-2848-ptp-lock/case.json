@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "id": "fpp-2848-ptp-lock",
+  "status": "ready",
+  "title": "FPP PTP lock requires valid management evidence",
+  "issue": "https://github.com/FalconChristmas/fpp/issues/2848",
+  "problem": "A missing or malformed master_offset defaults to zero and falsely settles SLAVE; a failed TIME_STATUS_NP query also falsely settles LISTENING. This is a separate lock-validation defect found while investigating the software-PTP epoch issue.",
+  "reproduce": "Compile the pinned upstream RefreshPtpCache and WaitForPtpLock methods with simulated pmc replies, including missing offset and failed query.",
+  "acceptance": "Reject invalid or missing synchronization evidence, keep valid master and standalone behavior, and avoid signed overflow for INT64_MIN.",
+  "repair": "Track offset and grandmaster-presence validity separately; require valid follower evidence and compare signed offset bounds directly.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "FalconChristmas/fpp",
+      "commit": "8ef364ce1d79a5380bc1a757492b11023b629d16",
+      "directory": "sources/fpp-2848-ptp-lock"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/fpp-2848-ptp-lock",
+        "argv": [
+          "git",
+          "apply",
+          "--check",
+          "../../cases/fpp-2848-ptp-lock/repair.patch"
+        ]
+      },
+      {
+        "cwd": "sources/fpp-2848-ptp-lock",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/fpp-2848-ptp-lock/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "python3",
+          "cases/fpp-2848-ptp-lock/test.py",
+          "sources/fpp-2848-ptp-lock"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/fpp-2848-ptp-lock.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "Extracted real cache and wait methods compiled under UBSan; pmc, process checks and logging are stubbed. No full FPP build, PTP traffic, GStreamer playback or physical audio qualification. Does not fix CLOCK_REALTIME discipline into 1970 or guarantee freshness of a valid linuxptp measurement.",
+    "ownerCheck": "Build patched FPP, verify normal master/follower startup and management-query failures. Keep issue #2848 open: collect NIC timestamping capability, PTP status and UTC date before designing and testing separate media/system clocks."
+  }
+}

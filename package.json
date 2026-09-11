@@ -1,0 +1,7 @@
+{
+  "name": "broadcast-control-lab",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": { "test": "node lab.cjs" },
+  "engines": { "node": ">=22" }
+}

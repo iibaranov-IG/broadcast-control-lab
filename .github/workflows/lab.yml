@@ -1,0 +1,36 @@
+name: Broadcast Control Lab
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/checkout@v4
+        with:
+          repository: iibaranov-IG/companion-module-intelix-digi88fs
+          ref: c789f20a12de58b84d28c0d76699e0f0e1ae7017
+          fetch-depth: 0
+          path: sources/intelix
+      - uses: actions/checkout@v4
+        with:
+          repository: iibaranov-IG/companion-module-sennheiser-tcc2
+          ref: dadb40eb06cf9865c92689a20656df1d50488c11
+          path: sources/tcc2
+      - run: npm test
+        env:
+          LAB_SOURCES: ${{ github.workspace }}/sources
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lab-report
+          path: reports/latest.json
+          if-no-files-found: error

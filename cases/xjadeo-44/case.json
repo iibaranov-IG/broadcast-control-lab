@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "xjadeo-44",
+  "status": "ready",
+  "title": "Set WM_CLASS for every Linux video window",
+  "issue": "https://github.com/x42/xjadeo/issues/44",
+  "problem": "xjadeo's Linux windows have no WM_CLASS, so GNOME cannot associate the running window with the application and shows it as unknown.",
+  "reproduce": "Launch the current X11 or GLX window and query it with xprop WM_CLASS; the property is absent.",
+  "acceptance": "Native X11 and GLX windows advertise instance xjadeo and class Xjadeo, while the SDL 1.2 backend supplies the corresponding X11 class before video initialization.",
+  "repair": "Set an XClassHint in both native X11 window setup paths and SDL_VIDEO_X11_WMCLASS in the SDL backend.",
+  "sources": [{
+    "id": "upstream",
+    "repository": "x42/xjadeo",
+    "commit": "cc977680758a58ed35a4ee9e9408fa31bd9a4de7",
+    "directory": "sources/xjadeo-44"
+  }],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{ "cwd": "sources/xjadeo-44", "argv": ["git", "apply", "../../cases/xjadeo-44/repair.patch"] }],
+    "test": [{ "cwd": ".", "argv": ["node", "cases/xjadeo-44/test.mjs", "sources/xjadeo-44"] }],
+    "build": []
+  },
+  "artifacts": { "report": "reports/xjadeo-44.json" },
+  "selection": {
+    "report": "cases/xjadeo-44/triage.json",
+    "sha256": "fb5818916820e9a7c81cf83880b92a3964c67981201c5c3b190c710a12af54b8",
+    "reason": "Current master reproduces the missing window-manager identity, the repair is small, and acceptance is measurable with xprop."
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": true,
+    "limitations": "BCL verifies all three backend contracts. The candidate was also fully built and its GLX window returned WM_CLASS(STRING) = xjadeo, Xjadeo under Xvfb.",
+    "ownerCheck": "Launch the preferred video backend under GNOME and confirm the window is grouped under the xjadeo launcher rather than Unknown."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "x42/xjadeo",
+    "base": "master",
+    "paths": ["src/xjadeo/display_x11.c", "src/xjadeo/display_glx.c", "src/xjadeo/display_sdl.c", "tests/test_wm_class.py"]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [{ "cwd": ".", "argv": ["git", "apply", "../../cases/xjadeo-44/tests-only.patch"] }],
+    "build": [],
+    "testFiles": ["tests/test_wm_class.py"],
+    "regression": { "cwd": ".", "argv": ["env", "PYTHONDONTWRITEBYTECODE=1", "python3", "-m", "unittest", "tests.test_wm_class.WindowClassTest.test_native_x11_backend_sets_wm_class"] },
+    "negative": { "exitCode": 1, "outputIncludes": "XClassHint class_hint" },
+    "suite": { "cwd": ".", "argv": ["env", "PYTHONDONTWRITEBYTECODE=1", "python3", "-m", "unittest", "tests.test_wm_class"] },
+    "suiteOutputIncludes": "Ran 3 tests"
+  }
+}

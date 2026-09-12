@@ -1,0 +1,33 @@
+diff --git a/tests/test_wm_class.py b/tests/test_wm_class.py
+new file mode 100644
+index 0000000..8153873
+--- /dev/null
++++ b/tests/test_wm_class.py
+@@ -0,0 +1,27 @@
++import pathlib
++import unittest
++
++
++ROOT = pathlib.Path(__file__).parents[1]
++
++
++class WindowClassTest(unittest.TestCase):
++    def test_native_x11_backend_sets_wm_class(self):
++        source = (ROOT / "src/xjadeo/display_x11.c").read_text()
++        self.assertIn('XClassHint class_hint = { "xjadeo", "Xjadeo" };', source)
++        self.assertIn("XSetClassHint(xj_dpy, xj_win, &class_hint);", source)
++
++    def test_glx_backend_sets_wm_class(self):
++        source = (ROOT / "src/xjadeo/display_glx.c").read_text()
++        self.assertIn('XClassHint class_hint = { "xjadeo", "Xjadeo" };', source)
++        self.assertIn("XSetClassHint(dpy, win, &class_hint);", source)
++
++    def test_sdl_backend_sets_x11_class_before_video_init(self):
++        source = (ROOT / "src/xjadeo/display_sdl.c").read_text()
++        hint = source.index('SDL_putenv("SDL_VIDEO_X11_WMCLASS=xjadeo")')
++        init = source.index("SDL_Init(SDL_INIT_VIDEO)")
++        self.assertLess(hint, init)
++
++
++if __name__ == "__main__":
++    unittest.main()

@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-12T00:14:08.072Z",
+  "issue": {
+    "repository": "x42/xjadeo",
+    "number": "44",
+    "url": "https://github.com/x42/xjadeo/issues/44",
+    "title": "WM_Class missing, so not compatible with Gnome Dash",
+    "state": "open",
+    "updatedAt": "2021-05-07T11:15:41Z"
+  },
+  "source": {
+    "repository": "x42/xjadeo",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "GPL-2.0",
+    "commit": "cc977680758a58ed35a4ee9e9408fa31bd9a4de7",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "contrib/cli-remote/jadeo.c",
+      "doc/static/js/hover.js",
+      "doc/static/js/jquery-1.11.0.min.js",
+      "doc/static/js/lightbox.min.js",
+      "src/xjadeo/common.c",
+      "src/xjadeo/common_jack.c",
+      "src/xjadeo/configfile.c",
+      "src/xjadeo/display.c",
+      "src/xjadeo/display.h",
+      "src/xjadeo/display_gl_common.h"
+    ],
+    "buildFiles": [
+      {
+        "path": "configure.ac",
+        "kind": "cpp-autotools",
+        "url": "https://github.com/x42/xjadeo/blob/cc977680758a58ed35a4ee9e9408fa31bd9a4de7/configure.ac"
+      },
+      {
+        "path": "doc/Makefile",
+        "kind": "make",
+        "url": "https://github.com/x42/xjadeo/blob/cc977680758a58ed35a4ee9e9408fa31bd9a4de7/doc/Makefile"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:x42/xjadeo": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 75,
+    "scoreRange": [
+      74,
+      75
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 3,
+        "reason": "GNOME displays the application as Unknown",
+        "evidence": [
+          "issue body"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 2,
+        "reason": "The report is old but remains open and reproduces on current master",
+        "evidence": [
+          "open issue #44",
+          "current source inspection"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 2,
+        "reason": "Reporter has not added follow-up comments",
+        "evidence": [
+          "issue activity"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "xprop returns a precise WM_CLASS value",
+        "evidence": [
+          "xprop WM_CLASS"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "Property absence is visible in current window setup code and candidate was exercised under Xvfb",
+        "evidence": [
+          "source comparison",
+          "Xvfb runtime"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "Repair is three small backend-local changes",
+        "evidence": [
+          "candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Automated source tests plus Xvfb verify the contract without hardware",
+        "evidence": [
+          "BCL test",
+          "Xvfb"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Standard ICCCM hint is set during window creation",
+        "evidence": [
+          "XSetClassHint documentation",
+          "full build"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 3,
+        "reason": "Repository has recent tagged source but low issue traffic",
+        "evidence": [
+          "current master",
+          "GitHub activity"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Correct desktop grouping benefits Linux GNOME users",
+        "evidence": [
+          "issue description"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "One convention covers all Linux display backends",
+        "evidence": [
+          "X11",
+          "GLX",
+          "SDL"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "Fix affects launcher matching and application grouping",
+        "evidence": [
+          "WM_CLASS behavior"
+        ]
+      }
+    ],
+    "class": "QUICK_REVIEW",
+    "deliveryReadiness": 86,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      86,
+      75
+    ],
+    "selectable": true
+  },
+  "durationMs": 2273
+}

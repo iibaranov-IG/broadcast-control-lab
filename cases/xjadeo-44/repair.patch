@@ -1,0 +1,57 @@
+diff --git a/src/xjadeo/display_glx.c b/src/xjadeo/display_glx.c
+index 39b3424..4d07489 100644
+--- a/src/xjadeo/display_glx.c
++++ b/src/xjadeo/display_glx.c
+@@ -23,6 +23,7 @@
+ #include <GL/glx.h>
+ #include <X11/Xatom.h>
+ #include <X11/Xlib.h>
++#include <X11/Xutil.h>
+ #include <X11/xpm.h>
+ 
+ #ifdef HAVE_LIBXINERAMA
+@@ -99,6 +100,9 @@ static void setup_window_hints_and_icon(Display* dpy, Window win, Window parent,
+ 	XWMHints	wmhints;
+ 	char *w_name ="xjadeo";
+ 	char *i_name ="xjadeo";
++	XClassHint class_hint = { "xjadeo", "Xjadeo" };
++
++	XSetClassHint(dpy, win, &class_hint);
+ 
+ #ifdef HAVE_LIBXINERAMA
+ 
+diff --git a/src/xjadeo/display_sdl.c b/src/xjadeo/display_sdl.c
+index 3f857bc..4d6f8bc 100644
+--- a/src/xjadeo/display_sdl.c
++++ b/src/xjadeo/display_sdl.c
+@@ -53,6 +53,8 @@ int open_window_sdl (void) {
+ 	const SDL_VideoInfo *video_info;
+ 	int video_bpp;
+ 
++	/* SDL 1.2 uses this value for the X11 WM_CLASS property. */
++	SDL_putenv("SDL_VIDEO_X11_WMCLASS=xjadeo");
+ 	if(SDL_Init(SDL_INIT_VIDEO) < 0) goto no_sdl;
+ 
+ 	/* Get the "native" video mode */
+diff --git a/src/xjadeo/display_x11.c b/src/xjadeo/display_x11.c
+index c67af0b..988f4db 100644
+--- a/src/xjadeo/display_x11.c
++++ b/src/xjadeo/display_x11.c
+@@ -31,6 +31,7 @@ int xoffset = 0;
+ #if (HAVE_LIBXV || HAVE_IMLIB2)
+ 
+ #include <X11/xpm.h>
++#include <X11/Xutil.h>
+ #include "icons/xjadeo8.xpm"
+ 
+ void xapi_open (void *d);
+@@ -89,6 +90,9 @@ static void xj_set_hints (void) {
+ 	XWMHints	wmhints;
+ 	char *w_name ="xjadeo";
+ 	char *i_name ="xjadeo";
++	XClassHint class_hint = { "xjadeo", "Xjadeo" };
++
++	XSetClassHint(xj_dpy, xj_win, &class_hint);
+ 
+ 	/* default settings which allow arbitraray resizing of the window */
+ 	hints.flags = PSize | PMaxSize | PMinSize;

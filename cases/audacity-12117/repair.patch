@@ -1,0 +1,130 @@
+diff --git a/src/project/CMakeLists.txt b/src/project/CMakeLists.txt
+index 49c546730..012ad4b52 100644
+--- a/src/project/CMakeLists.txt
++++ b/src/project/CMakeLists.txt
+@@ -81,6 +81,8 @@ set(MODULE_SRC
+     ${CMAKE_CURRENT_LIST_DIR}/internal/iopensaveprojectscenario.h
+     ${CMAKE_CURRENT_LIST_DIR}/internal/opensaveprojectscenario.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/internal/opensaveprojectscenario.h
++    ${CMAKE_CURRENT_LIST_DIR}/internal/projectpathutils.cpp
++    ${CMAKE_CURRENT_LIST_DIR}/internal/projectpathutils.h
+     ${CMAKE_CURRENT_LIST_DIR}/internal/thumbnailcreator.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/internal/thumbnailcreator.h
+     ${CMAKE_CURRENT_LIST_DIR}/internal/au3/au3metadata.cpp
+diff --git a/src/project/internal/opensaveprojectscenario.cpp b/src/project/internal/opensaveprojectscenario.cpp
+index 3cb96f643..0a5f43eb4 100644
+--- a/src/project/internal/opensaveprojectscenario.cpp
++++ b/src/project/internal/opensaveprojectscenario.cpp
+@@ -21,6 +21,7 @@
+  */
+ 
+ #include "opensaveprojectscenario.h"
++#include "projectpathutils.h"
+ 
+ #include "cloud/clouderrors.h"
+ #include "interactive/iinteractive.h"
+@@ -198,20 +199,7 @@ RetVal<muse::io::path_t> OpenSaveProjectScenario::askLocalPath(IAudacityProjectP
+         return make_ret(Ret::Code::Cancel);
+     }
+ 
+-    // force save to aup4 format
+-    std::string suffix = muse::io::suffix(selectedPath);
+-    std::string correctedPath = selectedPath.toStdString();
+-    if (!suffix.empty()) {
+-        correctedPath = correctedPath.substr(0, correctedPath.size() - (suffix.size() + 1));
+-    }
+-
+-    // check if there's a dot at the end; add one if not
+-    if (!correctedPath.empty() && correctedPath.back() != '.') {
+-        correctedPath += ".";
+-    }
+-    correctedPath += "aup4";
+-
+-    selectedPath = correctedPath;
++    selectedPath = forceAup4Extension(selectedPath.toStdString());
+ 
+     configuration()->setLastSavedProjectsPath(io::dirpath(selectedPath));
+ 
+diff --git a/src/project/internal/projectpathutils.cpp b/src/project/internal/projectpathutils.cpp
+new file mode 100644
+index 000000000..54f48f873
+--- /dev/null
++++ b/src/project/internal/projectpathutils.cpp
+@@ -0,0 +1,49 @@
++// SPDX-License-Identifier: GPL-3.0-only
++// MuseScore-CLA-applies
++
++#include "projectpathutils.h"
++
++#include <algorithm>
++#include <cctype>
++
++namespace {
++std::string suffix(const std::string& path)
++{
++    const size_t separator = path.find_last_of("/\\");
++    const size_t dot = path.find_last_of('.');
++    const size_t filenameStart = separator == std::string::npos ? 0 : separator + 1;
++    if (dot == std::string::npos || dot == filenameStart || dot + 1 == path.size()
++        || dot < filenameStart) {
++        return {};
++    }
++
++    std::string result = path.substr(dot + 1);
++    std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) { return std::tolower(c); });
++    return result;
++}
++}
++
++std::string au::project::forceAup4Extension(const std::string& path)
++{
++    std::string correctedPath = path;
++    std::string currentSuffix = suffix(correctedPath);
++
++    if (!currentSuffix.empty()) {
++        correctedPath.resize(correctedPath.size() - currentSuffix.size() - 1);
++    }
++
++    // Some save dialogs append the selected extension even when the suggested
++    // filename already has it. Remove any remaining copy before adding the
++    // canonical extension below.
++    while (suffix(correctedPath) == "aup4") {
++        currentSuffix = suffix(correctedPath);
++        correctedPath.resize(correctedPath.size() - currentSuffix.size() - 1);
++    }
++
++    if (!correctedPath.empty() && correctedPath.back() != '.') {
++        correctedPath += ".";
++    }
++    correctedPath += "aup4";
++
++    return correctedPath;
++}
+diff --git a/src/project/internal/projectpathutils.h b/src/project/internal/projectpathutils.h
+new file mode 100644
+index 000000000..7e1326c54
+--- /dev/null
++++ b/src/project/internal/projectpathutils.h
+@@ -0,0 +1,10 @@
++// SPDX-License-Identifier: GPL-3.0-only
++// MuseScore-CLA-applies
++
++#pragma once
++
++#include <string>
++
++namespace au::project {
++std::string forceAup4Extension(const std::string& path);
++}
+diff --git a/src/project/tests/CMakeLists.txt b/src/project/tests/CMakeLists.txt
+index 4c58a3e2e..bf9dba557 100644
+--- a/src/project/tests/CMakeLists.txt
++++ b/src/project/tests/CMakeLists.txt
+@@ -14,6 +14,7 @@ set(MODULE_TEST_SRC
+     ${CMAKE_CURRENT_LIST_DIR}/mocks/dummyeffectinstancefactory.h
+     ${CMAKE_CURRENT_LIST_DIR}/audacityproject_tests.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/realtimeeffectspersistence_tests.cpp
++    ${CMAKE_CURRENT_LIST_DIR}/projectpathutils_tests.cpp
+ )
+ 
+ set(MODULE_TEST_LINK

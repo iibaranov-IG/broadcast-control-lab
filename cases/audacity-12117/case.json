@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "id": "audacity-12117",
+  "status": "ready",
+  "title": "Collapse repeated Audacity project extensions",
+  "issue": "https://github.com/audacity/audacity/issues/12117",
+  "problem": "The Linux save dialog can append .aup4 to a suggested filename that already has it, while Audacity's cleanup removes only the final suffix and saves name.aup4.aup4.",
+  "reproduce": "Return session.aup4.aup4 from the project save dialog; the baseline strips the final suffix and restores it, leaving the duplicate unchanged.",
+  "acceptance": "Missing, foreign, single and repeated case-insensitive project extensions all produce a path ending in exactly one lowercase .aup4.",
+  "repair": "Centralize project-extension normalization, remove remaining duplicate aup4 suffixes before appending the canonical suffix, and add focused project tests.",
+  "sources": [{
+    "id": "upstream",
+    "repository": "audacity/audacity",
+    "commit": "de6e59a8210c8c765cad62456a7cb6fd542bcf17",
+    "directory": "sources/audacity-12117"
+  }],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{ "cwd": "sources/audacity-12117", "argv": ["git", "apply", "../../cases/audacity-12117/repair.patch"] }],
+    "test": [{ "cwd": ".", "argv": ["node", "cases/audacity-12117/test.mjs", "sources/audacity-12117"] }],
+    "build": []
+  },
+  "artifacts": { "report": "reports/audacity-12117.json" },
+  "selection": {
+    "report": "cases/audacity-12117/triage.json",
+    "sha256": "fd5ce3e9a2c35f4230ba7d5ac52aa20581bc887c23029a7719fb9fcd949702e6",
+    "reason": "The fresh Linux report has deterministic filename acceptance, no competing PR, and all pinned submodule revisions were verified."
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL compiles and executes the production path helper with six cases and verifies upstream test registration. It does not build or launch the complete Qt application; upstream CI remains required.",
+    "ownerCheck": "On Linux, create a new project, accept or edit the suggested name, save it, and confirm the resulting filename contains exactly one .aup4 extension."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "audacity/audacity",
+    "base": "master",
+    "paths": [
+      "src/project/CMakeLists.txt",
+      "src/project/internal/opensaveprojectscenario.cpp",
+      "src/project/internal/projectpathutils.cpp",
+      "src/project/internal/projectpathutils.h",
+      "src/project/tests/CMakeLists.txt",
+      "src/project/tests/projectpathutils_tests.cpp"
+    ]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [{ "cwd": ".", "argv": ["git", "apply", "../../cases/audacity-12117/tests-only.patch"] }],
+    "build": [],
+    "testFiles": ["src/project/tests/projectpathutils_tests.cpp"],
+    "regression": { "cwd": ".", "argv": ["node", "../../cases/audacity-12117/upstream.mjs"] },
+    "negative": { "exitCode": 1, "outputIncludes": "BUG_DOUBLE_AUP4" },
+    "suite": { "cwd": ".", "argv": ["node", "../../cases/audacity-12117/upstream.mjs"] },
+    "suiteOutputIncludes": "# tests 6"
+  }
+}

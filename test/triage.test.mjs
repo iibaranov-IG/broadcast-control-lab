@@ -98,6 +98,14 @@ test('Git dependency and submodule signals require review without running instal
   assert.ok(r.findings.some(f => f.code === 'NONREGISTRY_DEPENDENCIES'))
   assert.equal(r.source.nodeDependencyCount, 1)
 })
+test('reviewed submodule revisions can resolve only the matching triage finding', async () => {
+  const f = fixture({ 'repos/team/project/git/trees/tree?recursive=1': { tree: [{ type: 'blob', path: 'src/main.cpp' }, { type: 'blob', path: 'CMakeLists.txt' }, { type: 'commit', path: 'vendor/device' }] } })
+  const report = await triage.inspect(url, {}, f.api)
+  triage.applyResolutions(report, { resolutions: { SUBMODULES: { reason: 'Pinned submodule checkout completed', evidence: ['git submodule status', 'focused build'] } } })
+  assert.equal(report.decision, 'READY_TO_INVESTIGATE')
+  assert.equal(report.findings.find(value => value.code === 'SUBMODULES').severity, 'info')
+  assert.throws(() => triage.applyResolutions(report, { resolutions: { READ_INCOMPLETE: { reason: 'assumed', evidence: ['none'] } } }), /cannot be resolved/)
+})
 test('contribution rules are discovered regardless of filename case', async () => {
   const rule = '.github/contributing.md'
   const f = fixture({

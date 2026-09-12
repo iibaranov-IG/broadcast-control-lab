@@ -154,12 +154,29 @@ function markdown(r) {
   const clean = s => String(s || '').replace(/[\r\n]/g, ' ')
   return [`# BCL triage: ${clean(r.issue.title || r.issue.url)}`, '', `Decision: **${r.decision}**`, `Checked: ${r.checkedAt}`, `Issue: ${r.issue.url}`, `Source: ${r.source.repository}`, `Revision: ${r.source.commit || 'unresolved'}`, '', '## Findings', '', ...r.findings.map(f => `- **${f.code}** (${f.severity}): ${clean(f.detail)} [Source](${f.url})`), ...(r.findings.length ? [] : ['No metadata blocker found within the stated coverage.']), '', '## Related PRs', '', ...r.relatedPRs.map(p => `- [${clean(p.title)}](${p.url}) — ${p.merged ? 'merged' : p.state}${p.draft ? ', draft' : ''}; author: ${clean(p.author)}; ${p.relation}`), '', '## Next actions', '', ...r.nextActions.map(a => `- ${clean(a)}`), '', '## Read errors', '', ...r.errors.map(e => `- ${e.check}: ${clean(e.message)} — ${e.url}`), '', '## Limits', '', ...r.limitations.map(l => `- ${l}`), '', 'No clone, build, test execution, PR or owner message was performed.', ''].join('\n')
 }
+const resolvableFindings = new Set(['SUBMODULES'])
+function applyResolutions(report, assessment = {}) {
+  for (const [code, item] of Object.entries(assessment.resolutions || {})) {
+    if (!resolvableFindings.has(code)) throw new Error(`Finding ${code} cannot be resolved by assessment`)
+    if (!item?.reason?.trim() || !Array.isArray(item.evidence) || !item.evidence.length || item.evidence.some(value => typeof value !== 'string' || !value.trim())) throw new Error(`Resolution ${code} needs a reason and evidence`)
+    const finding = report.findings.find(value => value.code === code && value.severity === 'question')
+    if (!finding) throw new Error(`Resolution ${code} does not match an open finding`)
+    finding.severity = 'info'
+    finding.resolution = { reason: item.reason, evidence: item.evidence }
+    finding.detail += ` Resolved for this revision: ${item.reason}`
+  }
+  report.decision = report.findings.some(f => f.severity === 'defer') ? 'DEFER' : report.findings.some(f => f.severity === 'question') ? 'NEEDS_INFO' : 'READY_TO_INVESTIGATE'
+  report.nextActions = report.findings.filter(f => f.severity !== 'info').map(f => f.detail)
+  if (!report.nextActions.length) report.nextActions.push('Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build.')
+  return report
+}
 async function run(root, url, args = [], request = require('./github-read.cjs').reader()) {
   const begin = Date.now(), opts = options(args)
   const report = await inspect(url, opts, request)
   const policyFile = path.join(root, 'selection-policy.json')
   const policy = fs.existsSync(policyFile) ? JSON.parse(fs.readFileSync(policyFile)) : {}
   const assessment = opts.assessment ? JSON.parse(fs.readFileSync(opts.assessment)) : {}
+  applyResolutions(report, assessment)
   report.ranking = require('./selection-policy.cjs').evaluate(report, assessment, policy)
   if (report.ranking.exclusions.length) report.decision = 'REJECT'
   report.durationMs = Date.now() - begin
@@ -169,4 +186,4 @@ async function run(root, url, args = [], request = require('./github-read.cjs').
   fs.writeFileSync(path.join(directory, 'TRIAGE.md'), markdown(report) + '\n## Candidate ranking\n\n' + JSON.stringify(report.ranking, null, 2) + '\n')
   return { decision: report.decision, report: path.join(directory, 'TRIAGE.md'), data: path.join(directory, 'triage.json') }
 }
-module.exports = { options, issueURL, mentions, inspect, markdown, run }
+module.exports = { options, issueURL, mentions, inspect, markdown, applyResolutions, run }

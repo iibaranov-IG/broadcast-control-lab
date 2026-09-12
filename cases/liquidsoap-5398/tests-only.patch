@@ -1,0 +1,61 @@
+diff --git a/tests/regression/dune.inc b/tests/regression/dune.inc
+index 2d55d92..4d070e5 100644
+--- a/tests/regression/dune.inc
++++ b/tests/regression/dune.inc
+@@ -1431,6 +1431,24 @@
+  (action
+   (run %{run_test} GH5389 liquidsoap %{test_liq} GH5389.liq)))
+ 
++(rule
++ (alias test_GH5398)
++ (package liquidsoap)
++ (deps
++  GH5398.liq
++  (glob_files ../media/**)
++  ../liquidsoap-test-assets
++  ../../src/bin/liquidsoap.exe
++  ../streams/file1.png
++  ../streams/file1.mp3
++  ./theora-test.mp4
++  (package liquidsoap)
++  (source_tree ../../src/libs)
++  (:test_liq ../test.liq)
++  (:run_test ../run_test.exe))
++ (action
++  (run %{run_test} GH5398 liquidsoap %{test_liq} GH5398.liq)))
++
+ (rule
+  (alias test_LS268)
+  (package liquidsoap)
+@@ -2792,6 +2810,7 @@
+   (alias test_GH5360)
+   (alias test_GH5361)
+   (alias test_GH5389)
++  (alias test_GH5398)
+   (alias test_LS268)
+   (alias test_LS354-1)
+   (alias test_LS354-2)
+diff --git a/tests/regression/GH5398.liq b/tests/regression/GH5398.liq
+new file mode 100644
+index 0000000..d82ec0c
+--- /dev/null
++++ b/tests/regression/GH5398.liq
+@@ -0,0 +1,18 @@
++# Regression test for https://github.com/savonet/liquidsoap/issues/5398
++# Last.fm rejects Audioscrobbler requests sent to the former HTTP default.
++
++contents = file.contents("../../src/libs/extra/audioscrobbler.liq")
++
++if
++  string.contains(
++    substring='~base_url="https://ws.audioscrobbler.com/2.0"',
++    contents
++  ) and not string.contains(
++    substring='~base_url="http://ws.audioscrobbler.com/2.0"',
++    contents
++  )
++then
++  test.pass()
++else
++  test.fail("Audioscrobbler must default to the Last.fm HTTPS endpoint")
++end

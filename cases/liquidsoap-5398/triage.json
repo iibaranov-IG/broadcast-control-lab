@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-12T00:39:26.625Z",
+  "issue": {
+    "repository": "savonet/liquidsoap",
+    "number": "5398",
+    "url": "https://github.com/savonet/liquidsoap/issues/5398",
+    "title": "Last.fm authorization error 4: You must use HTTPS for this request",
+    "state": "open",
+    "updatedAt": "2026-09-08T03:55:16Z"
+  },
+  "source": {
+    "repository": "savonet/liquidsoap",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "GPL-2.0",
+    "commit": "c1d966f987cd54c44a78f01557666f6050aecace",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/CONTRIBUTING.md",
+        "content": "# Contributing to Liquidsoap\n\nThis guide helps you navigate the Liquidsoap codebase. Whether you want to fix a bug, add a new operator, or hack on the type system, this document will point you in the right direction.\n\n## Optional Dependencies\n\nLiquidsoap has many optional features that are enabled when their dependencies are available. To see what's currently enabled in your build:\n\n```bash\nliquidsoap --build-config\n```\n\nThis shows all optional dependencies and their status. To install optional dependencies:\n\n```bash\n# Install specific optional packages\nopam install ffmpeg lame vorbis opus flac\n```\n\nCommon optional packages:\n\n- **ffmpeg** - FFmpeg integration (decoding, encoding, filters, HLS)\n- **lame**, **vorbis**, **opus**, **flac** - Audio codec support\n- **sdl** - Video output and visualization\n- **srt** - SRT streaming protocol\n- **alsa**, **pulseaudio**, **portaudio** - Audio I/O backends\n\n## Build System\n\nLiquidsoap uses [dune](https://dune.build/) as its build system. The project is organized into several packages defined in `dune-project`:\n\n- **liquidsoap**: The main application with all streaming functionality\n- **liquidsoap-lang**: The core language library (parser, type system, evaluator)\n- **liquidsoap-js**: JavaScript bindings via js_of_ocaml\n\n### Building\n\n```bash\n# Install dependencies\nopam install . --deps-only\n\n# Build everything\ndune build\n\n# Run tests\ndune build @citest @mediatest\n\n# Interactive mode (REPL) - useful for testing expressions\ndune exec -- liquidsoap --interactive\n# Or with line editing support:\nledit dune exec -- liquidsoap --interactive\n```\n\nThe top-level `liquidsoap` script provides a convenient way to run liquidsoap as if it were fully installed:\n\n```bash\n# From the root of the codebase:\n./liquidsoap --help\n./liquidsoap script.liq\n\n# Equivalent to running an installed liquidsoap\n```\n\nThis script handles all the necessary environment setup, making it easier to test changes without a full installation.\n\n### Project Structure\n\n```\nliquidsoap/\n├── src/\n│   ├── lang/           # Language implementation (liquidsoap-lang package)\n│   │   ├── prelude/    # Leaf utilities: positions, string escaping, hashing\n│   │   ├── types/      # The type system, depends on prelude alone\n│   │   ├── data/       # JSON, documentation, method maps, runtime errors\n│   │   ├── ast/        # Parsed and runtime term representations\n│   │   ├── values/     # Runtime values, global environment\n│   │   ├── cache/      # On-disk caches: the store, its maintenance, term cache\n│   │   ├── parser/     # Lexer, grammar, token-level preprocessor\n│   │   ├── reducer/    # Desugaring: parsed term -> runtime term\n│   │   ├── runtime/    # Type checking, evaluation, script loading, builtins\n│   │   ├── console/    # REPL/console interface\n│   │   ├── stdlib/     # Thin wrapper around OCaml's stdlib for specific functions\n│   │   └── tooling/    # Language tooling (LSP, formatting)\n│   ├── core/           # Streaming engine (liquidsoap package)\n│   │   ├── utils/      # Leaf utilities: logging, threads, processes, paths\n│   │   ├── stream/     # Frames, content kinds and formats, generators\n│   │   ├── media/      # Container formats, converters, decoder framework\n│   │   ├── encoder/    # Encoders and their language bindings\n│   │   ├── clock/      # Clocks\n│   │   ├── source/     # The source class, tracks, source values\n│   │   ├── request/    # URI resolution, request pool, playlist parsing\n│   │   ├── runtime/    # The Lang API operators register themselves with\n│   │   ├── net/        # HTTP and the harbor server\n│   │   ├── protocols/  # Request protocols (annotate:, mpd:)\n│   │   ├── decoders/   # Concrete decoders and metadata resolvers\n│   │   ├── sources/    # Input sources\n│   │   ├── outputs/    # Outputs\n│   │   ├── operators/  # Operators, synth, video, visualisation\n│   │   ├── builtins/   # Built-in functions exposed to scripts\n│   │   └── optionals/  # Optional features (ffmpeg, alsa, etc.)\n│   ├── libs/           # Standard library written in Liquidsoap\n│   ├── modules/        # Vendored OCaml libraries\n│   └── bin/            # Executable entry points\n├── tests/              # Test suites\n├── doc/                # Documentation\n└── scripts/            # Build and utility scripts\n```\n\n## Core Modules\n\n### Language (`src/lang/`)\n\nThe language implementation is split into layered dune libraries, each of which\nmay only depend on the ones above it in this table. The layering is enforced by\nthe build: `liquidsoap-lang.types` cannot reach a value or a term even by\naccident.\n\nEach library has a top-level module -- `src/lang/<dir>/liquidsoap_lang_<dir>.mli`\n-- listing exactly the modules it exports. Everything else in the directory is\nprivate to the library, so `Term_reducer` is reachable but the six\n`term_reducer_*` modules behind it are not. Consumers get the exported modules\nunqualified through `-open`, which is why the code reads `Term.` and `Type.`\nrather than `Liquidsoap_lang_ast.Term.`. When you add a module, it stays\ninternal until you add it to that `.mli`.\n\n| Library                   | Directory           | Purpose                                                                                                                     |\n| ------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------- |\n| `liquidsoap-lang.prelude` | `src/lang/prelude/` | Leaf utilities everything needs: source positions, string escaping and quoting, the hash used for caching.                  |\n| `liquidsoap-lang.types`   | `src/lang/types/`   | **The type system**: representation, constraints, custom types, unification, and the printable form used in error messages. |\n| `liquidsoap-lang.data`    | `src/lang/data/`    | Self-contained services: JSON, documentation, method maps, the runtime error type, build configuration.                     |\n| `liquidsoap-lang.ast`     | `src/lang/ast/`     | The term representations. See `src/lang/ast/README.md` for the parsed / runtime term phases.                                |\n| `liquidsoap-lang.values`  | `src/lang/values/`  | Runtime values and the global environment they are registered in.                                                           |\n| `liquidsoap-lang.cache`   | `src/lang/cache/`   | The on-disk caches: the marshalling store, its maintenance, and the typechecking cache keyed on parsed terms.               |\n| `liquidsoap-lang.parser`  | `src/lang/parser/`  | Lexer, Menhir grammar, and the token-level preprocessor (string interpolation, `%include`, `%ifdef`).                       |\n| `liquidsoap-lang.reducer` | `src/lang/reducer/` | Desugaring: parsed term to runtime term. One module per kind of desugaring.                                                 |\n| `liquidsoap-lang`         | `src/lang/runtime/` | Type checking, evaluation, script loading, the `Lang` API and the core builtins.                                            |\n\nThe files you are most likely to want:\n\n| File                                 | Purpose                                                                                                          |\n| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |\n| `parser/lexer.ml`                    | Tokenizer. Handles string interpolation, comments, and all lexical analysis.                                     |\n| `parser/parser.mly`                  | Menhir grammar defining the syntax. Start here to understand how scripts are parsed.                             |\n| `ast/parsed_term.ml`                 | The AST the parser produces, before desugaring. This is what the formatter and the LSP consume.                  |\n| `ast/term.ml`, `ast/runtime_term.ml` | The runtime term, i.e. what actually gets typechecked and evaluated.                                             |\n| `reducer/term_reducer.ml`            | Dispatcher for desugaring; the `term_reducer_*` modules next to it do the work.                                  |\n| `types/type.ml`                      | Type representation: `Type.t` for all types in the language.                                                     |\n| `types/typing.ml`                    | **Type inference engine**. Hindley-Milner style inference with subtyping, plus generalization and instantiation. |\n| `types/repr.ml`                      | Type pretty-printing, and the rendering of type errors.                                                          |\n| `runtime/typechecking.ml`            | Higher-level type checking that wraps `typing.ml`; the full program pass.                                        |\n| `runtime/evaluation.ml`              | **Expression evaluator**. Executes typed terms to produce values.                                                |\n| `values/value.ml`                    | Runtime value representation. All Liquidsoap values are `Value.t`.                                               |\n| `values/environment.ml`              | Variable binding environments, for both type checking and evaluation.                                            |\n| `cache/term_cache.ml`                | The typechecking cache: keyed on the parsed term plus the builtin environment.                                   |\n| `runtime/runtime.ml`                 | Script loading and execution: `%include`, caching, and the main evaluation loop.                                 |\n| `data/doc.ml`                        | Documentation extraction; generates operator documentation from type signatures and annotations.                 |\n| `runtime/builtins_*.ml`              | Core built-in functions (lists, strings, math, ...) that are part of the language itself.                        |\n\nChanges to any of these show up in `tests/snapshots/`, which records the parsed\nterm, its hash, the desugared term, the inferred type and the resulting value\nfor a corpus of scripts. See `tests/snapshots/README.md`.\n\n### Streaming Engine (`src/core/`)\n\nThe streaming engine is where audio/video processing happens. Like `src/lang/`,\nit is a stack of layered dune libraries, each one directory, each of which may\nonly depend on the ones above it in this table. The layering is enforced by the\nbuild: `liquidsoap_core_utils` cannot reach a frame, and nothing below\n`runtime` can register an operator.\n\nEach library has a `src/core/<dir>/liquidsoap_core_<dir>.mli` listing exactly\nwhat it exports; everything else in the directory is private to it. Consumers\nget the exported modules unqualified through `-open`, which is why the code\nreads `Frame.` and `Lang.` rather than `Liquidsoap_core_stream.Frame.`.\n\nOperators register themselves through top-level side effects, and the modules\nthat do so are referenced by nothing, so every library keeps `-linkall`.\n\n| Library                     | Directory             | Purpose                                                                                                            |\n| --------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------ |\n| `liquidsoap_core_utils`     | `src/core/utils/`     | Leaf utilities: logging, threads, processes, sockets, time, string handling, build-time paths, the config tree.    |\n| `liquidsoap_core_stream`    | `src/core/stream/`    | **The media data model**: content kinds and formats, frames, generators, and the liquidsoap types describing them. |\n| `liquidsoap_core_media`     | `src/core/media/`     | Container formats (AVI, WAV), sample-rate and channel-layout converters, and the `Decoder` plug registry.          |\n| `liquidsoap_core_encoder`   | `src/core/encoder/`   | The encoder framework, one module per format, and the bindings behind `%mp3(...)` and friends.                     |\n| `liquidsoap_core_clock`     | `src/core/clock/`     | **Timing and synchronization**. Clocks tick, and each tick asks every animated source for one frame.               |\n| `liquidsoap_core_source`    | `src/core/source/`    | **The heart of Liquidsoap**: the `source` class every operator inherits from, tracks, and source values.           |\n| `liquidsoap_core_request`   | `src/core/request/`   | URI resolution, the request pool, playlist parsing.                                                                |\n| `liquidsoap_core_runtime`   | `src/core/runtime/`   | Core's `Lang`: everything an operator needs to register itself, plus the hooks `liquidsoap-lang` calls back into.  |\n| `liquidsoap_core_net`       | `src/core/net/`       | HTTP and the harbor server that `input.harbor` and `output.harbor` are built on.                                   |\n| `liquidsoap_core_protocols` | `src/core/protocols/` | Request protocols: `annotate:` and `mpd:`.                                                                         |\n| `liquidsoap_core_decoders`  | `src/core/decoders/`  | Concrete decoders and metadata resolvers. Above `request/` because they register into its resolver plugs.          |\n| `liquidsoap_core_sources`   | `src/core/sources/`   | Input sources: harbor input, dynamic requests, noise, test patterns.                                               |\n| `liquidsoap_core_outputs`   | `src/core/outputs/`   | The output framework and the outputs built on it: icecast, harbor, HLS, pipes.                                     |\n| `liquidsoap_core_operators` | `src/core/operators/` | **All audio/video operators**, plus synth and visualisation. The top of the stack.                                 |\n\n`liquidsoap_core` itself holds no code: `src/core/liquidsoap_core.mli`\nre-exports, under short names, everything builtins and optional plugins are\nmeant to use — including the `liquidsoap-lang` modules core republishes, so it\nis the only file that spells out a `Liquidsoap_lang_*` path. Plugins do\n`(libraries liquidsoap_core)` plus `-open Liquidsoap_core` and never name a\nlayer.\n\nThe files you are most likely to want:\n\n| File                     | Purpose                                                                                                                                                               |\n| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| `source/source.ml`       | The `source` class: frame generation, availability, the pull-based streaming model.                                                                                   |\n| `clock/clock.ml`         | Clocks and synchronization. Critical for understanding real-time behaviour.                                                                                           |\n| `stream/frame.ml`        | A frame: the chunk of audio, video and metadata that flows between operators.                                                                                         |\n| `stream/content_base.ml` | The content registry. `content_base`, `frame_base` and `metadata_base` exist because `Content` and `Frame` genuinely need each other's types; do not merge them back. |\n| `request/request.ml`     | URIs, resolvers and the request queue.                                                                                                                                |\n| `source/track.ml`        | Individual audio/video/subtitle tracks within a source.                                                                                                               |\n\n### Built-in Functions (`src/core/builtins/`)\n\nFunctions exposed to Liquidsoap scripts that need access to the streaming engine.\n\n| File                   | Purpose                                                               |\n| ---------------------- | --------------------------------------------------------------------- |\n| `builtins_source.ml`   | Source-related functions: `source.tracks`, `source.on_metadata`, etc. |\n| `builtins_track.ml`    | Track operators: `track.audio.amplify`, `track.video.add`, etc.       |\n| `builtins_request.ml`  | Request handling: `request.create`, `request.resolve`, etc.           |\n| `builtins_clock.ml`    | Clock management: `clock.assign_new`, `clock.unify`, etc.             |\n| `builtins_settings.ml` | Configuration settings exposed to scripts.                            |\n| `builtins_server.ml`   | Telnet/socket server for runtime control.                             |\n| `builtins_harbor.ml`   | HTTP server (harbor) for input streams and web interfaces.            |\n\n### Script Library (`src/libs/`)\n\nThe standard library written in Liquidsoap itself. These `.liq` files provide high-level functions built on top of the core operators.\n\n| File           | Purpose                                                        |\n| -------------- | -------------------------------------------------------------- |\n| `audio.liq`    | Audio processing helpers: `amplify`, `clip`, `normalize`, etc. |\n| `video.liq`    | Video processing: scaling, effects, text overlay.              |\n| `source.liq`   | Source utilities: `fallback`, `switch`, `rotate`, etc.         |\n| `playlist.liq` | Playlist handling: `playlist`, `playlist.safe`, etc.           |\n| `fades.liq`    | Fade in/out and crossfade implementations.                     |\n| `hls.liq`      | HLS output helpers.                                            |\n| `icecast.liq`  | Icecast output helpers.                                        |\n| `ffmpeg.liq`   | FFmpeg integration helpers.                                    |\n| `request.liq`  | Request utilities and protocols.                               |\n\n### Optional Features (`src/core/optionals/`)\n\nEach subdirectory adds support for an optional dependency (ffmpeg, alsa, pulseaudio, etc.). These are compiled conditionally based on available libraries.\n\n| Directory                            | Purpose                                                                                  |\n| ------------------------------------ | ---------------------------------------------------------------------------------------- |\n| `ffmpeg/`                            | FFmpeg integration: decoding, encoding, filters, HLS, RTMP. The largest optional module. |\n| `alsa/`, `pulseaudio/`, `portaudio/` | Audio I/O backends.                                                                      |\n| `sdl/`                               | SDL video output and visualization.                                                      |\n| `srt/`                               | SRT streaming protocol.                                                                  |\n| `ogg/`, `vorbis/`, `opus/`, `flac/`  | Audio codec support.                                                                     |\n| `ladspa/`, `lilv/`                   | Audio plugin frameworks.                                                                 |\n\n## Common Tasks\n\n### \"I want to hack on the type system\"\n\nEverything except the final pass lives in `src/lang/types/`, which depends on\nnothing but `src/lang/prelude/`:\n\n1. **`types/type.ml`** - Understand how types are represented\n2. **`types/typing.ml`** - The main inference algorithm, including unification\n3. **`types/repr.ml`** - How types and type errors are rendered\n4. **`runtime/typechecking.ml`** - Full program type checking\n\nKey concepts:\n\n- Types use a unification-based inference similar to Hindley-Milner\n- Subtyping is used extensively (e.g., `{foo: int, bar: string}` is a subtype of `{foo: int}`)\n- Type variables are represented with mutable references for efficient unification\n- See `src/lang/ast/README.md` for details on term representation phases (parsed → typed → runtime)\n\nTo test type system changes:\n\n```bash\ndune build @citest\n```\n\n### \"I want to add a new audio operator\"\n\n1. **Create the operator** in `src/core/operators/my_operator.ml`:\n\n```ocaml\nopen Source\n\nclass my_operator (source : source) param =\n  object\n    inherit operator ~name:\"my_operator\" [source]\n    method fallible = source#fallible\n    method private can_generate_frame = source#is_ready\n    method remaining = source#remaining\n    method abort_track = source#abort_track\n    method self_sync = source#self_sync\n\n    method private generate_frame =\n      let frame = source#get_frame in\n      (* Process the frame here *)\n      frame\n  end\n\nlet _ =\n  Lang.add_operator \"my_operator\"\n    [\n      (\"param\", Lang.float_t, Some (Lang.float 1.0), Some \"My parameter\");\n      (\"\", Lang.source_t, None, None);\n    ]\n    ~return_t:Lang.source_t\n    ~category:`Audio\n    ~descr:\"My new operator\"\n    (fun p ->\n      let param = Lang.to_float (List.assoc \"param\" p) in\n      let source = Lang.to_source (List.assoc \"\" p) in\n      new my_operator source param)\n```\n\n2. **Add it to `src/core/operators/liquidsoap_core_operators.ml` and `.mli`**,\n   which list what the library exports. Nothing outside the library can see a\n   module that is missing from them.\n\n3. **Add a high-level wrapper** in `src/libs/audio.liq` if appropriate:\n\n```liquidsoap\n# My new operator\n# @category Source / Audio processing\n# @param s Source to process\ndef my_operator(~param=1.0, s)\n  my_operator(param=param, s)\nend\n```\n\n4. **Add tests** in `tests/` directory\n\n### \"I want to contribute to the scripting library\"\n\nThe script library lives in `src/libs/*.liq`. These are Liquidsoap scripts that ship with the application.\n\n1. **Find the right file** - Functions are organized by domain (audio.liq, video.liq, playlist.liq, etc.)\n\n2. **Follow the documentation format**:\n\n```liquidsoap\n# Brief description of what the function does.\n# @category Category / Subcategory\n# @param ~named_param Description of named parameter\n# @param positional Description of positional parameter\ndef my_function(~named_param=default, positional)\n  # Implementation\nend\n```\n\n3. **Test interactively**:\n\n```bash\ndune exec -- liquidsoap -c 'my_function(...)'\n```\n\n4. **Run the test suite**:\n\n```bash\ndune build @citest @mediatest\n```\n\n### \"I want to work on the documentation\"\n\nPages live in `doc/content/*.md` and are published at\n[liquidsoap.info](https://www.liquidsoap.info) by\n[savonet/website](https://github.com/savonet/website). There is no rendered copy in this\nrepository: the markdown is the source, and the site is built from it.\n\nPreview your changes against the real site:\n\n```bash\ndune build @doc/serve-website\n```\n\nThat builds the reference, fetches the site, and serves it on\n<http://localhost:3000>. Editing a page under `doc/content` re-syncs and reloads it in the\nbrowser. Set `LIQUIDSOAP_WEBSITE` to a checkout of savonet/website to work on the site\nitself at the same time.\n\nA few things to know when writing:\n\n- **Link pages as `.md`**: `[clocks](./clocks.md)`, not `clocks.html`. That resolves on\n  GitHub, in an editor and on the website, and a typo shows up as a missing file rather\n  than as a 404 nobody notices.\n- **Code samples live in `doc/content/liq/`** and are included rather than pasted:\n\n  ````markdown\n  ```{.liquidsoap include=\"my-example.liq\"}\n\n  ```\n  ````\n\n  Every snippet is run through `liquidsoap --check` by `dune build @doctest`, so an\n  example that stops compiling fails the build.\n\n- **`reference.md`, `reference-extras.md`, `reference-deprecated.md`, `protocols.md` and\n  `settings.md` are generated** by the binary from the `@category` and `@param` comments\n  in `src/libs/*.liq` and the OCaml sources. Do not edit them; change the documentation\n  comment instead.\n\n### \"I want to add an FFmpeg feature\"\n\nFFmpeg integration is in `src/core/optionals/ffmpeg/`. Key files:\n\n| File                     | Purpose                               |\n| ------------------------ | ------------------------------------- |\n| `ffmpeg_decoder.ml`      | Decoding media files with FFmpeg      |\n| `ffmpeg_encoder.ml`      | Encoding output with FFmpeg           |\n| `ffmpeg_filter.ml`       | FFmpeg filter graph integration       |\n| `ffmpeg_copy_content.ml` | Passthrough/remuxing without decoding |\n| `lang_ffmpeg.ml`         | FFmpeg operators exposed to scripts   |\n\n## Testing\n\nTests are split into two main categories:\n\n```bash\n# CI tests (language, typing, OCaml unit tests, most functionality)\ndune build @citest\n\n# Media tests (encoding, decoding, ffmpeg features)\ndune build @mediatest\n\n# Run a specific test by name (without extension)\ndune build @my_test_name\n```\n\nTest locations:\n\n- `tests/language/` - Language and typing tests (Liquidsoap scripts)\n- `tests/media/` - Media encoding/decoding tests\n- `tests/core/` - OCaml unit tests\n\n## Code Style\n\n- OCaml code is formatted with `ocamlformat` (config in `.ocamlformat`)\n- Liquidsoap code should follow existing conventions in `src/libs/`\n- Use descriptive names and add documentation comments\n\n## Backporting and Rolling Releases\n\nLiquidsoap maintains stable release branches using the following workflow:\n\n### Branch and Tag Structure\n\n- **Development branch**: `main`\n- **Stable branches**: `v2.4.x-latest`, `v2.3.x-latest`, etc.\n- **Rolling release tags**: `rolling-release-v2.5.x`, `rolling-release-v2.4.x`, etc.\n\nWhich branches publish a rolling release, and under which version, is configured in\n[`.github/release-matrix.json`](.github/release-matrix.json). `main` is listed there as the\nin-development line, so it rolls alongside the stable branches. That file also generates the\nrelease table in `README.md`.\n\n### Backporting PRs\n\nTo backport a PR from `main` to a stable branch:\n\n1. Add a label like `backport:v2.4.x-latest` to the PR before merging\n2. When the PR is merged, the backport workflow automatically:\n   - Cherry-picks the changes to the target branch\n   - Creates a new PR for the backport\n\n### Rolling Release Tags\n\nWhen CI passes on a branch listed in the release matrix (e.g., `main` or `v2.4.x-latest`), the corresponding rolling release tag (`rolling-release-v2.5.x`, `rolling-release-v2.4.x`) is automatically created/updated, its release assets are replaced, and Docker images are published under the same name. The tag always points to the latest CI-validated commit on that branch.\n\n## Getting Help\n\n- GitHub Issues: https://github.com/savonet/liquidsoap/issues\n- Discussion: https://github.com/savonet/liquidsoap/discussions\n- Discord: https://discord.gg/savonet\n",
+        "requirementHints": [
+          "# Run tests",
+          "dune build @citest @mediatest",
+          "# Interactive mode (REPL) - useful for testing expressions",
+          "This script handles all the necessary environment setup, making it easier to test changes without a full installation.",
+          "├── tests/              # Test suites",
+          "| `parser/lexer.ml`                    | Tokenizer. Handles string interpolation, comments, and all lexical analysis.                                     |",
+          "| `ast/parsed_term.ml`                 | The AST the parser produces, before desugaring. This is what the formatter and the LSP consume.                  |",
+          "Changes to any of these show up in `tests/snapshots/`, which records the parsed",
+          "for a corpus of scripts. See `tests/snapshots/README.md`.",
+          "| `liquidsoap_core_sources`   | `src/core/sources/`   | Input sources: harbor input, dynamic requests, noise, test patterns.                                               |",
+          "To test type system changes:",
+          "dune build @citest",
+          "4. **Add tests** in `tests/` directory",
+          "3. **Test interactively**:",
+          "4. **Run the test suite**:",
+          "dune build @citest @mediatest",
+          "  Every snippet is run through `liquidsoap --check` by `dune build @doctest`, so an",
+          "  `settings.md` are generated** by the binary from the `@category` and `@param` comments",
+          "  comment instead.",
+          "## Testing",
+          "Tests are split into two main categories:",
+          "# CI tests (language, typing, OCaml unit tests, most functionality)",
+          "dune build @citest",
+          "# Media tests (encoding, decoding, ffmpeg features)",
+          "dune build @mediatest",
+          "# Run a specific test by name (without extension)",
+          "dune build @my_test_name",
+          "Test locations:",
+          "- `tests/language/` - Language and typing tests (Liquidsoap scripts)",
+          "- `tests/media/` - Media encoding/decoding tests",
+          "- `tests/core/` - OCaml unit tests",
+          "- Use descriptive names and add documentation comments",
+          "- **Stable branches**: `v2.4.x-latest`, `v2.3.x-latest`, etc.",
+          "1. Add a label like `backport:v2.4.x-latest` to the PR before merging",
+          "When CI passes on a branch listed in the release matrix (e.g., `main` or `v2.4.x-latest`), the corresponding rolling release tag (`rolling-release-v2.5.x`, `rolling-release-v2.4.x`) is automatically created/updated, its release assets are replaced, and Docker images are published under the same name. The tag always points to the latest CI-validated commit on that branch."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "src/core/operators/defer_c.c",
+      "src/core/operators/lufs_c.c",
+      "src/core/optionals/jack/jack_io_stubs.c",
+      "src/core/optionals/ogg_flac/ogg_flac_encoder_stubs.c",
+      "src/core/optionals/oss/oss_io_c.c",
+      "src/core/stream/content_pcm_c.c",
+      "src/core/utils/unix_c.c",
+      "src/js/runtime.js",
+      "src/modules/cry/cry_stubs.c",
+      "src/modules/stdlib-utils/pollset_stubs.c"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/Makefile"
+      },
+      {
+        "path": "doc/content/liq/Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/doc/content/liq/Makefile"
+      },
+      {
+        "path": "src/js/.scripts/playground/package.json",
+        "kind": "node",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/src/js/.scripts/playground/package.json"
+      },
+      {
+        "path": "src/modules/synced/alsa/examples/devices/Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/src/modules/synced/alsa/examples/devices/Makefile"
+      },
+      {
+        "path": "src/modules/synced/alsa/examples/midi-output/Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/src/modules/synced/alsa/examples/midi-output/Makefile"
+      },
+      {
+        "path": "src/modules/synced/alsa/examples/sequencer/Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/src/modules/synced/alsa/examples/sequencer/Makefile"
+      },
+      {
+        "path": "src/modules/synced/alsa/examples/sine/Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/src/modules/synced/alsa/examples/sine/Makefile"
+      },
+      {
+        "path": "src/modules/synced/metadata/Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/src/modules/synced/metadata/Makefile"
+      },
+      {
+        "path": "src/modules/synced/metadata/examples/Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/src/modules/synced/metadata/examples/Makefile"
+      },
+      {
+        "path": "src/modules/synced/mm/Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/src/modules/synced/mm/Makefile"
+      },
+      {
+        "path": "src/modules/synced/mm/examples/Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/src/modules/synced/mm/examples/Makefile"
+      },
+      {
+        "path": "src/modules/synced/mm/tests/Makefile",
+        "kind": "make",
+        "url": "https://github.com/savonet/liquidsoap/blob/c1d966f987cd54c44a78f01557666f6050aecace/src/modules/synced/mm/tests/Makefile"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:savonet/liquidsoap": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 89,
+    "scoreRange": [
+      88,
+      89
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "Default authorization fails at startup.",
+        "evidence": [
+          "Last.fm returns error code 4."
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report and source revision are current.",
+        "evidence": [
+          "Issue filed September 2026 and repository pushed September 11, 2026."
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "The reporter supplied a tested workaround.",
+        "evidence": [
+          "Reporter uses a bind mount with the HTTPS change."
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Success is an exact endpoint change.",
+        "evidence": [
+          "HTTPS endpoint is stated in issue description."
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The bad default is directly observable at the pinned revision.",
+        "evidence": [
+          "audioscrobbler.liq contains the reported HTTP URL."
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The production repair changes one default string.",
+        "evidence": [
+          "Focused diff is one line."
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "A deterministic red-green source regression covers the default.",
+        "evidence": [
+          "No network credentials are needed to verify URL selection."
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "HTTPS is required by the service and callers can still override base_url.",
+        "evidence": [
+          "Only the optional parameter default changes."
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The source repository is actively maintained.",
+        "evidence": [
+          "GitHub reports a push on September 11, 2026."
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The default affects every Last.fm submission user.",
+        "evidence": [
+          "audioscrobbler.submit uses audioscrobbler.auth and the shared request default."
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 3,
+        "reason": "The repair is narrow but fixes all callers using the default.",
+        "evidence": [
+          "Authentication and track API calls share audioscrobbler.request."
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "One default repairs authorization and subsequent shared requests.",
+        "evidence": [
+          "Multiple functions call the shared request function."
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 88,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      88,
+      89
+    ],
+    "selectable": true
+  },
+  "durationMs": 3164
+}

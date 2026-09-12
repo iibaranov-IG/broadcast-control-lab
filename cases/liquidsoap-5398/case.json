@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 2,
+  "id": "liquidsoap-5398",
+  "status": "ready",
+  "title": "Use HTTPS for Last.fm Audioscrobbler requests",
+  "issue": "https://github.com/savonet/liquidsoap/issues/5398",
+  "problem": "Liquidsoap sends Last.fm API requests to an HTTP default endpoint, which Last.fm rejects with error code 4 because HTTPS is required.",
+  "reproduce": "Invoke audioscrobbler.submit with the default endpoint; authorization is sent to http://ws.audioscrobbler.com/2.0 and rejected.",
+  "acceptance": "The default Audioscrobbler base URL is https://ws.audioscrobbler.com/2.0 and the insecure default is absent.",
+  "repair": "Change the Audioscrobbler request default from HTTP to HTTPS.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "savonet/liquidsoap",
+      "commit": "c1d966f987cd54c44a78f01557666f6050aecace",
+      "directory": "sources/liquidsoap-5398"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/liquidsoap-5398",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/liquidsoap-5398/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/liquidsoap-5398/test.mjs",
+          "sources/liquidsoap-5398"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/liquidsoap-5398.json"
+  },
+  "selection": {
+    "report": "cases/liquidsoap-5398/triage.json",
+    "sha256": "f8f9cfec493b830796e1a93b00bde9f2ad35004489b567eb43380c4b4c1d9334",
+    "reason": "The live audio project, exact failure response, current insecure default and absence of related PRs make this a bounded reproducible repair."
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies the exact default endpoint before and after the repair. It does not submit credentials or scrobbles to the live Last.fm service.",
+    "ownerCheck": "Start audioscrobbler.submit with valid Last.fm credentials and confirm authorization no longer returns error code 4."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "savonet/liquidsoap",
+    "base": "main",
+    "paths": [
+      "src/libs/extra/audioscrobbler.liq",
+      "tests/regression/GH5398.liq",
+      "tests/regression/dune.inc"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/liquidsoap-5398/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "tests/regression/GH5398.liq",
+      "tests/regression/dune.inc"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "../../cases/liquidsoap-5398/upstream.py"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "BUG_INSECURE_AUDIOSCROBBLER_URL"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "../../cases/liquidsoap-5398/upstream.py"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 1 test"
+  }
+}

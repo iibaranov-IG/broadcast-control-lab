@@ -19,6 +19,7 @@ const record = (name, fn) => {
 record('save scenario uses the shared extension normalizer', () => {
   const text = readFileSync(path.join(source, 'src/project/internal/opensaveprojectscenario.cpp'), 'utf8')
   if (!text.includes('selectedPath = forceAup4Extension(selectedPath.toStdString());')) throw new Error('save path is not normalized')
+  if (!text.includes('aup4SaveFilter(muse::trc("project", "Audacity 4 files"))')) throw new Error('save dialog does not use the valid project filter')
 })
 record('project module and test target register the new sources', () => {
   const module = readFileSync(path.join(source, 'src/project/CMakeLists.txt'), 'utf8')

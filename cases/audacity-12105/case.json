@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "audacity-12105",
+  "status": "ready",
+  "title": "Restore AUP4 files in the Windows Save As dialog",
+  "issue": "https://github.com/audacity/audacity/issues/12105",
+  "problem": "Audacity constructs one save-dialog name filter with two parenthesized wildcard groups, which Windows does not interpret as a valid *.aup4 filter and existing projects disappear from Save As.",
+  "reproduce": "Open Save As on Windows in a directory containing .aup4 projects; the malformed baseline filter does not list them.",
+  "acceptance": "The project save filter contains one description and one parenthesized *.aup4 pattern group, and the shared helper test executes successfully.",
+  "repair": "Generate the project filter as Audacity 4 files (*.aup4) and cover the exact grammar in the project path utility tests.",
+  "sources": [{ "id": "upstream", "repository": "audacity/audacity", "commit": "de6e59a8210c8c765cad62456a7cb6fd542bcf17", "directory": "sources/audacity-12105" }],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{ "cwd": "sources/audacity-12105", "argv": ["git", "apply", "../../cases/audacity-12105/repair.patch"] }],
+    "test": [{ "cwd": ".", "argv": ["node", "cases/audacity-12105/test.mjs", "sources/audacity-12105"] }],
+    "build": []
+  },
+  "artifacts": { "report": "reports/audacity-12105.json" },
+  "selection": { "report": "cases/audacity-12105/triage.json", "sha256": "d5188b35f31e2830c7b1523e2e61235c1ddfd1603f26b4ac8f35539d2f7376ca", "reason": "The current filter grammar is invalid, the Windows acceptance is precise, and the exact pinned submodule revisions were verified." },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL compiles and runs the production filter helper and verifies its use in the save scenario. A Windows owner or upstream CI should confirm native-dialog listing.",
+    "ownerCheck": "On Windows, open Save As in a directory containing .aup4 files and confirm they are visible under the Audacity 4 files filter."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "audacity/audacity",
+    "base": "master",
+    "paths": ["src/project/CMakeLists.txt", "src/project/internal/opensaveprojectscenario.cpp", "src/project/internal/projectpathutils.cpp", "src/project/internal/projectpathutils.h", "src/project/tests/CMakeLists.txt", "src/project/tests/projectpathutils_tests.cpp"]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [{ "cwd": ".", "argv": ["git", "apply", "../../cases/audacity-12105/tests-only.patch"] }],
+    "build": [],
+    "testFiles": ["src/project/tests/projectpathutils_tests.cpp"],
+    "regression": { "cwd": ".", "argv": ["node", "../../cases/audacity-12105/upstream.mjs"] },
+    "negative": { "exitCode": 1, "outputIncludes": "BUG_INVALID_AUP4_FILTER" },
+    "suite": { "cwd": ".", "argv": ["node", "../../cases/audacity-12105/upstream.mjs"] },
+    "suiteOutputIncludes": "# tests 1"
+  }
+}

@@ -6,8 +6,8 @@
   "issue": "https://github.com/audacity/audacity/issues/12117",
   "problem": "The Linux save dialog can append .aup4 to a suggested filename that already has it, while Audacity's cleanup removes only the final suffix and saves name.aup4.aup4.",
   "reproduce": "Return session.aup4.aup4 from the project save dialog; the baseline strips the final suffix and restores it, leaving the duplicate unchanged.",
-  "acceptance": "Missing, foreign, single and repeated case-insensitive project extensions all produce a path ending in exactly one lowercase .aup4.",
-  "repair": "Centralize project-extension normalization, remove remaining duplicate aup4 suffixes before appending the canonical suffix, and add focused project tests.",
+  "acceptance": "Missing, foreign, single and repeated case-insensitive project extensions all produce exactly one lowercase .aup4, and the dialog uses one valid *.aup4 filter group.",
+  "repair": "Centralize project-extension normalization, remove remaining duplicate aup4 suffixes, use a valid single-group project filter, and add focused project tests.",
   "sources": [{
     "id": "upstream",
     "repository": "audacity/audacity",
@@ -57,6 +57,6 @@
     "regression": { "cwd": ".", "argv": ["node", "../../cases/audacity-12117/upstream.mjs"] },
     "negative": { "exitCode": 1, "outputIncludes": "BUG_DOUBLE_AUP4" },
     "suite": { "cwd": ".", "argv": ["node", "../../cases/audacity-12117/upstream.mjs"] },
-    "suiteOutputIncludes": "# tests 6"
+    "suiteOutputIncludes": "# tests 7"
   }
 }

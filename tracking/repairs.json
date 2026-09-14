@@ -1395,6 +1395,46 @@
       "lastSync": "2026-09-14T07:46:11.126Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "open-nvr-468",
+      "title": "Retry ONVIF authentication faults with WS-Security PasswordDigest",
+      "issue": "https://github.com/open-nvr/open-nvr/issues/468",
+      "pr": "https://github.com/open-nvr/open-nvr/pull/470",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "issue-comment:5660545498",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/open-nvr/open-nvr/issues/468#issuecomment-5660545498",
+          "updatedAt": "2026-09-14T07:30:13Z",
+          "state": null,
+          "body": "Thank you for the detailed report and prototype — I reproduced the missing fallback on the current `main` revision and opened #470 with a focused implementation and regression tests.\n\nThe PR keeps HTTP Digest first and retries once with WS-Security only for a matching ONVIF SOAP authentication fault. It deliberately does not retry generic connection closures. The pinned baseline fails the new regression; the candidate passes it, plus 102 adjacent ONVIF/camera-settings tests.\n\nWhen convenient, could you test that branch on the same C520WS V2 / firmware 1.2.7 and confirm camera addition, profile discovery, stream URI, and PTZ? A second Digest-compatible camera check would also confirm the unchanged primary path.\n",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "55558ea314ae39f001190cb6719eb8fc85a312c2",
+      "reporter": "Emily-35",
+      "issueCreatedAt": "2026-09-12T08:36:14Z",
+      "prCreatedAt": "2026-09-14T07:30:01Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T07:46:32.274Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

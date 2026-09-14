@@ -14,13 +14,16 @@ function read(root) {
   const db = JSON.parse(fs.readFileSync(p))
   if (db.schemaVersion !== 1 || !Array.isArray(db.repairs)) throw new Error('Unknown tracking database format')
   if (new Set(db.repairs.map(r => r.pr)).size !== db.repairs.length) throw new Error('Duplicate PR in tracking registry')
+  if (new Set(db.repairs.map(r => r.id)).size !== db.repairs.length) throw new Error('Duplicate case in tracking registry')
   return db
 }
 function register(db, c, result, digest = null, run = null) {
   link(result.url, 'pull'); link(c.issue, 'issues')
-  const prior = db.repairs.find(r => r.pr === result.url)
+  const prior = db.repairs.find(r => r.pr === result.url || r.id === c.id)
   if (prior) {
     if (prior.id !== c.id || (prior.candidateSha256 && digest && prior.candidateSha256 !== digest)) throw new Error('Tracking identity conflict')
+    prior.pr = result.url
+    prior.state = result.state || prior.state
     if (digest) prior.candidateSha256 = digest
     if (run) prior.run = run
     if (digest && result.headSha) { prior.testedHeadSha = result.headSha; prior.evidenceStatus = 'BOUND_CANDIDATE' }

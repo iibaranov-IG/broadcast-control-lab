@@ -1632,57 +1632,6 @@
       "id": "zha-device-handlers-5329",
       "title": "Expose both HOBEIAN ZG-305Z USB outputs as switches",
       "issue": "https://github.com/zigpy/zha-device-handlers/issues/5329",
-      "pr": "https://github.com/zigpy/zha-device-handlers/pull/5342",
-      "candidateSha256": null,
-      "testedHeadSha": null,
-      "evidenceStatus": "NOT_BOUND",
-      "run": null,
-      "state": "draft",
-      "hardware": {
-        "status": "NOT_REVIEWED"
-      },
-      "events": [
-        {
-          "key": "issue-comment:5662526155",
-          "kind": "issue-comment",
-          "author": "iibaranov-IG",
-          "reporter": false,
-          "url": "https://github.com/zigpy/zha-device-handlers/issues/5329#issuecomment-5662526155",
-          "updatedAt": "2026-09-14T10:25:31Z",
-          "state": null,
-          "body": "I prepared a focused fix in #5342. It changes both endpoints from On/Off Light to On/Off Output, so ZHA should expose the independently controlled USB-C and USB-A power outputs as switches while preserving the reported clusters.\n\nThe focused and registry test suites pass. Could you test the draft with the physical ZG-305Z and confirm that each switch controls only its corresponding USB output? That hardware check will let us confirm the endpoint mapping before the PR is marked ready.\n",
-          "read": false
-        },
-        {
-          "key": "pr-comment:5662541654",
-          "kind": "pr-comment",
-          "author": "codecov[bot]",
-          "reporter": false,
-          "url": "https://github.com/zigpy/zha-device-handlers/pull/5342#issuecomment-5662541654",
-          "updatedAt": "2026-09-14T10:26:58Z",
-          "state": null,
-          "body": "## [Codecov](https://app.codecov.io/gh/zigpy/zha-device-handlers/pull/5342?dropdown=coverage&src=pr&el=h1&utm_medium=referral&utm_source=github&utm_content=comment&utm_campaign=pr+comments&utm_term=zigpy) Report\n:white_check_mark: All modified and coverable lines are covered by tests.\n:white_check_mark: Project coverage is 92.60%. Comparing base ([`8c8e861`](https://app.codecov.io/gh/zigpy/zha-device-handlers/commit/8c8e861c9bf8e4eb389fb42ecdc00cfe3a893452?dropdown=coverage&el=desc&utm_medium=referral&utm_source=github&utm_content=comment&utm_campaign=pr+comments&utm_term=zigpy)) to head ([`f99b9b8`](https://app.codecov.io/gh/zigpy/zha-device-handlers/commit/f99b9b85ccfa334decf78e2fa3faa57b0260db91?dropdown=coverage&el=desc&utm_medium=referral&utm_source=github&utm_content=comment&utm_campaign=pr+comments&utm_term=zigpy)).\n\n<details><summary>Additional details and impacted files</summary>\n\n\n\n```diff\n@@           Coverage Diff           @@\n##              dev    #5342   +/-   ##\n=======================================\n  Coverage   92.60%   92.60%           \n=======================================\n  Files         424      425    +1     \n  Lines       14667    14670    +3     \n=======================================\n+ Hits        13582    13585    +3     \n  Misses       1085     1085           \n```\n</details>\n\n[:umbrella: View full report in Codecov by Harness](https://app.codecov.io/gh/zigpy/zha-device-handlers/pull/5342?dropdown=coverage&src=pr&el=continue&utm_medium=referral&utm_source=github&utm_content=comment&utm_campaign=pr+comments&utm_term=zigpy).   \n:loudspeaker: Have feedback on the report? [Share it here](https://about.codecov.io/codecov-pr-comment-feedback/?utm_medium=referral&utm_source=github&utm_content=comment&utm_campaign=pr+comments&utm_term=zigpy).\n<details><summary> :rocket: New features to boost your workflow: </summary>\n\n- :snowflake: [Test Analytics](https://docs.codecov.com/docs/test-analytics): Detect flaky tests, report on failures, and find test suite problems.\n</details>",
-          "read": false
-        }
-      ],
-      "unread": 2,
-      "mergeable": true,
-      "mergeableState": "blocked",
-      "headSha": "f99b9b85ccfa334decf78e2fa3faa57b0260db91",
-      "reporter": "slartibartfast11",
-      "issueCreatedAt": "2026-09-13T14:48:08Z",
-      "prCreatedAt": "2026-09-14T10:25:19Z",
-      "mergedAt": null,
-      "reporterResponseAt": null,
-      "ci": "success",
-      "lastSync": "2026-09-14T10:43:40.798Z",
-      "syncError": null,
-      "attachment": "EXTERNAL_PR"
-    },
-    {
-      "id": "zha-device-handlers-5329",
-      "title": "Expose both HOBEIAN ZG-305Z USB outputs as switches",
-      "issue": "https://github.com/zigpy/zha-device-handlers/issues/5329",
       "pr": "https://github.com/zigpy/zha-device-handlers/pull/5343",
       "candidateSha256": "214da52cfa179db869ef862c7bd4b51892770079b4e23338f4b6fbb17e22b6fe",
       "testedHeadSha": "238045da40a6dbc44d26246a3f9985ddb5109012",

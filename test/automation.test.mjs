@@ -82,6 +82,15 @@ test('Publication registration is idempotent and preserves manual board content'
   fs.writeFileSync(path.join(f.root, 'tracking/repairs.json'), JSON.stringify(f.db))
   assert.throws(() => tracking.read(f.root), /Duplicate PR/)
 })
+test('evidence publication replaces an earlier PR for the same case', t => {
+  const f = setup(t)
+  const replacement = 'https://github.com/up/project/pull/3'
+  tracking.register(f.db, f.c, { url: replacement, state: 'open', headSha: 'c'.repeat(40) }, 'b'.repeat(64), 'https://github.com/run/1')
+  assert.equal(f.db.repairs.length, 1)
+  assert.equal(f.entry.pr, replacement)
+  assert.equal(f.entry.testedHeadSha, 'c'.repeat(40))
+  assert.equal(f.entry.evidenceStatus, 'BOUND_CANDIDATE')
+})
 test('Replies are unread, edits reopen them, and positive prose never verifies hardware', t => {
   const f = setup(t)
   assert.equal(tracking.sync(f.root, fakeApi()).unread, 1)

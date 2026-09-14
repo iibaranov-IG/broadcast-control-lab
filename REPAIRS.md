@@ -68,6 +68,7 @@ Updated 2026-09-11.
 | dualsense-tester-222 | [Issue](https://github.com/daidr/dualsense-tester/issues/222) | [PR](https://github.com/daidr/dualsense-tester/pull/223) | open | failure | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T23:15:17.079Z |
 | psychopy-7777 | [Issue](https://github.com/psychopy/psychopy/issues/7777) | [PR](https://github.com/psychopy/psychopy/pull/7778) | open | success | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T23:15:19.808Z |
 | kalico-970 | [Issue](https://github.com/KalicoCrew/kalico/issues/970) | [PR](https://github.com/KalicoCrew/kalico/pull/971) | open | success | BOUND_CANDIDATE | 0 | NOT_REVIEWED | 2026-09-14T23:15:22.919Z |
+| uttrflow-555 | [Issue](https://github.com/uttrflow/uttrflow-swift/issues/555) | [PR](https://github.com/uttrflow/uttrflow-swift/pull/800) | open | success | NOT_BOUND | 5 | NOT_REVIEWED | 2026-09-14T23:38:27.406Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

@@ -1515,6 +1515,46 @@
       "lastSync": "2026-09-14T08:34:15.646Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "lba2-classic-community-674",
+      "title": "Discover Android BIN/CUE data in the documented app folder",
+      "issue": "https://github.com/LBALab/lba2-classic-community/issues/674",
+      "pr": "https://github.com/LBALab/lba2-classic-community/pull/675",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "draft",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "issue-comment:5661433337",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/LBALab/lba2-classic-community/issues/674#issuecomment-5661433337",
+          "updatedAt": "2026-09-14T08:51:56Z",
+          "state": null,
+          "body": "I prepared a focused fix in #675. It lets the documented `/sdcard/lba2cc/` location (and its `/storage/emulated/0/` alias) accept a supported disc image, while keeping image scans disabled for the broad shared-storage roots.\n\nThe discovery target and all 71 host-quick tests pass on macOS. I do not have an Android arm64 device with this rip, so could you please test the PR build with the same BIN/CUE-only folder and confirm that first-launch discovery reaches the game without `last_game_dir.txt`? The most useful evidence would be the `Assets:` and `Disc:` boot-log lines.\n",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "1beede02afcb82016be7eed094df3e4485ddfc31",
+      "reporter": "noctonca",
+      "issueCreatedAt": "2026-09-14T08:44:25Z",
+      "prCreatedAt": "2026-09-14T08:51:45Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "failure",
+      "lastSync": "2026-09-14T08:57:06.143Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

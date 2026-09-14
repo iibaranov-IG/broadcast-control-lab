@@ -1,0 +1,41 @@
+diff --git a/tests/bcl/test_stream_restart.py b/tests/bcl/test_stream_restart.py
+new file mode 100644
+index 0000000..1b6b520
+--- /dev/null
++++ b/tests/bcl/test_stream_restart.py
+@@ -0,0 +1,35 @@
++import pathlib
++import re
++import unittest
++
++ROOT = pathlib.Path(__file__).resolve().parents[2]
++CORE = ROOT / "tools/kernel/babyfacepro.c"
++HEADER = ROOT / "tools/kernel/babyfacepro.h"
++
++def actions(users, streaming, restart):
++    result = []
++    if restart and streaming:
++        result.append("kill")
++        streaming = False
++    if users > 0 and not streaming:
++        result.append("start")
++    elif users == 0 and streaming:
++        result.append("kill")
++    return result
++
++class RuntimeRestartTest(unittest.TestCase):
++    def test_zero_crossing_is_preserved_until_worker_runs(self):
++        core = CORE.read_text()
++        header = HEADER.read_text()
++        self.assertIn("bool restart_pending;", header, "zero crossing is not preserved")
++        self.assertRegex(core, re.compile(r"--chip->stream_users == 0\) \{.*?chip->restart_pending = true;.*?schedule_work", re.S))
++        self.assertRegex(core, re.compile(r"restart = chip->restart_pending;.*?chip->restart_pending = false;.*?if \(restart && chip->streaming\)\s*babyface_stream_kill\(chip\);", re.S))
++    def test_transition_matrix(self):
++        self.assertEqual(actions(1, True, True), ["kill", "start"])
++        self.assertEqual(actions(0, True, True), ["kill"])
++        self.assertEqual(actions(1, False, False), ["start"])
++        self.assertEqual(actions(1, True, False), [])
++        self.assertEqual(actions(0, True, False), ["kill"])
++
++if __name__ == "__main__":
++    unittest.main()

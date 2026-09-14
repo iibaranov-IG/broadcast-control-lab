@@ -36,9 +36,7 @@ function session(root, c, execution) {
   const directory = path.join(root, 'reports', c.id)
   fs.mkdirSync(directory, { recursive: true })
   const pythonCache = path.join(directory, 'python-cache')
-  const pythonEnv = process.platform === 'darwin'
-    ? { ...process.env, PYTHONPYCACHEPREFIX: pythonCache }
-    : process.env
+  const pythonEnv = { ...process.env, PYTHONPYCACHEPREFIX: pythonCache }
   const result = execution.upstream = { kind: u.kind, source: u.source, status: 'FAIL', commands: [], logs: [], testFiles: [] }
   const inside = p => {
     const real = fs.realpathSync(path.join(source, p))

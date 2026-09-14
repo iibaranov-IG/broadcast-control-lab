@@ -40,7 +40,8 @@ function capture(root, c) {
     if (c.upstream.source !== c.publish.source) throw new Error('Tested and published source differ')
     const changed = [...git(['diff', '--name-only', '-z', 'HEAD']).split('\0'), ...git(['ls-files', '--others', '--exclude-standard', '-z']).split('\0')].filter(Boolean)
     const allowed = new Set([...c.publish.paths, ...(c.publish.verificationOnlyPaths || [])])
-    if (changed.some(p => !allowed.has(p))) throw new Error('Working tree has changes outside publication or verification-only paths; include every source/test change or remove it')
+    const unexpected = changed.filter(p => !allowed.has(p))
+    if (unexpected.length) throw new Error(`Working tree has changes outside publication or verification-only paths: ${unexpected.join(', ')}`)
     const directory = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bcl-index-'))
     const env = { ...process.env, GIT_INDEX_FILE: path.join(directory, 'index') }
     const indexed = args => execFileSync('git', ['-C', sourceRoot, ...args], { encoding: 'utf8', env })

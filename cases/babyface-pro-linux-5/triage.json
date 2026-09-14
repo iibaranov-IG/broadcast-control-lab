@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T09:38:29.195Z",
+  "issue": {
+    "repository": "ismail-bahloul/babyface-pro-linux",
+    "number": "5",
+    "url": "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+    "title": "Proprietary mode: runtime buffer/period change leaves stream \"started\" but silent until module reload",
+    "state": "open",
+    "updatedAt": "2026-09-13T22:00:44Z"
+  },
+  "source": {
+    "repository": "ismail-bahloul/babyface-pro-linux",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "GPL-2.0",
+    "commit": "1d4f36af468615c803e0ad8f05e0c24503cbe063",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "tools/kernel/analog_staging.py",
+      "tools/kernel/babyfacepro-ctl.c",
+      "tools/kernel/babyfacepro.c",
+      "tools/kernel/babyfacepro.h",
+      "tools/kernel/chcorr.py",
+      "tools/kernel/disp_selftest.c",
+      "tools/kernel/eq_loopback_test.py",
+      "tools/kernel/eq_selftest.c",
+      "tools/kernel/eqbulk.c",
+      "tools/kernel/extract_controls.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "tools/kernel/Makefile",
+        "kind": "make",
+        "url": "https://github.com/ismail-bahloul/babyface-pro-linux/blob/1d4f36af468615c803e0ad8f05e0c24503cbe063/tools/kernel/Makefile"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:ismail-bahloul/babyface-pro-linux": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 90,
+    "scoreRange": [
+      89,
+      90
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 4,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "Reviewed against the detailed issue report and pinned driver source.",
+        "evidence": [
+          "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+          "https://github.com/ismail-bahloul/babyface-pro-linux"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      90
+    ],
+    "selectable": true
+  },
+  "durationMs": 2542
+}

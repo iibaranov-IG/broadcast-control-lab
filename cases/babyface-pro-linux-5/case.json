@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 2,
+  "id": "babyface-pro-linux-5",
+  "status": "ready",
+  "title": "Restart the Babyface Pro USB session after a coalesced STOP/START",
+  "issue": "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+  "problem": "A rapid ALSA STOP then START can be coalesced into one asynchronous work run. The worker sees users > 0 and streaming == true, skips both branches, and leaves the proprietary RME session silent although ALSA reports it running.",
+  "reproduce": "At the pinned baseline, model a running stream whose user count crosses zero and returns to one before stream_work executes. No state records the zero crossing, so the worker performs no hardware action.",
+  "acceptance": "The zero crossing remains pending until consumed by stream_work; the coalesced case kills and fully starts the session, while ordinary start, stop, and unchanged-running cases preserve their actions.",
+  "repair": "Record a restart_pending flag whenever stream_users reaches zero. The worker atomically consumes it, kills any still-live URBs, and then follows the existing full cold-init/session-start path when users are present.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "ismail-bahloul/babyface-pro-linux",
+      "commit": "1d4f36af468615c803e0ad8f05e0c24503cbe063",
+      "directory": "sources/babyface-pro-linux-5"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/babyface-pro-linux-5",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/babyface-pro-linux-5/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/babyface-pro-linux-5/test.mjs",
+          "sources/babyface-pro-linux-5"
+        ]
+      }
+    ],
+    "build": [
+      {
+        "cwd": "sources/babyface-pro-linux-5",
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "report": "reports/babyface-pro-linux-5.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies the exact source wiring and five lifecycle transitions. The changed module also builds against Ubuntu Linux 7.0 headers; audible recovery still requires the reporter\u2019s Babyface Pro FS.",
+    "ownerCheck": "Install the patched DKMS module, start full-duplex playback/capture through PipeWire, change Bitwig buffer 1024 -> 2048 -> 512, and confirm audio resumes in both directions after every change without reloading or replugging."
+  },
+  "selection": {
+    "report": "cases/babyface-pro-linux-5/triage.json",
+    "sha256": "a5b2226cf39301dbdd3136c42cc3e51f426329c63ce43670627dc8e3354af5a2"
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "ismail-bahloul/babyface-pro-linux",
+    "base": "main",
+    "paths": [
+      "tools/kernel/babyfacepro.c",
+      "tools/kernel/babyfacepro.h"
+    ],
+    "verificationOnlyPaths": [
+      "tests/bcl/test_stream_restart.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/babyface-pro-linux-5/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "tests/bcl/test_stream_restart.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests/bcl/test_stream_restart.py"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "zero crossing is not preserved"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests/bcl/test_stream_restart.py"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 2 tests"
+  }
+}

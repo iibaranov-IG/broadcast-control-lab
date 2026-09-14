@@ -62,6 +62,7 @@ test('Python red/green invalidates timestamp bytecode even for same-size rapid r
   f.s.baseline()
   fs.writeFileSync(filename, 'def value(): return 2\n'); fs.utimesSync(filename, stamp, stamp)
   f.s.candidate(); assert.equal(f.execution.upstream.status, 'PASS')
+  assert.equal(fs.existsSync(path.join(f.source, '__pycache__')), false)
 })
 test('baseline setup may not apply production repairs', t => {
   const f = fixture(t)

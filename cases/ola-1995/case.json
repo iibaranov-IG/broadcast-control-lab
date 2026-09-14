@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "id": "ola-1995",
+  "status": "ready",
+  "title": "Accept labeled integer values outside declared intervals",
+  "issue": "https://github.com/OpenLightingProject/ola/issues/1995",
+  "problem": "Integer descriptors reject an explicitly labeled value when it falls outside the descriptor's numeric intervals.",
+  "reproduce": "Create a UInt16 descriptor with interval 2..8 and label special=15; the baseline rejects 15 even though it is declared.",
+  "acceptance": "Interval members and exact labeled values are accepted, while an unlabeled value outside every interval remains invalid.",
+  "repair": "After checking numeric intervals, compare the candidate against every declared label value and add focused descriptor assertions.",
+  "sources": [{"id":"upstream","repository":"OpenLightingProject/ola","commit":"99b26c65d45e807032c1337ca7ebf1ac51ff3995","directory":"sources/ola-1995"}],
+  "runtime": {"node":"22.20.0","python":"3.12.14"},
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{"cwd":"sources/ola-1995","argv":["git","apply","../../cases/ola-1995/repair.patch"]}],
+    "test": [{"cwd":".","argv":["node","cases/ola-1995/test.mjs","sources/ola-1995"]}],
+    "build": []
+  },
+  "artifacts": {"report":"reports/ola-1995.json"},
+  "selection": {"report":"cases/ola-1995/triage.json","sha256":"b29d07384e7e42d4cba70efadd4419d4d85a91fe8dd78b216659a245fc77901f","reason":"The open owner-described defect has exact hardware-free acceptance, no competing PR, and a minimal shared-template repair."},
+  "verification": {"hardwareVerified":false,"applicationVerified":false,"limitations":"BCL compiles and runs the real Descriptor implementation with warnings as errors. The complete OLA suite is left to upstream CI.","ownerCheck":"Parse or construct an integer field whose named value lies outside its ranges and confirm OLA accepts that label value while rejecting an undeclared out-of-range value."},
+  "publish": {"source":"upstream","target":"OpenLightingProject/ola","base":"master","paths":["include/ola/messaging/Descriptor.h","common/messaging/DescriptorTest.cpp"]},
+  "upstream": {
+    "kind":"node","source":"upstream","timeoutMs":60000,
+    "setup":[{"cwd":".","argv":["git","apply","../../cases/ola-1995/tests-only.patch"]}],
+    "build": [],
+    "testFiles":["common/messaging/DescriptorTest.cpp"],
+    "regression":{"cwd":".","argv":["node","../../cases/ola-1995/upstream.mjs"]},
+    "negative":{"exitCode":1,"outputIncludes":"BUG_LABELED_VALUE_REJECTED"},
+    "suite":{"cwd":".","argv":["node","../../cases/ola-1995/upstream.mjs"]},
+    "suiteOutputIncludes":"# tests 3"
+  }
+}

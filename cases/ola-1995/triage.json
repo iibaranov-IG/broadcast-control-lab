@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T06:35:04.561Z",
+  "issue": {
+    "repository": "OpenLightingProject/ola",
+    "number": "1995",
+    "url": "https://github.com/OpenLightingProject/ola/issues/1995",
+    "title": "Label fields within integers should be valid without having to be explicitly listed in a range",
+    "state": "open",
+    "updatedAt": "2025-02-24T22:58:56Z"
+  },
+  "source": {
+    "repository": "OpenLightingProject/ola",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "NOASSERTION",
+    "commit": "99b26c65d45e807032c1337ca7ebf1ac51ff3995",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "CONTRIBUTING",
+        "url": "https://github.com/OpenLightingProject/ola/blob/99b26c65d45e807032c1337ca7ebf1ac51ff3995/CONTRIBUTING",
+        "content": "Contributing to Open Lighting Architecture (OLA)\n===============================================================================\n\nThere are lots of ways you can help with OLA, such as running a Buildbot or\nwriting documentation or user guides.\n\nIf you’d like to contribute code (such as a new plugin, extending an existing\nfeature or adding a brand new one), our preferred method is by forking us on\nGitHub, committing your code to there, then opening a pull request. We can then\nreview and comment on your code if necessary and merge it in. It will also get\nchecked automatically by GitHub Actions (you will see a message\nwithin the pull request showing the status of the GitHub tests); hence why we\nprefer pull requests to other methods such as patch submissions.\n\nWhen writing code, please read the README.developer file which covers coding\nstyle, the code review process and various other guidelines.\n",
+        "requirementHints": [
+          "GitHub, committing your code to there, then opening a pull request. We can then",
+          "review and comment on your code if necessary and merge it in. It will also get",
+          "within the pull request showing the status of the GitHub tests); hence why we",
+          "prefer pull requests to other methods such as patch submissions."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "common/base/Credentials.cpp",
+      "common/base/CredentialsTest.cpp",
+      "common/base/Env.cpp",
+      "common/base/Flags.cpp",
+      "common/base/FlagsTest.cpp",
+      "common/base/Init.cpp",
+      "common/base/Logging.cpp",
+      "common/base/LoggingTest.cpp",
+      "common/base/SysExits.cpp",
+      "common/base/Version.cpp"
+    ],
+    "buildFiles": [
+      {
+        "path": "configure.ac",
+        "kind": "cpp-autotools",
+        "url": "https://github.com/OpenLightingProject/ola/blob/99b26c65d45e807032c1337ca7ebf1ac51ff3995/configure.ac"
+      },
+      {
+        "path": "javascript/new-src/package.json",
+        "kind": "node",
+        "url": "https://github.com/OpenLightingProject/ola/blob/99b26c65d45e807032c1337ca7ebf1ac51ff3995/javascript/new-src/package.json"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:OpenLightingProject/ola": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 85,
+    "scoreRange": [
+      84,
+      85
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 3,
+        "reason": "Valid labeled RDM values can be rejected.",
+        "evidence": [
+          "IsValid checks only intervals when any interval exists."
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 3,
+        "reason": "The open issue remains applicable to current master.",
+        "evidence": [
+          "The current IsValid implementation still reproduces it."
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "A project member authored and clarified the issue.",
+        "evidence": [
+          "peternewman comments on #1995."
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "A labeled value outside intervals must pass while an unlabeled value still fails.",
+        "evidence": [
+          "Issue explicitly asks IsValid to check LabeledValues."
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "A small compiled regression fails on baseline.",
+        "evidence": [
+          "Intervals 2..8, labeled 15, unlabeled 16 isolate behavior."
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "One loop plus focused assertions.",
+        "evidence": [
+          "Changes are localized to Descriptor.h and DescriptorTest.cpp."
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Standalone compilation is fast and hardware-free.",
+        "evidence": [
+          "C++ harness passes with warnings treated as errors."
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Existing interval behavior remains and only declared label values are added.",
+        "evidence": [
+          "Unlabeled value 16 remains invalid in regression."
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 4,
+        "reason": "OLA master and issue tracker remain active.",
+        "evidence": [
+          "Current source revision and 2026 issues are available."
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Fix applies to typed RDM descriptor validation generally.",
+        "evidence": [
+          "IntegerFieldDescriptor is shared across integer widths."
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "Template change covers UInt and Int descriptor types.",
+        "evidence": [
+          "All integer typedefs use IntegerFieldDescriptor."
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "All schema consumers of IsValid inherit the correction.",
+        "evidence": [
+          "The behavior lives in the shared template."
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 93,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      93,
+      85
+    ],
+    "selectable": true
+  },
+  "durationMs": 3843
+}

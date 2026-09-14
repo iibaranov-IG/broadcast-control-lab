@@ -55,7 +55,8 @@
     "source": "upstream",
     "target": "zigpy/zha-device-handlers",
     "base": "dev",
-    "paths": ["zhaquirks/hobeian/__init__.py", "zhaquirks/hobeian/zg_305z.py", "tests/test_hobeian.py"]
+    "paths": ["zhaquirks/hobeian/__init__.py", "zhaquirks/hobeian/zg_305z.py", "tests/test_hobeian.py"],
+    "verificationOnlyPaths": ["tests/test_hobeian_bcl.mjs"]
   },
   "upstream": {
     "kind": "node",

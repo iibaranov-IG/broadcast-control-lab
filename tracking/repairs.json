@@ -2462,6 +2462,22 @@
       "lastSync": "2026-09-14T15:00:42.840Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "noisy-studio-99",
+      "title": "Keep browser-tab audio out of the native desktop app",
+      "issue": "https://github.com/noisy/noisy-studio/issues/99",
+      "pr": "https://github.com/noisy/noisy-studio/pull/103",
+      "candidateSha256": "e4810686b12c707710d8c7ce597e0c79618e01d532c4b87f85aaae5a842439b3",
+      "testedHeadSha": "fa828049e25c673abee9ed0416f8d5e6be716f4b",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34870499209",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

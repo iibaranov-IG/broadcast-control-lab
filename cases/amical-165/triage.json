@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T13:15:37.898Z",
+  "issue": {
+    "repository": "amicalhq/amical",
+    "number": "165",
+    "url": "https://github.com/amicalhq/amical/issues/165",
+    "title": "Recording captures only channel 1 of multichannel audio interfaces → silence when the mic is on input 2+",
+    "state": "open",
+    "updatedAt": "2026-07-15T14:15:08Z"
+  },
+  "source": {
+    "repository": "amicalhq/amical",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "0d82ae797c4562ed0c7f10d2fb06fa7724c541c0",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "apps/desktop/drizzle.config.ts",
+      "apps/desktop/e2e/helpers/global-setup.ts",
+      "apps/desktop/e2e/helpers/global-teardown.ts",
+      "apps/desktop/e2e/helpers/launch.ts",
+      "apps/desktop/e2e/helpers/os-state.ts",
+      "apps/desktop/e2e/notes-markdown.spec.ts",
+      "apps/desktop/e2e/smoke.spec.ts",
+      "apps/desktop/e2e/squirrel.spec.ts",
+      "apps/desktop/eslint.config.mjs",
+      "apps/desktop/forge.config.ts"
+    ],
+    "buildFiles": [
+      {
+        "path": "apps/desktop/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/apps/desktop/package.json"
+      },
+      {
+        "path": "apps/www/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/apps/www/package.json"
+      },
+      {
+        "path": "package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/package.json"
+      },
+      {
+        "path": "packages/eslint-config/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/packages/eslint-config/package.json"
+      },
+      {
+        "path": "packages/native-helpers/swift-helper/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/packages/native-helpers/swift-helper/package.json"
+      },
+      {
+        "path": "packages/native-helpers/windows-helper/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/packages/native-helpers/windows-helper/package.json"
+      },
+      {
+        "path": "packages/types/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/packages/types/package.json"
+      },
+      {
+        "path": "packages/typescript-config/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/packages/typescript-config/package.json"
+      },
+      {
+        "path": "packages/ui/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/packages/ui/package.json"
+      },
+      {
+        "path": "packages/whisper-wrapper/addon/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/packages/whisper-wrapper/addon/CMakeLists.txt"
+      },
+      {
+        "path": "packages/whisper-wrapper/addon/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/packages/whisper-wrapper/addon/package.json"
+      },
+      {
+        "path": "packages/whisper-wrapper/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/packages/whisper-wrapper/package.json"
+      },
+      {
+        "path": "packages/y-libsql/package.json",
+        "kind": "node",
+        "url": "https://github.com/amicalhq/amical/blob/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0/packages/y-libsql/package.json"
+      }
+    ],
+    "nodeScripts": [
+      "build",
+      "dev",
+      "lint",
+      "format",
+      "format:check",
+      "type:check",
+      "test",
+      "test:watch",
+      "test:ui"
+    ],
+    "nodeDependencyCount": 3
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: The only submodule is whisper.cpp at a public immutable commit. The repair changes the renderer capture constraints and AudioWorklet and its focused tests do not build or execute the transcription submodule.",
+      "url": "https://github.com/amicalhq/amical/tree/0d82ae797c4562ed0c7f10d2fb06fa7724c541c0",
+      "resolution": {
+        "reason": "The only submodule is whisper.cpp at a public immutable commit. The repair changes the renderer capture constraints and AudioWorklet and its focused tests do not build or execute the transcription submodule.",
+        "evidence": [
+          ".gitmodules maps packages/whisper-wrapper/whisper.cpp to https://github.com/ggerganov/whisper.cpp.git",
+          "git submodule update checked out 4979e04f5dcaccb36057e059bbaed8a2f5288315",
+          "The affected files and focused Vitest suite are under apps/desktop"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:amicalhq/amical": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 93,
+    "scoreRange": [
+      93,
+      94
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Dictation records silence despite a working microphone and permissions.",
+        "evidence": [
+          "Issue #165 reports -66 dBFS WAVs and no words detected"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 4,
+        "reason": "The owner report is two months old and the project released a beta today.",
+        "evidence": [
+          "Issue updated 2026-07-15",
+          "main release commit 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The affected owner supplied hardware measurements and offered an upstream contribution.",
+        "evidence": [
+          "Two detailed issue posts by fututukamono"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Signal on any delivered input channel must reach the mono recorder while mono microphones remain unchanged.",
+        "evidence": [
+          "Issue root cause and expected behavior"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The worklet defect is deterministic and a BlackHole 16-channel system reproduction is documented.",
+        "evidence": [
+          "Existing worklet test harness",
+          "Issue #165 reproduction"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fix is confined to capture constraints, worklet channel selection, and focused tests.",
+        "evidence": [
+          "apps/desktop audio capture files"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Automated channel-array tests cover the loss; final Core Audio validation remains with the owner.",
+        "evidence": [
+          "Vitest worklet harness",
+          "Reporter owns Apollo Twin"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Mono behavior can be locked by regression tests; multichannel policy requires clipping and channel-selection checks.",
+        "evidence": [
+          "Existing mono processor tests"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository released v1.12.0-beta.7 today and merges external work.",
+        "evidence": [
+          "main commit 0d82ae7",
+          "GitHub pull request history"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 5,
+        "reason": "The defect affects common professional interfaces from UA, Focusrite, and MOTU.",
+        "evidence": [
+          "Issue #165 device examples"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "The repair applies to every multichannel input exposed to Chromium.",
+        "evidence": [
+          "Shared AudioWorklet capture path"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Restoring audio also restores downstream VAD and Whisper transcription.",
+        "evidence": [
+          "Issue reports no words detected from silent WAVs"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 95,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      4,
+      95,
+      93
+    ],
+    "selectable": true
+  },
+  "durationMs": 3396
+}

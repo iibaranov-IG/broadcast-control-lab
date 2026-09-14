@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 2,
+  "id": "amical-165",
+  "status": "ready",
+  "title": "Capture the active microphone channel on multichannel interfaces",
+  "issue": "https://github.com/amicalhq/amical/issues/165",
+  "problem": "Amical requests one channel and its AudioWorklet reads only channel 1, so an Apollo Twin microphone connected to input 2 produces a near-silent WAV and no transcription.",
+  "reproduce": "Feed the pinned AudioWorklet a silent channel 1 and a 0.25-amplitude signal on channel 2. The baseline emits channel 1 silence. The capture constraint also explicitly requests channelCount 1.",
+  "acceptance": "Request at least stereo, expand to the selected device maximum when capabilities allow it, keep Web Audio channels discrete, preserve the strongest input without attenuation, retain mono behavior, and keep capture usable if expansion is rejected.",
+  "repair": "Request stereo initially, apply the device reported maximum channel count, configure the worklet for discrete maximum-channel input, and choose the channel with the greatest mean-square signal in each render quantum.",
+  "sources": [
+    {
+      "id": "amical",
+      "repository": "amicalhq/amical",
+      "commit": "0d82ae797c4562ed0c7f10d2fb06fa7724c541c0",
+      "directory": "sources/amical-165",
+      "sparsePaths": [
+        ".gitignore",
+        "apps/desktop/src/assets/audio-recorder-processor.js",
+        "apps/desktop/src/hooks/audioCaptureContext.ts",
+        "apps/desktop/src/hooks/audioCaptureDevice.ts",
+        "apps/desktop/tests/renderer/audio-recorder-processor.test.ts",
+        "apps/desktop/tests/renderer/use-audio-capture.test.ts"
+      ]
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/amical-165",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/amical-165/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/amical-165/test.mjs",
+          "sources/amical-165"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/amical-165.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": true,
+    "limitations": "BCL executes the real AudioWorklet with deterministic multichannel buffers and verifies its capture policy. The complete upstream desktop suite passed locally. A physical Apollo Twin or BlackHole system test remains owner-operated.",
+    "ownerCheck": "Install the PR build, select the Apollo Twin or BlackHole device, put the microphone or test tone on channel 2 while channel 1 is silent, record a dictation, and confirm the WAV contains the signal and Whisper transcribes it. Repeat with a mono microphone."
+  },
+  "selection": {
+    "report": "cases/amical-165/triage.json",
+    "sha256": "50223258010a209e3c27f1ee48d12e77f3f33a2b01729d37f240d045f799b517",
+    "reason": "A current Apollo Twin owner supplied measured silent WAVs and a virtual BlackHole reproduction; the issue is unclaimed and both channel loss and compatibility are executable without hardware."
+  },
+  "publish": {
+    "source": "amical",
+    "target": "amicalhq/amical",
+    "base": "main",
+    "commitMessage": "fix: capture active multichannel microphone input",
+    "paths": [
+      "apps/desktop/src/assets/audio-recorder-processor.js",
+      "apps/desktop/src/hooks/audioCaptureContext.ts",
+      "apps/desktop/src/hooks/audioCaptureDevice.ts",
+      "apps/desktop/tests/renderer/audio-recorder-processor.test.ts",
+      "apps/desktop/tests/renderer/use-audio-capture.test.ts"
+    ]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "amical",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/amical-165/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "apps/desktop/tests/renderer/audio-recorder-processor.test.ts",
+      "apps/desktop/tests/renderer/use-audio-capture.test.ts"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "../../cases/amical-165/probe.mjs",
+        "."
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "BUG_MULTICHANNEL_INPUT_DROPPED"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "../../cases/amical-165/probe.mjs",
+        "."
+      ]
+    },
+    "suiteOutputIncludes": "# tests 5"
+  }
+}

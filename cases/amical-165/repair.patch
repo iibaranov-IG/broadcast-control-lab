@@ -1,0 +1,96 @@
+diff --git a/apps/desktop/src/assets/audio-recorder-processor.js b/apps/desktop/src/assets/audio-recorder-processor.js
+index db302bd..2f3ca6b 100644
+--- a/apps/desktop/src/assets/audio-recorder-processor.js
++++ b/apps/desktop/src/assets/audio-recorder-processor.js
+@@ -29,7 +29,26 @@ class AudioRecorderProcessor extends AudioWorkletProcessor {
+     const input = inputs[0];
+     if (!input || !input[0]) return true;
+ 
+-    const channelData = input[0];
++    // Professional interfaces expose each socket as a separate channel. Select
++    // the channel carrying the strongest signal for this render quantum so a mic
++    // connected to input 2+ is not discarded. Copying one channel also avoids
++    // attenuating a single active mic by averaging it with silent inputs.
++    let channelData = input[0];
++    let strongestPower = -1;
++    for (const channel of input) {
++      if (!channel?.length) continue;
++
++      let power = 0;
++      for (let i = 0; i < channel.length; i++) {
++        power += channel[i] * channel[i];
++      }
++      power /= channel.length;
++
++      if (power > strongestPower) {
++        strongestPower = power;
++        channelData = channel;
++      }
++    }
+ 
+     // Add samples to buffer
+     for (let i = 0; i < channelData.length; i++) {
+diff --git a/apps/desktop/src/hooks/audioCaptureContext.ts b/apps/desktop/src/hooks/audioCaptureContext.ts
+index 65f3979..9b8f4b8 100644
+--- a/apps/desktop/src/hooks/audioCaptureContext.ts
++++ b/apps/desktop/src/hooks/audioCaptureContext.ts
+@@ -65,6 +65,10 @@ export const createAudioCaptureGraph = (
+   const workletNode = new AudioWorkletNode(
+     audioContext,
+     "audio-recorder-processor",
++    {
++      channelCountMode: "max",
++      channelInterpretation: "discrete",
++    },
+   );
+   const nodeCreationDuration = performance.now() - nodeCreationStartTime;
+   console.log(
+diff --git a/apps/desktop/src/hooks/audioCaptureDevice.ts b/apps/desktop/src/hooks/audioCaptureDevice.ts
+index 844bef9..e8ae1e7 100644
+--- a/apps/desktop/src/hooks/audioCaptureDevice.ts
++++ b/apps/desktop/src/hooks/audioCaptureDevice.ts
+@@ -27,7 +27,9 @@ export const acquireMicrophoneStream = async ({
+   sampleRate,
+ }: AcquireMicrophoneStreamOptions): Promise<AcquiredMicrophoneStream> => {
+   const audioConstraints: MediaTrackConstraints = {
+-    channelCount: 1,
++    // Start with stereo so interfaces whose microphone is on input 2 work even
++    // when the browser does not expose per-track channel capabilities.
++    channelCount: { ideal: 2 },
+     sampleRate,
+     echoCancellation: false,
+     noiseSuppression: false,
+@@ -94,6 +96,33 @@ export const acquireMicrophoneStream = async ({
+     throw new Error("No audio tracks available from microphone");
+   }
+ 
++  // Once permission gives us a track, ask for every channel the selected device
++  // reports. Unsupported or rejected expansion leaves the initial stereo stream
++  // usable, while interfaces with input 3+ can expose those channels to the
++  // AudioWorklet.
++  try {
++    const maximumChannelCount =
++      audioTrack.getCapabilities?.().channelCount?.max;
++    if (
++      maximumChannelCount &&
++      maximumChannelCount > 2 &&
++      audioTrack.applyConstraints
++    ) {
++      await audioTrack.applyConstraints({
++        channelCount: { ideal: maximumChannelCount },
++        sampleRate,
++        echoCancellation: false,
++        noiseSuppression: false,
++        autoGainControl: false,
++      });
++    }
++  } catch (error) {
++    console.warn(
++      "AudioCapture: Could not expand multichannel input; keeping stereo capture",
++      error,
++    );
++  }
++
+   const trackSettings = audioTrack.getSettings?.() ?? {};
+   const microphoneName = audioTrack.label || preferredDevice?.label;
+   const microphoneDeviceId =

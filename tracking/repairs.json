@@ -1595,6 +1595,22 @@
       "lastSync": "2026-09-14T09:26:41.323Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "babyface-pro-linux-5",
+      "title": "Restart the Babyface Pro USB session after a coalesced STOP/START",
+      "issue": "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5",
+      "pr": "https://github.com/ismail-bahloul/babyface-pro-linux/pull/6",
+      "candidateSha256": "93eb8ed3115d09d8562caf20389b71bf6ff283e43be7b75fa0a083a39d5f300c",
+      "testedHeadSha": "b34757c29fa5183726415ba601199a1ec07acd59",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34830165808",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

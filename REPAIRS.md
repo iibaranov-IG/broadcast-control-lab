@@ -47,6 +47,7 @@ Updated 2026-09-11.
 | lba2-classic-community-674 | [Issue](https://github.com/LBALab/lba2-classic-community/issues/674) | [PR](https://github.com/LBALab/lba2-classic-community/pull/675) | draft | failure | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T08:57:06.143Z |
 | fpp-2957 | [Issue](https://github.com/FalconChristmas/fpp/issues/2957) | [PR](https://github.com/FalconChristmas/fpp/pull/2958) | draft | none | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T09:26:41.323Z |
 | babyface-pro-linux-5 | [Issue](https://github.com/ismail-bahloul/babyface-pro-linux/issues/5) | [PR](https://github.com/ismail-bahloul/babyface-pro-linux/pull/6) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
+| linux-show-player-399 | [Issue](https://github.com/FrancescoCeruti/linux-show-player/issues/399) | [PR](https://github.com/FrancescoCeruti/linux-show-player/pull/401) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

@@ -1611,6 +1611,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "linux-show-player-399",
+      "title": "Preserve JACK routes while configured ports are unavailable",
+      "issue": "https://github.com/FrancescoCeruti/linux-show-player/issues/399",
+      "pr": "https://github.com/FrancescoCeruti/linux-show-player/pull/401",
+      "candidateSha256": "b3e248e07bb1c1a9de9824a8f1ef551d101b300fdceacba9d14c03103ec791a7",
+      "testedHeadSha": "5b2b73238aadcef6d05f0d15d4522bd69da5c993",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34831764581",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

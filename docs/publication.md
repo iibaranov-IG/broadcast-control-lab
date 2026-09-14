@@ -90,6 +90,26 @@ limits, candidate identity and a result form initially marked `NOT_RUN`. It is
 a manual check kit, not an automatic installer or a hardware qualification claim.
 It is useful even for diagnostic cases that do not support publication.
 
+## Test delivery
+
+`bcl deliver` turns a tested candidate into something an owner can actually
+try. It accepts exactly one delivery method:
+
+```sh
+bcl deliver CASE --artifact path/to/build.zip
+bcl deliver CASE --url https://preview.example/build
+bcl deliver CASE --command "git fetch ... && git switch --detach FETCH_HEAD"
+```
+
+Artifact delivery copies the exact file and records its size and SHA-256. URL
+delivery performs an HTTPS availability check and records the final resolved
+URL, status, content type and length. Command delivery preserves the exact
+checkout or installation command. Every method creates `DELIVERY.md` with the
+case's owner procedure and expected result plus a machine-readable
+`delivery.json`. A reachable build is delivery evidence, not hardware
+verification; record the owner's observation separately with
+`bcl hardware-result`.
+
 ## Scope of this release
 
 The FPP PTP-lock case is configured for publication as a worked example. Other

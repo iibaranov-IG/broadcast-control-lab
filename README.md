@@ -125,7 +125,8 @@ or produce a package. Different coverage levels remain explicit in each passport
 ## Get a test build or report
 
 For a configured repair, `bcl test <id>` builds and tests it, `bcl publish <id>`
-creates a draft PR from its successful Actions evidence, and `bcl hardware-kit <id>`
+creates a draft PR from its successful Actions evidence, `bcl deliver <id>`
+prepares a verified owner-test route, and `bcl hardware-kit <id>`
 prepares the owner's check instructions and result form. See the
 [publication guide](docs/publication.md) for configuration and exact commands.
 

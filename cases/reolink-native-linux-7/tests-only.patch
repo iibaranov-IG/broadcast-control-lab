@@ -1,0 +1,32 @@
+diff --git a/bcl_device_kind.test.mjs b/bcl_device_kind.test.mjs
+new file mode 100644
+index 0000000..f2d5290
+--- /dev/null
++++ b/bcl_device_kind.test.mjs
+@@ -0,0 +1,26 @@
++import test from 'node:test'
++import assert from 'node:assert/strict'
++import { readFileSync } from 'node:fs'
++
++const source = readFileSync('src/device/DeviceManager.cpp', 'utf8')
++const start = source.indexOf('void DeviceManager::applyValidation')
++const end = source.indexOf('\nvoid DeviceManager::postValidation', start)
++assert.notEqual(start, -1, 'applyValidation is missing')
++assert.notEqual(end, -1, 'applyValidation boundary is missing')
++const implementation = source.slice(start, end)
++
++test('successful validation assigns both device kinds', () => {
++  assert.match(
++    implementation,
++    /rec\.kind\s*=\s*v\.channelNum\s*>\s*1\s*\?\s*QStringLiteral\("nvr"\)\s*:\s*QStringLiteral\("camera"\)/,
++    'STICKY_NVR_KIND: one-channel validation never restores camera kind',
++  )
++})
++
++test('the obsolete one-sided NVR promotion is gone', () => {
++  assert.doesNotMatch(
++    implementation,
++    /if\s*\(v\.channelNum\s*>\s*1\)\s*rec\.kind\s*=\s*QStringLiteral\("nvr"\)/,
++  )
++  assert.match(implementation, /m_db->updateHost\(rec\)/)
++})

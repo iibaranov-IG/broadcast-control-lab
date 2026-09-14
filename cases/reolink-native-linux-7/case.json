@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 2,
+  "id": "reolink-native-linux-7",
+  "status": "ready",
+  "title": "Restore standalone camera classification after successful probing",
+  "issue": "https://github.com/TodesengelX/reolink-native-linux/issues/7",
+  "problem": "A standalone RLC-510A is rendered as a redundant one-camera NVR tree because a persisted NVR kind is never reset when a successful probe later reports one channel.",
+  "reproduce": "Start from a host record classified as nvr, then apply a successful validation with channelNum equal to one; the pinned baseline only assigns the nvr branch, so the stale kind survives and SideBar.qml renders an NVR header.",
+  "acceptance": "Every successful probe assigns nvr for channelNum greater than one and camera otherwise; a stale standalone-camera record self-heals while real multi-channel NVRs remain unchanged.",
+  "repair": "Replace the one-sided NVR promotion with a complete channel-count classification before persisting the host record.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "TodesengelX/reolink-native-linux",
+      "commit": "9a88ebda75edf43a41aed2b05c4e765c811b5e5b",
+      "directory": "sources/reolink-native-linux-7"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [
+    "cases/reolink-native-linux-7/"
+  ],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/reolink-native-linux-7",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/reolink-native-linux-7/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/reolink-native-linux-7/test.mjs",
+          "sources/reolink-native-linux-7"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/reolink-native-linux-7.json"
+  },
+  "selection": {
+    "report": "cases/reolink-native-linux-7/triage.json",
+    "sha256": "76c5fc80263eb47f15bcb5ebea383f0ee22a7427e25412ed98c0e4b94db81d09"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the sticky one-sided classification on the immutable baseline and the complete red/green assignment on the candidate. The complete C++/Qt project is compiled and its four upstream test binaries are run separately in the same Ubuntu environment as upstream CI. The reporter's physical RLC-510A remains the authoritative visual check.",
+    "ownerCheck": "Install the branch, open the client with the RLC-510A configured, wait for a successful reconnect and confirm the sidebar shows one standalone camera row without a duplicate NVR header; also confirm any real NVR still retains its expandable channel tree."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "TodesengelX/reolink-native-linux",
+    "base": "main",
+    "commitMessage": "Fix sticky NVR classification for standalone cameras",
+    "paths": [
+      "src/device/DeviceManager.cpp"
+    ],
+    "verificationOnlyPaths": [
+      "bcl_device_kind.test.mjs"
+    ]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/reolink-native-linux-7/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "bcl_device_kind.test.mjs"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "--test",
+        "bcl_device_kind.test.mjs"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "STICKY_NVR_KIND"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "--test",
+        "bcl_device_kind.test.mjs"
+      ]
+    },
+    "suiteOutputIncludes": "# tests 2"
+  }
+}

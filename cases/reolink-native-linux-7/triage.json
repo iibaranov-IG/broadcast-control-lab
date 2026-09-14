@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T20:53:50.846Z",
+  "issue": {
+    "repository": "TodesengelX/reolink-native-linux",
+    "number": "7",
+    "url": "https://github.com/TodesengelX/reolink-native-linux/issues/7",
+    "title": "Bug with single cameras",
+    "state": "open",
+    "updatedAt": "2026-09-14T05:56:15Z"
+  },
+  "source": {
+    "repository": "TodesengelX/reolink-native-linux",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "9a88ebda75edf43a41aed2b05c4e765c811b5e5b",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "i18n/reolink-client_en.ts",
+      "i18n/reolink-client_es.ts",
+      "src/core/CredentialStore.cpp",
+      "src/core/CredentialStore.h",
+      "src/core/Database.cpp",
+      "src/core/Database.h",
+      "src/core/Log.cpp",
+      "src/core/Log.h",
+      "src/core/Notifier.cpp",
+      "src/core/Notifier.h"
+    ],
+    "buildFiles": [
+      {
+        "path": "CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/TodesengelX/reolink-native-linux/blob/9a88ebda75edf43a41aed2b05c4e765c811b5e5b/CMakeLists.txt"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:TodesengelX/reolink-native-linux": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 81,
+    "scoreRange": [
+      80,
+      81
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "A real standalone camera is rendered as a redundant one-camera NVR tree.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/issues/7"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "Issue was opened today.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/issues/7"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 3,
+        "reason": "Reporter supplied a current screenshot but has not explicitly promised branch testing.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/issues/7"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "A standalone camera should render as one camera row without an NVR header.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/issues/7"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 4,
+        "reason": "The sticky classification follows directly from the one-sided kind update and can be proven with a red/green source test.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/blob/9a88ebda75edf43a41aed2b05c4e765c811b5e5b/src/device/DeviceManager.cpp"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "Repair is one classification assignment in the successful validation path.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/blob/9a88ebda75edf43a41aed2b05c4e765c811b5e5b/src/device/DeviceManager.cpp"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Compile and full unit tests are available; only visual hardware acceptance needs the owner.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/blob/9a88ebda75edf43a41aed2b05c4e765c811b5e5b/.github/workflows/ci.yml"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "NVR classification remains tied to channelNum > 1 while the complementary camera branch is restored.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/blob/9a88ebda75edf43a41aed2b05c4e765c811b5e5b/src/device/DeviceManager.cpp"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 4,
+        "reason": "Repository released v0.1.8 recently and its README promises active issue response.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/releases/tag/v0.1.8"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Fix applies to any standalone camera carrying stale NVR metadata.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/issues/7"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "Successful revalidation self-heals persisted misclassification for all camera models.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/blob/9a88ebda75edf43a41aed2b05c4e765c811b5e5b/src/device/DeviceManager.cpp"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "Correct model kind also controls sidebar indentation and host-level menus.",
+        "evidence": [
+          "https://github.com/TodesengelX/reolink-native-linux/blob/9a88ebda75edf43a41aed2b05c4e765c811b5e5b/src/ui/qml/components/SideBar.qml"
+        ]
+      }
+    ],
+    "class": "QUICK_REVIEW",
+    "deliveryReadiness": 81,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      81,
+      81
+    ],
+    "selectable": true
+  },
+  "durationMs": 2766
+}

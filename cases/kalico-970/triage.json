@@ -1,0 +1,362 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T22:19:27.231Z",
+  "issue": {
+    "repository": "KalicoCrew/kalico",
+    "number": "970",
+    "url": "https://github.com/KalicoCrew/kalico/issues/970",
+    "title": "USB product remains stale after switching between USB MCU architectures",
+    "state": "open",
+    "updatedAt": "2026-09-13T21:02:14Z"
+  },
+  "source": {
+    "repository": "KalicoCrew/kalico",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "6b1822bc76c54faaa1b95331d886a8b951330882",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": ".github/pull_request_template.md",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/.github/pull_request_template.md",
+        "content": "_Enter a good description of whats being changed and WHY\n\n## Checklist\n\n- [ ] pr title makes sense\n- [ ] added a test case if possible\n- [ ] if new feature, added to the readme\n- [ ] ci is happy and green\n",
+        "requirementHints": [
+          "- [ ] added a test case if possible"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "docs/CONTRIBUTING.md",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/docs/CONTRIBUTING.md",
+        "content": "# Contributing to Kalico\n\nThank you for contributing to Kalico! This document describes the\nprocess for contributing changes to Kalico.\n\nPlease see the [contact page](Contact.md) for information on reporting\nan issue or for details on contacting the developers.\n\n## Overview of Contribution Process\n\nContributions to Kalico generally follow a high-level process:\n\n1. A submitter starts by creating a\n   [GitHub Pull Request](https://github.com/KalicoCrew/kalico/pulls)\n   when a submission is ready for widespread deployment.\n2. When a [reviewer](#reviewers) is available to\n   [review](#what-to-expect-in-a-review) the submission, they will\n   assign themselves to the Pull Request on GitHub. The goal of the\n   review is to look for defects and to check that the submission\n   follows documented guidelines.\n3. After a successful review, the reviewer will \"approve the review\"\n   on GitHub and a [maintainer](#reviewers) will commit the change to\n   the Kalico `main` branch.\n\nWhen working on enhancements, consider starting (or contributing to) a\nthread on [Kalico Discord server](Contact.md#discord).\nAn ongoing discussion on the forum can improve visibility of development\nwork and may attract others interested in testing new work.\n\n## What to expect in a review\n\nContributions to Kalico are reviewed before merging. The primary goal\nof the review process is to check for defects and to check that the\nsubmission follows guidelines specified in the Kalico documentation.\n\nIt is understood that there are many ways to accomplish a task; it is\nnot the intent of the review to discuss the \"best\" implementation.\nWhere possible, review discussions focused on facts and measurements\nare preferable.\n\nThe majority of submissions will result in feedback from a review. Be\nprepared to obtain feedback, provide further details, and to update\nthe submission if needed.\n\nCommon things a reviewer will look for:\n\n1. Is the submission free of defects and is it ready to be widely\n   deployed?\n\n   Submitters are expected to test their changes prior to submission.\n   The reviewers look for errors, but they don't, in general, test\n   submissions. An accepted submission is often deployed to thousands\n   of printers within a few weeks of acceptance. Quality of\n   submissions is therefore considered a priority.\n\n   The main [KalicoCrew/kalico](https://github.com/KalicoCrew/kalico)\n   GitHub repository might accept experimental work, but we encourage\n   submitters should perform experimentation, debugging, and testing in\n   their own repositories. The [Kalico Discord server](Contact.md#discord)\n   is a good place to raise awareness of new work and to find users\n   interested in providing real-world feedback.\n\n   Submissions must pass all [regression test cases](Debugging.md).\n\n   When fixing a defect in the code, submitters should have a general\n   understanding of the root cause of that defect, and the fix should\n   target that root cause.\n\n   Code submissions should not contain excessive debugging code,\n   debugging options, nor run-time debug logging.\n\n   Comments in code submissions should focus on enhancing code\n   maintenance. Submissions should not contain \"commented out code\"\n   nor excessive comments describing past implementations. There\n   should not be excessive \"todo\" comments.\n\n   Updates to documentation should not declare that they are a \"work\n   in progress\".\n\n2. Does the submission provide a \"high impact\" benefit to real-world\n   users performing real-world tasks?\n\n   Reviewers need to identify, at least in their own minds, roughly\n   \"who the target audience is\", a rough scale of \"the size of that\n   audience\", the \"benefit\" they will obtain, how the \"benefit is\n   measured\", and the \"results of those measurement tests\". In most\n   cases this will be obvious to both the submitter and the reviewer,\n   and it is not explicitly stated during a review.\n\n   Submissions to the `main` Kalico branch are expected to have a\n   noteworthy target audience. As a general \"rule of thumb\",\n   submissions should target a user base of at least a 100 real-world\n   users.\n\n   If a reviewer asks for details on the \"benefit\" of a submission,\n   please don't consider it criticism. Being able to understand the\n   real-world benefits of a change is a natural part of a review.\n\n   When discussing benefits it is preferable to discuss \"facts and\n   measurements\". In general, reviewers are not looking for responses\n   of the form \"someone may find option X useful\", nor are they\n   looking for responses of the form \"this submission adds a feature\n   that firmware X implements\". Instead, it is generally preferable to\n   discuss details on how the quality improvement was measured and\n   what were the results of those measurements - for example, \"tests\n   on Acme X1000 printers show improved corners as seen in picture\n   ...\", or for example \"print time of real-world object X on a\n   Foomatic X900 printer went from 4 hours to 3.5 hours\". It is\n   understood that testing of this type can take significant time and\n   effort. Some of Kalico's most notable features took months of\n   discussion, rework, testing, and documentation prior to being\n   merged into the `main` branch.\n\n   All new modules, config options, commands, command parameters, and\n   documents should have \"high impact\". We do not want to burden users\n   with options that they can not reasonably configure nor do we want\n   to burden them with options that don't provide a notable benefit.\n\n   A reviewer may ask for clarification on how a user is to configure\n   an option - an ideal response will contain details on the process -\n   for example, \"users of the MegaX500 are expected to set option X to\n   99.3 while users of the Elite100Y are expected to calibrate option\n   X using procedure ...\".\n\n   If the goal of an option is to make the code more modular then\n   prefer using code constants instead of user facing config options.\n\n   New modules, new options, and new parameters should not provide\n   similar functionality to existing modules - if the differences are\n   arbitrary than it's preferable to utilize the existing system or\n   refactor the existing code.\n\n3. Is the copyright of the submission clear, non-gratuitous, and\n   compatible?\n\n   New C files and Python files should have an unambiguous copyright\n   statement. See the existing files for the preferred format.\n   Declaring a copyright on an existing file when making minor changes\n   to that file is discouraged.\n\n   Code taken from 3rd party sources must be compatible with the\n   Kalico license (GNU GPLv3). Large 3rd party code additions should\n   be added to the `lib/` directory (and follow the format described\n   in [lib/README](../lib/README)).\n\n   Submitters must provide a\n   [Signed-off-by line](#format-of-commit-messages) using their full\n   real name. It indicates the submitter agrees with the\n   [developer certificate of origin](developer-certificate-of-origin).\n\n4. Does the submission follow guidelines specified in the Kalico\n   documentation?\n\n   In particular, code should follow the guidelines in\n   [Code_Overview.md](Code_Overview.md) and config files should follow\n   the guidelines in [Example_Configs.md](Example_Configs.md).\n\n5. Is the Kalico documentation updated to reflect new changes?\n\n   At a minimum, the reference documentation must be updated with\n   corresponding changes to the code:\n   * All commands and command parameters must be documented in\n     [G-Codes.md](G-Codes.md).\n   * All user facing modules and their config parameters must be\n     documented in [Config_Reference.md](Config_Reference.md).\n   * All exported \"status variables\" must be documented in\n     [Status_Reference.md](Status_Reference.md).\n   * All new \"webhooks\" and their parameters must be documented in\n     [API_Server.md](API_Server.md).\n   * Any change that makes a non-backwards compatible change to a\n     command or config file setting must be documented in\n     [Config_Changes.md](Config_Changes.md).\n\n   New documents should be added to [Overview.md](Overview.md) and be\n   added to the website index\n   [docs/_kalico/mkdocs.yml](../docs/_kalico/mkdocs.yml).\n\n6. Are commits well formed, address a single topic per commit, and\n   independent?\n\n   Commit messages should follow the\n   [preferred format](#format-of-commit-messages).\n\n   Commits must not have a merge conflict. New additions to the\n   Kalico `main` branch are always done via a \"rebase\" or \"squash and\n   rebase\". It is generally not necessary for submitters to re-merge\n   their submission on every update to the Kalico `main` branch.\n   However, if there is a merge conflict, then submitters are\n   recommended to use `git rebase` to address the conflict.\n\n   Each commit should address a single high-level change. Large\n   changes should be broken up into multiple independent commits. Each\n   commit should \"stand on its own\" so that tools like `git bisect`\n   and `git revert` work reliably.\n\n   Whitespace changes should not be mixed with functional changes. In\n   general, gratuitous whitespace changes are not accepted unless they\n   are from the established \"owner\" of the code being modified.\n\nKalico implements a soft-strict \"coding style guide\" on the\nPython code. Modifications to existing code should follow the high-level\ncode flow, code indentation style, and format of that existing code.\n\nIt is not a goal of a review to discuss \"better implementations\".\nHowever, if a reviewer struggles to understand the implementation of a\nsubmission, then they may ask for changes to make the implementation\nmore transparent. In particular, if reviewers can not convince\nthemselves that a submission is free of defects then changes may be\nnecessary.\n\nAs part of a review, a reviewer may create an alternate Pull Request\nfor a topic. This may be done to avoid excessive \"back and forth\" on\nminor procedural items and thus streamline the submission process. It\nmay also be done because the discussion inspires a reviewer to build\nan alternative implementation. Both situations are a normal result of\na review and should not be considered criticism of the original\nsubmission.\n\n### Helping with reviews\n\nWe appreciate help with reviews! It is not necessary to be a\n[listed reviewer](#reviewers) to perform a review. Submitters of\nGitHub Pull Requests are also encouraged to review their own\nsubmissions.\n\nTo help with a review, follow the steps outlined in\n[what to expect in a review](#what-to-expect-in-a-review) to verify\nthe submission. After completing the review, add a comment to the\nGitHub Pull Request with your findings. If the submission passes the\nreview then please state that explicitly in the comment - for example\nsomething like \"I reviewed this change according to the steps in the\nCONTRIBUTING document and everything looks good to me\". If unable to\ncomplete some steps in the review then please explicitly state which\nsteps were reviewed and which steps were not reviewed - for example\nsomething like \"I didn't check the code for defects, but I reviewed\neverything else in the CONTRIBUTING document and it looks good\".\n\nWe also appreciate testing of submissions. If the code was tested then\nplease add a comment to the GitHub Pull Request with the results of\nyour test - success or failure. Please explicitly state that the code\nwas tested and the results - for example something like \"I tested this\ncode on my Acme900Z printer with a vase print and the results were\ngood\".\n\n### Reviewers\n\nThe Kalico \"reviewers\" are:\n\n| Name                   | GitHub Id         | Areas of interest |\n| ---------------------- | ----------------- | ----------------- |\n\n*TODO*\n\nPlease do not \"ping\" any of the reviewers and please do not direct\nsubmissions at them. All of the reviewers monitor the forums and PRs,\nand will take on reviews when they have time to.\n\nThe Kalico \"maintainers\" are:\n\n| Name                   | GitHub name       |\n| ---------------------- | ----------------- |\n| Bea Nance              | @bwnance          |\n| Rogerio Goncalves      | @rogerlz          |\n| Lasse Dalegaard        | @dalegaard        |\n\n## Format of commit messages\n\nEach commit should have a commit message formatted similar to the\nfollowing:\n\n```\nmodule: Capitalized, short (50 chars or less) summary\n\nMore detailed explanatory text, if necessary.  Wrap it to about 75\ncharacters or so.  In some contexts, the first line is treated as the\nsubject of an email and the rest of the text as the body.  The blank\nline separating the summary from the body is critical (unless you omit\nthe body entirely); tools like rebase can get confused if you run the\ntwo together.\n\nFurther paragraphs come after blank lines..\n\nSigned-off-by: My Name <myemail@example.org>\n```\n\nIn the above example, `module` should be the name of a file or\ndirectory in the repository (without a file extension). For example,\n`clocksync: Fix typo in pause() call at connect time`. The purpose of\nspecifying a module name in the commit message is to help provide\ncontext for the commit comments.\n\nIt is important to have a \"Signed-off-by\" line on each commit - it\ncertifies that you agree to the\n[developer certificate of origin](developer-certificate-of-origin). It\nmust contain a real name and a current email address. A real name does\nnot need to be a legal name, birth name, or any name appearing on an\nofficial ID; it is the name by which people in the community can\nidentify and reach you if a question about your contribution were ever\nto arise. Anonymous IDs or false names that misrepresent who you are\nare not acceptable. See the [CNCF DCO guidelines](https://github.com/cncf/foundation/blob/main/policies-guidance/dco-guidelines.md#dco-and-real-names)\nfor further detail.\n",
+        "requirementHints": [
+          "   [GitHub Pull Request](https://github.com/KalicoCrew/kalico/pulls)",
+          "   assign themselves to the Pull Request on GitHub. The goal of the",
+          "   on GitHub and a [maintainer](#reviewers) will commit the change to",
+          "work and may attract others interested in testing new work.",
+          "Contributions to Kalico are reviewed before merging. The primary goal",
+          "   Submitters are expected to test their changes prior to submission.",
+          "   The reviewers look for errors, but they don't, in general, test",
+          "   submitters should perform experimentation, debugging, and testing in",
+          "   Submissions must pass all [regression test cases](Debugging.md).",
+          "   Comments in code submissions should focus on enhancing code",
+          "   maintenance. Submissions should not contain \"commented out code\"",
+          "   nor excessive comments describing past implementations. There",
+          "   should not be excessive \"todo\" comments.",
+          "   measured\", and the \"results of those measurement tests\". In most",
+          "   what were the results of those measurements - for example, \"tests",
+          "   understood that testing of this type can take significant time and",
+          "   discussion, rework, testing, and documentation prior to being",
+          "   Code taken from 3rd party sources must be compatible with the",
+          "   Submitters must provide a",
+          "   [Signed-off-by line](#format-of-commit-messages) using their full",
+          "   At a minimum, the reference documentation must be updated with",
+          "   * All commands and command parameters must be documented in",
+          "   * All user facing modules and their config parameters must be",
+          "   * All exported \"status variables\" must be documented in",
+          "   * All new \"webhooks\" and their parameters must be documented in",
+          "     command or config file setting must be documented in",
+          "6. Are commits well formed, address a single topic per commit, and",
+          "   Commit messages should follow the",
+          "   [preferred format](#format-of-commit-messages).",
+          "   Commits must not have a merge conflict. New additions to the",
+          "   Each commit should address a single high-level change. Large",
+          "   changes should be broken up into multiple independent commits. Each",
+          "   commit should \"stand on its own\" so that tools like `git bisect`",
+          "As part of a review, a reviewer may create an alternate Pull Request",
+          "GitHub Pull Requests are also encouraged to review their own",
+          "the submission. After completing the review, add a comment to the",
+          "GitHub Pull Request with your findings. If the submission passes the",
+          "review then please state that explicitly in the comment - for example",
+          "We also appreciate testing of submissions. If the code was tested then",
+          "please add a comment to the GitHub Pull Request with the results of",
+          "your test - success or failure. Please explicitly state that the code",
+          "was tested and the results - for example something like \"I tested this",
+          "## Format of commit messages",
+          "Each commit should have a commit message formatted similar to the",
+          "specifying a module name in the commit message is to help provide",
+          "context for the commit comments.",
+          "It is important to have a \"Signed-off-by\" line on each commit - it",
+          "must contain a real name and a current email address. A real name does",
+          "are not acceptable. See the [CNCF DCO guidelines](https://github.com/cncf/foundation/blob/main/policies-guidance/dco-guidelines.md#dco-and-real-names)"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "klippy/__init__.py",
+      "klippy/__main__.py",
+      "klippy/chelper/__init__.py",
+      "klippy/chelper/compiler.h",
+      "klippy/chelper/itersolve.c",
+      "klippy/chelper/itersolve.h",
+      "klippy/chelper/kin_cartesian.c",
+      "klippy/chelper/kin_corexy.c",
+      "klippy/chelper/kin_corexz.c",
+      "klippy/chelper/kin_delta.c"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/Makefile"
+      },
+      {
+        "path": "docs/_kalico/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/docs/_kalico/pyproject.toml"
+      },
+      {
+        "path": "lib/bossac/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/lib/bossac/Makefile"
+      },
+      {
+        "path": "lib/hidflash/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/lib/hidflash/Makefile"
+      },
+      {
+        "path": "lib/pico-sdk/rp2040/boot_stage2/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/lib/pico-sdk/rp2040/boot_stage2/CMakeLists.txt"
+      },
+      {
+        "path": "lib/rp2040_flash/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/lib/rp2040_flash/Makefile"
+      },
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/pyproject.toml"
+      },
+      {
+        "path": "src/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/Makefile"
+      },
+      {
+        "path": "src/ar100/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/ar100/Makefile"
+      },
+      {
+        "path": "src/atsam/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/atsam/Makefile"
+      },
+      {
+        "path": "src/atsamd/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/atsamd/Makefile"
+      },
+      {
+        "path": "src/avr/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/avr/Makefile"
+      },
+      {
+        "path": "src/hc32f460/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/hc32f460/Makefile"
+      },
+      {
+        "path": "src/indx/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/indx/Makefile"
+      },
+      {
+        "path": "src/linux/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/linux/Makefile"
+      },
+      {
+        "path": "src/lpc176x/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/lpc176x/Makefile"
+      },
+      {
+        "path": "src/pru/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/pru/Makefile"
+      },
+      {
+        "path": "src/rp2040/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/rp2040/Makefile"
+      },
+      {
+        "path": "src/simulator/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/simulator/Makefile"
+      },
+      {
+        "path": "src/stm32/Makefile",
+        "kind": "make",
+        "url": "https://github.com/KalicoCrew/kalico/blob/6b1822bc76c54faaa1b95331d886a8b951330882/src/stm32/Makefile"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:KalicoCrew/kalico": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 92,
+    "scoreRange": [
+      92,
+      92
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "The rebuilt MCU appears under a misleading persistent device path and existing configuration references may fail.",
+        "evidence": [
+          "Issue #970 observed and expected /dev/serial/by-id paths"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The user opened the report yesterday against current main.",
+        "evidence": [
+          "Issue opened 2026-09-13"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter supplied exact steps, output, expected behavior, and a bisected introducing commit.",
+        "evidence": [
+          "Issue #970"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "An automatic product must follow the new MCU while an explicit custom product remains unchanged.",
+        "evidence": [
+          "Issue #970 expected result"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The vendored Kconfig library deterministically retains stm32f446xx after switching the same saved configuration to RP2040.",
+        "evidence": [
+          "Local Kconfig reproduction at pinned revision"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "The repair is confined to the menuconfig entry point, a small helper, and focused tests.",
+        "evidence": [
+          "Local candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Configuration output is testable without compiling or flashing firmware.",
+        "evidence": [
+          "test/test_kconfig_usb_product.py"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Tests cover automatic refresh, existing custom values, edits during switching, and abandoning unsaved menu changes.",
+        "evidence": [
+          "Five focused Kconfig tests"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Main and pull-request CI were active immediately before the report.",
+        "evidence": [
+          "Pinned main commit dated 2026-09-12",
+          "Issue opened 2026-09-13"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fix protects users who reuse .config while rebuilding common USB MCU families.",
+        "evidence": [
+          "STM32F446 to RP2040 reproduction"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "The behavior applies to every USB-capable architecture configured through the shared menuconfig target.",
+        "evidence": [
+          "src/Kconfig generic USB_PRODUCT and Makefile menuconfig target"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Correct descriptors preserve stable device discovery and downstream printer configuration after board changes.",
+        "evidence": [
+          "Issue #970 device path impact"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      92
+    ],
+    "selectable": true
+  },
+  "durationMs": 3632
+}

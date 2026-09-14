@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 2,
+  "id": "kalico-970",
+  "status": "ready",
+  "title": "Refresh the automatic USB product after changing MCU architecture",
+  "issue": "https://github.com/KalicoCrew/kalico/issues/970",
+  "problem": "Kconfig saves the evaluated MCU name as USB_PRODUCT. On the next menuconfig run it treats that value as an explicit selection, so switching from STM32F446 to RP2040 leaves the USB descriptor and /dev/serial/by-id path labelled stm32f446xx.",
+  "reproduce": "Create a saved STM32F446 USB configuration, reload it, then select RP2040 USB. The pinned baseline reports MCU=rp2040 while USB_PRODUCT remains stm32f446xx.",
+  "acceptance": "When the prior USB product matched the prior MCU and the user changes architecture without editing the product, the saved product follows the new MCU. Existing custom products, a product edited during the switch, and abandoned unsaved menu changes remain unchanged.",
+  "repair": "Route make menuconfig through a small project wrapper. It records the saved MCU/product identity before opening the vendored UI, reloads only the configuration actually saved by that UI, and clears the stale user value when it still represents the old automatic default.",
+  "sources": [
+    {
+      "id": "baseline",
+      "repository": "KalicoCrew/kalico",
+      "commit": "6b1822bc76c54faaa1b95331d886a8b951330882",
+      "directory": "sources/kalico-970"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [
+    "cases/kalico-970/"
+  ],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/kalico-970",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/kalico-970/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/kalico-970/test.mjs",
+          "sources/kalico-970"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/kalico-970.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL reproduces and repairs the complete saved Kconfig transition without flashing firmware. It does not enumerate the resulting USB descriptor on physical STM32 or RP2040 hardware.",
+    "ownerCheck": "Reuse an STM32F446 USB .config, run make menuconfig, switch to RP2040 USB, save and build. Confirm CONFIG_USB_PRODUCT is rp2040 and the flashed device appears under a usb-Klipper_rp2040_* path. Repeat once with an explicit custom USB product and confirm it remains custom."
+  },
+  "selection": {
+    "report": "cases/kalico-970/triage.json",
+    "sha256": "f237fb68b36b518afe6eccf42e0fa8e08456ac9e9713e1e07f11bdc7c5848bb3"
+  },
+  "template": {
+    "language": "python",
+    "protocol": "usb"
+  },
+  "publish": {
+    "source": "baseline",
+    "target": "KalicoCrew/kalico",
+    "base": "main",
+    "commitMessage": "kconfig: Refresh automatic USB product on MCU switch",
+    "paths": [
+      "Makefile",
+      "scripts/kconfig.py",
+      "test/test_kconfig_usb_product.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "baseline",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/kalico-970/tests-only.patch"
+        ]
+      },
+      {
+        "cwd": ".",
+        "argv": [
+          "bash",
+          "scripts/find-firmware-extras.sh"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "test/test_kconfig_usb_product.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "../../cases/kalico-970/upstream.py",
+        "."
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "USB_PRODUCT_STALE"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.test_kconfig_usb_product",
+        "-v"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 5 tests"
+  }
+}

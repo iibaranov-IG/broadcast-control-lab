@@ -100,7 +100,8 @@ function metrics(root, db = read(root)) {
     let selectedAt = null
     const triage = path.join(root, 'cases', entry.id, 'triage.json')
     if (fs.existsSync(triage)) selectedAt = JSON.parse(fs.readFileSync(triage)).checkedAt || null
-    return { id: entry.id, pr: entry.pr, state: entry.state, selectedAt, prCreatedAt: entry.prCreatedAt || null, mergedAt: entry.mergedAt || null,
+    return { id: entry.id, pr: entry.pr, state: entry.state, issueCreatedAt: entry.issueCreatedAt || null, selectedAt, prCreatedAt: entry.prCreatedAt || null, mergedAt: entry.mergedAt || null,
+      issueToPrHours: hours(entry.issueCreatedAt, entry.prCreatedAt),
       selectedToPrHours: hours(selectedAt, entry.prCreatedAt), prToMergeHours: hours(entry.prCreatedAt, entry.mergedAt),
       prToReporterResponseHours: hours(entry.prCreatedAt, entry.reporterResponseAt), ci: entry.ci || 'unknown', evidence: entry.evidenceStatus || 'NOT_BOUND' }
   })
@@ -109,7 +110,7 @@ function metrics(root, db = read(root)) {
   return { generatedAt: new Date().toISOString(), summary: { tracked: repairs.length, merged: repairs.filter(r => r.state === 'merged').length,
     mergeRatePercent: ratio(repairs.filter(r => r.state === 'merged').length, repairs.length), ciSuccessPercent: ratio(withCi.filter(r => r.ci === 'success').length, withCi.length),
     evidenceBoundPercent: ratio(repairs.filter(r => r.evidence === 'BOUND_CANDIDATE').length, repairs.length),
-    medianSelectedToPrHours: median(repairs.map(r => r.selectedToPrHours)), medianPrToMergeHours: median(repairs.map(r => r.prToMergeHours)),
+    medianIssueToPrHours: median(repairs.map(r => r.issueToPrHours)), medianSelectedToPrHours: median(repairs.map(r => r.selectedToPrHours)), medianPrToMergeHours: median(repairs.map(r => r.prToMergeHours)),
     medianPrToReporterResponseHours: median(repairs.map(r => r.prToReporterResponseHours)) }, repairs }
 }
 function sync(root, api) {

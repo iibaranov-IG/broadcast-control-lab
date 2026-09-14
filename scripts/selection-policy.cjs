@@ -40,7 +40,7 @@ function evaluate(report, assessment = {}, policy = {}) {
   return { exclusions, unknownGates, assessmentBoundToRevision: binding, eligible, score, scoreRange: [Math.floor(earned), Math.ceil(earned + unknownWeight)], dimensions,
     class: exclusions.length ? 'REJECT' : !assessed ? 'NEEDS_REVIEW' : score >= 85 ? 'TAKE_NOW' : score >= 70 ? 'QUICK_REVIEW' : score >= 50 ? 'RESERVE' : 'SKIP',
     deliveryReadiness, deliveryProbability: null, deliveryNote: 'Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.',
-    queueKey: eligible && score >= 70 ? [deliveryReadiness, score] : null,
+    queueKey: eligible && score >= 70 ? [assessment.dimensions.freshness.value, deliveryReadiness, score] : null,
     selectable: eligible && score >= 70 }
 }
 module.exports = { weights, gates, blocked, evaluate }

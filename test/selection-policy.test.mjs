@@ -10,9 +10,9 @@ test('unknown evidence never invents scores or a delivery probability', () => {
   assert.equal(r.score, null); assert.equal(r.deliveryProbability, null); assert.equal(r.eligible, false)
   assert.deepEqual(r.scoreRange, [0, 100])
 })
-test('complete bound assessment uses requested thresholds and delivery-first key', () => {
+test('complete bound assessment uses requested thresholds and freshness-first key', () => {
   const r = evaluate(report(), assessment())
-  assert.equal(r.class, 'TAKE_NOW'); assert.deepEqual(r.queueKey, [100, 100])
+  assert.equal(r.class, 'TAKE_NOW'); assert.deepEqual(r.queueKey, [5, 100, 100])
   const a = assessment(); for (const v of Object.values(a.dimensions)) v.value = 3
   assert.equal(evaluate(report(), a).class, 'RESERVE')
   a.sourceCommit = 'b'.repeat(40); assert.throws(() => evaluate(report(), a), /stale/)

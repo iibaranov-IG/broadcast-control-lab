@@ -83,14 +83,19 @@ the events you actually have read locally and on the configured remote board;
 concurrently arriving or edited events stay unread. Local `sync` writes files
 only; the scheduled workflow is what commits recurring snapshots.
 
-`metrics` reports repair velocity from the saved snapshot: median time from a
-case's recorded triage selection to PR creation, from PR creation to merge, and
+`metrics` reports repair velocity from the saved snapshot: median time from the
+issue's creation to PR creation, from a case's recorded triage selection to PR creation, from PR creation to merge, and
 from PR creation to the source reporter's first response. It displays these
 beside merge rate, CI success and candidate-bound evidence coverage. Run `sync`
 first when live timestamps matter. Missing timestamps remain `null`; GitHub
 silence is not converted into a fast or successful outcome. The selection clock
 uses the immutable `checkedAt` value in each case's `triage.json`, so the age of
 an old issue is not charged to the repair itself.
+
+The selection queue puts the reviewed `freshness` score before delivery
+readiness and total score. A recent, still-active owner pain therefore wins a
+tie against an equally repairable stale report; freshness never bypasses the
+eligibility gates, evidence requirements, or minimum quality score.
 
 No comments, emails or automated interpretations are sent to owners. Review the
 inbox and answer deliberately. Hardware status is never inferred from prose.

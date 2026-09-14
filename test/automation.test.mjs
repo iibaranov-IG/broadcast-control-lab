@@ -103,6 +103,8 @@ test('repair metrics report velocity beside acceptance and evidence quality', t 
   assert.equal(report.summary.tracked, 1)
   assert.equal(report.summary.ciSuccessPercent, 100)
   assert.equal(report.summary.evidenceBoundPercent, 100)
+  assert.equal(report.summary.medianIssueToPrHours, 216)
+  assert.equal(report.repairs[0].issueToPrHours, 216)
   assert.equal(report.summary.medianSelectedToPrHours, 24)
   assert.equal(report.summary.medianPrToReporterResponseHours, 24)
 })

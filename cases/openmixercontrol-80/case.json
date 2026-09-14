@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 2,
+  "id": "openmixercontrol-80",
+  "status": "ready",
+  "title": "Make the raw fader value type consistent",
+  "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/80",
+  "problem": "Volume::SetFadervalue accepts a float but immediately passes it to Helper::Fadervalue2dBfs(uint16_t), silently truncating fractions and exposing a misleading API for the console's 12-bit raw fader value.",
+  "reproduce": "Inspect the declaration and definition of Volume::SetFadervalue at the pinned revision: both accept float while the only conversion helper and hardware callback accept uint16_t.",
+  "acceptance": "The Volume setter, conversion helper, and physical fader path use one explicit uint16_t raw-value type, with no implicit float-to-integer conversion at the setter boundary.",
+  "repair": "Change Volume::SetFadervalue's declaration and definition to uint16_t, matching the 0..4095 physical fader domain and the existing helper contract.",
+  "sources": [
+    {
+      "id": "openmixercontrol",
+      "repository": "OpenMixerProject/OpenMixerControl",
+      "commit": "6838286c6fb2eefc16a71aaacf091f4dda40a629",
+      "directory": "sources/openmixercontrol-80",
+      "sparsePaths": [
+        ".gitignore",
+        "src/volume.cpp",
+        "src/volume.h",
+        "src/helper.h"
+      ]
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/openmixercontrol-80",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/openmixercontrol-80/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/openmixercontrol-80/test.mjs",
+          "sources/openmixercontrol-80"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/openmixercontrol-80.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the API mismatch on the pinned baseline and the consistent raw fader type after the repair. The repository's full build requires external libraries and Linux headers; GitHub's target builds remain authoritative.",
+    "ownerCheck": "Build the X32/M32 target, move a physical fader through its range, and confirm the surface still reports and recalls positions from 0 through 4095 without jumps."
+  },
+  "selection": {
+    "report": "cases/openmixercontrol-80/triage.json",
+    "sha256": "f821cb558b542c8b0a9183d6be91cfaeef15299744f3758e7a8bc9e21cecc71d",
+    "reason": "The issue is unassigned, has no related PR, identifies an exact two-line type mismatch, and the intended raw fader domain is established by the hardware callback and conversion helper."
+  },
+  "publish": {
+    "source": "openmixercontrol",
+    "target": "OpenMixerProject/OpenMixerControl",
+    "base": "develop",
+    "commitMessage": "fix: use raw integer type for fader values",
+    "paths": [
+      "src/volume.cpp",
+      "src/volume.h"
+    ],
+    "verificationOnlyPaths": [
+      "tests/bcl_fader_type.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "openmixercontrol",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/openmixercontrol-80/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "tests/bcl_fader_type.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "tests/bcl_fader_type.py",
+        "."
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "BUG_FADER_TYPE_MISMATCH"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "tests/bcl_fader_type.py",
+        "."
+      ]
+    },
+    "suiteOutputIncludes": "PASS: raw fader type contract is consistent"
+  }
+}

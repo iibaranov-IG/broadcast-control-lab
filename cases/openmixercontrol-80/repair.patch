@@ -1,0 +1,26 @@
+diff --git a/src/volume.cpp b/src/volume.cpp
+index b2c4aa5..e01396f 100644
+--- a/src/volume.cpp
++++ b/src/volume.cpp
+@@ -31,7 +31,7 @@ void Volume::SetDbfs(float vol){
+     _volumeDbfs = vol;
+ }
+ 
+-void Volume::SetFadervalue(float vol){
++void Volume::SetFadervalue(uint16_t vol){
+     _volumeDbfs = helper->Fadervalue2dBfs(vol);
+ }
+ 
+diff --git a/src/volume.h b/src/volume.h
+index 25de482..3c98fcf 100644
+--- a/src/volume.h
++++ b/src/volume.h
+@@ -12,7 +12,7 @@ class Volume : public X32Base {
+         float _volumeDbfs;
+     public:
+         void SetDbfs(float volume);
+-        void SetFadervalue(float volume);
++        void SetFadervalue(uint16_t volume);
+         float GetDbfs();
+         float GetFadervalue();
+ };

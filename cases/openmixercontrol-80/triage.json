@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T13:27:47.726Z",
+  "issue": {
+    "repository": "OpenMixerProject/OpenMixerControl",
+    "number": "80",
+    "url": "https://github.com/OpenMixerProject/OpenMixerControl/issues/80",
+    "title": "float vs uint16",
+    "state": "open",
+    "updatedAt": "2026-06-30T12:46:19Z"
+  },
+  "source": {
+    "repository": "OpenMixerProject/OpenMixerControl",
+    "requestedRef": null,
+    "defaultBranch": "develop",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "6838286c6fb2eefc16a71aaacf091f4dda40a629",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "files/libartnet_network.c",
+      "files/lv_conf.h",
+      "files/lv_conf_SDL2.h",
+      "lib/CLI11.hpp",
+      "lib/WString.cpp",
+      "lib/WString.h",
+      "lib/plf_nanotimer.h",
+      "src/adda-message.cpp",
+      "src/adda-message.h",
+      "src/adda.cpp"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/OpenMixerProject/OpenMixerControl/blob/6838286c6fb2eefc16a71aaacf091f4dda40a629/Makefile"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:OpenMixerProject/OpenMixerControl": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 91,
+    "scoreRange": [
+      91,
+      91
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 3,
+        "reason": "The public API silently narrows a caller-supplied float.",
+        "evidence": [
+          "Issue #80 exact call chain"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 3,
+        "reason": "The report is current within the active development cycle.",
+        "evidence": [
+          "Issue updated 2026-06-30"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 3,
+        "reason": "The reporter supplied the exact files and conversion mismatch.",
+        "evidence": [
+          "Issue #80 body"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "All raw fader entry points must use uint16_t.",
+        "evidence": [
+          "Surface callback and Helper declarations"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The mismatch is deterministic at the type-contract level.",
+        "evidence": [
+          "Pinned source declarations"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "Only the setter declaration and definition change.",
+        "evidence": [
+          "Two-line production diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "The contract is executable without hardware.",
+        "evidence": [
+          "BCL baseline/candidate probe"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "The implementation already converts to the same uint16_t helper.",
+        "evidence": [
+          "Existing Helper signature"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository has active builds and recent issue work.",
+        "evidence": [
+          "Repository workflows and open PRs"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The API is shared by supported X32/M32 control software.",
+        "evidence": [
+          "OpenMixerControl README"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The consistent type applies to every Volume caller.",
+        "evidence": [
+          "Volume public setter"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "A clear contract prevents future fractional-value misuse.",
+        "evidence": [
+          "Issue #80 analysis"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 96,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      4,
+      96,
+      91
+    ],
+    "selectable": true
+  },
+  "durationMs": 3045
+}

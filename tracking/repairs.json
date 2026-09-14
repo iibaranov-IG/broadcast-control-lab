@@ -2727,6 +2727,34 @@
       "ci": "none",
       "lastSync": "2026-09-14T19:31:31.134Z",
       "syncError": null
+    },
+    {
+      "id": "nora-997",
+      "title": "Serve raw APK downloads with Android's package MIME type",
+      "issue": "https://github.com/getnora-io/nora/issues/997",
+      "pr": "https://github.com/getnora-io/nora/pull/998",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0,
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "f04d90acdcd405f6f1d33d1313d014962027fd82",
+      "reporter": "devitway",
+      "issueCreatedAt": "2026-09-14T19:37:59Z",
+      "prCreatedAt": "2026-09-14T20:48:20Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T20:48:29.819Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

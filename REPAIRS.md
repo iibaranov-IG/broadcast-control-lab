@@ -63,6 +63,7 @@ Updated 2026-09-11.
 | blueye-sdk-225 | [Issue](https://github.com/BluEye-Robotics/blueye.sdk/issues/225) | [PR](https://github.com/BluEye-Robotics/blueye.sdk/pull/226) | open | none | BOUND_CANDIDATE | 0 | NOT_REVIEWED | 2026-09-14T19:31:25.103Z |
 | rmfakecloud-485 | [Issue](https://github.com/ddvk/rmfakecloud/issues/485) | [PR](https://github.com/ddvk/rmfakecloud/pull/486) | closed | none | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-14T19:31:28.142Z |
 | esp-osc-2 | [Issue](https://github.com/256dpi/esp-osc/issues/2) | [PR](https://github.com/256dpi/esp-osc/pull/3) | open | none | BOUND_CANDIDATE | 0 | NOT_REVIEWED | 2026-09-14T19:31:31.134Z |
+| nora-997 | [Issue](https://github.com/getnora-io/nora/issues/997) | [PR](https://github.com/getnora-io/nora/pull/998) | open | none | NOT_BOUND | 0 | NOT_REVIEWED | 2026-09-14T20:48:29.819Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

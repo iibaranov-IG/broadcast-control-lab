@@ -33,7 +33,7 @@
       "headSha": "1455b64bb57c44d501dc18cb7655a06c5f290e25",
       "id": "openmixercontrol-8",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/8",
-      "lastSync": "2026-09-14T19:29:34.170Z",
+      "lastSync": "2026-09-14T22:41:04.726Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/91",
       "reporter": "schulz-alexander",
       "run": null,
@@ -70,7 +70,7 @@
       "headSha": "bfb749b74f3b46ffb3751f6d8cfaaeff7ebfdecb",
       "id": "openmixercontrol-54",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/54",
-      "lastSync": "2026-09-14T19:29:37.207Z",
+      "lastSync": "2026-09-14T22:41:09.270Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/92",
       "reporter": "flipfi",
       "run": null,
@@ -118,7 +118,7 @@
       "headSha": "de3cd33a82c55c59a8d2189a8ced0d0b60a298ec",
       "id": "wirelessboard-93",
       "issue": "https://github.com/willcgage/wirelessboard/issues/93",
-      "lastSync": "2026-09-14T19:29:40.170Z",
+      "lastSync": "2026-09-14T22:41:14.051Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/103",
       "reporter": "willcgage",
       "run": null,
@@ -155,7 +155,7 @@
       "headSha": "d62d1cdacbb78398be452718e55c95a0b1929bc2",
       "id": "network-audio-controller-55",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/55",
-      "lastSync": "2026-09-14T19:29:42.945Z",
+      "lastSync": "2026-09-14T22:41:18.455Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/58",
       "reporter": "coaxk",
       "run": null,
@@ -163,8 +163,8 @@
       "syncError": null,
       "title": "Biamp and Shure receiver-flow packets are rejected",
       "unread": 1,
-      "mergeable": false,
-      "mergeableState": "dirty",
+      "mergeable": null,
+      "mergeableState": "unknown",
       "issueCreatedAt": "2026-09-03T13:02:50Z",
       "prCreatedAt": "2026-09-11T08:28:41Z",
       "mergedAt": null,
@@ -225,7 +225,7 @@
       "headSha": "439962cba7a03b409b68e40ebb0b66f9f5d129c8",
       "id": "network-audio-controller-47",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/47",
-      "lastSync": "2026-09-14T19:29:45.997Z",
+      "lastSync": "2026-09-14T22:41:23.402Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/57",
       "reporter": "stanelie",
       "run": null,
@@ -233,8 +233,8 @@
       "syncError": null,
       "title": "DHCP gateway and DNS addresses appear swapped",
       "unread": 4,
-      "mergeable": false,
-      "mergeableState": "dirty",
+      "mergeable": null,
+      "mergeableState": "unknown",
       "issueCreatedAt": "2026-04-01T01:54:30Z",
       "prCreatedAt": "2026-09-11T08:19:56Z",
       "mergedAt": null,
@@ -702,7 +702,7 @@
       "headSha": "22d6db8b9c768233f8b1d0e39cab40bf3bacb09b",
       "id": "jammernetz-35",
       "issue": "https://github.com/christofmuc/JammerNetz/issues/35",
-      "lastSync": "2026-09-14T19:29:48.759Z",
+      "lastSync": "2026-09-14T22:41:28.822Z",
       "pr": "https://github.com/christofmuc/JammerNetz/pull/108",
       "reporter": "iamthechrisb",
       "run": null,
@@ -731,6 +731,17 @@
           "state": null,
           "body": "Correction: the device that reproduces this reliably is the **Apple USB-C to 3.5 mm Headphone Jack Adapter** (not the TASCAM Series 102i as originally written — my mistake reviewing my own test notes). Updated the issue body above accordingly. The root cause analysis and suggested fix are unaffected.",
           "read": false
+        },
+        {
+          "key": "review:5202900579",
+          "kind": "review",
+          "author": "copilot-pull-request-reviewer[bot]",
+          "reporter": false,
+          "url": "https://github.com/microsoft/low-latency-audio/pull/35#pullrequestreview-5202900579",
+          "updatedAt": "2026-09-14T21:06:19Z",
+          "state": "COMMENTED",
+          "body": "### 🟢 Approval recommended\n\nThe focused changes correctly address all identified vulnerable formatting paths without unrelated modifications.\n\n<details>\n<summary>Pull request overview</summary>\n\nPrevents ASIO host crashes by safely truncating oversized device-provided names.\n\n**Changes:**\n- Replaces three `sprintf_s` calls with truncating `_snprintf_s`.\n- Updates comments to document bounded name handling.\n</details>\n\n<details>\n<summary>File summaries</summary>\n\n| File | Description |\r\n| ---- | ----------- |\r\n| `src/uac2-asio/USBAsio.cpp` | Safely formats clock-source, channel, and fallback names. |\n</details>\n\n<details>\n<summary>Review details</summary>\n\n- **Files reviewed:** 1/1 changed files\n- **Comments generated:** 0\n- **Review effort level:** Balanced\n</details>\n\n---\n\n💡 <a href=\"/microsoft/low-latency-audio/new/main?filename=.github/skills/code-review/SKILL.md\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Add a `code-review` agent skill</a> or configure MCP servers for context-aware, tailored reviews. <a href=\"https://docs.github.com/copilot/how-tos/use-copilot-agents/request-a-code-review/use-code-review?tool=webui#mcp-servers-and-agent-skills\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more in the docs.</a>",
+          "read": false
         }
       ],
       "hardware": {
@@ -739,14 +750,14 @@
       "headSha": "f1536c3d1a395620edc73815deca2b5173f7c7de",
       "id": "low-latency-audio-32",
       "issue": "https://github.com/microsoft/low-latency-audio/issues/32",
-      "lastSync": "2026-09-14T19:29:51.704Z",
+      "lastSync": "2026-09-14T22:41:33.278Z",
       "pr": "https://github.com/microsoft/low-latency-audio/pull/35",
       "reporter": "tankoha",
       "run": null,
       "state": "open",
       "syncError": null,
       "title": "Long ASIO channel names crash the host application",
-      "unread": 1,
+      "unread": 2,
       "mergeable": true,
       "mergeableState": "blocked",
       "issueCreatedAt": "2026-08-08T09:37:29Z",
@@ -897,7 +908,7 @@
       "headSha": "37f1ad4f80ddc7ab42b52f8687b1175db53c6faa",
       "id": "dometools-47",
       "issue": "https://github.com/prefrontalcortex/DomeTools/issues/47",
-      "lastSync": "2026-09-14T19:29:54.888Z",
+      "lastSync": "2026-09-14T22:41:38.031Z",
       "pr": "https://github.com/prefrontalcortex/DomeTools/pull/49",
       "reporter": "Hanesto",
       "run": null,
@@ -978,7 +989,7 @@
       "headSha": "6e3694bbbf98930016c8e5e9ab0db4fec9c79d8c",
       "id": "wirelessboard-92",
       "issue": "https://github.com/willcgage/wirelessboard/issues/92",
-      "lastSync": "2026-09-14T19:29:57.872Z",
+      "lastSync": "2026-09-14T22:41:42.367Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/101",
       "reporter": "willcgage",
       "run": null,
@@ -1070,7 +1081,7 @@
       "headSha": "3b62b36abd58c780aaac7328c4c32e4c6a6630bd",
       "id": "ipcamlapse-33",
       "issue": "https://github.com/KalyteraSystems/IPCamLapse/issues/33",
-      "lastSync": "2026-09-14T19:30:00.592Z",
+      "lastSync": "2026-09-14T22:41:46.775Z",
       "pr": "https://github.com/KalyteraSystems/IPCamLapse/pull/50",
       "reporter": "elkampu",
       "run": null,
@@ -1095,7 +1106,7 @@
       "headSha": "a2f96d5143b5e87a45d68b9086d1fd80ae2afe27",
       "id": "midimonster-150",
       "issue": "https://github.com/cbdevnet/midimonster/issues/150",
-      "lastSync": "2026-09-14T19:30:04.442Z",
+      "lastSync": "2026-09-14T22:41:51.927Z",
       "pr": "https://github.com/cbdevnet/midimonster/pull/151",
       "reporter": "jetryco",
       "run": null,
@@ -1165,7 +1176,7 @@
       "headSha": "e0b946103373552baca68fb8d18446ea87f9b277",
       "id": "fader-x-5",
       "issue": "https://github.com/stagehacks/FADER_X/issues/5",
-      "lastSync": "2026-09-14T19:30:07.561Z",
+      "lastSync": "2026-09-14T22:41:56.093Z",
       "pr": "https://github.com/stagehacks/FADER_X/pull/8",
       "reporter": "istnv",
       "run": null,
@@ -1216,7 +1227,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2025-02-24T22:58:56Z",
       "ci": "none",
-      "lastSync": "2026-09-14T19:30:10.623Z",
+      "lastSync": "2026-09-14T22:42:00.611Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1244,7 +1255,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T19:30:13.878Z",
+      "lastSync": "2026-09-14T22:42:05.269Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1275,8 +1286,8 @@
         }
       ],
       "unread": 1,
-      "mergeable": true,
-      "mergeableState": "unstable",
+      "mergeable": null,
+      "mergeableState": "unknown",
       "headSha": "06756e78f7a1b4214271b7a4e1d7b2bb4ac9a228",
       "reporter": "tato123",
       "issueCreatedAt": "2026-09-13T13:28:13Z",
@@ -1284,7 +1295,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T19:30:16.564Z",
+      "lastSync": "2026-09-14T22:42:09.794Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1312,7 +1323,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T19:30:19.694Z",
+      "lastSync": "2026-09-14T22:42:15.043Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1409,7 +1420,7 @@
       "mergedAt": "2026-09-14T08:02:35Z",
       "reporterResponseAt": "2026-09-14T08:02:08Z",
       "ci": "success",
-      "lastSync": "2026-09-14T19:30:22.635Z",
+      "lastSync": "2026-09-14T22:42:19.434Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-14T10:47:47.991Z"
@@ -1450,7 +1461,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T19:30:25.587Z",
+      "lastSync": "2026-09-14T22:42:24.035Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1513,6 +1524,17 @@
           "read": false
         },
         {
+          "key": "issue-comment:5671751307",
+          "kind": "issue-comment",
+          "author": "Emily-35",
+          "reporter": true,
+          "url": "https://github.com/open-nvr/open-nvr/issues/468#issuecomment-5671751307",
+          "updatedAt": "2026-09-14T22:36:48Z",
+          "state": null,
+          "body": "Removed the offending camera, updated, added the offending camera and everything worked smoothly.\n\nI am having an issue with the camera giving 1 frame every 2 seconds or so in WebRTC mode, but that appears to be the camera sending bad timing information and I'll open a new issue if required when I've sorted it out. \n\nBut as for adding the camera, it obtaining authentication and profiles etc, works fine so I think we can mark this issue as resolved.",
+          "read": false
+        },
+        {
           "key": "review:5200324380",
           "kind": "review",
           "author": "xpertvoip",
@@ -1524,7 +1546,7 @@
           "read": false
         }
       ],
-      "unread": 5,
+      "unread": 6,
       "mergeable": null,
       "mergeableState": "unknown",
       "headSha": "55558ea314ae39f001190cb6719eb8fc85a312c2",
@@ -1532,9 +1554,9 @@
       "issueCreatedAt": "2026-09-12T08:36:14Z",
       "prCreatedAt": "2026-09-14T07:30:01Z",
       "mergedAt": "2026-09-14T16:58:12Z",
-      "reporterResponseAt": null,
+      "reporterResponseAt": "2026-09-14T22:36:48Z",
       "ci": "success",
-      "lastSync": "2026-09-14T19:30:28.411Z",
+      "lastSync": "2026-09-14T22:42:28.331Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1562,9 +1584,31 @@
           "state": null,
           "body": "I prepared #206 from the ability data and event shape in this report. The unchanged regression is red on 3766907 and green with the patch: channel 1 gets motion/people/vehicle/dog-cat capabilities, its Baichuan event updates those states, and an unadvertised extra stream stays unmarked. Could you test the PR branch on the OMVI 3i PoE and confirm that the four lens-2 entities return and that triggering each type no longer produces `received unknown event`? Your live-camera result is the remaining validation.",
           "read": false
+        },
+        {
+          "key": "issue-comment:5669697443",
+          "kind": "issue-comment",
+          "author": "chriscortez1976",
+          "reporter": true,
+          "url": "https://github.com/starkillerOG/reolink_aio/issues/204#issuecomment-5669697443",
+          "updatedAt": "2026-09-14T19:35:55Z",
+          "state": null,
+          "body": "Test was positiv, see #206 ",
+          "read": false
+        },
+        {
+          "key": "pr-comment:5669686450",
+          "kind": "pr-comment",
+          "author": "chriscortez1976",
+          "reporter": true,
+          "url": "https://github.com/starkillerOG/reolink_aio/pull/206#issuecomment-5669686450",
+          "updatedAt": "2026-09-14T19:35:00Z",
+          "state": null,
+          "body": "Tested on the OMVI 3i PoE — **the patch works.**\r\n\r\nSetup: HA Core 2026.9.2, camera connected directly over PoE, no Hub/NVR, RTSP.\r\nInstalled the branch into the Home Assistant container with `pip install --no-deps --force-reinstall <branch tarball>` and restarted Core.\r\n\r\n### Capabilities, channel 1\r\n\r\n| | before (0.21.16) | after (this branch) |\r\n\r\n| `motion_detection` | — | ✔ |\r\n| `ai_people`              | — | ✔ |\r\n| `ai_vehicle`              | — | ✔ |\r\n| `ai_animal`               | — | ✔ |\r\n| `ai_dog_cat`             | — | ✔ |\r\n\r\nBefore, channel 1 carried only `ptz_*`, `stream`, `snapshot`, `replay` and `privacy_mask_basic`.\r\n\r\n### Entities\r\n\r\nAll four lens-2 binary sensors left `unavailable` and came back as `off` on the first restart: motion, person, vehicle, animal. \r\nNo entity-ID churn, history preserved — they picked up their old identities.\r\n\r\nI had expected the animal sensor might not return, since channel 1 only gets `ai_dog_cat` while channel 0 has both `ai_animal` and `ai_dog_cat`. It returned anyway; both capabilities are now present on channel 1.\r\n\r\n### Live events\r\n\r\nWalked through the yard at 21:18 local time:\r\n\r\n    21:18:43  ...motion_2    off -> on -> off\r\n    21:18:51  ...person_2    off -> on -> off   (4 cycles over ~90 s)\r\n    21:19:51  ...vehicle_2   off -> on -> off\r\n\r\nThe vehicle trigger is genuine rather than a misclassification: auto-track swung the PTZ lens round to follow me and a parked car entered its field of view.\r\nWorth noting because it demonstrates the point of the whole report — channel 0's vehicle sensor did **not** fire in that window. The second lens detects independently, on a different field of view.\r\n\r\n`dog_cat`: not triggered within my test window — the capability is present on channel 1 and goes through the same code path, but I reverted to the released 0.21.16 the same evening rather than leave an unreleased build running\r\novernight. \r\nHappy to re-test that type specifically once the change is merged, or sooner if it would help.\r\n\r\n### No more discarded events\r\n\r\nNo `received unknown event` warnings since the restart. The last ones are from before it (09:59 `people` and `vehicle`, 00:04 `dog_cat`). Since `_log_once` resets per session, still-discarded events would have produced fresh lines at 21:18 — there are none.\r\n\r\n### One observation about the branch, not the patch\r\n\r\nAfter installing, `main` and `sub` capabilities appear on **both** channels. \r\nThey are not in the diff, so the branch evidently carries upstream commits made after the 0.21.16 release. \r\nWhat I tested is therefore \"current main + patch\", not \"0.21.16 + patch\". Flagging it so the scope of this confirmation is clear.\r\n\r\n### Everything else unaffected\r\n\r\nPTZ control, presets, auto-track, both streams and snapshots all continue to \r\n[config_entry-reolink-01KWW729VFC7B6GS7CY011E7KF (2).json](https://github.com/user-attachments/files/32208363/config_entry-reolink-01KWW729VFC7B6GS7CY011E7KF.2.json)\r\nwork, and there are no errors in the log.\r\n\r\nThanks for putting this together.",
+          "read": false
         }
       ],
-      "unread": 1,
+      "unread": 3,
       "mergeable": true,
       "mergeableState": "blocked",
       "headSha": "23880bae998f7e528420d4fbea8d5fd0848fb06c",
@@ -1572,9 +1616,9 @@
       "issueCreatedAt": "2026-09-13T10:39:45Z",
       "prCreatedAt": "2026-09-14T08:12:51Z",
       "mergedAt": null,
-      "reporterResponseAt": null,
+      "reporterResponseAt": "2026-09-14T19:35:00Z",
       "ci": "none",
-      "lastSync": "2026-09-14T19:30:31.172Z",
+      "lastSync": "2026-09-14T22:42:32.752Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1614,7 +1658,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T19:30:33.995Z",
+      "lastSync": "2026-09-14T22:42:37.130Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1676,7 +1720,7 @@
       "mergedAt": "2026-09-14T11:43:45Z",
       "reporterResponseAt": "2026-09-14T09:51:57Z",
       "ci": "success",
-      "lastSync": "2026-09-14T19:30:37.317Z",
+      "lastSync": "2026-09-14T22:42:41.449Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1760,7 +1804,7 @@
       "mergedAt": "2026-09-14T14:52:37Z",
       "reporterResponseAt": "2026-09-14T12:57:21Z",
       "ci": "none",
-      "lastSync": "2026-09-14T19:30:40.305Z",
+      "lastSync": "2026-09-14T22:42:45.986Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1844,7 +1888,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T16:02:33Z",
       "ci": "none",
-      "lastSync": "2026-09-14T19:30:43.033Z",
+      "lastSync": "2026-09-14T22:42:50.303Z",
       "syncError": null
     },
     {
@@ -1916,7 +1960,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T10:33:28Z",
       "ci": "success",
-      "lastSync": "2026-09-14T19:30:45.783Z",
+      "lastSync": "2026-09-14T22:42:55.408Z",
       "syncError": null
     },
     {
@@ -1977,7 +2021,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T19:30:48.871Z",
+      "lastSync": "2026-09-14T22:43:00.182Z",
       "syncError": null
     },
     {
@@ -1993,7 +2037,7 @@
       "hardware": {
         "status": "NOT_REVIEWED",
         "priorStatus": "NOT_REVIEWED",
-        "testedHeadSha": "70305c895e8a5ea6c18fe02053f346c953ae960e"
+        "testedHeadSha": "158d24bd1ac7b9fd7e02ae9cc3027a1c0c83e6da"
       },
       "events": [
         {
@@ -2086,7 +2130,7 @@
         }
       ],
       "unread": 8,
-      "evidenceStaleSince": "2026-09-14T19:30:52.149Z",
+      "evidenceStaleSince": "2026-09-14T22:43:04.847Z",
       "mergeable": null,
       "mergeableState": "unknown",
       "headSha": "158d24bd1ac7b9fd7e02ae9cc3027a1c0c83e6da",
@@ -2096,7 +2140,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T08:45:51Z",
       "ci": "success",
-      "lastSync": "2026-09-14T19:30:52.149Z",
+      "lastSync": "2026-09-14T22:43:04.847Z",
       "syncError": null
     },
     {
@@ -2123,9 +2167,20 @@
           "state": null,
           "body": "I prepared a focused candidate in #37.\n\nThe no-connector-control path currently advertises `AcxJackConfigJackDetection` and installs a presence callback even though it represents a dummy jack. The patch advertises that endpoint as static with `AcxJackConfigNoFlags`, keeps its connected state, and leaves the connector-controlled physical jack path unchanged.\n\nThe pinned `yamaha-main` baseline fails the focused source regression and the candidate passes it. The Microsoft CLA check is also green. This still needs the decisive hardware check.\n\nCould you build and install the PR on the Sound Blaster G3, select Aux In, and confirm whether mmsys.cpl now shows Default Device with an active meter? Please also cycle through Microphone, What U Hear and SPDIF In. If possible, verify one device with real connector detection still changes availability when unplugged.\n",
           "read": false
+        },
+        {
+          "key": "review:5202901698",
+          "kind": "review",
+          "author": "copilot-pull-request-reviewer[bot]",
+          "reporter": false,
+          "url": "https://github.com/microsoft/low-latency-audio/pull/37#pullrequestreview-5202901698",
+          "updatedAt": "2026-09-14T21:06:27Z",
+          "state": "COMMENTED",
+          "body": "### 🔵 Needs a closer look\n\nThe kernel-driver change is consistent, but final endpoint behavior still requires Windows hardware validation.\n\n<details>\n<summary>Pull request overview</summary>\n\nUpdates dummy USB audio jacks to remain statically available when connector detection is unsupported.\n\n**Changes:**\n- Removes presence callbacks and detection flags from dummy jacks.\n- Preserves detection behavior for physical, connector-controlled jacks.\n</details>\n\n<details>\n<summary>File summaries</summary>\n\n| File | Description |\r\n| ---- | ----------- |\r\n| `src/uac2-driver/CircuitCommon.cpp` | Configures dummy jacks as static endpoints. |\n</details>\n\n<details>\n<summary>Review details</summary>\n\n- **Files reviewed:** 1/1 changed files\n- **Comments generated:** 0\n- **Review effort level:** Balanced\n</details>\n\n---\n\n💡 <a href=\"/microsoft/low-latency-audio/new/yamaha-main?filename=.github/skills/code-review/SKILL.md\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Add a `code-review` agent skill</a> or configure MCP servers for context-aware, tailored reviews. <a href=\"https://docs.github.com/copilot/how-tos/use-copilot-agents/request-a-code-review/use-code-review?tool=webui#mcp-servers-and-agent-skills\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more in the docs.</a>",
+          "read": false
         }
       ],
-      "unread": 1,
+      "unread": 2,
       "mergeable": true,
       "mergeableState": "clean",
       "headSha": "ef4cef28c91114d54cd32900f4507d680c52606a",
@@ -2135,7 +2190,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T19:30:54.901Z",
+      "lastSync": "2026-09-14T22:43:09.433Z",
       "syncError": null
     },
     {
@@ -2185,7 +2240,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T13:43:10Z",
       "ci": "none",
-      "lastSync": "2026-09-14T19:30:58.734Z",
+      "lastSync": "2026-09-14T22:43:14.188Z",
       "syncError": null
     },
     {
@@ -2257,7 +2312,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T15:54:33Z",
       "ci": "success",
-      "lastSync": "2026-09-14T19:31:01.590Z",
+      "lastSync": "2026-09-14T22:43:18.620Z",
       "syncError": null
     },
     {
@@ -2362,7 +2417,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T12:47:41Z",
       "ci": "none",
-      "lastSync": "2026-09-14T19:31:04.322Z",
+      "lastSync": "2026-09-14T22:43:22.646Z",
       "syncError": null
     },
     {
@@ -2416,7 +2471,7 @@
         }
       ],
       "unread": 3,
-      "evidenceStaleSince": "2026-09-14T19:31:07.178Z",
+      "evidenceStaleSince": "2026-09-14T22:43:26.748Z",
       "mergeable": true,
       "mergeableState": "blocked",
       "headSha": "926c4bb6ff5d2ee95f3c35eab1d378fef10983b8",
@@ -2426,7 +2481,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T19:31:07.178Z",
+      "lastSync": "2026-09-14T22:43:26.748Z",
       "syncError": null
     },
     {
@@ -2498,7 +2553,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-07-15T14:15:08Z",
       "ci": "success",
-      "lastSync": "2026-09-14T19:31:10.344Z",
+      "lastSync": "2026-09-14T22:43:31.205Z",
       "syncError": null
     },
     {
@@ -2537,7 +2592,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T19:31:13.500Z",
+      "lastSync": "2026-09-14T22:43:35.662Z",
       "syncError": null
     },
     {
@@ -2567,8 +2622,8 @@
         }
       ],
       "unread": 1,
-      "mergeable": true,
-      "mergeableState": "blocked",
+      "mergeable": null,
+      "mergeableState": "unknown",
       "headSha": "4274c81f5b910d993c7fecbaf85704e5697581b5",
       "reporter": "aquarius-noble",
       "issueCreatedAt": "2026-09-14T08:35:09Z",
@@ -2576,7 +2631,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T19:31:16.298Z",
+      "lastSync": "2026-09-14T22:43:40.103Z",
       "syncError": null,
       "attachment": "BCL_EXISTING_PR"
     },
@@ -2604,7 +2659,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T19:31:19.343Z",
+      "lastSync": "2026-09-14T22:43:49.640Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2632,7 +2687,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T19:31:22.371Z",
+      "lastSync": "2026-09-14T22:43:54.039Z",
       "syncError": null
     },
     {
@@ -2659,7 +2714,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T19:31:25.103Z",
+      "lastSync": "2026-09-14T22:43:58.340Z",
       "syncError": null
     },
     {
@@ -2698,7 +2753,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T19:31:28.142Z",
+      "lastSync": "2026-09-14T22:44:02.939Z",
       "syncError": null
     },
     {
@@ -2725,7 +2780,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T19:31:31.134Z",
+      "lastSync": "2026-09-14T22:44:07.181Z",
       "syncError": null
     },
     {
@@ -2752,7 +2807,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T20:48:29.819Z",
+      "lastSync": "2026-09-14T22:44:11.568Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2780,7 +2835,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T21:12:09.384Z",
+      "lastSync": "2026-09-14T22:44:16.073Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2820,7 +2875,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "failure",
-      "lastSync": "2026-09-14T21:45:15.273Z",
+      "lastSync": "2026-09-14T22:44:20.380Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2859,8 +2914,8 @@
       "prCreatedAt": "2026-09-14T22:07:59Z",
       "mergedAt": null,
       "reporterResponseAt": null,
-      "ci": "pending",
-      "lastSync": "2026-09-14T22:08:18.429Z",
+      "ci": "success",
+      "lastSync": "2026-09-14T22:44:24.749Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2880,7 +2935,17 @@
       "events": [],
       "unread": 0,
       "headSha": "29aa8439739411dda7d9423d8add15d6cdc68680",
-      "commitEnvelopeNote": "GPG-signed DCO commit; tree 8e3db56133dbbb8eec6d2a5dfd52ddb0490da609 matches the BCL-tested candidate tree"
+      "commitEnvelopeNote": "GPG-signed DCO commit; tree 8e3db56133dbbb8eec6d2a5dfd52ddb0490da609 matches the BCL-tested candidate tree",
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "reporter": "mjonuschat",
+      "issueCreatedAt": "2026-09-13T21:00:26Z",
+      "prCreatedAt": "2026-09-14T22:31:50Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "success",
+      "lastSync": "2026-09-14T22:44:29.168Z",
+      "syncError": null
     }
   ],
   "schemaVersion": 1

@@ -66,6 +66,7 @@ Updated 2026-09-11.
 | nora-997 | [Issue](https://github.com/getnora-io/nora/issues/997) | [PR](https://github.com/getnora-io/nora/pull/998) | open | none | NOT_BOUND | 0 | NOT_REVIEWED | 2026-09-14T20:48:29.819Z |
 | reolink-native-linux-7 | [Issue](https://github.com/TodesengelX/reolink-native-linux/issues/7) | [PR](https://github.com/TodesengelX/reolink-native-linux/pull/8) | open | none | NOT_BOUND | 0 | NOT_REVIEWED | 2026-09-14T21:12:09.384Z |
 | dualsense-tester-222 | [Issue](https://github.com/daidr/dualsense-tester/issues/222) | [PR](https://github.com/daidr/dualsense-tester/pull/223) | open | failure | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T21:45:15.273Z |
+| psychopy-7777 | [Issue](https://github.com/psychopy/psychopy/issues/7777) | [PR](https://github.com/psychopy/psychopy/pull/7778) | open | pending | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T22:08:18.429Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

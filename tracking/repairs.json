@@ -2823,6 +2823,46 @@
       "lastSync": "2026-09-14T21:45:15.273Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "psychopy-7777",
+      "title": "Pause PsychoJS microphones before finishing their component state",
+      "issue": "https://github.com/psychopy/psychopy/issues/7777",
+      "pr": "https://github.com/psychopy/psychopy/pull/7778",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "review:5203394206",
+          "kind": "review",
+          "author": "claude[bot]",
+          "reporter": false,
+          "url": "https://github.com/psychopy/psychopy/pull/7778#pullrequestreview-5203394206",
+          "updatedAt": "2026-09-14T22:08:02Z",
+          "state": "COMMENTED",
+          "body": "## Claude Code Review\n\nThis pull request is from a fork — automated review is disabled. A repository maintainer can comment `@claude review` to run a one-time review.",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "5d77e5e6c727bea21f728747fb32d5c911ab4f2d",
+      "reporter": "laurentott",
+      "issueCreatedAt": "2026-09-14T15:40:48Z",
+      "prCreatedAt": "2026-09-14T22:07:59Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "pending",
+      "lastSync": "2026-09-14T22:08:18.429Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

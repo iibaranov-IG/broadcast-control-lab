@@ -1287,6 +1287,34 @@
       "lastSync": "2026-09-14T06:57:16.065Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "srctools-51",
+      "title": "Write stub UUIDs into binary DMX element references",
+      "issue": "https://github.com/TeamSpen210/srctools/issues/51",
+      "pr": "https://github.com/TeamSpen210/srctools/pull/52",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "9a40ee13f2c9d06dbcee1781cbb0bc94fd57e313",
+      "reporter": "realbadgeriswear",
+      "issueCreatedAt": "2026-09-11T04:00:01Z",
+      "prCreatedAt": "2026-09-14T07:05:34Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T07:06:05.153Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

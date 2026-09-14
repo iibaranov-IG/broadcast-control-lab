@@ -1,0 +1,12 @@
+diff --git a/src/srctools/dmx.py b/src/srctools/dmx.py
+index d110877..2f22bf3 100644
+--- a/src/srctools/dmx.py
++++ b/src/srctools/dmx.py
+@@ -1800,6 +1800,7 @@ class Element(Mapping[str, Attribute]):
+                             file.write(pack('<i', -1))
+                         elif subelem.is_stub:
+                             file.write(pack('<i', -2))
++                            file.write(str(subelem.uuid).encode('ascii') + b'\0')
+                         else:
+                             file.write(pack('<i', elem_to_ind[subelem.uuid]))
+                 else:

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "id": "srctools-51",
+  "status": "ready",
+  "title": "Write stub UUIDs into binary DMX element references",
+  "issue": "https://github.com/TeamSpen210/srctools/issues/51",
+  "problem": "Binary DMX export writes the -2 stub marker without the required UUID string, corrupting the remaining stream and producing empty Source Filmmaker imports.",
+  "reproduce": "Export an element containing StubElement.stub(uuid) to BytesIO and parse it; the baseline parser raises ValueError because it reaches EOF while reading the absent UUID.",
+  "acceptance": "The exported file parses successfully and retains the format metadata, stub type and exact UUID.",
+  "repair": "Write the ASCII UUID plus a null terminator immediately after every -2 binary stub marker and add an in-memory round-trip regression.",
+  "sources": [{"id":"upstream","repository":"TeamSpen210/srctools","commit":"7dfff9fb77c0abd01bdc7f9c1b93dcc6b553099f","directory":"sources/srctools-51"}],
+  "runtime": {"node":"22.20.0","python":"3.12.14"},
+  "watch": ["scripts/dependencies.cjs"],
+  "steps": {
+    "dependencies": [{"cwd":"sources/srctools-51","argv":["audited-profile","srctools-51"]}],
+    "prepare": [{"cwd":"sources/srctools-51","argv":["git","apply","../../cases/srctools-51/repair.patch"]}],
+    "test": [{"cwd":".","argv":["node","cases/srctools-51/test.mjs","sources/srctools-51"]}],
+    "build": [{"cwd":"sources/srctools-51","argv":[".venv/bin/python","-m","py_compile","src/srctools/dmx.py","tests/test_dmx.py"]}]
+  },
+  "artifacts": {"report":"reports/srctools-51.json"},
+  "selection": {"report":"cases/srctools-51/triage.json","sha256":"cfe2d4f7d91fd27aee47a12427eab7d163ce78a60162a7ab91ee5a6208419cfd","reason":"A three-day-old user report has an exact EOF reproduction, application impact, no competing PR, and a one-line format repair backed by a native round trip."},
+  "verification": {"hardwareVerified":false,"applicationVerified":false,"limitations":"BCL runs the real Python DMX writer and parser. The focused test passes; 122 tests in test_dmx.py passed separately, while one unrelated test requires the optional compiled tokenizer extension. Source Filmmaker was not available locally.","ownerCheck":"Round-trip an animation DMX containing external element stubs through srctools, import it in Source Filmmaker, and confirm the referenced channels are retained rather than importing as an empty file."},
+  "publish": {"source":"upstream","target":"TeamSpen210/srctools","base":"master","paths":["src/srctools/dmx.py","tests/test_dmx.py"]},
+  "upstream": {
+    "kind":"python","source":"upstream","timeoutMs":60000,
+    "setup":[{"cwd":".","argv":["git","apply","../../cases/srctools-51/tests-only.patch"]}],
+    "build": [],
+    "testFiles":["tests/test_dmx.py"],
+    "regression":{"cwd":".","argv":[".venv/bin/python","../../cases/srctools-51/upstream.py"]},
+    "negative":{"exitCode":1,"outputIncludes":"Fell off end of file!"},
+    "suite":{"cwd":".","argv":[".venv/bin/python","../../cases/srctools-51/upstream.py"]},
+    "suiteOutputIncludes":"Ran 1 test"
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T07:00:59.249Z",
+  "issue": {
+    "repository": "TeamSpen210/srctools",
+    "number": "51",
+    "url": "https://github.com/TeamSpen210/srctools/issues/51",
+    "title": "dmx: export_binary writes stub element references without their UUID, corrupting the file",
+    "state": "open",
+    "updatedAt": "2026-09-11T04:00:01Z"
+  },
+  "source": {
+    "repository": "TeamSpen210/srctools",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "NOASSERTION",
+    "commit": "7dfff9fb77c0abd01bdc7f9c1b93dcc6b553099f",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      ".github/workflows/read_deps.py",
+      "dev/structs/__init__.py",
+      "dev/structs/static_prop.py",
+      "examples/keyvalues.py",
+      "src/libsquish/alpha.cpp",
+      "src/libsquish/alpha.h",
+      "src/libsquish/clusterfit.cpp",
+      "src/libsquish/clusterfit.h",
+      "src/libsquish/colourblock.cpp",
+      "src/libsquish/colourblock.h"
+    ],
+    "buildFiles": [
+      {
+        "path": "docs/Makefile",
+        "kind": "make",
+        "url": "https://github.com/TeamSpen210/srctools/blob/7dfff9fb77c0abd01bdc7f9c1b93dcc6b553099f/docs/Makefile"
+      },
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/TeamSpen210/srctools/blob/7dfff9fb77c0abd01bdc7f9c1b93dcc6b553099f/pyproject.toml"
+      },
+      {
+        "path": "src/libsquish/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/TeamSpen210/srctools/blob/7dfff9fb77c0abd01bdc7f9c1b93dcc6b553099f/src/libsquish/CMakeLists.txt"
+      },
+      {
+        "path": "src/libsquish/Makefile",
+        "kind": "make",
+        "url": "https://github.com/TeamSpen210/srctools/blob/7dfff9fb77c0abd01bdc7f9c1b93dcc6b553099f/src/libsquish/Makefile"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: The focused pure-Python DMX regression does not import or build the optional C sources in the repository submodule.",
+      "url": "https://github.com/TeamSpen210/srctools/tree/7dfff9fb77c0abd01bdc7f9c1b93dcc6b553099f",
+      "resolution": {
+        "reason": "The focused pure-Python DMX regression does not import or build the optional C sources in the repository submodule.",
+        "evidence": [
+          "PYTHONPATH=src pytest executes test_export_bin_stub_roundtrip with the Python implementation.",
+          "The changed files are src/srctools/dmx.py and tests/test_dmx.py only."
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:TeamSpen210/srctools": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 92,
+    "scoreRange": [
+      92,
+      93
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Round-tripped animation DMX files import empty in Source Filmmaker.",
+        "evidence": [
+          "The library cannot parse its own exported stub reference."
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The user report is three days old and still reproduces on master.",
+        "evidence": [
+          "Issue created 2026-09-11; current writer still omits the UUID."
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "The reporter supplied exact code and independently checked SFM acceptance.",
+        "evidence": [
+          "Issue includes a one-line fix and real application result."
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "The parsed stub must retain the exact UUID.",
+        "evidence": [
+          "Binary parser explicitly expects a null-terminated UUID after marker -2."
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "A deterministic in-memory export/import test fails at EOF.",
+        "evidence": [
+          "Baseline raises ValueError: Fell off end of file."
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "One serialization line plus one focused regression.",
+        "evidence": [
+          "No format redesign is needed."
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "The focused pytest runs in a fraction of a second.",
+        "evidence": [
+          "No SFM installation or hardware is required for binary correctness."
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "The new bytes are exactly what the existing parser already consumes.",
+        "evidence": [
+          "Round trip asserts format metadata, stub type and UUID."
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 4,
+        "reason": "Repository was updated yesterday.",
+        "evidence": [
+          "GitHub reports activity on 2026-09-13."
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Any DMX tree with external element references benefits.",
+        "evidence": [
+          "The logic is shared by all binary export versions."
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The fix applies to scalar and array element attributes.",
+        "evidence": [
+          "Both flow through attr.iter_elem."
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "All callers exporting binary DMX gain a valid stream.",
+        "evidence": [
+          "Element.export_binary is the shared writer."
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 93,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      93,
+      92
+    ],
+    "selectable": true
+  },
+  "durationMs": 17742
+}

@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T15:19:33.350Z",
+  "issue": {
+    "repository": "noisy/noisy-studio",
+    "number": "99",
+    "url": "https://github.com/noisy/noisy-studio/issues/99",
+    "title": "Desktop: production app asks for the browser-tab microphone (ENABLE TAB AUDIO banner) instead of using a native mic",
+    "state": "open",
+    "updatedAt": "2026-09-14T06:56:20Z"
+  },
+  "source": {
+    "repository": "noisy/noisy-studio",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "55024b577cbcb015b2979785160b3f74e047ee65",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "dashboard/.storybook/main.ts",
+      "dashboard/.storybook/preview.ts",
+      "dashboard/src/__tests__/smoke.spec.ts",
+      "dashboard/src/api/client.spec.ts",
+      "dashboard/src/api/client.ts",
+      "dashboard/src/components/ActivityLine.spec.ts",
+      "dashboard/src/components/AgentTabs.spec.ts",
+      "dashboard/src/components/AgentTabs.stories.ts",
+      "dashboard/src/components/AppIcon.stories.ts",
+      "dashboard/src/components/Bubble.spec.ts"
+    ],
+    "buildFiles": [
+      {
+        "path": "dashboard/package.json",
+        "kind": "node",
+        "url": "https://github.com/noisy/noisy-studio/blob/55024b577cbcb015b2979785160b3f74e047ee65/dashboard/package.json"
+      },
+      {
+        "path": "desktop/package.json",
+        "kind": "node",
+        "url": "https://github.com/noisy/noisy-studio/blob/55024b577cbcb015b2979785160b3f74e047ee65/desktop/package.json"
+      },
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/noisy/noisy-studio/blob/55024b577cbcb015b2979785160b3f74e047ee65/pyproject.toml"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:noisy/noisy-studio": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 93,
+    "scoreRange": [
+      93,
+      94
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "The packaged desktop app asks for browser microphone permission instead of using native audio.",
+        "evidence": [
+          "Issue #99"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The owner opened the issue today.",
+        "evidence": [
+          "Issue #99 opened 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter is the repository owner and supplied the exact persisted value and desired migration.",
+        "evidence": [
+          "Issue #99 body"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Native builds must map browser input/output to system devices while web deployments retain browser choices.",
+        "evidence": [
+          "Issue #99 acceptance list"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The defect is reproduced by loading or posting browser audio choices under the native flag.",
+        "evidence": [
+          "tests/unit/test_native_audio.py"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "The repair is confined to launch identity, settings migration and guards, status, and picker presentation.",
+        "evidence": [
+          "Focused source diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Backend and UI behavior run without physical hardware; the owner can confirm packaged-app microphone selection.",
+        "evidence": [
+          "Pytest and Vitest suites"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Native and web paths have separate regression assertions.",
+        "evidence": [
+          "Native migration and web preservation tests"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The owner filed this release-blocking issue against the active 3.0 work today.",
+        "evidence": [
+          "Issue #99",
+          "Recent repository activity"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The repair prevents a confusing permission prompt and restores expected desktop microphone behavior.",
+        "evidence": [
+          "Issue #99 user-visible symptom"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The native/web separation covers input, output, saved settings, and future settings requests.",
+        "evidence": [
+          "Shared ListenerState and /settings paths"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Correct native capture removes the misleading tab-audio banner and enables downstream speech recognition.",
+        "evidence": [
+          "Issue #99 description"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      93
+    ],
+    "selectable": true
+  },
+  "durationMs": 2971
+}

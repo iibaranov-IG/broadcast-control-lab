@@ -4,6 +4,15 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { load } = require('./case.cjs')
 const c = load(process.argv[2])
+if (c.id === 'noisy-studio-99' && c.sources.length === 1 && c.sources[0].repository === 'noisy/noisy-studio' && c.sources[0].commit === '55024b577cbcb015b2979785160b3f74e047ee65') {
+  const source = path.resolve(c.sources[0].directory)
+  const expected = { 'pyproject.toml': 'e3218d6eba934fb38b9f0180ed771ff44ae803d478fd741848ff6335617d6248', 'uv.lock': '4f061c16c3b6ca6d591bed02003f0cd3875e2d5a6144a8b369938ff23ac3dc14', 'dashboard/package.json': 'e5be74411f9a95e6c54cb00b641762c94ff1a3d93c86ef053a414cf84b622ce9', 'dashboard/package-lock.json': '3a31936b6fc2360a577bde06a4114425fceb5f82f9b7aba153bc741b96211c6d' }
+  for (const [name, sha] of Object.entries(expected)) if (require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(source, name))).digest('hex') !== sha) throw new Error('noisy-studio dependency manifest changed; review required')
+  const env = { ...process.env, UV_CACHE_DIR: '/work/.cache/uv', UV_PYTHON_DOWNLOADS: 'never', UV_LINK_MODE: 'copy' }
+  execFileSync('uv', ['sync', '--frozen', '--group', 'dev', '--no-build', '--python', '/usr/local/bin/python3'], { cwd: source, stdio: 'inherit', env })
+  execFileSync('npm', ['ci', '--ignore-scripts', '--no-audit', '--no-fund'], { cwd: path.join(source, 'dashboard'), stdio: 'inherit' })
+  process.exit(0)
+}
 if (c.id === 'srctools-51' && c.sources.length === 1 && c.sources[0].repository === 'TeamSpen210/srctools' && c.sources[0].commit === '7dfff9fb77c0abd01bdc7f9c1b93dcc6b553099f') {
   const source = path.resolve(c.sources[0].directory)
   const expected = { 'pyproject.toml': '7e34aec2d0e0598c7f38e4de8ecd8ef74fee65fe38310e450fc80c9767653893', 'test-requirements.txt': '0fb71dc700eb61278132a7fdf880ac03a13329d1866c5eb74184d033873aea00' }

@@ -88,12 +88,13 @@ function containerRun(c, { harness = false, shared = null, legacy = false } = {}
     }
     fs.mkdirSync(path.join(stage, '.home'), { recursive: true })
     const node = c?.runtime.node || '22.20.0'
-    const tag = `bcl-runtime:${node}`
+    const python = c?.runtime.python || '3.12.14'
+    const tag = `bcl-runtime:${node}-python-${python}`
     const prepareImage = () => {
-      exec('docker', ['build', '--build-arg', `NODE_VERSION=${node}`, '-t', tag, '-f', path.join(root, 'Dockerfile'), root])
+      exec('docker', ['build', '--build-arg', `NODE_VERSION=${node}`, '--build-arg', `PYTHON_VERSION=${python}`, '-t', tag, '-f', path.join(root, 'Dockerfile'), root])
       return exec('docker', ['image', 'inspect', '--format={{.Id}}', tag], { stdio: 'pipe', encoding: 'utf8' }).trim()
     }
-    const imageKey = node + ':' + require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(root, 'Dockerfile'))).digest('hex')
+    const imageKey = `${node}:${python}:` + require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(root, 'Dockerfile'))).digest('hex')
     const imageId = shared ? shared.image(imageKey, prepareImage) : prepareImage()
     const base = ['run', '--rm', '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--pids-limit=256', '--memory=2g', '--cpus=2',
       '--user', `${process.getuid()}:${process.getgid()}`, '--tmpfs', '/tmp:rw,exec,nosuid,size=512m',

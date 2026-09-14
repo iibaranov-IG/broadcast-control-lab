@@ -1,0 +1,262 @@
+diff --git a/dashboard/src/App.vue b/dashboard/src/App.vue
+index 61bd15d..192f8f1 100644
+--- a/dashboard/src/App.vue
++++ b/dashboard/src/App.vue
+@@ -650,6 +650,7 @@ const LANGUAGES: Record<string, string> = {
+             :devices="devices"
+             :selected-device="status?.input_device ?? ''"
+             :output-device="status?.output_device ?? 'system'"
++            :native-app="status?.native_app ?? false"
+             :cue-prefs="cuePrefs"
+             :ptt-hold-key="status?.ptt_hold_key ?? ''"
+             :ptt-toggle-key="status?.ptt_toggle_key ?? ''"
+diff --git a/dashboard/src/components/SettingsView.stories.ts b/dashboard/src/components/SettingsView.stories.ts
+index e18a82e..7441c43 100644
+--- a/dashboard/src/components/SettingsView.stories.ts
++++ b/dashboard/src/components/SettingsView.stories.ts
+@@ -15,3 +15,14 @@ export const Configured: StoryObj<typeof SettingsView> = {
+     template: `<div style="max-width:720px"><SettingsView v-bind="args" /></div>`,
+   }),
+ };
++
++export const NativeApp: StoryObj<typeof SettingsView> = {
++  args: {
++    apiKeyHint: "····kRc9",
++    nativeApp: true,
++    devices: [{ name: "MacBook Microphone", default: true }],
++    selectedDevice: "",
++    outputDevice: "system",
++  },
++  render: Configured.render,
++};
+diff --git a/dashboard/src/components/SettingsView.vue b/dashboard/src/components/SettingsView.vue
+index 44a2fd7..0d60211 100644
+--- a/dashboard/src/components/SettingsView.vue
++++ b/dashboard/src/components/SettingsView.vue
+@@ -26,6 +26,7 @@ withDefaults(
+     devices?: InputDevice[];
+     selectedDevice?: string;
+     outputDevice?: string;
++    nativeApp?: boolean;
+     cuePrefs?: CuePrefs | null;
+     pttHoldKey?: string;
+     pttToggleKey?: string;
+@@ -34,7 +35,7 @@ withDefaults(
+     checksRunning?: boolean;
+   }>(),
+   {
+-    devices: () => [], selectedDevice: "", outputDevice: "system", cuePrefs: null,
++    devices: () => [], selectedDevice: "", outputDevice: "system", nativeApp: false, cuePrefs: null,
+     pttHoldKey: "", pttToggleKey: "", pttCancelKey: "",
+     checks: null, checksRunning: false,
+   },
+@@ -117,7 +118,7 @@ function submit() {
+           @change="emit('pickOutput', ($event.target as HTMLSelectElement).value)"
+         >
+           <option value="system">SYSTEM SPEAKERS</option>
+-          <option value="browser">THIS BROWSER TAB</option>
++          <option v-if="!nativeApp" value="browser">THIS BROWSER TAB</option>
+         </select>
+       </div>
+       <div class="text">
+diff --git a/dashboard/src/types.ts b/dashboard/src/types.ts
+index 8731064..60663fc 100644
+--- a/dashboard/src/types.ts
++++ b/dashboard/src/types.ts
+@@ -32,6 +32,8 @@ export interface DaemonStatus {
+   input_device: string;
+   /** Where Claude's voice plays: system speakers or the browser tab. */
+   output_device: "system" | "browser";
++  /** The daemon is owned by the packaged desktop app. */
++  native_app?: boolean;
+   /** A browser tab currently holds the audio lease (WS bridge). */
+   tab_audio: boolean;
+   /** Live per-endpoint xAI check results — partial while checks run. */
+diff --git a/desktop/main.js b/desktop/main.js
+index 2760648..3b200f3 100644
+--- a/desktop/main.js
++++ b/desktop/main.js
+@@ -89,6 +89,7 @@ async function spawnDaemon() {
+     env: {
+       ...process.env,
+       NOISY_CODING_LISTENER_PORT: String(OWN_PORT),
++      NOISY_CODING_NATIVE_APP: "1",
+       // Its own config directory: sharing one means sharing settings,
+       // history and the voice ledger, where the last writer wins.
+       NOISY_CODING_CONFIG_DIR:
+diff --git a/src/noisy_coding/listener/daemon.py b/src/noisy_coding/listener/daemon.py
+index 47d42cf..8ea8c8c 100644
+--- a/src/noisy_coding/listener/daemon.py
++++ b/src/noisy_coding/listener/daemon.py
+@@ -4,6 +4,7 @@ Run with: noisy-coding-listener
+ The Claude Code hooks poll GET /drain on the HTTP API to pick up transcripts.
+ """
+ 
++import json
+ import os
+ import queue
+ import sys
+@@ -18,14 +19,13 @@ import sounddevice as sd
+ from noisy_coding import credentials
+ from noisy_coding.config_dir import CONFIG_DIR, migrate_legacy_config_dir
+ from noisy_coding.listener import pricing, speech, stt, stt_stream
+-import json
+-
+ from noisy_coding.listener.http_api import (
+     CHARACTER_FILE,
+-    VOICE_CLAIMS_FILE,
+     DEFAULT_PORT,
+     PORT_ENV_VAR,
+     SETTINGS_FILE,
++    VOICE_CLAIMS_FILE,
++    save_settings,
+     start_http_api,
+ )
+ from noisy_coding.listener.state import ListenerState
+@@ -39,6 +39,7 @@ INPUT_DEVICE_ENV_VAR = "NOISY_CODING_INPUT_DEVICE"
+ OUTPUT_DEVICE_ENV_VAR = "NOISY_CODING_OUTPUT_DEVICE"
+ MANAGEMENT_KEY_ENV_VAR = "NOISY_CODING_MANAGEMENT_KEY"
+ TEAM_ID_ENV_VAR = "NOISY_CODING_TEAM_ID"
++NATIVE_APP_ENV_VAR = "NOISY_CODING_NATIVE_APP"
+ CREDITS_POLL_SECONDS = 60.0
+ # Display gain for the dashboard mic level: int16 speech RMS is small
+ # (~0.02-0.08 full-scale), this maps it into a readable 0..1 range.
+@@ -91,6 +92,20 @@ def _history_saver(state: ListenerState) -> None:
+             last_saved = snapshot
+ 
+ 
++def _migrate_native_audio_choices(state: ListenerState) -> bool:
++    """Removes browser-only audio choices when the daemon belongs to the native app."""
++    if not state.native_app:
++        return False
++    migrated = False
++    if state.input_device == "browser":
++        state.set_input_device("")
++        migrated = True
++    if state.output_device == "browser":
++        state.set_output_device("system")
++        migrated = True
++    return migrated
++
++
+ def _poll_credits(state: ListenerState) -> None:
+     """Refresh the team's remaining prepaid credits once a minute."""
+     management_key = os.environ[MANAGEMENT_KEY_ENV_VAR]
+@@ -225,9 +240,13 @@ def _open_input_stream(
+     """
+     selected = state.input_device
+     if selected == "browser":
+-        _log("[mic] input = browser tab (WS bridge)")
+-        state.create_utterance("system", "", text="MIC → THIS BROWSER TAB")
+-        return None
++        if state.native_app:
++            state.set_input_device("")
++            selected = ""
++        else:
++            _log("[mic] input = browser tab (WS bridge)")
++            state.create_utterance("system", "", text="MIC → THIS BROWSER TAB")
++            return None
+     options = {"device": selected} if selected else {}
+     try:
+         input_stream = sd.InputStream(
+@@ -240,6 +259,10 @@ def _open_input_stream(
+         )
+     except (sd.PortAudioError, ValueError) as error:
+         if not selected:
++            if state.native_app:
++                _log(f"[mic] no native audio hardware ({error})")
++                state.add_event("mic_error", "no native audio hardware available")
++                raise
+             # No selection and even the default won't open: this host has
+             # no usable audio hardware at all (a container, a headless
+             # box). The browser tab is the only possible microphone —
+@@ -271,6 +294,7 @@ def run(config: VadConfig | None = None) -> None:
+     port = int(os.environ.get(PORT_ENV_VAR, str(DEFAULT_PORT)))
+ 
+     state = ListenerState()
++    state.set_native_app(os.environ.get(NATIVE_APP_ENV_VAR) == "1")
+     state.set_mode(os.environ.get(MODE_ENV_VAR, "live"))
+     state.set_language(os.environ.get(STT_LANGUAGE_ENV_VAR, ""))
+     state.set_input_device(os.environ.get(INPUT_DEVICE_ENV_VAR, ""))
+@@ -327,6 +351,9 @@ def run(config: VadConfig | None = None) -> None:
+             state.restore_active_agent(str(saved["active_agent"]))
+     except (OSError, ValueError):
+         pass
++    if _migrate_native_audio_choices(state):
++        _log("[audio] migrated browser-tab devices to native system audio")
++        save_settings(state)
+     _load_history(state)
+     threading.Thread(target=_history_saver, args=(state,), daemon=True).start()
+     # Global PTT hotkeys (#25): armed only when a key is configured. The
+diff --git a/src/noisy_coding/listener/http_api.py b/src/noisy_coding/listener/http_api.py
+index f23330b..1d03f40 100644
+--- a/src/noisy_coding/listener/http_api.py
++++ b/src/noisy_coding/listener/http_api.py
+@@ -370,7 +370,11 @@ def _handler_class(state: ListenerState) -> type[BaseHTTPRequestHandler]:
+             elif url.path == "/devices":
+                 # The dashboard tab is a virtual microphone: selectable
+                 # always, audible only while a tab holds the audio lease.
+-                browser_entry = [{"name": "THIS BROWSER TAB", "default": False, "value": "browser"}]
++                browser_entry = (
++                    []
++                    if state.native_app
++                    else [{"name": "THIS BROWSER TAB", "default": False, "value": "browser"}]
++                )
+                 self._respond(
+                     {
+                         "devices": list_input_devices() + browser_entry,
+@@ -419,6 +423,7 @@ def _handler_class(state: ListenerState) -> type[BaseHTTPRequestHandler]:
+                         "ptt_held": state.ptt_held,
+                         "input_device": state.input_device,
+                         "output_device": state.output_device,
++                        "native_app": state.native_app,
+                         "tab_audio": state.tab_audio_alive,
+                         "activity": state.activity,
+                         "nudge_clocks": state.nudge_clocks(),
+@@ -626,9 +631,15 @@ def _handler_class(state: ListenerState) -> type[BaseHTTPRequestHandler]:
+                 if "language" in body:
+                     result["language"] = state.set_language(str(body["language"]))
+                 if "input_device" in body:
+-                    result["input_device"] = state.set_input_device(str(body["input_device"]))
++                    input_device = str(body["input_device"])
++                    if state.native_app and input_device == "browser":
++                        input_device = ""
++                    result["input_device"] = state.set_input_device(input_device)
+                 if "output_device" in body:
+-                    result["output_device"] = state.set_output_device(str(body["output_device"]))
++                    output_device = str(body["output_device"])
++                    if state.native_app and output_device == "browser":
++                        output_device = "system"
++                    result["output_device"] = state.set_output_device(output_device)
+                 if result:
+                     save_settings(state)
+                     self._respond(result)
+diff --git a/src/noisy_coding/listener/state.py b/src/noisy_coding/listener/state.py
+index df6f34c..8c51ba4 100644
+--- a/src/noisy_coding/listener/state.py
++++ b/src/noisy_coding/listener/state.py
+@@ -138,6 +138,7 @@ class ListenerState:
+         self._ptt_last_hold = float("-inf")  # monotonic time of last lease renewal
+         self._language = ""  # "" = auto-detect
+         self._input_device = ""  # "" = system default microphone
++        self._native_app = False
+         # Character is now PER AGENT: {agent_name: character_dict}. The special
+         # key "" holds the character used in single-agent mode (no agents
+         # registered) and as the template for a newly seen agent.
+@@ -360,6 +361,16 @@ class ListenerState:
+             self._input_device = str(name)
+             return self._input_device
+ 
++    @property
++    def native_app(self) -> bool:
++        with self._lock:
++            return self._native_app
++
++    def set_native_app(self, value: bool) -> bool:
++        with self._lock:
++            self._native_app = bool(value)
++            return self._native_app
++
+     @property
+     def output_device(self) -> str:
+         with self._lock:

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "noisy-studio-99",
+  "status": "ready",
+  "title": "Keep browser-tab audio out of the native desktop app",
+  "issue": "https://github.com/noisy/noisy-studio/issues/99",
+  "problem": "A persisted browser input choice makes the packaged desktop app show the web-only tab-audio banner and request Chromium microphone permission instead of opening the native microphone.",
+  "reproduce": "Mark a ListenerState as native, load or submit browser for both audio devices, and observe that the pinned baseline retains those choices and exposes the browser entries in the picker.",
+  "acceptance": "Native startup and settings requests normalize browser input/output to the system devices, native device lists and speaker picker omit browser choices, missing native hardware never falls back to browser capture, and non-native web deployments preserve tab audio.",
+  "repair": "Pass an explicit native-app flag from Electron, migrate persisted choices at startup, enforce the boundary in runtime and HTTP paths, expose it in status, and render the native picker variant without browser entries.",
+  "sources": [{"id":"baseline","repository":"noisy/noisy-studio","commit":"55024b577cbcb015b2979785160b3f74e047ee65","directory":"sources/noisy-studio-99"}],
+  "runtime": {"node":"22.20.0","python":"3.13.11"},
+  "watch": ["cases/noisy-studio-99/"],
+  "steps": {
+    "dependencies": [{"cwd":"sources/noisy-studio-99","argv":["audited-profile","noisy-studio-99"]}],
+    "prepare": [{"cwd":"sources/noisy-studio-99","argv":["git","apply","../../cases/noisy-studio-99/repair.patch"]}],
+    "test": [{"cwd":".","argv":["node","cases/noisy-studio-99/test.mjs","sources/noisy-studio-99"]}],
+    "build": [
+      {"cwd":"sources/noisy-studio-99","argv":[".venv/bin/python","-m","compileall","-q","src/noisy_coding","tests/unit/test_native_audio.py"]},
+      {"cwd":"sources/noisy-studio-99","argv":["node","--check","desktop/main.js"]},
+      {"cwd":"sources/noisy-studio-99/dashboard","argv":["npm","run","build"]}
+    ]
+  },
+  "artifacts": {"report":"reports/noisy-studio-99.json"},
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves native/web policy at startup helpers, HTTP settings, hardware-failure fallback and Vue rendering, then runs both complete automated suites. A packaged Electron build on the owner's microphone remains the final application check.",
+    "ownerCheck": "Install the packaged branch over a profile whose settings.json contains browser for input and output. Launch it, confirm the migration log appears once, the tab-audio banner and Chromium permission prompt do not appear, and native microphone speech reaches transcription. Confirm neither device picker offers THIS BROWSER TAB."
+  },
+  "selection": {"report":"cases/noisy-studio-99/triage.json","sha256":"cfe4445e192a50015e2e996ab25ddfb493b829ade370a51054f445e934dbd828"},
+  "template": {"language":"node","protocol":"none"},
+  "upstream": {
+    "kind":"node","source":"baseline","timeoutMs":180000,
+    "setup":[{"cwd":".","argv":["git","apply","../../cases/noisy-studio-99/tests-only.patch"]}],
+    "build":[],
+    "testFiles":["tests/unit/test_native_audio.py","dashboard/src/components/SettingsView.spec.ts"],
+    "regression":{"cwd":".","argv":["node","../../cases/noisy-studio-99/probe.mjs","focused"]},
+    "negative":{"exitCode":2,"outputIncludes":"_migrate_native_audio_choices"},
+    "suite":{"cwd":".","argv":["node","../../cases/noisy-studio-99/probe.mjs","suite"]},
+    "suiteOutputIncludes":"PASS: native desktop audio boundary and complete suites"
+  },
+  "publish": {
+    "source":"baseline","target":"noisy/noisy-studio","base":"main","commitMessage":"fix(desktop): keep browser audio out of the native app",
+    "paths":["dashboard/src/App.vue","dashboard/src/components/SettingsView.spec.ts","dashboard/src/components/SettingsView.stories.ts","dashboard/src/components/SettingsView.vue","dashboard/src/types.ts","desktop/main.js","src/noisy_coding/listener/daemon.py","src/noisy_coding/listener/http_api.py","src/noisy_coding/listener/state.py","tests/unit/test_native_audio.py"]
+  }
+}

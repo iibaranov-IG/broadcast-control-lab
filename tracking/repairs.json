@@ -1921,6 +1921,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "amical-165",
+      "title": "Capture the active microphone channel on multichannel interfaces",
+      "issue": "https://github.com/amicalhq/amical/issues/165",
+      "pr": "https://github.com/amicalhq/amical/pull/184",
+      "candidateSha256": "aeb21e9db255ab39e576c9cc5a4fc7fe6e920eedc7a030531ab36370882ca464",
+      "testedHeadSha": "bc3594166ebab2030669ad028df54be5d5d2095f",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34849483444",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

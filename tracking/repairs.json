@@ -2783,6 +2783,46 @@
       "lastSync": "2026-09-14T21:12:09.384Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "dualsense-tester-222",
+      "title": "Map audio volume to effective DualSense HID ranges",
+      "issue": "https://github.com/daidr/dualsense-tester/issues/222",
+      "pr": "https://github.com/daidr/dualsense-tester/pull/223",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "pr-comment:5671030704",
+          "kind": "pr-comment",
+          "author": "vercel[bot]",
+          "reporter": false,
+          "url": "https://github.com/daidr/dualsense-tester/pull/223#issuecomment-5671030704",
+          "updatedAt": "2026-09-14T21:26:10Z",
+          "state": null,
+          "body": "@iibaranov-IG is attempting to deploy a commit to the **DaiDR** Team on [Vercel](https://vercel.com).\n\nA member of the Team first needs to [authorize it](https://vercel.com/git/authorize?team=DaiDR&slug=daidr&teamId=team_rmCtiDXMcOt7zCrgoL7g6C3M&type=github&job=%7B%22headInfo%22%3A%7B%22sha%22%3A%22dfe58ed02cb202882e11203835abe84d40a2c9ae%22%7D%2C%22id%22%3A%22QmVtesCSqGWicjvK9d67SDx1eW9bELmEu2qocRocPBT2dg%22%2C%22org%22%3A%22daidr%22%2C%22prId%22%3A223%2C%22repo%22%3A%22dualsense-tester%22%7D).\n\n",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "dfe58ed02cb202882e11203835abe84d40a2c9ae",
+      "reporter": "YupItzAfi",
+      "issueCreatedAt": "2026-09-14T13:51:53Z",
+      "prCreatedAt": "2026-09-14T21:26:05Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "failure",
+      "lastSync": "2026-09-14T21:45:15.273Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

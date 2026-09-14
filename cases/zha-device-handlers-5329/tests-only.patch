@@ -1,0 +1,26 @@
+diff --git a/tests/test_hobeian_bcl.mjs b/tests/test_hobeian_bcl.mjs
+new file mode 100644
+index 0000000..96c242d
+--- /dev/null
++++ b/tests/test_hobeian_bcl.mjs
+@@ -0,0 +1,19 @@
++import assert from 'node:assert/strict'
++import fs from 'node:fs'
++import test from 'node:test'
++
++test('ZG-305Z exposes both USB endpoints as switches', () => {
++  const path = 'zhaquirks/hobeian/zg_305z.py'
++  const quirk = fs.existsSync(path) ? fs.readFileSync(path, 'utf8') : ''
++
++  assert.match(quirk, /QuirkBuilder\("HOBEIAN", "ZG-305Z"\)/)
++  assert.match(
++    quirk,
++    /replaces_endpoint\(1, device_type=zha\.DeviceType\.ON_OFF_OUTPUT\)/,
++    'endpoint 1 must be an on/off output',
++  )
++  assert.match(
++    quirk,
++    /replaces_endpoint\(2, device_type=zha\.DeviceType\.ON_OFF_OUTPUT\)/,
++    'endpoint 2 must be an on/off output',
++  )
++})

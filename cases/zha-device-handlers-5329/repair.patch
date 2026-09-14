@@ -1,0 +1,44 @@
+diff --git a/tests/test_hobeian.py b/tests/test_hobeian.py
+new file mode 100644
+index 0000000..5483e53
+--- /dev/null
++++ b/tests/test_hobeian.py
+@@ -0,0 +1,13 @@
++"""Tests for HOBEIAN quirks."""
++
++from zigpy.profiles import zha
++
++import zhaquirks.hobeian.zg_305z  # noqa: F401
++
++
++def test_zg_305z_exposes_usb_outputs_as_switches(zigpy_device_from_v2_quirk):
++    """The two independently controlled USB outputs are switches, not lights."""
++    device = zigpy_device_from_v2_quirk("HOBEIAN", "ZG-305Z", endpoint_ids=[1, 2])
++
++    assert device[1].device_type == zha.DeviceType.ON_OFF_OUTPUT
++    assert device[2].device_type == zha.DeviceType.ON_OFF_OUTPUT
+diff --git a/zhaquirks/hobeian/__init__.py b/zhaquirks/hobeian/__init__.py
+new file mode 100644
+index 0000000..0561053
+--- /dev/null
++++ b/zhaquirks/hobeian/__init__.py
+@@ -0,0 +1 @@
++"""Quirks for HOBEIAN devices."""
+diff --git a/zhaquirks/hobeian/zg_305z.py b/zhaquirks/hobeian/zg_305z.py
+new file mode 100644
+index 0000000..48f929e
+--- /dev/null
++++ b/zhaquirks/hobeian/zg_305z.py
+@@ -0,0 +1,12 @@
++"""HOBEIAN ZG-305Z dual USB switch."""
++
++from zigpy.profiles import zha
++
++from zhaquirks.builder import QuirkBuilder
++
++(
++    QuirkBuilder("HOBEIAN", "ZG-305Z")
++    .replaces_endpoint(1, device_type=zha.DeviceType.ON_OFF_OUTPUT)
++    .replaces_endpoint(2, device_type=zha.DeviceType.ON_OFF_OUTPUT)
++    .add_to_registry()
++)

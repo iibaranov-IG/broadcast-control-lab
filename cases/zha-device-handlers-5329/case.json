@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 2,
+  "id": "zha-device-handlers-5329",
+  "status": "ready",
+  "title": "Expose both HOBEIAN ZG-305Z USB outputs as switches",
+  "issue": "https://github.com/zigpy/zha-device-handlers/issues/5329",
+  "problem": "The dual-output USB power controller advertises both independently switched endpoints as On/Off Lights, so ZHA exposes USB power controls as light entities.",
+  "reproduce": "Pair a HOBEIAN ZG-305Z whose endpoint descriptors report device type 0x0100 on endpoints 1 and 2; both controls are classified as lights.",
+  "acceptance": "Endpoints 1 and 2 retain their clusters but use the ZHA On/Off Output device type, and focused tests prove both are discovered as switch-class endpoints.",
+  "repair": "Register a declarative model-specific quirk that replaces both endpoint device types with ON_OFF_OUTPUT and add a focused two-endpoint regression.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "zigpy/zha-device-handlers",
+      "commit": "8c8e861c9bf8e4eb389fb42ecdc00cfe3a893452",
+      "directory": "sources/zha-device-handlers-5329"
+    }
+  ],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/zha-device-handlers-5329",
+        "argv": ["git", "apply", "../../cases/zha-device-handlers-5329/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": ["node", "cases/zha-device-handlers-5329/test.mjs", "sources/zha-device-handlers-5329"]
+      }
+    ],
+    "build": [
+      {
+        "cwd": "sources/zha-device-handlers-5329",
+        "argv": ["python3", "-m", "compileall", "-q", "zhaquirks/hobeian", "tests/test_hobeian.py"]
+      }
+    ]
+  },
+  "artifacts": { "report": "reports/zha-device-handlers-5329.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies the exact declarative endpoint replacements and regression coverage. Upstream tests passed separately. A physical ZG-305Z is still required to confirm that endpoint 1 maps to one USB connector and endpoint 2 to the other.",
+    "ownerCheck": "Install the draft on the reported ZHA setup, re-pair or reload the device, and confirm two switch entities appear. Toggle each one and record whether it independently controls the USB-C or USB-A output."
+  },
+  "selection": {
+    "report": "cases/zha-device-handlers-5329/triage.json",
+    "sha256": "61b9064e2c50815d087232fdff3e1c7e21bf78fbe486947911b4aba0dd599912",
+    "reason": "A one-day-old hardware report provides the exact two-endpoint signature, expected entity type and a reporter with the physical device available for immediate validation."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "zigpy/zha-device-handlers",
+    "base": "dev",
+    "paths": ["zhaquirks/hobeian/__init__.py", "zhaquirks/hobeian/zg_305z.py", "tests/test_hobeian.py"]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": ["git", "apply", "../../cases/zha-device-handlers-5329/tests-only.patch"]
+      }
+    ],
+    "build": [],
+    "testFiles": ["tests/test_hobeian_bcl.mjs"],
+    "regression": {
+      "cwd": ".",
+      "argv": ["node", "--test", "tests/test_hobeian_bcl.mjs"]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "endpoint 1 must be an on/off output"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": ["node", "--test", "tests/test_hobeian_bcl.mjs"]
+    },
+    "suiteOutputIncludes": "# tests 1"
+  }
+}

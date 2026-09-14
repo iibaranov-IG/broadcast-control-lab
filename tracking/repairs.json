@@ -1905,6 +1905,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "open-apollo-20",
+      "title": "Install the Apollo tray dependency on Debian 13",
+      "issue": "https://github.com/rolotrealanis98/open-apollo/issues/20",
+      "pr": "https://github.com/rolotrealanis98/open-apollo/pull/83",
+      "candidateSha256": "0ec4a4ae505c952bb13c0e9b48256f18fc573362c6bde0429f21e4dffc526660",
+      "testedHeadSha": "95a733365a64e7d402e0d019e37262534560e36f",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34846846820",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

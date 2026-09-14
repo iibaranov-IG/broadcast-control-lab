@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 2,
+  "id": "linux-show-player-399",
+  "status": "ready",
+  "title": "Preserve JACK routes while configured ports are unavailable",
+  "issue": "https://github.com/FrancescoCeruti/linux-show-player/issues/399",
+  "problem": "Playing a cue while its configured JACK destination is absent disconnects the current usable route and emits a full traceback, disrupting offline show preparation.",
+  "reproduce": "Give an output a working fallback connection while its saved destination is absent, then apply the saved route. The pinned baseline disconnects the fallback and attempts the missing destination.",
+  "acceptance": "An output with any unavailable configured destination retains its current connections and logs one concise warning; once all destinations are available, the saved route replaces the current connections.",
+  "repair": "Reconcile JACK connections per output after enumerating available input ports, skip destructive changes for incomplete target sets, and log expected JACK errors without exception tracebacks.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "FrancescoCeruti/linux-show-player",
+      "commit": "79f7efa4684c3cad6013e1cd2a0400d7122f542c",
+      "directory": "sources/linux-show-player-399"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/linux-show-player-399",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/linux-show-player-399/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/linux-show-player-399/test.mjs",
+          "sources/linux-show-player-399"
+        ]
+      }
+    ],
+    "build": [
+      {
+        "cwd": "sources/linux-show-player-399",
+        "argv": [
+          "python3",
+          "-m",
+          "compileall",
+          "-q",
+          "lisp/plugins/gst_backend/elements/jack_sink.py",
+          "tests/test_jack_sink_routing.py"
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "report": "reports/linux-show-player-399.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL exercises route reconciliation and JACK failures with deterministic doubles. A live JACK graph and hot-unplugged client remain owner-validated.",
+    "ownerCheck": "Connect a cue to an external JACK client, remove that client, play and save the session, then reconnect the client and reopen/play the session. Confirm no traceback, the temporary live route is retained while absent, and the saved route returns when available."
+  },
+  "selection": {
+    "report": "cases/linux-show-player-399/triage.json",
+    "sha256": "c182b9d657c0c8c52d2aa5bb78c9f5fb9f07e63412485cfcaca37a2623d7e708",
+    "reason": "A fresh external report gives exact JACK hot-unplug steps and a clear preservation requirement; deterministic route tests reproduce the destructive baseline without requiring the physical interface."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "FrancescoCeruti/linux-show-player",
+    "base": "master",
+    "paths": [
+      "lisp/plugins/gst_backend/elements/jack_sink.py"
+    ],
+    "verificationOnlyPaths": [
+      "tests/test_jack_sink_routing.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/linux-show-player-399/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "tests/test_jack_sink_routing.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "env",
+        "PYTHONPATH=.",
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests/test_jack_sink_routing.py"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "FAILED (errors=3)"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "env",
+        "PYTHONPATH=.",
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests/test_jack_sink_routing.py"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 3 tests"
+  }
+}

@@ -1,0 +1,123 @@
+diff --git a/tests/test_jack_sink_routing.py b/tests/test_jack_sink_routing.py
+new file mode 100644
+index 0000000..db1ef5c
+--- /dev/null
++++ b/tests/test_jack_sink_routing.py
+@@ -0,0 +1,117 @@
++import ast
++import logging
++import os
++import unittest
++from pathlib import Path
++from types import SimpleNamespace
++
++
++SOURCE = Path(
++    os.environ.get(
++        "LISP_JACK_SINK_SOURCE",
++        Path(__file__).parents[1]
++        / "lisp/plugins/gst_backend/elements/jack_sink.py",
++    )
++)
++
++
++def load_connection_helper():
++    tree = ast.parse(SOURCE.read_text())
++    helper = next(
++        node
++        for node in tree.body
++        if isinstance(node, ast.FunctionDef)
++        and node.name == "_connect_configured_ports"
++    )
++    namespace = {
++        "jack": SimpleNamespace(JackError=RuntimeError),
++        "logger": logging.getLogger("jack-routing-test"),
++    }
++    exec(compile(ast.Module([helper], []), str(SOURCE), "exec"), namespace)
++    return namespace["_connect_configured_ports"]
++
++
++class Port:
++    def __init__(self, name):
++        self.name = name
++
++    def __str__(self):
++        return self.name
++
++
++class FakeJackClient:
++    def __init__(self, inputs, current=None, connect_error=None):
++        self.inputs = [Port(name) for name in inputs]
++        self.current = current or {}
++        self.connect_error = connect_error
++        self.disconnected = []
++        self.connected = []
++
++    def get_ports(self, **kwargs):
++        return self.inputs
++
++    def get_all_connections(self, output):
++        return self.current.get(output.name, [])
++
++    def disconnect(self, output, target):
++        self.disconnected.append((output.name, target))
++
++    def connect(self, output, target):
++        if target == self.connect_error:
++            raise RuntimeError("connection failed")
++        self.connected.append((output.name, target))
++
++
++class JackRoutingTests(unittest.TestCase):
++    def setUp(self):
++        self.connect_routes = load_connection_helper()
++        self.outputs = [Port("lisp:out_1"), Port("lisp:out_2")]
++
++    def test_missing_target_preserves_current_route(self):
++        client = FakeJackClient(
++            ["system:playback_1"],
++            {"lisp:out_1": ["fallback:playback_1"]},
++        )
++
++        with self.assertLogs("jack-routing-test", "WARNING") as logs:
++            self.connect_routes(
++                client, self.outputs, [["mixer:playback_1"], []]
++            )
++
++        self.assertEqual(client.disconnected, [])
++        self.assertEqual(client.connected, [])
++        self.assertIn("mixer:playback_1", logs.output[0])
++
++    def test_available_target_replaces_current_route(self):
++        client = FakeJackClient(
++            ["mixer:playback_1"],
++            {"lisp:out_1": ["fallback:playback_1"]},
++        )
++
++        self.connect_routes(
++            client, self.outputs, [["mixer:playback_1"], []]
++        )
++
++        self.assertEqual(
++            client.disconnected,
++            [("lisp:out_1", "fallback:playback_1")],
++        )
++        self.assertEqual(
++            client.connected, [("lisp:out_1", "mixer:playback_1")]
++        )
++
++    def test_connection_error_is_logged_without_traceback(self):
++        client = FakeJackClient(
++            ["mixer:playback_1"], connect_error="mixer:playback_1"
++        )
++
++        with self.assertLogs("jack-routing-test", "WARNING") as logs:
++            self.connect_routes(
++                client, self.outputs, [["mixer:playback_1"], []]
++            )
++
++        self.assertIn("connection failed", logs.output[0])
++
++
++if __name__ == "__main__":
++    unittest.main()

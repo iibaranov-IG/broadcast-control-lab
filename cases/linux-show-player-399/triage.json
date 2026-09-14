@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T10:01:42.820Z",
+  "issue": {
+    "repository": "FrancescoCeruti/linux-show-player",
+    "number": "399",
+    "url": "https://github.com/FrancescoCeruti/linux-show-player/issues/399",
+    "title": "Jack's routing lost & traceback if port don't curently exist",
+    "state": "open",
+    "updatedAt": "2026-09-13T21:20:35Z"
+  },
+  "source": {
+    "repository": "FrancescoCeruti/linux-show-player",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "79f7efa4684c3cad6013e1cd2a0400d7122f542c",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "i18n_update.py",
+      "lisp/__init__.py",
+      "lisp/application.py",
+      "lisp/backend/__init__.py",
+      "lisp/backend/audio_utils.py",
+      "lisp/backend/backend.py",
+      "lisp/backend/media.py",
+      "lisp/backend/media_element.py",
+      "lisp/backend/waveform.py",
+      "lisp/command/__init__.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "docs/user/Makefile",
+        "kind": "make",
+        "url": "https://github.com/FrancescoCeruti/linux-show-player/blob/79f7efa4684c3cad6013e1cd2a0400d7122f542c/docs/user/Makefile"
+      },
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/FrancescoCeruti/linux-show-player/blob/79f7efa4684c3cad6013e1cd2a0400d7122f542c/pyproject.toml"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: The only submodule is scripts/flatpak/shared-modules; the repair and focused tests touch the JACK sink Python file and do not invoke Flatpak packaging.",
+      "url": "https://github.com/FrancescoCeruti/linux-show-player/tree/79f7efa4684c3cad6013e1cd2a0400d7122f542c",
+      "resolution": {
+        "reason": "The only submodule is scripts/flatpak/shared-modules; the repair and focused tests touch the JACK sink Python file and do not invoke Flatpak packaging.",
+        "evidence": [
+          "git submodule status: scripts/flatpak/shared-modules only",
+          "tests/test_jack_sink_routing.py uses standard-library AST extraction and JACK doubles"
+        ]
+      }
+    },
+    {
+      "code": "NONREGISTRY_DEPENDENCIES",
+      "severity": "info",
+      "detail": "pyproject.toml references Git/local/workspace dependencies; resolve them before scheduling a build. Resolved for this revision: The Git-pinned audio dependencies are not installed or imported by the focused test, which extracts the pure routing helper and supplies a deterministic JACK double.",
+      "url": "https://github.com/FrancescoCeruti/linux-show-player/blob/79f7efa4684c3cad6013e1cd2a0400d7122f542c/pyproject.toml",
+      "resolution": {
+        "reason": "The Git-pinned audio dependencies are not installed or imported by the focused test, which extracts the pure routing helper and supplies a deterministic JACK double.",
+        "evidence": [
+          "pyproject.toml",
+          "tests/test_jack_sink_routing.py"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": true,
+    "built": false,
+    "reproduced": true,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:FrancescoCeruti/linux-show-player": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Create a pinned BCL case and run baseline/candidate verification."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 91,
+    "scoreRange": [
+      90,
+      91
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "A missing live audio client causes traceback output and destroys the usable JACK route during show preparation.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/399"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The external issue was opened less than one day before selection.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/399"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "Reporter supplied exact current-version reproduction steps and the expected offline-editing behavior.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/399"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "A missing configured port must leave the current route intact; an available port must replace it.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/399"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "Three deterministic JACK-double tests fail on the pinned baseline and pass with the repair.",
+        "evidence": [
+          "tests/test_jack_sink_routing.py"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The change is confined to JACK route reconciliation plus one focused test file.",
+        "evidence": [
+          "tests/test_jack_sink_routing.py"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Routing decisions and error handling are fully testable without physical hardware.",
+        "evidence": [
+          "tests/test_jack_sink_routing.py"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Available targets keep the prior replacement behavior; only incomplete target sets retain the live route.",
+        "evidence": [
+          "tests/test_jack_sink_routing.py"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The development branch and adjacent issue repair were updated within two days.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/399"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Offline preparation with temporarily absent interfaces is common in live-show systems.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/399"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The behavior applies to any JACK audio client or hardware interface that disappears temporarily.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/399"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "Preserving routes prevents session edits from disrupting downstream mixer and interface assignments.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/399"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 90,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      90,
+      91
+    ],
+    "selectable": true
+  },
+  "durationMs": 2849
+}

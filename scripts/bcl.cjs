@@ -160,6 +160,7 @@ async function main() {
     const db = require('./tracking.cjs').read(root)
     return console.log(JSON.stringify(db.repairs.filter(r => !arg || r.id === arg).map(r => ({ id: r.id, pr: r.pr, syncError: r.syncError, events: r.events.filter(e => !e.read) })), null, 2))
   }
+  if (mode === 'metrics') return console.log(JSON.stringify(require('./tracking.cjs').metrics(root), null, 2))
   if (mode === 'ack') {
     const t = require('./tracking.cjs')
     t.acknowledge(root, arg)
@@ -189,7 +190,7 @@ async function main() {
     require('./publication.cjs').hardwareKit(directory, c)
     return console.log(path.join(directory, 'HARDWARE-CHECK.md'))
   }
-  throw new Error('Usage: bcl triage <issue-url> [--assessment file.json] | new <issue-url> | campaign <name> --file issues.txt [--concurrency 1..8] [--limit 1..100] [--retry-failed] | batch <id> <id> ... | list | validate <id> | test <id> [--legacy-contracts] | publish <id> --fork owner/repo --run <url> [--dry-run] | track <id> <PR-url> | upstream-import <id> --file <manifest.json> | hardware-kit <id> | sync | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
+  throw new Error('Usage: bcl triage <issue-url> [--assessment file.json] | new <issue-url> | campaign <name> --file issues.txt [--concurrency 1..8] [--limit 1..100] [--retry-failed] | batch <id> <id> ... | list | validate <id> | test <id> [--legacy-contracts] | publish <id> --fork owner/repo --run <url> [--dry-run] | track <id> <PR-url> | upstream-import <id> --file <manifest.json> | hardware-kit <id> | sync | metrics | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
 }
 if (require.main === module) main().catch(e => { console.error(e.message); process.exitCode = 1 })
 module.exports = { scaffold }

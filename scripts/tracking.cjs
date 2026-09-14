@@ -63,7 +63,8 @@ function syncEntry(entry, api, now) {
   const pr = link(entry.pr, 'pull'), issue = link(entry.issue, 'issues')
   const p = `repos/${pr.repo}`, i = `repos/${issue.repo}`
   const info = api('GET', `${p}/pulls/${pr.number}`)
-  const owner = api('GET', `${i}/issues/${issue.number}`).user?.login
+  const issueInfo = api('GET', `${i}/issues/${issue.number}`)
+  const owner = issueInfo.user?.login
   const events = []
   for (const [kind, endpoint] of [
     ['issue-comment', `${i}/issues/${issue.number}/comments`],
@@ -80,8 +81,36 @@ function syncEntry(entry, api, now) {
   const ci = bad ? 'failure' : pending ? 'pending' : (checks.length || status.total_count) ? 'success' : 'none'
   const old = new Map((entry.events || []).map(e => [e.key, e]))
   const fresh = events.map(e => ({ ...e, read: old.get(e.key)?.read === true && old.get(e.key)?.updatedAt === e.updatedAt && old.get(e.key)?.body === e.body && old.get(e.key)?.state === e.state }))
+  const reporterResponseAt = fresh.filter(e => e.reporter && e.updatedAt).map(e => e.updatedAt).sort()[0] || null
   const changed = Boolean((entry.testedHeadSha || entry.headSha) && (entry.testedHeadSha || entry.headSha) !== info.head.sha)
-  return { ...entry, ...(changed ? { evidenceStatus: 'STALE', evidenceStaleSince: now, hardware: { ...entry.hardware, status: entry.hardware?.status === 'NOT_REVIEWED' ? 'NOT_REVIEWED' : 'STALE', priorStatus: entry.hardware?.status, testedHeadSha: entry.headSha } } : {}), state: info.merged_at ? 'merged' : info.draft && info.state === 'open' ? 'draft' : info.state, mergeable: info.mergeable ?? null, mergeableState: info.mergeable_state || 'unknown', headSha: info.head.sha, reporter: owner, ci, events: fresh, unread: fresh.filter(e => !e.read).length, lastSync: now, syncError: null }
+  return { ...entry, ...(changed ? { evidenceStatus: 'STALE', evidenceStaleSince: now, hardware: { ...entry.hardware, status: entry.hardware?.status === 'NOT_REVIEWED' ? 'NOT_REVIEWED' : 'STALE', priorStatus: entry.hardware?.status, testedHeadSha: entry.headSha } } : {}), state: info.merged_at ? 'merged' : info.draft && info.state === 'open' ? 'draft' : info.state, mergeable: info.mergeable ?? null, mergeableState: info.mergeable_state || 'unknown', headSha: info.head.sha, reporter: owner, issueCreatedAt: issueInfo.created_at || entry.issueCreatedAt || null, prCreatedAt: info.created_at || entry.prCreatedAt || null, mergedAt: info.merged_at || null, reporterResponseAt, ci, events: fresh, unread: fresh.filter(e => !e.read).length, lastSync: now, syncError: null }
+}
+function hours(from, to) {
+  const a = Date.parse(from || ''), b = Date.parse(to || '')
+  return Number.isFinite(a) && Number.isFinite(b) && b >= a ? Math.round((b - a) / 36000) / 100 : null
+}
+function median(values) {
+  const sorted = values.filter(Number.isFinite).sort((a, b) => a - b)
+  if (!sorted.length) return null
+  const middle = Math.floor(sorted.length / 2)
+  return sorted.length % 2 ? sorted[middle] : Math.round((sorted[middle - 1] + sorted[middle]) * 50) / 100
+}
+function metrics(root, db = read(root)) {
+  const repairs = db.repairs.map(entry => {
+    let selectedAt = null
+    const triage = path.join(root, 'cases', entry.id, 'triage.json')
+    if (fs.existsSync(triage)) selectedAt = JSON.parse(fs.readFileSync(triage)).checkedAt || null
+    return { id: entry.id, pr: entry.pr, state: entry.state, selectedAt, prCreatedAt: entry.prCreatedAt || null, mergedAt: entry.mergedAt || null,
+      selectedToPrHours: hours(selectedAt, entry.prCreatedAt), prToMergeHours: hours(entry.prCreatedAt, entry.mergedAt),
+      prToReporterResponseHours: hours(entry.prCreatedAt, entry.reporterResponseAt), ci: entry.ci || 'unknown', evidence: entry.evidenceStatus || 'NOT_BOUND' }
+  })
+  const ratio = (count, total) => total ? Math.round(count * 10000 / total) / 100 : null
+  const withCi = repairs.filter(r => ['success', 'failure'].includes(r.ci))
+  return { generatedAt: new Date().toISOString(), summary: { tracked: repairs.length, merged: repairs.filter(r => r.state === 'merged').length,
+    mergeRatePercent: ratio(repairs.filter(r => r.state === 'merged').length, repairs.length), ciSuccessPercent: ratio(withCi.filter(r => r.ci === 'success').length, withCi.length),
+    evidenceBoundPercent: ratio(repairs.filter(r => r.evidence === 'BOUND_CANDIDATE').length, repairs.length),
+    medianSelectedToPrHours: median(repairs.map(r => r.selectedToPrHours)), medianPrToMergeHours: median(repairs.map(r => r.prToMergeHours)),
+    medianPrToReporterResponseHours: median(repairs.map(r => r.prToReporterResponseHours)) }, repairs }
 }
 function sync(root, api) {
   const db = read(root), errors = []
@@ -152,4 +181,4 @@ function attach(root, c, url, api, update = remoteUpdate) {
     Object.assign(entry, refreshed, { attachment: 'EXTERNAL_PR', evidenceStatus: refreshed.evidenceStatus === 'STALE' ? 'STALE' : entry.candidateSha256 ? 'BOUND_CANDIDATE' : 'NOT_BOUND' })
   }, `Attach existing PR for ${c.id}`, api)
 }
-module.exports = { read, save, register, render, syncEntry, sync, acknowledge, importHardware, remoteRegister, remoteUpdate, attach }
+module.exports = { read, save, register, render, syncEntry, sync, metrics, acknowledge, importHardware, remoteRegister, remoteUpdate, attach }

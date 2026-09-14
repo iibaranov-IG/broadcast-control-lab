@@ -55,6 +55,7 @@ registration without creating a duplicate PR. A dry run does not update the boar
 
 ```sh
 bcl sync
+bcl metrics
 bcl inbox
 bcl inbox example-123
 bcl ack example-123
@@ -81,6 +82,15 @@ see the scheduled workflow's latest snapshot, or run `sync` locally. `ack` marks
 the events you actually have read locally and on the configured remote board;
 concurrently arriving or edited events stay unread. Local `sync` writes files
 only; the scheduled workflow is what commits recurring snapshots.
+
+`metrics` reports repair velocity from the saved snapshot: median time from a
+case's recorded triage selection to PR creation, from PR creation to merge, and
+from PR creation to the source reporter's first response. It displays these
+beside merge rate, CI success and candidate-bound evidence coverage. Run `sync`
+first when live timestamps matter. Missing timestamps remain `null`; GitHub
+silence is not converted into a fast or successful outcome. The selection clock
+uses the immutable `checkedAt` value in each case's `triage.json`, so the age of
+an old issue is not charged to the repair itself.
 
 No comments, emails or automated interpretations are sent to owners. Review the
 inbox and answer deliberately. Hardware status is never inferred from prose.

@@ -53,7 +53,7 @@ function setup(t) {
   const root = temp(t), c = { id: 'example-1', title: 'Repair', issue: 'https://github.com/up/project/issues/1' }
   fs.writeFileSync(path.join(root, 'REPAIRS.md'), '# Existing manual board\n\nKeep this entry.\n')
   const db = { schemaVersion: 1, repairs: [] }
-  tracking.register(db, c, { url: 'https://github.com/up/project/pull/2', state: 'open' }, 'b'.repeat(64))
+  tracking.register(db, c, { url: 'https://github.com/up/project/pull/2', state: 'open', headSha: 'a'.repeat(40) }, 'b'.repeat(64))
   tracking.save(root, db)
   return { root, c, db, entry: db.repairs[0] }
 }
@@ -61,8 +61,8 @@ function fakeApi({ comment = 'It works!', updated = '2026-09-11T01:00:00Z', fail
   return (method, endpoint) => {
     assert.equal(method, 'GET')
     if (fail) throw new Error('HTTP 503')
-    if (endpoint.endsWith('/pulls/2')) return { state: 'open', draft: false, merged_at: null, head: { sha: 'a'.repeat(40) } }
-    if (endpoint.endsWith('/issues/1')) return { user: { login: 'owner' } }
+    if (endpoint.endsWith('/pulls/2')) return { state: 'open', draft: false, created_at: '2026-09-10T01:00:00Z', merged_at: null, head: { sha: 'a'.repeat(40) } }
+    if (endpoint.endsWith('/issues/1')) return { created_at: '2026-09-01T01:00:00Z', user: { login: 'owner' } }
     if (endpoint.includes('/issues/1/comments')) return [{ id: 1, body: comment, updated_at: updated, html_url: 'https://github.com/up/project/issues/1#issuecomment-1', user: { login: 'owner' } }]
     if (endpoint.includes('/check-runs')) return { check_runs: [{ status: 'completed', conclusion: 'success' }] }
     if (endpoint.endsWith('/status')) return { total_count: 0, state: 'pending' }
@@ -92,6 +92,19 @@ test('Replies are unread, edits reopen them, and positive prose never verifies h
   tracking.acknowledge(f.root, f.c.id)
   assert.equal(tracking.sync(f.root, fakeApi()).unread, 0)
   assert.equal(tracking.sync(f.root, fakeApi({ comment: 'Actually still broken', updated: '2026-09-12T01:00:00Z' })).unread, 1)
+})
+test('repair metrics report velocity beside acceptance and evidence quality', t => {
+  const f = setup(t)
+  const triage = path.join(f.root, 'cases', f.c.id)
+  fs.mkdirSync(triage, { recursive: true })
+  fs.writeFileSync(path.join(triage, 'triage.json'), JSON.stringify({ checkedAt: '2026-09-09T01:00:00Z' }))
+  tracking.sync(f.root, fakeApi())
+  const report = tracking.metrics(f.root)
+  assert.equal(report.summary.tracked, 1)
+  assert.equal(report.summary.ciSuccessPercent, 100)
+  assert.equal(report.summary.evidenceBoundPercent, 100)
+  assert.equal(report.summary.medianSelectedToPrHours, 24)
+  assert.equal(report.summary.medianPrToReporterResponseHours, 24)
 })
 test('Failed refresh preserves prior events and records stale state explicitly', t => {
   const f = setup(t); tracking.sync(f.root, fakeApi())

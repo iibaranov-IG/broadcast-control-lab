@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T09:22:48.278Z",
+  "issue": {
+    "repository": "FalconChristmas/fpp",
+    "number": "2957",
+    "url": "https://github.com/FalconChristmas/fpp/issues/2957",
+    "title": "Pipewire hardware detection and/or detection of compatible formats fails.",
+    "state": "open",
+    "updatedAt": "2026-09-14T09:21:09Z"
+  },
+  "source": {
+    "repository": "FalconChristmas/fpp",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "NOASSERTION",
+    "commit": "ead07774b37e1b9eead3b2a5fb5d57037e36f394",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "capes/drivers/bbb/am335x-bone-pins.h",
+      "capes/drivers/pi/bcm2835.h",
+      "capes/drivers/pi/gpio.h",
+      "capes/drivers/pinctrl/src/AM335x.cpp",
+      "capes/drivers/pinctrl/src/AM6232.cpp",
+      "capes/drivers/pinctrl/src/Ball.cpp",
+      "capes/drivers/pinctrl/src/Ball.h",
+      "capes/drivers/pinctrl/src/BeagleBoneBlack.cpp",
+      "capes/drivers/pinctrl/src/ConfigPin.cpp",
+      "capes/drivers/pinctrl/src/Pin.cpp"
+    ],
+    "buildFiles": [
+      {
+        "path": "capes/drivers/bb64/Makefile",
+        "kind": "make",
+        "url": "https://github.com/FalconChristmas/fpp/blob/ead07774b37e1b9eead3b2a5fb5d57037e36f394/capes/drivers/bb64/Makefile"
+      },
+      {
+        "path": "capes/drivers/bbb/Makefile",
+        "kind": "make",
+        "url": "https://github.com/FalconChristmas/fpp/blob/ead07774b37e1b9eead3b2a5fb5d57037e36f394/capes/drivers/bbb/Makefile"
+      },
+      {
+        "path": "capes/drivers/pi/Makefile",
+        "kind": "make",
+        "url": "https://github.com/FalconChristmas/fpp/blob/ead07774b37e1b9eead3b2a5fb5d57037e36f394/capes/drivers/pi/Makefile"
+      },
+      {
+        "path": "capes/drivers/pinctrl/Makefile",
+        "kind": "make",
+        "url": "https://github.com/FalconChristmas/fpp/blob/ead07774b37e1b9eead3b2a5fb5d57037e36f394/capes/drivers/pinctrl/Makefile"
+      },
+      {
+        "path": "docs/samples/eeproms/Makefile",
+        "kind": "make",
+        "url": "https://github.com/FalconChristmas/fpp/blob/ead07774b37e1b9eead3b2a5fb5d57037e36f394/docs/samples/eeproms/Makefile"
+      },
+      {
+        "path": "src/Makefile",
+        "kind": "make",
+        "url": "https://github.com/FalconChristmas/fpp/blob/ead07774b37e1b9eead3b2a5fb5d57037e36f394/src/Makefile"
+      },
+      {
+        "path": "tests/playwright/package.json",
+        "kind": "node",
+        "url": "https://github.com/FalconChristmas/fpp/blob/ead07774b37e1b9eead3b2a5fb5d57037e36f394/tests/playwright/package.json"
+      },
+      {
+        "path": "www/package.json",
+        "kind": "node",
+        "url": "https://github.com/FalconChristmas/fpp/blob/ead07774b37e1b9eead3b2a5fb5d57037e36f394/www/package.json"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: The repository pins its submodules as gitlinks, while this repair and its focused format-selection harness use only FPPINIT_Audio.cpp and the mirrored PHP controller and do not load submodule code.",
+      "url": "https://github.com/FalconChristmas/fpp/tree/ead07774b37e1b9eead3b2a5fb5d57037e36f394",
+      "resolution": {
+        "reason": "The repository pins its submodules as gitlinks, while this repair and its focused format-selection harness use only FPPINIT_Audio.cpp and the mirrored PHP controller and do not load submodule code.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/blob/ead07774b37e1b9eead3b2a5fb5d57037e36f394/.gitmodules",
+          "https://github.com/FalconChristmas/fpp/pull/2958/files"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [
+    {
+      "url": "https://github.com/FalconChristmas/fpp/pull/2958",
+      "relation": "issue timeline cross-reference",
+      "title": "Fix PipeWire format selection for DACs without S16",
+      "author": "iibaranov-IG",
+      "state": "closed",
+      "draft": true,
+      "merged": false,
+      "headSha": "b9464f422f0a3f979bbfa4a52d07dd1c08e5d385",
+      "updatedAt": "2026-09-14T09:22:47Z"
+    }
+  ],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:FalconChristmas/fpp": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 96,
+    "scoreRange": [
+      95,
+      96
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "FPP 10 produces no audio until the generated file is manually edited.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/issues/2957"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The hardware report was opened today.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/issues/2957"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter supplied complete logs and a working manual correction.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/issues/2957"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Generation 8 must emit S32LE and restore audio on the SMSL device.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/issues/2957"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The S32-only capability line deterministically exposes the selection error.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/pull/2958"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "Two mirrored format selectors and one generation constant change.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/pull/2958/files"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Four host cases are cheap; final sound output needs the reporter's DAC.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/pull/2958"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "The prior fixed-clock S16 regression is explicitly retained in the harness.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/pull/2958"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "FPP master and its issue tracker are active.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/commits/master"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 5,
+        "reason": "The rule supports any valid USB DAC that omits S16, not one product ID.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/pull/2958/files"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "The matrix is reusable for ALSA/PipeWire format-selection repairs.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/pull/2958"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "The same advertised-versus-assumed capability rule applies to other hardware discovery paths.",
+        "evidence": [
+          "https://github.com/FalconChristmas/fpp/pull/2958/files"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      96
+    ],
+    "selectable": true
+  },
+  "durationMs": 5058
+}

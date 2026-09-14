@@ -1,0 +1,101 @@
+diff --git a/tests/bcl/test_pipewire_format_selection.py b/tests/bcl/test_pipewire_format_selection.py
+new file mode 100644
+index 000000000..c5b90c211
+--- /dev/null
++++ b/tests/bcl/test_pipewire_format_selection.py
+@@ -0,0 +1,95 @@
++import pathlib
++import subprocess
++import tempfile
++import unittest
++
++ROOT = pathlib.Path(__file__).resolve().parents[2]
++CPP = ROOT / "src/boot/FPPINIT_Audio.cpp"
++PHP = ROOT / "www/api/controllers/pipewire.php"
++
++
++def extract_cpp_function(source: str, signature: str) -> str:
++    start = source.index(signature)
++    brace = source.index("{", start)
++    depth = 0
++    for index in range(brace, len(source)):
++        if source[index] == "{":
++            depth += 1
++        elif source[index] == "}":
++            depth -= 1
++            if depth == 0:
++                return source[start:index + 1]
++    raise AssertionError(f"unterminated function: {signature}")
++
++
++class PipeWireFormatSelectionTest(unittest.TestCase):
++    def test_non_s16_card_uses_an_advertised_pcm_format(self):
++        source = CPP.read_text()
++        array_start = source.index(
++            "static const std::pair<const char*, const char*> kPcmFormatNames"
++        )
++        array_end = source.index("// ALSA's spelling", array_start)
++        names = source[array_start:array_end]
++        function = extract_cpp_function(
++            source, "static std::string bestFormatForRate"
++        ).replace("achievedRateForFormat", "testProbe")
++
++        harness = """
++#include <cstdlib>
++#include <iostream>
++#include <iterator>
++#include <map>
++#include <string>
++#include <utility>
++static std::map<std::string, int> rates;
++static int testProbe(const std::string&, const std::string& format, int, int) {
++    return rates[format];
++}
++""" + names + function + r'''
++static void check(const std::string& actual, const std::string& expected,
++                  const char* name) {
++    if (actual != expected) {
++        std::cerr << name << ": expected " << expected << ", got " << actual << "\n";
++        std::exit(1);
++    }
++}
++int main() {
++    rates = {{"S32LE", 44100}};
++    check(bestFormatForRate("S32_LE SPECIAL DSD_U32_BE", "hw:AUDIO", 44100, 2),
++          "S32LE", "S32-only SMSL");
++    rates = {{"S16LE", 44100}, {"S32LE", 22050}};
++    check(bestFormatForRate("S16_LE S32_LE", "hw:CARD", 44100, 2),
++          "S16LE", "fixed-clock regression");
++    rates = {{"S16LE", 44100}, {"S32LE", 44100}};
++    check(bestFormatForRate("S16_LE S32_LE", "hw:CARD", 44100, 2),
++          "S32LE", "cost-free widening");
++    rates.clear();
++    check(bestFormatForRate("S32_LE S24_LE", "hw:BUSY", 44100, 2),
++          "S24_32LE", "busy non-S16 fallback");
++}
++'''
++        with tempfile.TemporaryDirectory() as directory:
++            directory = pathlib.Path(directory)
++            cpp = directory / "selection.cpp"
++            binary = directory / "selection"
++            cpp.write_text(harness)
++            subprocess.run(
++                ["c++", "-std=c++17", "-Wall", "-Wextra", "-Werror", str(cpp), "-o", str(binary)],
++                check=True,
++            )
++            subprocess.run([str(binary)], check=True)
++
++    def test_cpp_and_php_keep_the_non_s16_rule_in_sync(self):
++        cpp = CPP.read_text()
++        php = PHP.read_text()
++        self.assertIn('fmtLine.find("S16_LE") != std::string::npos', cpp)
++        self.assertIn("strpos($fmtLine, 'S16_LE') !== false", php)
++        self.assertIn('return hasS16 ? "S16LE" : advertisedFallback;', cpp)
++        self.assertIn("return $hasS16 ? 'S16LE' : $advertisedFallback;", php)
++
++    def test_generation_bump_refreshes_existing_configs(self):
++        self.assertIn("kAlsaSinkConfGeneration = 8", CPP.read_text())
++
++
++if __name__ == "__main__":
++    unittest.main()

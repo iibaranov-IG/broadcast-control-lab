@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 2,
+  "id": "fpp-2957",
+  "status": "ready",
+  "title": "Select an advertised PipeWire format for USB DACs without S16",
+  "issue": "https://github.com/FalconChristmas/fpp/issues/2957",
+  "problem": "FPP assumes S16LE is universally supported. An SMSL SU-1 advertises only S32_LE PCM, so FPP emits an impossible S16LE adapter and PipeWire provides no audio.",
+  "reproduce": "At the pinned baseline, feed the selector the reporter capability line S32_LE SPECIAL DSD_U32_BE with a successful S32 probe; it still returns S16LE because the missing S16 baseline is treated as an unverifiable universal fallback.",
+  "acceptance": "S32-only hardware selects S32LE, the fixed-bit-clock S16/S32 regression still keeps S16 when S32 halves the rate, cost-free widening remains enabled, busy non-S16 hardware never falls back to an unadvertised format, and existing configurations regenerate.",
+  "repair": "Distinguish cards that advertise S16 from those that do not in both C++ and PHP selectors, use an advertised PCM fallback for non-S16 cards, and bump the ALSA sink configuration generation.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "FalconChristmas/fpp",
+      "commit": "ead07774b37e1b9eead3b2a5fb5d57037e36f394",
+      "directory": "sources/fpp-2957"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/fpp-2957",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/fpp-2957/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/fpp-2957/test.mjs",
+          "sources/fpp-2957"
+        ]
+      }
+    ],
+    "build": [
+      {
+        "cwd": "sources/fpp-2957",
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "report": "reports/fpp-2957.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL compiles and executes the exact C++ selector against four probe matrices and asserts PHP parity plus configuration generation. A full FPP image and audible output require the reporter's Raspberry Pi 4 and SMSL SU-1.",
+    "ownerCheck": "Install a build from PR #2958, reboot once so generation 8 rewrites 95-fpp-alsa-sink.conf, confirm the SMSL adapter says audio.format = \"S32LE\", then play audio and report whether the output device mapping is restored."
+  },
+  "selection": {
+    "report": "cases/fpp-2957/triage.json",
+    "sha256": "e1c893ddd3cffd043d7999bb3bc854f5883b40858d205a62343219a08c9f6c7a"
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "FalconChristmas/fpp",
+    "base": "master",
+    "paths": [
+      "src/boot/FPPINIT_Audio.cpp",
+      "www/api/controllers/pipewire.php"
+    ],
+    "verificationOnlyPaths": [
+      "tests/bcl/test_pipewire_format_selection.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/fpp-2957/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "tests/bcl/test_pipewire_format_selection.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests/bcl/test_pipewire_format_selection.py"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "S32-only SMSL: expected S32LE, got S16LE"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests/bcl/test_pipewire_format_selection.py"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 3 tests"
+  }
+}

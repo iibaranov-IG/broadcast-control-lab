@@ -33,7 +33,7 @@
       "headSha": "1455b64bb57c44d501dc18cb7655a06c5f290e25",
       "id": "openmixercontrol-8",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/8",
-      "lastSync": "2026-09-14T10:46:58.644Z",
+      "lastSync": "2026-09-14T14:15:07.095Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/91",
       "reporter": "schulz-alexander",
       "run": null,
@@ -70,7 +70,7 @@
       "headSha": "bfb749b74f3b46ffb3751f6d8cfaaeff7ebfdecb",
       "id": "openmixercontrol-54",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/54",
-      "lastSync": "2026-09-14T10:47:02.125Z",
+      "lastSync": "2026-09-14T14:15:10.138Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/92",
       "reporter": "flipfi",
       "run": null,
@@ -97,7 +97,7 @@
           "url": "https://github.com/willcgage/wirelessboard/issues/93#issuecomment-5472797144",
           "updatedAt": "2026-08-31T02:04:08Z",
           "state": null,
-          "body": "## Specification obtained and read \u2014 and this is the *architecturally easier* vendor\n\nThe document exists and is real: **54 pages**, `wirelessystem_ip_control_protocol_specifications_110_web_en_191217.pdf`, covering **ATW-R5220** (2 RX), **ATW-R3210N** (RX1 only) and **ATW-DR3120**.\n\n\u26a0\ufe0f Correction to this issue's original text: the 403 was **my fetcher's problem, not an access restriction**. A normal browser user-agent downloads it fine. The PDF is AES-encrypted for permissions, so extracting the text needed a PDF library \u2014 but nothing here is gated.\n\n### Transport and framing\n\n| | |\n| --- | --- |\n| Ports | **TCP 17300, UDP 17000** \u2014 \"Static. Not changable.\" |\n| Encoding | ASCII (UTF-8 for some fields, e.g. device naming) |\n| Delimiter | half-width space `0x20` |\n| Terminator | **CR `0x0d`** |\n| Command | **5 bytes** |\n| Max message | 287 bytes |\n\n```\nsprch S 0000 00 NC 1,,1,,,1,471250000,01,01,0 <CR>\nsprch ACK <CR>\ngprch 0000 00 NC 2,,0,,,1,580925000,03,12,1 <CR>\nMD nprch 0000 00 NC 1,0,0,11,0,1234,0,808750000,0,0 <CR>\n```\n\nMessage classes: Set / Get / **ACK** / **NAK** / Answer / **Information** (change notification) / Request.\n\n### \u2b50\u2b50 This inverts the earlier assessment\n\nI originally called Audio-Technica \"the less certain one\" and recommended doing Sennheiser first. **On architecture that is now backwards.**\n\nThis protocol is *structurally very close to Shure's*: an ASCII, space-delimited, CR-terminated line protocol over a socket on a fixed port. **It drops straight into the existing `SocketService` `select()` loop** \u2014 the same shape `shure_protocol.py` already implements. Sennheiser SSCv2, by contrast, is HTTPS+REST and needs an adapter that owns its own poller.\n\n\u2b50 It also **pushes changes** rather than requiring polling: the `n*` commands (`nstch`, `narlv`, `nprch`, `nstmt`, `nstpw` \u2026) are change notifications, and `sitlv` sets the level-notification interval. Shure's metering is the closest analogue.\n\n### The fields we need\n\n`garlv` / `narlv` returns most of the board's needs **in one message per RX**:\n\n| Wirelessboard | Source | Notes |\n| --- | --- | --- |\n| `audio_level` | TX Level / RX Level | AF meter, **0\u201316** |\n| `rf_level` | ANT-A/B RSSI Meter | **0\u201312** \u2014 *and* real **RSSI in dBm, \u221296 to \u221245** |\n| `antenna` | ANT SELECT | 0 unsupported / 1 A / 2 B |\n| `battery` | Batt Info | see below |\n| `frequency` | RF Freq Info | 9-digit decimal Hz |\n| `power_lock` | TX LOCK | 0/1 |\n| \u2014 | mute statuses (S/N/T squelch, ACCH, XLR, Dante, TX\u2026) | far richer than Shure |\n| `name_raw` | RX Name (`gprch`) | \u26a0\ufe0f see constraint below |\n| \u2014 | `gstch` / `nstch` | antenna, interference alerts, PLL lock |\n\n### \u2b50\u2b50 Battery is a *third* distinct unit \u2014 the design decision is now proven three ways\n\n```\nBatt Type   0 = Alkaline, 1 = Ni-MH\nBatt Power  0 = 0-19%, 1 = 20-39%, 2 = 40-59%, 3 = 60-79%, 4 = 80-100%\n```\n\n- **Shure**: 1\u20135 bars\n- **Sennheiser**: percent *and* minutes remaining\n- **Audio-Technica**: 0\u20134 buckets of percentage bands\n\nThree manufacturers, three incompatible representations, no shared number. That is exactly why #91 settled on **normalise the meaning (`status`), not the unit** \u2014 and it would have been a mistake to design that against Shure alone.\n\nConvenient detail: A-T's 0\u20134 maps almost directly onto the existing five-LED display.\n\n\u2b50 A-T also gives **RSSI in dBm**, a real physical unit rather than an arbitrary scale. If the normalised model ever wants an honest RF number rather than a 0\u2013100, dBm is the one two of the three vendors can produce.\n\n### \u26a0\ufe0f The channel-name constraint is sharper than Sennheiser's\n\n> Available characters are A to Z, 0 to 9, symbols (`_+-,#&`) and single-byte space. **Lowercase alphabets are converted to uppercase.** If less than 8 characters, padded with a trailing space.\n\nSo RX names are **8 characters, uppercase-only, space-padded**. Worth knowing because `name_raw` feeds the card's device line and is the background-photo fallback when nobody is assigned.\n\n\u2b50 That happens to be survivable *because of* 1.12.0: background filename matching became case-insensitive, so an uppercase `JOHN S` still finds `john s.jpg`. It would have been a real problem a week ago.\n\n### Numbering\n\nRX is **1-based** (`1 = RX1`, `2 = RX2`), matching Shure \u2014 and unlike Sennheiser's 0-based channels. Worth stating explicitly so nobody applies the EW-DX off-by-one warning here.\n\n### What remains\n\n- \u23f3 **Hardware or a capture** \u2014 now the only blocker, as with #92.\n- \u23f3 Confirming which models each field applies to: the spec repeatedly marks items \"Blank for ATW-DR3120 (Not supported)\" / \"Not supported on R5220 / R3210N\". The per-model support matrix needs reading carefully before the adapter claims a field.\n- The **`N` constraint stands**: network control needs the network-enabled receiver.\n",
+          "body": "## Specification obtained and read — and this is the *architecturally easier* vendor\n\nThe document exists and is real: **54 pages**, `wirelessystem_ip_control_protocol_specifications_110_web_en_191217.pdf`, covering **ATW-R5220** (2 RX), **ATW-R3210N** (RX1 only) and **ATW-DR3120**.\n\n⚠️ Correction to this issue's original text: the 403 was **my fetcher's problem, not an access restriction**. A normal browser user-agent downloads it fine. The PDF is AES-encrypted for permissions, so extracting the text needed a PDF library — but nothing here is gated.\n\n### Transport and framing\n\n| | |\n| --- | --- |\n| Ports | **TCP 17300, UDP 17000** — \"Static. Not changable.\" |\n| Encoding | ASCII (UTF-8 for some fields, e.g. device naming) |\n| Delimiter | half-width space `0x20` |\n| Terminator | **CR `0x0d`** |\n| Command | **5 bytes** |\n| Max message | 287 bytes |\n\n```\nsprch S 0000 00 NC 1,,1,,,1,471250000,01,01,0 <CR>\nsprch ACK <CR>\ngprch 0000 00 NC 2,,0,,,1,580925000,03,12,1 <CR>\nMD nprch 0000 00 NC 1,0,0,11,0,1234,0,808750000,0,0 <CR>\n```\n\nMessage classes: Set / Get / **ACK** / **NAK** / Answer / **Information** (change notification) / Request.\n\n### ⭐⭐ This inverts the earlier assessment\n\nI originally called Audio-Technica \"the less certain one\" and recommended doing Sennheiser first. **On architecture that is now backwards.**\n\nThis protocol is *structurally very close to Shure's*: an ASCII, space-delimited, CR-terminated line protocol over a socket on a fixed port. **It drops straight into the existing `SocketService` `select()` loop** — the same shape `shure_protocol.py` already implements. Sennheiser SSCv2, by contrast, is HTTPS+REST and needs an adapter that owns its own poller.\n\n⭐ It also **pushes changes** rather than requiring polling: the `n*` commands (`nstch`, `narlv`, `nprch`, `nstmt`, `nstpw` …) are change notifications, and `sitlv` sets the level-notification interval. Shure's metering is the closest analogue.\n\n### The fields we need\n\n`garlv` / `narlv` returns most of the board's needs **in one message per RX**:\n\n| Wirelessboard | Source | Notes |\n| --- | --- | --- |\n| `audio_level` | TX Level / RX Level | AF meter, **0–16** |\n| `rf_level` | ANT-A/B RSSI Meter | **0–12** — *and* real **RSSI in dBm, −96 to −45** |\n| `antenna` | ANT SELECT | 0 unsupported / 1 A / 2 B |\n| `battery` | Batt Info | see below |\n| `frequency` | RF Freq Info | 9-digit decimal Hz |\n| `power_lock` | TX LOCK | 0/1 |\n| — | mute statuses (S/N/T squelch, ACCH, XLR, Dante, TX…) | far richer than Shure |\n| `name_raw` | RX Name (`gprch`) | ⚠️ see constraint below |\n| — | `gstch` / `nstch` | antenna, interference alerts, PLL lock |\n\n### ⭐⭐ Battery is a *third* distinct unit — the design decision is now proven three ways\n\n```\nBatt Type   0 = Alkaline, 1 = Ni-MH\nBatt Power  0 = 0-19%, 1 = 20-39%, 2 = 40-59%, 3 = 60-79%, 4 = 80-100%\n```\n\n- **Shure**: 1–5 bars\n- **Sennheiser**: percent *and* minutes remaining\n- **Audio-Technica**: 0–4 buckets of percentage bands\n\nThree manufacturers, three incompatible representations, no shared number. That is exactly why #91 settled on **normalise the meaning (`status`), not the unit** — and it would have been a mistake to design that against Shure alone.\n\nConvenient detail: A-T's 0–4 maps almost directly onto the existing five-LED display.\n\n⭐ A-T also gives **RSSI in dBm**, a real physical unit rather than an arbitrary scale. If the normalised model ever wants an honest RF number rather than a 0–100, dBm is the one two of the three vendors can produce.\n\n### ⚠️ The channel-name constraint is sharper than Sennheiser's\n\n> Available characters are A to Z, 0 to 9, symbols (`_+-,#&`) and single-byte space. **Lowercase alphabets are converted to uppercase.** If less than 8 characters, padded with a trailing space.\n\nSo RX names are **8 characters, uppercase-only, space-padded**. Worth knowing because `name_raw` feeds the card's device line and is the background-photo fallback when nobody is assigned.\n\n⭐ That happens to be survivable *because of* 1.12.0: background filename matching became case-insensitive, so an uppercase `JOHN S` still finds `john s.jpg`. It would have been a real problem a week ago.\n\n### Numbering\n\nRX is **1-based** (`1 = RX1`, `2 = RX2`), matching Shure — and unlike Sennheiser's 0-based channels. Worth stating explicitly so nobody applies the EW-DX off-by-one warning here.\n\n### What remains\n\n- ⏳ **Hardware or a capture** — now the only blocker, as with #92.\n- ⏳ Confirming which models each field applies to: the spec repeatedly marks items \"Blank for ATW-DR3120 (Not supported)\" / \"Not supported on R5220 / R3210N\". The per-model support matrix needs reading carefully before the adapter claims a field.\n- The **`N` constraint stands**: network control needs the network-enabled receiver.\n",
           "read": false
         },
         {
@@ -118,7 +118,7 @@
       "headSha": "de3cd33a82c55c59a8d2189a8ced0d0b60a298ec",
       "id": "wirelessboard-93",
       "issue": "https://github.com/willcgage/wirelessboard/issues/93",
-      "lastSync": "2026-09-14T10:47:05.254Z",
+      "lastSync": "2026-09-14T14:15:13.214Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/103",
       "reporter": "willcgage",
       "run": null,
@@ -155,7 +155,7 @@
       "headSha": "d62d1cdacbb78398be452718e55c95a0b1929bc2",
       "id": "network-audio-controller-55",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/55",
-      "lastSync": "2026-09-14T10:47:08.251Z",
+      "lastSync": "2026-09-14T14:15:15.992Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/58",
       "reporter": "coaxk",
       "run": null,
@@ -182,7 +182,7 @@
           "url": "https://github.com/chris-ritsen/network-audio-controller/issues/47#issuecomment-4166923582",
           "updatedAt": "2026-04-01T02:20:44Z",
           "state": null,
-          "body": "I investigated this and the parser appears correct. Here's the evidence:\n\n**Test setup:** avio-usb-2 set to static with DNS=8.8.8.8 and Gateway=192.168.1.1 (deliberately different values so we can tell them apart).\n\n**Dante Controller shows:** DNS Server: 8.8.8.8, Gateway: 192.168.1.1\n**netaudio CLI shows:** DNS: 8.8.8.8, Gateway: 192.168.1.1 \u2014 exact match.\n\nThe Dante protocol actually uses different field ordering depending on the mode:\n- **Dynamic (DHCP):** offset+16 = gateway, offset+20 = DNS\n- **Static:** offset+16 = DNS, offset+20 = gateway\n\nThe parser in `notification.py` handles both orderings, which is why the static and dynamic branches look different \u2014 that's intentional, not a bug.\n\n**To verify on your end:** In Dante Controller's Device View \u2192 Network Config tab, set a device to static with a DNS server that's different from the gateway (e.g. DNS=8.8.8.8, Gateway=your router IP). Then run `netaudio -n <device> device config interface` and confirm the DNS and Gateway columns match what DC shows. If they match, the parser is correct. If they're swapped, paste the output here and we'll fix it.\n\n---\n\nBecause you're using Claude to investigate, use this prompt to have it verify:\n\n```\nThe netaudio maintainer says the gateway/dns field ordering in the 0x0011 interface status packet is intentionally different between dynamic and static modes. Dynamic has gateway at offset+16 and dns at offset+20. Static has dns at offset+16 and gateway at offset+20. This matches Dante Controller's ground truth when tested with DNS=8.8.8.8 and Gateway=192.168.1.1 on a static device. Verify this on my device by running `netaudio -n <device> device config interface` and comparing the DNS and Gateway values against what Dante Controller shows in Device View \u2192 Network Config. Tell me if they match or if they're swapped.\n```",
+          "body": "I investigated this and the parser appears correct. Here's the evidence:\n\n**Test setup:** avio-usb-2 set to static with DNS=8.8.8.8 and Gateway=192.168.1.1 (deliberately different values so we can tell them apart).\n\n**Dante Controller shows:** DNS Server: 8.8.8.8, Gateway: 192.168.1.1\n**netaudio CLI shows:** DNS: 8.8.8.8, Gateway: 192.168.1.1 — exact match.\n\nThe Dante protocol actually uses different field ordering depending on the mode:\n- **Dynamic (DHCP):** offset+16 = gateway, offset+20 = DNS\n- **Static:** offset+16 = DNS, offset+20 = gateway\n\nThe parser in `notification.py` handles both orderings, which is why the static and dynamic branches look different — that's intentional, not a bug.\n\n**To verify on your end:** In Dante Controller's Device View → Network Config tab, set a device to static with a DNS server that's different from the gateway (e.g. DNS=8.8.8.8, Gateway=your router IP). Then run `netaudio -n <device> device config interface` and confirm the DNS and Gateway columns match what DC shows. If they match, the parser is correct. If they're swapped, paste the output here and we'll fix it.\n\n---\n\nBecause you're using Claude to investigate, use this prompt to have it verify:\n\n```\nThe netaudio maintainer says the gateway/dns field ordering in the 0x0011 interface status packet is intentionally different between dynamic and static modes. Dynamic has gateway at offset+16 and dns at offset+20. Static has dns at offset+16 and gateway at offset+20. This matches Dante Controller's ground truth when tested with DNS=8.8.8.8 and Gateway=192.168.1.1 on a static device. Verify this on my device by running `netaudio -n <device> device config interface` and comparing the DNS and Gateway values against what Dante Controller shows in Device View → Network Config. Tell me if they match or if they're swapped.\n```",
           "read": false
         },
         {
@@ -204,7 +204,7 @@
           "url": "https://github.com/chris-ritsen/network-audio-controller/issues/47#issuecomment-4987957444",
           "updatedAt": "2026-07-16T03:49:31Z",
           "state": null,
-          "body": " Hi! I'd be happy to fix this one \u2014 looks like a straightforward field swap. I work with Python networking tools regularly, so I can verify against a real device table and add a small test so it doesn't regress.",
+          "body": " Hi! I'd be happy to fix this one — looks like a straightforward field swap. I work with Python networking tools regularly, so I can verify against a real device table and add a small test so it doesn't regress.",
           "read": false
         },
         {
@@ -225,7 +225,7 @@
       "headSha": "439962cba7a03b409b68e40ebb0b66f9f5d129c8",
       "id": "network-audio-controller-47",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/47",
-      "lastSync": "2026-09-14T10:47:11.349Z",
+      "lastSync": "2026-09-14T14:15:18.652Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/57",
       "reporter": "stanelie",
       "run": null,
@@ -692,7 +692,7 @@
           "url": "https://github.com/christofmuc/JammerNetz/pull/108#issuecomment-5631395380",
           "updatedAt": "2026-09-11T08:09:07Z",
           "state": null,
-          "body": "<!-- This is an auto-generated comment: summarize by coderabbit.ai -->\n<!-- review_stack_entry_start -->\n\n<a href=\"https://app.coderabbit.ai/change-stack/christofmuc/JammerNetz/pull/108#gh-light-mode-only\"><img src=\"https://storage.googleapis.com/coderabbit_public_assets/review-stack-in-coderabbit-ui.svg\" alt=\"Review Change Stack\" width=\"202\" height=\"32\"></a><a href=\"https://app.coderabbit.ai/change-stack/christofmuc/JammerNetz/pull/108#gh-dark-mode-only\"><img src=\"https://storage.googleapis.com/coderabbit_public_assets/review-stack-in-coderabbit-ui-dark.svg\" alt=\"Review Change Stack\" width=\"202\" height=\"32\"></a>\n\n<!-- review_stack_entry_end -->\n<!-- recent_review_start -->\n\nNo actionable comments were generated in the recent review. \ud83c\udf89\n\n<details>\n<summary>\u2139\ufe0f Recent review info</summary>\n\n<details>\n<summary>\u2699\ufe0f Run configuration</summary>\n\n**Configuration used**: defaults\n\n**Review profile**: CHILL\n\n**Plan**: Advanced\n\n**Run ID**: `753a2dce-b11c-4694-bbe4-a2bd2e3786ca`\n\n</details>\n\n<details>\n<summary>\ud83d\udce5 Commits</summary>\n\nReviewing files that changed from the base of the PR and between b5ad521c5f255afd3743571129ef9bdf6daad25f and 22d6db8b9c768233f8b1d0e39cab40bf3bacb09b.\n\n</details>\n\n<details>\n<summary>\ud83d\udcd2 Files selected for processing (2)</summary>\n\n* `Client/Source/AudioService.cpp`\n* `Client/Source/DeviceSelector.cpp`\n\n</details>\n\n**Included review availability:** Your plan provides up to 1 included review per hour; 0 remain after this review.\n\n</details>\n\n---\n\n\n\n<!-- recent_review_end -->\n<!-- walkthrough_start -->\n\n<details>\n<summary>\ud83d\udcdd Walkthrough</summary>\n\n## Walkthrough\n\nAudio device selection now uses a shared creation helper and unique ownership. Control-panel access recreates the selected device. Audio restart passes both configured output and input names for all device types.\n\n### Changes\n\n**Audio device flow**\n\n| Layer / File(s) | Summary |\n|---|---|\n| **Device selection and control-panel recreation** <br> `Client/Source/DeviceSelector.cpp` | The selector uses a shared helper for separate and shared input/output configurations. The control-panel callback recreates the device before opening its control panel. |\n| **Audio restart device creation** <br> `Client/Source/AudioService.cpp` | Audio restart passes both configured output and input names to every device type. |\n\n<!-- change_assessment_start -->\n**Priority:** \u2796 Normal\n\n\n\n**Estimated code review effort:** 2 (Simple) | ~10 minutes\n\n<!-- change_assessment_commit:\"22d6db8b9c768233f8b1d0e39cab40bf3bacb09b\" -->\n**Change:** Bug fix\n<!-- change_assessment_end -->\n\n**Suggested reviewers:** `christofmuc`\n\n</details>\n\n<!-- walkthrough_end -->\n<!-- final_review_risk_start -->\n**Merge Risk:** _\u26aa Minimal_ \u00b7 up to `22d6d`\n<!-- final_review_risk_coverage:{\"sourceCommitId\":\"22d6db8b9c768233f8b1d0e39cab40bf3bacb09b\",\"coveredCommitId\":\"22d6db8b9c768233f8b1d0e39cab40bf3bacb09b\",\"kind\":\"reviewed\"} -->\n\nThe audio-device startup changes have no identified merge-blocking risk.\n<!-- final_review_risk_end -->\n<!-- pre_merge_checks_walkthrough_start -->\n\n<details>\n<summary>\ud83d\udea5 Pre-merge checks | \u2705 4 | \u274c 1</summary>\n\n### \u274c Failed checks (1 warning)\n\n|     Check name     | Status     | Explanation                                                                                                                                                                               | Resolution                                                                         |\n| :----------------: | :--------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |\n| Docstring Coverage | \u26a0\ufe0f Warning | Docstring coverage is 0.00% which is insufficient. The required threshold is 80.00%. Docstring coverage is scoped to functions touched by this diff. Analyzed 3 functions across 2 files. | Write docstrings for the functions missing them to satisfy the coverage threshold. |\n\n<details>\n<summary>\u2705 Passed checks (4 passed)</summary>\n\n|         Check name         | Status   | Explanation                                                                                                   |\n| :------------------------: | :------- | :------------------------------------------------------------------------------------------------------------ |\n|     Linked Issues check    | \u2705 Passed | Check skipped because no linked issues were found for this pull request.                                      |\n| Out of Scope Changes check | \u2705 Passed | Check skipped because no linked issues were found for this pull request.                                      |\n|      Description Check     | \u2705 Passed | Check skipped - CodeRabbit\u2019s high-level summary is enabled.                                                   |\n|         Title check        | \u2705 Passed | The title clearly and concisely describes the main change: fixing duplex ASIO startup after device selection. |\n\n</details>\n\n</details>\n\n<!-- pre_merge_checks_walkthrough_end -->\n\n- [ ] <!-- {\"checkboxId\":\"585bb3f6-faf5-4dbf-96d2-74e382adf19a\"} --> Fix all pre-merge checks with AI\n<!-- finishing_touch_checkbox_start -->\n\n<details>\n<summary>\u2728 Finishing Touches</summary>\n\n<details>\n<summary>\ud83e\uddea Generate unit tests (beta)</summary>\n\n- [ ] <!-- {\"checkboxId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\", \"radioGroupId\": \"utg-output-choice-group-unknown_comment_id\"} -->   Create PR with unit tests\n\n</details>\n\n</details>\n\n<!-- finishing_touch_checkbox_end -->\n<!-- tips_start -->\n\n---\n\nThanks for using [CodeRabbit](https://coderabbit.ai?utm_source=oss&utm_medium=github&utm_campaign=christofmuc/JammerNetz&utm_content=108)! It's free for OSS, and your support helps us grow. If you like it, consider giving us a shout-out.\n\n<details>\n<summary>\u2764\ufe0f Share</summary>\n\n- [X](https://twitter.com/intent/tweet?text=I%20just%20used%20%40coderabbitai%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20the%20proprietary%20code.%20Check%20it%20out%3A&url=https%3A//coderabbit.ai)\n- [Mastodon](https://mastodon.social/share?text=I%20just%20used%20%40coderabbitai%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20the%20proprietary%20code.%20Check%20it%20out%3A%20https%3A%2F%2Fcoderabbit.ai)\n- [Reddit](https://www.reddit.com/submit?title=Great%20tool%20for%20code%20review%20-%20CodeRabbit&text=I%20just%20used%20CodeRabbit%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20proprietary%20code.%20Check%20it%20out%3A%20https%3A//coderabbit.ai)\n- [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fcoderabbit.ai&mini=true&title=Great%20tool%20for%20code%20review%20-%20CodeRabbit&summary=I%20just%20used%20CodeRabbit%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20proprietary%20code)\n\n</details>\n\n\n<sub>Comment `@coderabbitai help` to get the list of available commands.</sub>\n\n<!-- tips_end -->",
+          "body": "<!-- This is an auto-generated comment: summarize by coderabbit.ai -->\n<!-- review_stack_entry_start -->\n\n<a href=\"https://app.coderabbit.ai/change-stack/christofmuc/JammerNetz/pull/108#gh-light-mode-only\"><img src=\"https://storage.googleapis.com/coderabbit_public_assets/review-stack-in-coderabbit-ui.svg\" alt=\"Review Change Stack\" width=\"202\" height=\"32\"></a><a href=\"https://app.coderabbit.ai/change-stack/christofmuc/JammerNetz/pull/108#gh-dark-mode-only\"><img src=\"https://storage.googleapis.com/coderabbit_public_assets/review-stack-in-coderabbit-ui-dark.svg\" alt=\"Review Change Stack\" width=\"202\" height=\"32\"></a>\n\n<!-- review_stack_entry_end -->\n<!-- recent_review_start -->\n\nNo actionable comments were generated in the recent review. 🎉\n\n<details>\n<summary>ℹ️ Recent review info</summary>\n\n<details>\n<summary>⚙️ Run configuration</summary>\n\n**Configuration used**: defaults\n\n**Review profile**: CHILL\n\n**Plan**: Advanced\n\n**Run ID**: `753a2dce-b11c-4694-bbe4-a2bd2e3786ca`\n\n</details>\n\n<details>\n<summary>📥 Commits</summary>\n\nReviewing files that changed from the base of the PR and between b5ad521c5f255afd3743571129ef9bdf6daad25f and 22d6db8b9c768233f8b1d0e39cab40bf3bacb09b.\n\n</details>\n\n<details>\n<summary>📒 Files selected for processing (2)</summary>\n\n* `Client/Source/AudioService.cpp`\n* `Client/Source/DeviceSelector.cpp`\n\n</details>\n\n**Included review availability:** Your plan provides up to 1 included review per hour; 0 remain after this review.\n\n</details>\n\n---\n\n\n\n<!-- recent_review_end -->\n<!-- walkthrough_start -->\n\n<details>\n<summary>📝 Walkthrough</summary>\n\n## Walkthrough\n\nAudio device selection now uses a shared creation helper and unique ownership. Control-panel access recreates the selected device. Audio restart passes both configured output and input names for all device types.\n\n### Changes\n\n**Audio device flow**\n\n| Layer / File(s) | Summary |\n|---|---|\n| **Device selection and control-panel recreation** <br> `Client/Source/DeviceSelector.cpp` | The selector uses a shared helper for separate and shared input/output configurations. The control-panel callback recreates the device before opening its control panel. |\n| **Audio restart device creation** <br> `Client/Source/AudioService.cpp` | Audio restart passes both configured output and input names to every device type. |\n\n<!-- change_assessment_start -->\n**Priority:** ➖ Normal\n\n\n\n**Estimated code review effort:** 2 (Simple) | ~10 minutes\n\n<!-- change_assessment_commit:\"22d6db8b9c768233f8b1d0e39cab40bf3bacb09b\" -->\n**Change:** Bug fix\n<!-- change_assessment_end -->\n\n**Suggested reviewers:** `christofmuc`\n\n</details>\n\n<!-- walkthrough_end -->\n<!-- final_review_risk_start -->\n**Merge Risk:** _⚪ Minimal_ · up to `22d6d`\n<!-- final_review_risk_coverage:{\"sourceCommitId\":\"22d6db8b9c768233f8b1d0e39cab40bf3bacb09b\",\"coveredCommitId\":\"22d6db8b9c768233f8b1d0e39cab40bf3bacb09b\",\"kind\":\"reviewed\"} -->\n\nThe audio-device startup changes have no identified merge-blocking risk.\n<!-- final_review_risk_end -->\n<!-- pre_merge_checks_walkthrough_start -->\n\n<details>\n<summary>🚥 Pre-merge checks | ✅ 4 | ❌ 1</summary>\n\n### ❌ Failed checks (1 warning)\n\n|     Check name     | Status     | Explanation                                                                                                                                                                               | Resolution                                                                         |\n| :----------------: | :--------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |\n| Docstring Coverage | ⚠️ Warning | Docstring coverage is 0.00% which is insufficient. The required threshold is 80.00%. Docstring coverage is scoped to functions touched by this diff. Analyzed 3 functions across 2 files. | Write docstrings for the functions missing them to satisfy the coverage threshold. |\n\n<details>\n<summary>✅ Passed checks (4 passed)</summary>\n\n|         Check name         | Status   | Explanation                                                                                                   |\n| :------------------------: | :------- | :------------------------------------------------------------------------------------------------------------ |\n|     Linked Issues check    | ✅ Passed | Check skipped because no linked issues were found for this pull request.                                      |\n| Out of Scope Changes check | ✅ Passed | Check skipped because no linked issues were found for this pull request.                                      |\n|      Description Check     | ✅ Passed | Check skipped - CodeRabbit’s high-level summary is enabled.                                                   |\n|         Title check        | ✅ Passed | The title clearly and concisely describes the main change: fixing duplex ASIO startup after device selection. |\n\n</details>\n\n</details>\n\n<!-- pre_merge_checks_walkthrough_end -->\n\n- [ ] <!-- {\"checkboxId\":\"585bb3f6-faf5-4dbf-96d2-74e382adf19a\"} --> Fix all pre-merge checks with AI\n<!-- finishing_touch_checkbox_start -->\n\n<details>\n<summary>✨ Finishing Touches</summary>\n\n<details>\n<summary>🧪 Generate unit tests (beta)</summary>\n\n- [ ] <!-- {\"checkboxId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\", \"radioGroupId\": \"utg-output-choice-group-unknown_comment_id\"} -->   Create PR with unit tests\n\n</details>\n\n</details>\n\n<!-- finishing_touch_checkbox_end -->\n<!-- tips_start -->\n\n---\n\nThanks for using [CodeRabbit](https://coderabbit.ai?utm_source=oss&utm_medium=github&utm_campaign=christofmuc/JammerNetz&utm_content=108)! It's free for OSS, and your support helps us grow. If you like it, consider giving us a shout-out.\n\n<details>\n<summary>❤️ Share</summary>\n\n- [X](https://twitter.com/intent/tweet?text=I%20just%20used%20%40coderabbitai%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20the%20proprietary%20code.%20Check%20it%20out%3A&url=https%3A//coderabbit.ai)\n- [Mastodon](https://mastodon.social/share?text=I%20just%20used%20%40coderabbitai%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20the%20proprietary%20code.%20Check%20it%20out%3A%20https%3A%2F%2Fcoderabbit.ai)\n- [Reddit](https://www.reddit.com/submit?title=Great%20tool%20for%20code%20review%20-%20CodeRabbit&text=I%20just%20used%20CodeRabbit%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20proprietary%20code.%20Check%20it%20out%3A%20https%3A//coderabbit.ai)\n- [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fcoderabbit.ai&mini=true&title=Great%20tool%20for%20code%20review%20-%20CodeRabbit&summary=I%20just%20used%20CodeRabbit%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20proprietary%20code)\n\n</details>\n\n\n<sub>Comment `@coderabbitai help` to get the list of available commands.</sub>\n\n<!-- tips_end -->",
           "read": false
         }
       ],
@@ -702,7 +702,7 @@
       "headSha": "22d6db8b9c768233f8b1d0e39cab40bf3bacb09b",
       "id": "jammernetz-35",
       "issue": "https://github.com/christofmuc/JammerNetz/issues/35",
-      "lastSync": "2026-09-14T10:47:14.129Z",
+      "lastSync": "2026-09-14T14:15:21.185Z",
       "pr": "https://github.com/christofmuc/JammerNetz/pull/108",
       "reporter": "iamthechrisb",
       "run": null,
@@ -729,7 +729,7 @@
           "url": "https://github.com/microsoft/low-latency-audio/issues/32#issuecomment-5244453587",
           "updatedAt": "2026-08-10T18:40:45Z",
           "state": null,
-          "body": "Correction: the device that reproduces this reliably is the **Apple USB-C to 3.5 mm Headphone Jack Adapter** (not the TASCAM Series 102i as originally written \u2014 my mistake reviewing my own test notes). Updated the issue body above accordingly. The root cause analysis and suggested fix are unaffected.",
+          "body": "Correction: the device that reproduces this reliably is the **Apple USB-C to 3.5 mm Headphone Jack Adapter** (not the TASCAM Series 102i as originally written — my mistake reviewing my own test notes). Updated the issue body above accordingly. The root cause analysis and suggested fix are unaffected.",
           "read": false
         }
       ],
@@ -739,7 +739,7 @@
       "headSha": "f1536c3d1a395620edc73815deca2b5173f7c7de",
       "id": "low-latency-audio-32",
       "issue": "https://github.com/microsoft/low-latency-audio/issues/32",
-      "lastSync": "2026-09-14T10:47:17.166Z",
+      "lastSync": "2026-09-14T14:15:23.935Z",
       "pr": "https://github.com/microsoft/low-latency-audio/pull/35",
       "reporter": "tankoha",
       "run": null,
@@ -788,7 +788,7 @@
           "url": "https://github.com/prefrontalcortex/DomeTools/issues/47#issuecomment-5615677918",
           "updatedAt": "2026-09-10T08:37:18Z",
           "state": null,
-          "body": "Thank you \u2014 that confirms this occurs with the documented released\r\npackage and Unity 6000.3.8f1, rather than a local source checkout. The\r\nexisting inspector screenshot is sufficient context for that\r\ndistinction.\r\n",
+          "body": "Thank you — that confirms this occurs with the documented released\r\npackage and Unity 6000.3.8f1, rather than a local source checkout. The\r\nexisting inspector screenshot is sufficient context for that\r\ndistinction.\r\n",
           "read": false
         },
         {
@@ -810,7 +810,7 @@
           "url": "https://github.com/prefrontalcortex/DomeTools/issues/47#issuecomment-5619382958",
           "updatedAt": "2026-09-10T14:19:42Z",
           "state": null,
-          "body": "@pfcwuenscher Please be aware that @iibaranov-IG is a flagged account \u2014 Bitfocus have flagged it for spam and scam.\n\nIt's been discussed on the Module Development Bitfocus Slack channel.",
+          "body": "@pfcwuenscher Please be aware that @iibaranov-IG is a flagged account — Bitfocus have flagged it for spam and scam.\n\nIt's been discussed on the Module Development Bitfocus Slack channel.",
           "read": false
         },
         {
@@ -854,7 +854,7 @@
           "url": "https://github.com/prefrontalcortex/DomeTools/issues/47#issuecomment-5620181239",
           "updatedAt": "2026-09-10T14:19:34Z",
           "state": null,
-          "body": "@Hanesto, I\u2019m sorry for adding noise to your report and for initially asking for a screenshot that you had already provided.\n\nI traced the problem and opened #49 with a focused fix. Your installation has the standard `jp.keijiro.klak.ndi` package, which provides video but not the Dome Tools audio extension. Dome Tools treated that package as fully installed, so the **NDI Audio Output** section was left blank. The installer also failed to add the audio fork's scope when an OpenUPM registry already existed.\n\nThe PR now adds the missing OpenUPM scopes, replaces the standard package with `com.pfc.jp.keijiro.klak.ndi@2.1.3-pfc.3`, and shows a clear **Replace** action instead of an empty audio section.\n\nUntil the fix is reviewed and released, the manual workaround is to replace this dependency in `Packages/manifest.json`:\n\n```json\n\"jp.keijiro.klak.ndi\": \"2.1.6\"\n```\n\nwith:\n\n```json\n\"com.pfc.jp.keijiro.klak.ndi\": \"2.1.3-pfc.3\"\n```\n\nand ensure the existing `https://package.openupm.com` registry contains both scopes:\n\n```json\n\"org.nuget.system\",\n\"com.pfc.jp.keijiro.klak.ndi\"\n```\n\nThank you for the precise report and version details. If you test either the workaround or #49 in Unity 6000.3.8f1, your result would confirm the editor-side fix on the affected setup.\n",
+          "body": "@Hanesto, I’m sorry for adding noise to your report and for initially asking for a screenshot that you had already provided.\n\nI traced the problem and opened #49 with a focused fix. Your installation has the standard `jp.keijiro.klak.ndi` package, which provides video but not the Dome Tools audio extension. Dome Tools treated that package as fully installed, so the **NDI Audio Output** section was left blank. The installer also failed to add the audio fork's scope when an OpenUPM registry already existed.\n\nThe PR now adds the missing OpenUPM scopes, replaces the standard package with `com.pfc.jp.keijiro.klak.ndi@2.1.3-pfc.3`, and shows a clear **Replace** action instead of an empty audio section.\n\nUntil the fix is reviewed and released, the manual workaround is to replace this dependency in `Packages/manifest.json`:\n\n```json\n\"jp.keijiro.klak.ndi\": \"2.1.6\"\n```\n\nwith:\n\n```json\n\"com.pfc.jp.keijiro.klak.ndi\": \"2.1.3-pfc.3\"\n```\n\nand ensure the existing `https://package.openupm.com` registry contains both scopes:\n\n```json\n\"org.nuget.system\",\n\"com.pfc.jp.keijiro.klak.ndi\"\n```\n\nThank you for the precise report and version details. If you test either the workaround or #49 in Unity 6000.3.8f1, your result would confirm the editor-side fix on the affected setup.\n",
           "read": false
         },
         {
@@ -887,7 +887,7 @@
           "url": "https://github.com/prefrontalcortex/DomeTools/issues/47#issuecomment-5630995616",
           "updatedAt": "2026-09-11T07:28:04Z",
           "state": null,
-          "body": "@Hanesto, excellent \u2014 thank you for testing it so quickly and for confirming both the Unity 6000.3.8f1 audio controls and successful Quest 3 transmission. I have added your real-device result to #49 so the maintainers have it during review.\n",
+          "body": "@Hanesto, excellent — thank you for testing it so quickly and for confirming both the Unity 6000.3.8f1 audio controls and successful Quest 3 transmission. I have added your real-device result to #49 so the maintainers have it during review.\n",
           "read": false
         }
       ],
@@ -897,7 +897,7 @@
       "headSha": "37f1ad4f80ddc7ab42b52f8687b1175db53c6faa",
       "id": "dometools-47",
       "issue": "https://github.com/prefrontalcortex/DomeTools/issues/47",
-      "lastSync": "2026-09-14T10:47:20.469Z",
+      "lastSync": "2026-09-14T14:15:27.058Z",
       "pr": "https://github.com/prefrontalcortex/DomeTools/pull/49",
       "reporter": "Hanesto",
       "run": null,
@@ -924,7 +924,7 @@
           "url": "https://github.com/willcgage/wirelessboard/issues/92#issuecomment-5472643785",
           "updatedAt": "2026-08-31T01:38:31Z",
           "state": null,
-          "body": "\u2b50 **Start with the transport question, not the field mapping.**\n\nThe design decision on #91 (mixed-vendor boards are a real case) settled how far the data model merges. It also identified the one thing most likely to force an architectural change, and it is not the fields:\n\n`SocketService` in `py/shure.py` runs a **single `select()` over every receiver**, assuming each one is a socket with a `fileno()`. If SSC turns out to need HTTP, WebSockets, or a long-lived subscription rather than poll-and-read, that loop is what has to change \u2014 and that is a bigger piece of work than any amount of mapping battery to status.\n\nSo when the spec gets read, answer in this order:\n\n1. **Transport** \u2014 TCP, UDP, HTTP? Does it fit a `select()` loop?\n2. **Interaction model** \u2014 poll/response like Shure, or subscribe/push?\n3. **Authentication** \u2014 SSCv2 has a password; credentials would go in the OS keyring, not `config.json`, the same as PCO.\n4. Only then the field mapping.\n\nAlso from #91, and it lowers the bar for a first release considerably:\n\n\u2b50 **Discovery and metering are both optional.** Receivers can be added by IP in config, and the UI already guards the optional fields with `if ('x' in data)`, so a vendor that never sends quality/runtime/power-lock degrades gracefully with no frontend changes.\n\nA first Sennheiser release could be **manual IP, channel name, battery \u2192 status, nothing else**. That is genuinely useful on a board, a fraction of the work this issue implies, and it gets a real second protocol through the adapter seam early \u2014 which is the only way to find out whether the seam is actually right.\n",
+          "body": "⭐ **Start with the transport question, not the field mapping.**\n\nThe design decision on #91 (mixed-vendor boards are a real case) settled how far the data model merges. It also identified the one thing most likely to force an architectural change, and it is not the fields:\n\n`SocketService` in `py/shure.py` runs a **single `select()` over every receiver**, assuming each one is a socket with a `fileno()`. If SSC turns out to need HTTP, WebSockets, or a long-lived subscription rather than poll-and-read, that loop is what has to change — and that is a bigger piece of work than any amount of mapping battery to status.\n\nSo when the spec gets read, answer in this order:\n\n1. **Transport** — TCP, UDP, HTTP? Does it fit a `select()` loop?\n2. **Interaction model** — poll/response like Shure, or subscribe/push?\n3. **Authentication** — SSCv2 has a password; credentials would go in the OS keyring, not `config.json`, the same as PCO.\n4. Only then the field mapping.\n\nAlso from #91, and it lowers the bar for a first release considerably:\n\n⭐ **Discovery and metering are both optional.** Receivers can be added by IP in config, and the UI already guards the optional fields with `if ('x' in data)`, so a vendor that never sends quality/runtime/power-lock degrades gracefully with no frontend changes.\n\nA first Sennheiser release could be **manual IP, channel name, battery → status, nothing else**. That is genuinely useful on a board, a fraction of the work this issue implies, and it gets a real second protocol through the adapter seam early — which is the only way to find out whether the seam is actually right.\n",
           "read": false
         },
         {
@@ -935,7 +935,7 @@
           "url": "https://github.com/willcgage/wirelessboard/issues/92#issuecomment-5472670932",
           "updatedAt": "2026-08-31T01:43:21Z",
           "state": null,
-          "body": "## Research done \u2014 transport, interaction model and auth are answered\n\nRead from Sennheiser's own documentation. The PDFs are 403 to an automated fetch, but the HTML specification and the Control Cockpit port table are readable and between them they answer everything this issue was blocked on.\n\n### There are two protocols with two completely different architectures\n\n| | SSCv1 | SSCv2 |\n| --- | --- | --- |\n| Transport | **UDP/TCP port 45** (also 6970) | **HTTPS, TCP 443** \u2014 HTTP/1.1 + TLS 1.2 |\n| Encryption | none | **mandatory**; plaintext HTTP must not be allowed |\n| Shape | socket protocol | **RESTful**, JSON, case-sensitive paths |\n| Updates | \u2014 | **Server-Sent Events**, `GET /api/ssc/state/subscriptions` \u2192 `text/event-stream` |\n| EW-DX | older firmware | **firmware \u2265 4.0.0** |\n\nExample from the v2 spec:\n\n```\nTX: GET /api/device/identity\nRX: 200 {\"product\":\"TeamConnect Ceiling 2\",\"serial\":\"AB12DEF345\",\"vendor\":\"Sennheiser electronic GmbH & Co. KG\"}\n```\n\n**Auth (SSCv2)** is in a separate document \u2014 *\"Specification for Authenticated Sennheiser Sound Control (SSC) Clients\"* \u2014 with `control user` and `API user` roles. Credentials would go in the OS keyring, not `config.json`, the same as PCO.\n\n**Discovery exists after all: mDNS on UDP 5353**, listed for Evolution Wireless Digital. My earlier note in this issue said nothing was found; that was wrong.\n\nSources: [SSCv2 specification 2.3](https://docs.cloud.sennheiser.com/en-us/api-docs/api-docs/sscv2-specification-2.3.html) \u00b7 [Control Cockpit port table](https://docs.cloud.sennheiser.com/en-us/control-cockpit/control-cockpit/specifications.html) \u00b7 [SSC overview](https://docs.cloud.sennheiser.com/en-us/api-docs/api-docs/sound-control-protocol.html)\n\n### \u2b50\u2b50 The architectural conclusion, which is better news than expected\n\n#91 flagged the risk that a vendor would not fit `SocketService`'s single `select()` loop. **SSCv2 does not fit it \u2014 and it turns out it does not need to.**\n\nSSCv2 is `requests.get()` against a handful of URLs. `requests` is already a dependency, and this project already has the pattern for exactly this shape of work: PCO does blocking HTTP on a worker thread, off the IOLoop. A minimal Sennheiser adapter can own its own small poller and deliver updates into the same channel objects, **without touching `SocketService` at all** and without any risk to Shure.\n\nSo the refinement to the #91 design is: **an adapter may own its own transport loop.** Not every vendor has to live inside the socket `select()`. That is a smaller and safer change than making one loop serve every possible transport.\n\nServer-Sent Events are then a later optimisation \u2014 push instead of a timer \u2014 not a prerequisite.\n\n### \u26d4 The decision this leaves, and it is not purely technical\n\n**SSCv1 is cheaper but asks operators to turn security off.** It is a socket protocol on UDP 45 that would drop straight into the existing loop, and it needs no credentials. But on EW-DX it is the *legacy* path: Sennheiser's own guidance is to use encrypted SSCv2 with a password and marks the unsecured v1 as not recommended, and enabling it is a deliberate act on each device.\n\nBuilding the first Sennheiser support on a protocol the vendor is steering people away from seems like a poor foundation for something we then maintain \u2014 especially as SSCv2 turns out to be the *easier* one to implement minimally.\n\n**Recommendation: target SSCv2 (firmware \u2265 4.0.0), REST polling, no SSE, no discovery, manual IP.** Per the minimum-viable-vendor table on #91 that still gives a genuinely useful board: channel name, battery \u2192 status. SSCv1 stays available as a fallback if someone turns up with older firmware they cannot update.\n\n### Correction to this issue's original text\n\n\u26a0\ufe0f I wrote that the older analogue G-series \"has no IP control on most models \u2014 no amount of work here reaches it.\" **The port table contradicts that**: `evolution wireless G4` appears with UDP 8133 for \"All IP-Communication & mDNS\". G4 network-capable receivers do talk to Control Cockpit. Whether that protocol is documented for third parties is a separate and unanswered question, but the flat statement was wrong and should not be relied on.\n\n### Still open\n\n- The exact SSCv2 property paths for channel name, battery, RF and audio level on EW-DX \u2014 the spec page shows the addressing scheme and an identity example, but the EW-DX property tree is in the 403'd PDFs. **Needs a browser download.**\n- The authentication mechanism in detail (separate specification).\n- Hardware or a capture, before any parsing code is written.\n",
+          "body": "## Research done — transport, interaction model and auth are answered\n\nRead from Sennheiser's own documentation. The PDFs are 403 to an automated fetch, but the HTML specification and the Control Cockpit port table are readable and between them they answer everything this issue was blocked on.\n\n### There are two protocols with two completely different architectures\n\n| | SSCv1 | SSCv2 |\n| --- | --- | --- |\n| Transport | **UDP/TCP port 45** (also 6970) | **HTTPS, TCP 443** — HTTP/1.1 + TLS 1.2 |\n| Encryption | none | **mandatory**; plaintext HTTP must not be allowed |\n| Shape | socket protocol | **RESTful**, JSON, case-sensitive paths |\n| Updates | — | **Server-Sent Events**, `GET /api/ssc/state/subscriptions` → `text/event-stream` |\n| EW-DX | older firmware | **firmware ≥ 4.0.0** |\n\nExample from the v2 spec:\n\n```\nTX: GET /api/device/identity\nRX: 200 {\"product\":\"TeamConnect Ceiling 2\",\"serial\":\"AB12DEF345\",\"vendor\":\"Sennheiser electronic GmbH & Co. KG\"}\n```\n\n**Auth (SSCv2)** is in a separate document — *\"Specification for Authenticated Sennheiser Sound Control (SSC) Clients\"* — with `control user` and `API user` roles. Credentials would go in the OS keyring, not `config.json`, the same as PCO.\n\n**Discovery exists after all: mDNS on UDP 5353**, listed for Evolution Wireless Digital. My earlier note in this issue said nothing was found; that was wrong.\n\nSources: [SSCv2 specification 2.3](https://docs.cloud.sennheiser.com/en-us/api-docs/api-docs/sscv2-specification-2.3.html) · [Control Cockpit port table](https://docs.cloud.sennheiser.com/en-us/control-cockpit/control-cockpit/specifications.html) · [SSC overview](https://docs.cloud.sennheiser.com/en-us/api-docs/api-docs/sound-control-protocol.html)\n\n### ⭐⭐ The architectural conclusion, which is better news than expected\n\n#91 flagged the risk that a vendor would not fit `SocketService`'s single `select()` loop. **SSCv2 does not fit it — and it turns out it does not need to.**\n\nSSCv2 is `requests.get()` against a handful of URLs. `requests` is already a dependency, and this project already has the pattern for exactly this shape of work: PCO does blocking HTTP on a worker thread, off the IOLoop. A minimal Sennheiser adapter can own its own small poller and deliver updates into the same channel objects, **without touching `SocketService` at all** and without any risk to Shure.\n\nSo the refinement to the #91 design is: **an adapter may own its own transport loop.** Not every vendor has to live inside the socket `select()`. That is a smaller and safer change than making one loop serve every possible transport.\n\nServer-Sent Events are then a later optimisation — push instead of a timer — not a prerequisite.\n\n### ⛔ The decision this leaves, and it is not purely technical\n\n**SSCv1 is cheaper but asks operators to turn security off.** It is a socket protocol on UDP 45 that would drop straight into the existing loop, and it needs no credentials. But on EW-DX it is the *legacy* path: Sennheiser's own guidance is to use encrypted SSCv2 with a password and marks the unsecured v1 as not recommended, and enabling it is a deliberate act on each device.\n\nBuilding the first Sennheiser support on a protocol the vendor is steering people away from seems like a poor foundation for something we then maintain — especially as SSCv2 turns out to be the *easier* one to implement minimally.\n\n**Recommendation: target SSCv2 (firmware ≥ 4.0.0), REST polling, no SSE, no discovery, manual IP.** Per the minimum-viable-vendor table on #91 that still gives a genuinely useful board: channel name, battery → status. SSCv1 stays available as a fallback if someone turns up with older firmware they cannot update.\n\n### Correction to this issue's original text\n\n⚠️ I wrote that the older analogue G-series \"has no IP control on most models — no amount of work here reaches it.\" **The port table contradicts that**: `evolution wireless G4` appears with UDP 8133 for \"All IP-Communication & mDNS\". G4 network-capable receivers do talk to Control Cockpit. Whether that protocol is documented for third parties is a separate and unanswered question, but the flat statement was wrong and should not be relied on.\n\n### Still open\n\n- The exact SSCv2 property paths for channel name, battery, RF and audio level on EW-DX — the spec page shows the addressing scheme and an identity example, but the EW-DX property tree is in the 403'd PDFs. **Needs a browser download.**\n- The authentication mechanism in detail (separate specification).\n- Hardware or a capture, before any parsing code is written.\n",
           "read": false
         },
         {
@@ -946,7 +946,7 @@
           "url": "https://github.com/willcgage/wirelessboard/issues/92#issuecomment-5472691624",
           "updatedAt": "2026-08-31T01:46:34Z",
           "state": null,
-          "body": "## Decision: support both SSCv1 and SSCv2\n\nSettled. That covers EW-DX on any firmware, and brings the older SpeechLine / SL Rack gear within reach as a side effect.\n\nBelow is what that actually commits us to, because it is more than \"write two parsers\".\n\n### One adapter, two transports, one meaning\n\nThe split is not down the middle. Of the three layers, only the first genuinely differs:\n\n| | SSCv1 | SSCv2 | Shared? |\n| --- | --- | --- | --- |\n| **Transport** | socket, UDP/TCP 45 | HTTPS 443, REST | \u274c two implementations |\n| **Field mapping** | ? | ? | \u26a0\ufe0f **probably** \u2014 same devices, unverified |\n| **Normalisation** (\u2192 `status`, bars) | | | \u2705 written once |\n\n\u2b50 This is a genuinely good stress test of the seam rule agreed on #91 \u2014 *an adapter owns how it talks to its devices*. Sennheiser will own **two** transports behind one adapter, which proves the rule is about transport rather than about vendors.\n\n\u26a0\ufe0f **The one assumption to check early:** that v1 and v2 expose the same information about a channel, so the field mapping and normalisation are written once. They are different protocol *generations*, not just different encodings, so this may not hold. If it does not, the cost of \"both\" roughly doubles rather than adding a transport.\n\n### \u26d4 How the app knows which protocol to use \u2014 decide before coding\n\n3rd-party access on EW-DX is a **device setting**: the operator enables either encrypted SSCv2 with a password, or unsecured SSCv1 without one. A device is in one mode, and the board has to match it.\n\nThree options:\n\n1. **Two slot types** (e.g. `ewdx-ssc1` / `ewdx-ssc2`). Explicit, predictable, and consistent with how Shure already works \u2014 five types for one manufacturer. Cost: the operator must know which mode their device is in, and change the slot type if they change it.\n2. **One type, negotiate** \u2014 try 443, fall back to 45. Friendlier, but adds failure modes and makes \"wrong credentials\" hard to distinguish from \"device is on v1\".\n3. **One type, infer from whether credentials were entered.** \u26d4 **Recommend against.** It silently downgrades to an unencrypted protocol when someone simply mistypes or omits a password \u2014 an operator who intended v2 would get plaintext and no warning. Security posture should never be an accident.\n\n**Leaning (1)**, on the grounds that it is honest, matches the existing type-per-model convention, and never quietly does something less secure than intended.\n\n### Order of work\n\n**SSCv2 first**, then SSCv1:\n\n- v2 is the current path and the one Sennheiser steers people to, so it is the one most new installs will use.\n- v2 carries the architectural novelty \u2014 an adapter owning its own HTTP poller rather than living in `SocketService`. Better to prove that while it is the only thing in flight.\n- v1 then drops into the existing socket loop with the field mapping and normalisation already settled, which is the cheap half.\n\nDoing v1 first would get something working sooner, but would settle the shared semantics against the legacy protocol and then re-test them against the current one.\n\n### \u26a0\ufe0f What this decision costs\n\nSupporting both roughly **doubles the surface that needs hardware verification**, and there is still no Sennheiser hardware. A protocol adapter written entirely against a PDF is the worst possible candidate for shipping unverified \u2014 this project has done that twice recently and had both come back within a day.\n\nSo the hardware blocker is now firmly the critical path, not a footnote. Options remain: borrow a rack, a dealer demo unit, or a packet capture from a venue running EW-DX. **A capture would be enough to start**, and is the cheapest of the three to ask for.\n\n### Still needed before any code\n\n1. The **EW-DX property paths** for channel name, battery, RF and audio level \u2014 in the 403'd PDFs, needs a browser download.\n2. The **SSCv2 authentication mechanism** in detail (separate specification).\n3. Confirmation that **v1 and v2 expose the same channel information**.\n4. Hardware or a capture.\n",
+          "body": "## Decision: support both SSCv1 and SSCv2\n\nSettled. That covers EW-DX on any firmware, and brings the older SpeechLine / SL Rack gear within reach as a side effect.\n\nBelow is what that actually commits us to, because it is more than \"write two parsers\".\n\n### One adapter, two transports, one meaning\n\nThe split is not down the middle. Of the three layers, only the first genuinely differs:\n\n| | SSCv1 | SSCv2 | Shared? |\n| --- | --- | --- | --- |\n| **Transport** | socket, UDP/TCP 45 | HTTPS 443, REST | ❌ two implementations |\n| **Field mapping** | ? | ? | ⚠️ **probably** — same devices, unverified |\n| **Normalisation** (→ `status`, bars) | | | ✅ written once |\n\n⭐ This is a genuinely good stress test of the seam rule agreed on #91 — *an adapter owns how it talks to its devices*. Sennheiser will own **two** transports behind one adapter, which proves the rule is about transport rather than about vendors.\n\n⚠️ **The one assumption to check early:** that v1 and v2 expose the same information about a channel, so the field mapping and normalisation are written once. They are different protocol *generations*, not just different encodings, so this may not hold. If it does not, the cost of \"both\" roughly doubles rather than adding a transport.\n\n### ⛔ How the app knows which protocol to use — decide before coding\n\n3rd-party access on EW-DX is a **device setting**: the operator enables either encrypted SSCv2 with a password, or unsecured SSCv1 without one. A device is in one mode, and the board has to match it.\n\nThree options:\n\n1. **Two slot types** (e.g. `ewdx-ssc1` / `ewdx-ssc2`). Explicit, predictable, and consistent with how Shure already works — five types for one manufacturer. Cost: the operator must know which mode their device is in, and change the slot type if they change it.\n2. **One type, negotiate** — try 443, fall back to 45. Friendlier, but adds failure modes and makes \"wrong credentials\" hard to distinguish from \"device is on v1\".\n3. **One type, infer from whether credentials were entered.** ⛔ **Recommend against.** It silently downgrades to an unencrypted protocol when someone simply mistypes or omits a password — an operator who intended v2 would get plaintext and no warning. Security posture should never be an accident.\n\n**Leaning (1)**, on the grounds that it is honest, matches the existing type-per-model convention, and never quietly does something less secure than intended.\n\n### Order of work\n\n**SSCv2 first**, then SSCv1:\n\n- v2 is the current path and the one Sennheiser steers people to, so it is the one most new installs will use.\n- v2 carries the architectural novelty — an adapter owning its own HTTP poller rather than living in `SocketService`. Better to prove that while it is the only thing in flight.\n- v1 then drops into the existing socket loop with the field mapping and normalisation already settled, which is the cheap half.\n\nDoing v1 first would get something working sooner, but would settle the shared semantics against the legacy protocol and then re-test them against the current one.\n\n### ⚠️ What this decision costs\n\nSupporting both roughly **doubles the surface that needs hardware verification**, and there is still no Sennheiser hardware. A protocol adapter written entirely against a PDF is the worst possible candidate for shipping unverified — this project has done that twice recently and had both come back within a day.\n\nSo the hardware blocker is now firmly the critical path, not a footnote. Options remain: borrow a rack, a dealer demo unit, or a packet capture from a venue running EW-DX. **A capture would be enough to start**, and is the cheapest of the three to ask for.\n\n### Still needed before any code\n\n1. The **EW-DX property paths** for channel name, battery, RF and audio level — in the 403'd PDFs, needs a browser download.\n2. The **SSCv2 authentication mechanism** in detail (separate specification).\n3. Confirmation that **v1 and v2 expose the same channel information**.\n4. Hardware or a capture.\n",
           "read": false
         },
         {
@@ -957,7 +957,7 @@
           "url": "https://github.com/willcgage/wirelessboard/issues/92#issuecomment-5472728844",
           "updatedAt": "2026-08-31T01:52:24Z",
           "state": null,
-          "body": "\u26d4 **The \"how does the board know which protocol\" question is settled, and not the way this issue proposed.**\n\nDecision on #91: **a slot identifies a Make and Model; the adapter works out the protocol.** So there is **one `ewdx` type**, not `ewdx-ssc1` / `ewdx-ssc2`. All three options listed in the body above are superseded.\n\nTwo things fall out of it for this issue:\n\n**1. Probe, do not infer from firmware.** Firmware says what is *possible* (EW-DX \u2265 4.0.0 *can* do SSCv2); the device's 3rd-party-access setting says what is *enabled*, and that is an operator toggle. A receiver on current firmware with SSCv2 access switched off would be forced onto v2 by firmware inference and fail. Asking whether 443 answers the identity path is simpler and strictly more accurate. Keep firmware for *explaining* \u2014 *\"this receiver could use the secure protocol, enable it in the device settings.\"*\n\n**2. The plaintext-fallback worry is handled by knowing the model.** Because the adapter knows an EW-DX can speak either, it can distinguish *\"answered on SSCv2 but rejected the credentials\"* from *\"running the unsecured legacy protocol\"*, rather than silently falling back. Two guards to build in:\n\n- report the protocol actually in use, visibly rather than in a log\n- let an operator **require** the secure protocol, so a fall back cannot pass unnoticed\n\nThis also means the order of work matters less than it did \u2014 one adapter, one type, probing between two transports. **SSCv2 remains first** for the reasons already given: it is the current path, and it carries the architectural novelty of an adapter owning its own poller.\n",
+          "body": "⛔ **The \"how does the board know which protocol\" question is settled, and not the way this issue proposed.**\n\nDecision on #91: **a slot identifies a Make and Model; the adapter works out the protocol.** So there is **one `ewdx` type**, not `ewdx-ssc1` / `ewdx-ssc2`. All three options listed in the body above are superseded.\n\nTwo things fall out of it for this issue:\n\n**1. Probe, do not infer from firmware.** Firmware says what is *possible* (EW-DX ≥ 4.0.0 *can* do SSCv2); the device's 3rd-party-access setting says what is *enabled*, and that is an operator toggle. A receiver on current firmware with SSCv2 access switched off would be forced onto v2 by firmware inference and fail. Asking whether 443 answers the identity path is simpler and strictly more accurate. Keep firmware for *explaining* — *\"this receiver could use the secure protocol, enable it in the device settings.\"*\n\n**2. The plaintext-fallback worry is handled by knowing the model.** Because the adapter knows an EW-DX can speak either, it can distinguish *\"answered on SSCv2 but rejected the credentials\"* from *\"running the unsecured legacy protocol\"*, rather than silently falling back. Two guards to build in:\n\n- report the protocol actually in use, visibly rather than in a log\n- let an operator **require** the secure protocol, so a fall back cannot pass unnoticed\n\nThis also means the order of work matters less than it did — one adapter, one type, probing between two transports. **SSCv2 remains first** for the reasons already given: it is the current path, and it carries the architectural novelty of an adapter owning its own poller.\n",
           "read": false
         },
         {
@@ -968,7 +968,7 @@
           "url": "https://github.com/willcgage/wirelessboard/issues/92#issuecomment-5472756441",
           "updatedAt": "2026-08-31T01:57:13Z",
           "state": null,
-          "body": "## The EW-DX API surface \u2014 read from the OpenAPI spec\n\n**All the blocked items are answered.** Not from the PDFs: those URLs were **dead, not access-restricted** (404 / `BlobNotFound` \u2014 stale links from search results). The live documentation is HTML, and Sennheiser publish a **machine-readable OpenAPI specification** for EW-DX, which is better than the PDF for our purposes.\n\n- Rendered: [EW-DX OpenAPI 1.7](https://docs.cloud.sennheiser.com/en-us/api-docs/api-docs/open-api-ew-dx.html)\n- Spec source: `EW-DX_openapi_3rdparty_release_1.7.yaml` (linked from that page's swagger initializer)\n- Devices covered: **EW-DX EM2, EM2 Dante, EM4 Dante**\n\n### Authentication \u2014 simple, and no bespoke work\n\n```\nbasicAuthApi:  type: http, scheme: basic\n  Username: api\n  Password: given by the user when \"allowing\" third party access to the device\n```\n\nHTTP Basic. The username is literally `api`; the password is what the operator sets when enabling third-party access. That user \"has no rights to reconfigure vital configurations\" \u2014 read-only enough for our purposes. `requests` handles this in one argument. The password goes in the OS keyring, as PCO's credentials do.\n\n### The fields we need\n\n| Wirelessboard | EW-DX endpoint | Returns |\n| --- | --- | --- |\n| `name_raw` | `GET /api/channel/{channelId}` | `name` \u2014 \u26a0\ufe0f **maxLength 8** |\n| `battery` | `GET /api/transmitters/{transmitterId}/battery` | `type` (`Battery`\\|`PrimaryCell`\\|`NoBattery`), `lifetime` (**minutes**), `gauge` (**percent**) |\n| `rf_level` | `GET /api/channel/{channelId}/signalStrengthIndicator` | `value` \u2014 *FastResource* |\n| `audio_level` | `GET /api/channel/{channelId}/level` | `value` \u2014 *FastResource* |\n| `quality` | `GET /api/channel/{channelId}/signalQualityIndicator` | |\n| `antenna` | `GET /api/channel/{channelId}/diversityIndicator` | |\n| `frequency` | `GET /api/rf/channels/{channelId}/frequency` | |\n| \u2014 | `GET /api/channel/{channelId}/warnings`, `/api/transmitters/{id}/warnings` | no Shure equivalent |\n| identity | `GET /api/device/identity`, `/api/device/identification` | |\n| protocol state | `GET /api/ssc/legacyMode` | `{enabled: boolean}` \u2014 whether SSCv1 is on |\n\n`x-sennheiser-sscv2-resourcetype: FastResource` marks the metering-rate resources \u2014 level and RSSI \u2014 which is how they would be subscribed to over SSE later.\n\n### \u2b50\u2b50 Battery settles the normalisation question, and confirms the #91 decision\n\n**EW-DX reports percentage and minutes remaining. It has no concept of bars.**\n\nThat is exactly the case #91 was designed against, and it validates *normalise the meaning, not the unit*: there is no shared numeric unit between \"3 of 5 bars\" and \"41%\", but both map onto the same shared `status` vocabulary.\n\n\u2b50 Better still, `lifetime` in **minutes** is the single most useful signal any vendor here reports \u2014 \"will this last the service?\" is the actual question. Shure has `BATT_RUN_TIME` too, which we already read into `runtime`. So a future status rule could prefer minutes where available and fall back to bars/percent.\n\n\u26a0\ufe0f `type: PrimaryCell | NoBattery` has no Shure equivalent \u2014 a disposable cell cannot be recharged, and `NoBattery` is a state the current UI has no way to show.\n\n### Three concrete gotchas for the adapter\n\n1. **Channel IDs are 0-based** (`minimum: 0, maximum: 3`). Shure's are 1-based. The adapter must map, and an off-by-one here would silently show the wrong person on the wrong channel.\n2. **Channel name is capped at 8 characters.** Wirelessboard uses `name_raw` for the card's device line and as the background-photo fallback when nobody is assigned. Names from an EW-DX will be short \u2014 PCO's `extended_name` is unaffected, but it is worth knowing before someone reports \"the name is truncated\".\n3. **Transmitters and channels are separate resources.** Battery hangs off `/api/transmitters/{id}`, everything else off `/api/channel/{id}`. Shure reports both under one channel. The adapter has to join them.\n\n### What remains\n\n- **Hardware or a capture.** Still the critical path, and now the *only* substantive blocker \u2014 the protocol is fully documented.\n- The **SSCv1** side is still undocumented here; its specification is in the PDFs. Since SSCv2 exposes `GET /api/ssc/legacyMode`, a v2-capable device can at least report whether v1 is enabled.\n",
+          "body": "## The EW-DX API surface — read from the OpenAPI spec\n\n**All the blocked items are answered.** Not from the PDFs: those URLs were **dead, not access-restricted** (404 / `BlobNotFound` — stale links from search results). The live documentation is HTML, and Sennheiser publish a **machine-readable OpenAPI specification** for EW-DX, which is better than the PDF for our purposes.\n\n- Rendered: [EW-DX OpenAPI 1.7](https://docs.cloud.sennheiser.com/en-us/api-docs/api-docs/open-api-ew-dx.html)\n- Spec source: `EW-DX_openapi_3rdparty_release_1.7.yaml` (linked from that page's swagger initializer)\n- Devices covered: **EW-DX EM2, EM2 Dante, EM4 Dante**\n\n### Authentication — simple, and no bespoke work\n\n```\nbasicAuthApi:  type: http, scheme: basic\n  Username: api\n  Password: given by the user when \"allowing\" third party access to the device\n```\n\nHTTP Basic. The username is literally `api`; the password is what the operator sets when enabling third-party access. That user \"has no rights to reconfigure vital configurations\" — read-only enough for our purposes. `requests` handles this in one argument. The password goes in the OS keyring, as PCO's credentials do.\n\n### The fields we need\n\n| Wirelessboard | EW-DX endpoint | Returns |\n| --- | --- | --- |\n| `name_raw` | `GET /api/channel/{channelId}` | `name` — ⚠️ **maxLength 8** |\n| `battery` | `GET /api/transmitters/{transmitterId}/battery` | `type` (`Battery`\\|`PrimaryCell`\\|`NoBattery`), `lifetime` (**minutes**), `gauge` (**percent**) |\n| `rf_level` | `GET /api/channel/{channelId}/signalStrengthIndicator` | `value` — *FastResource* |\n| `audio_level` | `GET /api/channel/{channelId}/level` | `value` — *FastResource* |\n| `quality` | `GET /api/channel/{channelId}/signalQualityIndicator` | |\n| `antenna` | `GET /api/channel/{channelId}/diversityIndicator` | |\n| `frequency` | `GET /api/rf/channels/{channelId}/frequency` | |\n| — | `GET /api/channel/{channelId}/warnings`, `/api/transmitters/{id}/warnings` | no Shure equivalent |\n| identity | `GET /api/device/identity`, `/api/device/identification` | |\n| protocol state | `GET /api/ssc/legacyMode` | `{enabled: boolean}` — whether SSCv1 is on |\n\n`x-sennheiser-sscv2-resourcetype: FastResource` marks the metering-rate resources — level and RSSI — which is how they would be subscribed to over SSE later.\n\n### ⭐⭐ Battery settles the normalisation question, and confirms the #91 decision\n\n**EW-DX reports percentage and minutes remaining. It has no concept of bars.**\n\nThat is exactly the case #91 was designed against, and it validates *normalise the meaning, not the unit*: there is no shared numeric unit between \"3 of 5 bars\" and \"41%\", but both map onto the same shared `status` vocabulary.\n\n⭐ Better still, `lifetime` in **minutes** is the single most useful signal any vendor here reports — \"will this last the service?\" is the actual question. Shure has `BATT_RUN_TIME` too, which we already read into `runtime`. So a future status rule could prefer minutes where available and fall back to bars/percent.\n\n⚠️ `type: PrimaryCell | NoBattery` has no Shure equivalent — a disposable cell cannot be recharged, and `NoBattery` is a state the current UI has no way to show.\n\n### Three concrete gotchas for the adapter\n\n1. **Channel IDs are 0-based** (`minimum: 0, maximum: 3`). Shure's are 1-based. The adapter must map, and an off-by-one here would silently show the wrong person on the wrong channel.\n2. **Channel name is capped at 8 characters.** Wirelessboard uses `name_raw` for the card's device line and as the background-photo fallback when nobody is assigned. Names from an EW-DX will be short — PCO's `extended_name` is unaffected, but it is worth knowing before someone reports \"the name is truncated\".\n3. **Transmitters and channels are separate resources.** Battery hangs off `/api/transmitters/{id}`, everything else off `/api/channel/{id}`. Shure reports both under one channel. The adapter has to join them.\n\n### What remains\n\n- **Hardware or a capture.** Still the critical path, and now the *only* substantive blocker — the protocol is fully documented.\n- The **SSCv1** side is still undocumented here; its specification is in the PDFs. Since SSCv2 exposes `GET /api/ssc/legacyMode`, a v2-capable device can at least report whether v1 is enabled.\n",
           "read": false
         }
       ],
@@ -978,7 +978,7 @@
       "headSha": "6e3694bbbf98930016c8e5e9ab0db4fec9c79d8c",
       "id": "wirelessboard-92",
       "issue": "https://github.com/willcgage/wirelessboard/issues/92",
-      "lastSync": "2026-09-14T10:47:23.323Z",
+      "lastSync": "2026-09-14T14:15:29.714Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/101",
       "reporter": "willcgage",
       "run": null,
@@ -1016,7 +1016,7 @@
           "url": "https://github.com/KalyteraSystems/IPCamLapse/pull/50#issuecomment-5597814333",
           "updatedAt": "2026-09-09T07:18:01Z",
           "state": null,
-          "body": "Thanks for reproducing both boundaries so precisely \u2014 agreed. DST has once again demonstrated that clocks are hostile distributed systems. I\u2019ll make Daily and Weekly boundary evaluation transition-aware, guarantee that NextStartUtc is actually in the future, apply the gap policy consistently to active-window evaluation, and add focused fall-back and spring-forward regressions.",
+          "body": "Thanks for reproducing both boundaries so precisely — agreed. DST has once again demonstrated that clocks are hostile distributed systems. I’ll make Daily and Weekly boundary evaluation transition-aware, guarantee that NextStartUtc is actually in the future, apply the gap policy consistently to active-window evaluation, and add focused fall-back and spring-forward regressions.",
           "read": false
         },
         {
@@ -1027,7 +1027,7 @@
           "url": "https://github.com/KalyteraSystems/IPCamLapse/pull/50#issuecomment-5603013165",
           "updatedAt": "2026-09-09T13:53:04Z",
           "state": null,
-          "body": "\u0413\u043e\u0442\u043e\u0432\u043e: recurring-\u043e\u043a\u043d\u0430 \u0442\u0435\u043f\u0435\u0440\u044c \u043e\u0446\u0435\u043d\u0438\u0432\u0430\u044e\u0442\u0441\u044f \u043a\u0430\u043a UTC-\u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b\u044b, \u0441 \u043a\u0430\u043d\u0434\u0438\u0434\u0430\u0442\u0430\u043c\u0438 \u0434\u043b\u044f \u043e\u0431\u043e\u0438\u0445 \u043f\u043e\u0432\u0442\u043e\u0440\u043e\u0432 ambiguous wall time. \u041f\u043e\u044d\u0442\u043e\u043c\u0443 \u0432\u0442\u043e\u0440\u043e\u0439 \u043e\u0441\u0435\u043d\u043d\u0438\u0439 01:30 \u043f\u043e\u043b\u0443\u0447\u0430\u0435\u0442 \u0441\u043e\u0431\u0441\u0442\u0432\u0435\u043d\u043d\u044b\u0439 \u0431\u0443\u0434\u0443\u0449\u0438\u0439 \u0441\u0442\u0430\u0440\u0442, \u0430 spring-forward 02:30 \u0441\u0434\u0432\u0438\u0433\u0430\u0435\u0442\u0441\u044f \u043f\u043e \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u043d\u043e\u043c\u0443 gap-\u043f\u0440\u0430\u0432\u0438\u043b\u0443 \u0438 \u043d\u0435 \u0430\u043a\u0442\u0438\u0432\u0438\u0440\u0443\u0435\u0442 \u043e\u043a\u043d\u043e \u0440\u0430\u043d\u044c\u0448\u0435 \u0432\u0440\u0435\u043c\u0435\u043d\u0438. \u0414\u043e\u0431\u0430\u0432\u0438\u043b \u043e\u0431\u0430 \u0432\u043e\u0441\u043f\u0440\u043e\u0438\u0437\u0432\u0435\u0434\u0451\u043d\u043d\u044b\u0445 \u0440\u0435\u0433\u0440\u0435\u0441\u0441\u0438\u043e\u043d\u043d\u044b\u0445 \u0441\u0446\u0435\u043d\u0430\u0440\u0438\u044f. Head: `e251297`; CI \u0437\u0435\u043b\u0451\u043d\u044b\u0439 \u043d\u0430 Ubuntu, Windows, \u043a\u043e\u043d\u0442\u0435\u0439\u043d\u0435\u0440\u0435 \u0438 CodeQL. \u0411\u0443\u0434\u0443 \u043f\u0440\u0438\u0437\u043d\u0430\u0442\u0435\u043b\u0435\u043d \u0437\u0430 \u043f\u043e\u0432\u0442\u043e\u0440\u043d\u0443\u044e \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0443.",
+          "body": "Готово: recurring-окна теперь оцениваются как UTC-интервалы, с кандидатами для обоих повторов ambiguous wall time. Поэтому второй осенний 01:30 получает собственный будущий старт, а spring-forward 02:30 сдвигается по установленному gap-правилу и не активирует окно раньше времени. Добавил оба воспроизведённых регрессионных сценария. Head: `e251297`; CI зелёный на Ubuntu, Windows, контейнере и CodeQL. Буду признателен за повторную проверку.",
           "read": false
         },
         {
@@ -1038,7 +1038,7 @@
           "url": "https://github.com/KalyteraSystems/IPCamLapse/pull/50#issuecomment-5619498426",
           "updatedAt": "2026-09-10T13:31:20Z",
           "state": null,
-          "body": "Addressed the latest review: a window that begins before the repeated fall-back hour now remains active through the second ambiguous end occurrence, while ambiguous starts still pair with their corresponding end. Added Daily and Weekly regressions for the reported 00:30\u201301:15 case. CI is green on Ubuntu and Windows.",
+          "body": "Addressed the latest review: a window that begins before the repeated fall-back hour now remains active through the second ambiguous end occurrence, while ambiguous starts still pair with their corresponding end. Added Daily and Weekly regressions for the reported 00:30–01:15 case. CI is green on Ubuntu and Windows.",
           "read": false
         },
         {
@@ -1049,7 +1049,7 @@
           "url": "https://github.com/KalyteraSystems/IPCamLapse/pull/50#pullrequestreview-5144272633",
           "updatedAt": "2026-09-08T16:19:13Z",
           "state": "CHANGES_REQUESTED",
-          "body": "The startup dependency/UI direction is sound, but two recurring DST boundaries are incorrect at exact head 3ca4a27e5fc226f8382c5f8b307607f3cda1d6a0. I reproduced both as focused tests against the submitted service:\n\n1. In the second fall-back hour, Daily 01:30\u201301:45 at 2026-11-01 06:20Z (01:20 standard time) returns NextStartUtc 05:30Z, which is already in the past. ConvertWallTimeToUtc always chooses the earlier ambiguous occurrence, which is correct for a one-time start but not for the next recurring start after that occurrence has passed.\n\n2. On spring-forward day, Daily 02:30\u201304:00 at 07:10Z (03:10 daylight time) reports Active=true. The required gap rule moves the nonexistent 02:30 start to 03:30, so this window must remain inactive until 07:30Z. Raw TimeOfDay membership disagrees with the conversion policy.\n\nPlease make recurring boundary evaluation transition-aware for both Daily and Weekly schedules, guarantee a returned NextStartUtc is in the future, and add these focused fall-back/spring-forward regressions. The temporary tests were removed after reproduction.",
+          "body": "The startup dependency/UI direction is sound, but two recurring DST boundaries are incorrect at exact head 3ca4a27e5fc226f8382c5f8b307607f3cda1d6a0. I reproduced both as focused tests against the submitted service:\n\n1. In the second fall-back hour, Daily 01:30–01:45 at 2026-11-01 06:20Z (01:20 standard time) returns NextStartUtc 05:30Z, which is already in the past. ConvertWallTimeToUtc always chooses the earlier ambiguous occurrence, which is correct for a one-time start but not for the next recurring start after that occurrence has passed.\n\n2. On spring-forward day, Daily 02:30–04:00 at 07:10Z (03:10 daylight time) reports Active=true. The required gap rule moves the nonexistent 02:30 start to 03:30, so this window must remain inactive until 07:30Z. Raw TimeOfDay membership disagrees with the conversion policy.\n\nPlease make recurring boundary evaluation transition-aware for both Daily and Weekly schedules, guarantee a returned NextStartUtc is in the future, and add these focused fall-back/spring-forward regressions. The temporary tests were removed after reproduction.",
           "read": false
         },
         {
@@ -1060,7 +1060,7 @@
           "url": "https://github.com/KalyteraSystems/IPCamLapse/pull/50#pullrequestreview-5167034151",
           "updatedAt": "2026-09-10T12:26:21Z",
           "state": "CHANGES_REQUESTED",
-          "body": "Exact head e251297cab69641011a977e67a17767633c7b406 fixes the two previously reported boundaries, but another required repeated-hour case still fails. For a daily 00:30\u201301:15 window, 2026-11-01 06:10Z is the second 01:10 occurrence and must still be active; an exact-head focused regression returns Active=false. In EvaluateRecurring, selecting `WallTimeCandidates(endWall).FirstOrDefault(candidate => candidate > startUtc)` pairs the unambiguous 00:30 start only with the first 01:15 end (05:15Z) and discards the second valid end (06:15Z). Please model the recurring interval so an ambiguous end includes both repeated-hour instants, add this exact regression for Daily and the equivalent Weekly path, and retain the new spring-gap and second-start coverage.",
+          "body": "Exact head e251297cab69641011a977e67a17767633c7b406 fixes the two previously reported boundaries, but another required repeated-hour case still fails. For a daily 00:30–01:15 window, 2026-11-01 06:10Z is the second 01:10 occurrence and must still be active; an exact-head focused regression returns Active=false. In EvaluateRecurring, selecting `WallTimeCandidates(endWall).FirstOrDefault(candidate => candidate > startUtc)` pairs the unambiguous 00:30 start only with the first 01:15 end (05:15Z) and discards the second valid end (06:15Z). Please model the recurring interval so an ambiguous end includes both repeated-hour instants, add this exact regression for Daily and the equivalent Weekly path, and retain the new spring-gap and second-start coverage.",
           "read": false
         }
       ],
@@ -1070,7 +1070,7 @@
       "headSha": "3b62b36abd58c780aaac7328c4c32e4c6a6630bd",
       "id": "ipcamlapse-33",
       "issue": "https://github.com/KalyteraSystems/IPCamLapse/issues/33",
-      "lastSync": "2026-09-14T10:47:26.222Z",
+      "lastSync": "2026-09-14T14:15:32.322Z",
       "pr": "https://github.com/KalyteraSystems/IPCamLapse/pull/50",
       "reporter": "elkampu",
       "run": null,
@@ -1095,7 +1095,7 @@
       "headSha": "a2f96d5143b5e87a45d68b9086d1fd80ae2afe27",
       "id": "midimonster-150",
       "issue": "https://github.com/cbdevnet/midimonster/issues/150",
-      "lastSync": "2026-09-14T10:47:29.747Z",
+      "lastSync": "2026-09-14T14:15:35.621Z",
       "pr": "https://github.com/cbdevnet/midimonster/pull/151",
       "reporter": "jetryco",
       "run": null,
@@ -1165,7 +1165,7 @@
       "headSha": "e0b946103373552baca68fb8d18446ea87f9b277",
       "id": "fader-x-5",
       "issue": "https://github.com/stagehacks/FADER_X/issues/5",
-      "lastSync": "2026-09-14T10:47:32.897Z",
+      "lastSync": "2026-09-14T14:15:38.367Z",
       "pr": "https://github.com/stagehacks/FADER_X/pull/8",
       "reporter": "istnv",
       "run": null,
@@ -1216,7 +1216,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2025-02-24T22:58:56Z",
       "ci": "none",
-      "lastSync": "2026-09-14T10:47:35.999Z",
+      "lastSync": "2026-09-14T14:15:40.997Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1244,7 +1244,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T10:47:39.167Z",
+      "lastSync": "2026-09-14T14:15:43.925Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1270,7 +1270,7 @@
           "url": "https://github.com/tatolab/streamlib/pull/2257#issuecomment-5660198369",
           "updatedAt": "2026-09-14T06:57:04Z",
           "state": null,
-          "body": "<!-- This is an auto-generated comment: summarize by coderabbit.ai -->\n<!-- This is an auto-generated comment: skip review by coderabbit.ai -->\n\n> [!IMPORTANT]\n> - [ ] <!-- {\"checkboxId\":\"e9bb8d72-00e8-4f67-9cb2-caf3b22574fe\"} --> \ud83d\udd0d Trigger review\n> \n> This repository does not receive automatic reviews because it has fewer than 10 stars.\n> \n> <details>\n> <summary>\u2699\ufe0f Run configuration</summary>\n> \n> **Configuration used**: defaults\n> \n> **Review profile**: CHILL\n> \n> **Plan**: Advanced\n> \n> **Run ID**: `14070842-b0dc-4b6f-820e-06eca07439e2`\n> \n> </details>\n\n<!-- end of auto-generated comment: skip review by coderabbit.ai -->\n\n<!-- tips_start -->\n\n---\n\nThanks for using [CodeRabbit](https://coderabbit.ai?utm_source=oss&utm_medium=github&utm_campaign=tatolab/streamlib&utm_content=2257)! It's free for OSS, and your support helps us grow. If you like it, consider giving us a shout-out.\n\n<details>\n<summary>\u2764\ufe0f Share</summary>\n\n- [X](https://twitter.com/intent/tweet?text=I%20just%20used%20%40coderabbitai%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20the%20proprietary%20code.%20Check%20it%20out%3A&url=https%3A//coderabbit.ai)\n- [Mastodon](https://mastodon.social/share?text=I%20just%20used%20%40coderabbitai%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20the%20proprietary%20code.%20Check%20it%20out%3A%20https%3A%2F%2Fcoderabbit.ai)\n- [Reddit](https://www.reddit.com/submit?title=Great%20tool%20for%20code%20review%20-%20CodeRabbit&text=I%20just%20used%20CodeRabbit%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20proprietary%20code.%20Check%20it%20out%3A%20https%3A//coderabbit.ai)\n- [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fcoderabbit.ai&mini=true&title=Great%20tool%20for%20code%20review%20-%20CodeRabbit&summary=I%20just%20used%20CodeRabbit%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20proprietary%20code)\n\n</details>\n\n\n<sub>Comment `@coderabbitai help` to get the list of available commands.</sub>\n\n<!-- tips_end -->",
+          "body": "<!-- This is an auto-generated comment: summarize by coderabbit.ai -->\n<!-- This is an auto-generated comment: skip review by coderabbit.ai -->\n\n> [!IMPORTANT]\n> - [ ] <!-- {\"checkboxId\":\"e9bb8d72-00e8-4f67-9cb2-caf3b22574fe\"} --> 🔍 Trigger review\n> \n> This repository does not receive automatic reviews because it has fewer than 10 stars.\n> \n> <details>\n> <summary>⚙️ Run configuration</summary>\n> \n> **Configuration used**: defaults\n> \n> **Review profile**: CHILL\n> \n> **Plan**: Advanced\n> \n> **Run ID**: `14070842-b0dc-4b6f-820e-06eca07439e2`\n> \n> </details>\n\n<!-- end of auto-generated comment: skip review by coderabbit.ai -->\n\n<!-- tips_start -->\n\n---\n\nThanks for using [CodeRabbit](https://coderabbit.ai?utm_source=oss&utm_medium=github&utm_campaign=tatolab/streamlib&utm_content=2257)! It's free for OSS, and your support helps us grow. If you like it, consider giving us a shout-out.\n\n<details>\n<summary>❤️ Share</summary>\n\n- [X](https://twitter.com/intent/tweet?text=I%20just%20used%20%40coderabbitai%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20the%20proprietary%20code.%20Check%20it%20out%3A&url=https%3A//coderabbit.ai)\n- [Mastodon](https://mastodon.social/share?text=I%20just%20used%20%40coderabbitai%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20the%20proprietary%20code.%20Check%20it%20out%3A%20https%3A%2F%2Fcoderabbit.ai)\n- [Reddit](https://www.reddit.com/submit?title=Great%20tool%20for%20code%20review%20-%20CodeRabbit&text=I%20just%20used%20CodeRabbit%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20proprietary%20code.%20Check%20it%20out%3A%20https%3A//coderabbit.ai)\n- [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fcoderabbit.ai&mini=true&title=Great%20tool%20for%20code%20review%20-%20CodeRabbit&summary=I%20just%20used%20CodeRabbit%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20proprietary%20code)\n\n</details>\n\n\n<sub>Comment `@coderabbitai help` to get the list of available commands.</sub>\n\n<!-- tips_end -->",
           "read": false
         }
       ],
@@ -1284,7 +1284,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T10:47:42.248Z",
+      "lastSync": "2026-09-14T14:15:46.303Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1312,7 +1312,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T10:47:45.116Z",
+      "lastSync": "2026-09-14T14:15:49.019Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1340,7 +1340,7 @@
           "url": "https://github.com/OpenIPC/majestic-webui/pull/481#issuecomment-5660390827",
           "updatedAt": "2026-09-14T07:15:26Z",
           "state": null,
-          "body": "<h3>PR Summary by Qodo</h3>\n\nRender text diagnostics from upgrade WebSocket\n\n<code>\ud83d\udc1e Bug fix</code> <code>\ud83e\uddea Tests</code> <code>\ud83d\udd50 Less than 10 minutes</code>\n\n<img src=\"https://www.qodo.ai/wp-content/uploads/2025/11/light-grey-line.svg\" height=\"10%\" alt=\"Grey Divider\">\n\n<details>\n<summary>AI Description</summary>\n\n<dl>\n<dd>\n<br/>\n\n><pre>\n>\u2022 Render WebSocket text diagnostics directly in the firmware upgrade terminal.\n>\u2022 Preserve streaming decoding for binary upgrade output.\n>\u2022 Verify text refusals and binary replay output both reach the transcript.\n></pre>\n\n</dd>\n</dl>\n\n</details>\n\n<details>\n<summary>Diagram</summary>\n\n<dl>\n<dd>\n\n<br/>\n\n```mermaid\nsequenceDiagram\n    participant WS as Upgrade WebSocket\n    participant Handler as Message Handler\n    participant Decoder as TextDecoder\n    participant Append as Transcript Append\n    participant Terminal as Terminal\n    WS->>Handler: Deliver frame\n    alt Text frame\n        Handler->>Append: Pass string unchanged\n    else Binary frame\n        Handler->>Decoder: Stream bytes\n        Decoder-->>Handler: Return decoded text\n        Handler->>Append: Pass decoded text\n    end\n    Append->>Terminal: Render diagnostics\n```\n\n</dd>\n</dl>\n\n</details>\n\n\n\n\n<details>\n<summary>High-Level Assessment</summary>\n\n<dl>\n<dd>\n\n<br/>\n\n>The direct type check is the most appropriate approach because WebSocket messages may already be strings, while binary frames still require incremental decoding to preserve split multibyte characters. Converting text back into bytes or forcing server-side binary frames would add unnecessary work and coupling.\n\n</dd>\n</dl>\n\n</details>\n\n<details>\n<summary> Files changed (2) <code> +9 / -1 </code> </summary>\n\n<dl>\n<dd>\n\n<br/>\n\n<details>\n<summary>Bug fix (1) <code> +3 / -1 </code></summary>\n\n<dl>\n<dd>\n\n<details>\n<summary>update.js<code>Handle text and binary upgrade frames correctly</code> <code>+3/-1</code></summary>\n\n<br/>\n\n>Handle text and binary upgrade frames correctly\n>\n><pre>\n>\u2022 Updates the upgrade WebSocket message handler to append string payloads directly. Binary payloads continue through the existing streaming TextDecoder path, preventing text diagnostics from becoming empty typed-array output.\n></pre>\n>\n><a href='https://github.com/OpenIPC/majestic-webui/pull/481/files#diff-308f092e0d3810399235f9477efcddfd4a2d43daceb9d95dd0111f695c69ebc4'>www/a/update.js</a>\n\n</details>\n\n</dd>\n</dl>\n\n</details>\n\n<details>\n<summary>Tests (1) <code> +6 / -0 </code></summary>\n\n<dl>\n<dd>\n\n<details>\n<summary>update-reattach.test.js<code>Verify text-frame refusals reach the upgrade transcript</code> <code>+6/-0</code></summary>\n\n<br/>\n\n>Verify text-frame refusals reach the upgrade transcript\n>\n><pre>\n>\u2022 Adds a regression assertion that sends a WebSocket text frame containing an upgrade refusal and verifies it appears unchanged in terminal output. The existing binary replay assertion continues to cover streamed binary decoding.\n></pre>\n>\n><a href='https://github.com/OpenIPC/majestic-webui/pull/481/files#diff-1b9fb3fbf213040fa0a354beade672eb0586dfdee704ad5b12bc53f6e6608d9b'>tests/update-reattach.test.js</a>\n\n</details>\n\n</dd>\n</dl>\n\n</details>\n\n</dd>\n</dl>\n\n</details>",
+          "body": "<h3>PR Summary by Qodo</h3>\n\nRender text diagnostics from upgrade WebSocket\n\n<code>🐞 Bug fix</code> <code>🧪 Tests</code> <code>🕐 Less than 10 minutes</code>\n\n<img src=\"https://www.qodo.ai/wp-content/uploads/2025/11/light-grey-line.svg\" height=\"10%\" alt=\"Grey Divider\">\n\n<details>\n<summary>AI Description</summary>\n\n<dl>\n<dd>\n<br/>\n\n><pre>\n>• Render WebSocket text diagnostics directly in the firmware upgrade terminal.\n>• Preserve streaming decoding for binary upgrade output.\n>• Verify text refusals and binary replay output both reach the transcript.\n></pre>\n\n</dd>\n</dl>\n\n</details>\n\n<details>\n<summary>Diagram</summary>\n\n<dl>\n<dd>\n\n<br/>\n\n```mermaid\nsequenceDiagram\n    participant WS as Upgrade WebSocket\n    participant Handler as Message Handler\n    participant Decoder as TextDecoder\n    participant Append as Transcript Append\n    participant Terminal as Terminal\n    WS->>Handler: Deliver frame\n    alt Text frame\n        Handler->>Append: Pass string unchanged\n    else Binary frame\n        Handler->>Decoder: Stream bytes\n        Decoder-->>Handler: Return decoded text\n        Handler->>Append: Pass decoded text\n    end\n    Append->>Terminal: Render diagnostics\n```\n\n</dd>\n</dl>\n\n</details>\n\n\n\n\n<details>\n<summary>High-Level Assessment</summary>\n\n<dl>\n<dd>\n\n<br/>\n\n>The direct type check is the most appropriate approach because WebSocket messages may already be strings, while binary frames still require incremental decoding to preserve split multibyte characters. Converting text back into bytes or forcing server-side binary frames would add unnecessary work and coupling.\n\n</dd>\n</dl>\n\n</details>\n\n<details>\n<summary> Files changed (2) <code> +9 / -1 </code> </summary>\n\n<dl>\n<dd>\n\n<br/>\n\n<details>\n<summary>Bug fix (1) <code> +3 / -1 </code></summary>\n\n<dl>\n<dd>\n\n<details>\n<summary>update.js<code>Handle text and binary upgrade frames correctly</code> <code>+3/-1</code></summary>\n\n<br/>\n\n>Handle text and binary upgrade frames correctly\n>\n><pre>\n>• Updates the upgrade WebSocket message handler to append string payloads directly. Binary payloads continue through the existing streaming TextDecoder path, preventing text diagnostics from becoming empty typed-array output.\n></pre>\n>\n><a href='https://github.com/OpenIPC/majestic-webui/pull/481/files#diff-308f092e0d3810399235f9477efcddfd4a2d43daceb9d95dd0111f695c69ebc4'>www/a/update.js</a>\n\n</details>\n\n</dd>\n</dl>\n\n</details>\n\n<details>\n<summary>Tests (1) <code> +6 / -0 </code></summary>\n\n<dl>\n<dd>\n\n<details>\n<summary>update-reattach.test.js<code>Verify text-frame refusals reach the upgrade transcript</code> <code>+6/-0</code></summary>\n\n<br/>\n\n>Verify text-frame refusals reach the upgrade transcript\n>\n><pre>\n>• Adds a regression assertion that sends a WebSocket text frame containing an upgrade refusal and verifies it appears unchanged in terminal output. The existing binary replay assertion continues to cover streamed binary decoding.\n></pre>\n>\n><a href='https://github.com/OpenIPC/majestic-webui/pull/481/files#diff-1b9fb3fbf213040fa0a354beade672eb0586dfdee704ad5b12bc53f6e6608d9b'>tests/update-reattach.test.js</a>\n\n</details>\n\n</dd>\n</dl>\n\n</details>\n\n</dd>\n</dl>\n\n</details>",
           "read": false
         },
         {
@@ -1351,7 +1351,7 @@
           "url": "https://github.com/OpenIPC/majestic-webui/pull/481#issuecomment-5660403532",
           "updatedAt": "2026-09-14T08:02:42Z",
           "state": null,
-          "body": "<h3>Code Review by Qodo</h3>\n\n<code>\ud83d\udc1e Bugs (0)</code>  <code>\ud83d\udcd8 Rule violations (0)</code>  <code>\ud83d\udcce Requirement gaps (0)</code>  <code>\ud83c\udfa8 UX issues (0)</code>  <code>\ud83d\udd17 Cross-repo conflicts (0)</code>  <code>\ud83d\udcdc Skill insights (0)</code>\n\n<img src=\"https://www.qodo.ai/wp-content/uploads/2025/11/light-grey-line.svg\" height=\"10%\" alt=\"Grey Divider\">\n\n<br/>\n\n<img src=\"https://img.shields.io/badge/Review_recommended-634FD1?style=flat-square\" height=\"20px\" alt=\"Remediation recommended\">\n\n<details>\n<summary>  1.  <s>Mixed frames can corrupt upgrade logs</s> <code>\u2713 Resolved</code> <code>\ud83d\udc1e Bug</code> <code>\u2261 Correctness</code></summary>\n\n<br/>\n\n> <details open>\n><summary>Description</summary>\n><br/>\n>\n><pre>\n><b><i>onmessage</i></b> appends text frames directly while leaving the streaming <b><i>TextDecoder</i></b> state untouched\n>from earlier binary frames. If a binary frame ends midway through a multibyte UTF-8 character and\n>the next frame is text, those pending bytes are not flushed before the text, and later binary data\n>can be decoded with the stale prefix, corrupting or reordering the transcript.\n></pre>\n></details>\n\n> <details>\n><summary>Code</summary>\n><br/>\n>\n><code>[www/a/update.js[R503-505]](https://github.com/OpenIPC/majestic-webui/pull/481/files#diff-308f092e0d3810399235f9477efcddfd4a2d43daceb9d95dd0111f695c69ebc4R503-R505)</code>\n>\n>```diff\n>+\t\tws.onmessage = e => append(typeof e.data === 'string'\n>+\t\t\t? e.data\n>+\t\t\t: dec.decode(new Uint8Array(e.data), { stream: true }));\n>```\n></details>\n\n> <details>\n><summary>Evidence</summary>\n><br/>\n>\n><pre>\n>The changed handler uses <b><i>{ stream: true }</i></b> for binary frames, which intentionally retains decoder\n>state across messages, but the new text branch bypasses both decoding and flushing. The transcript\n>appender receives chunks in frame order, so a pending partial binary character remains unresolved\n>across the inserted text frame and affects subsequent binary decoding.\n></pre>\n>\n> <code>[www/a/update.js[503-505]](https://github.com/OpenIPC/majestic-webui/blob/32a32e9c8c3dffe29b179190b5e399aeca330b11/www/a/update.js/#L503-L505)</code>\n> <code>[www/a/update.js[373-383]](https://github.com/OpenIPC/majestic-webui/blob/32a32e9c8c3dffe29b179190b5e399aeca330b11/www/a/update.js/#L373-L383)</code>\n></details>\n\n> <details>\n><summary>Agent prompt</summary>\n><br/>\n>\n>```\n>The issue below was found during a code review. Follow the provided context and guidance below and implement a solution\n>\n>## Issue description\n>`onmessage` appends text frames directly while the streaming `TextDecoder` may still hold incomplete UTF-8 bytes from a preceding binary frame. A binary frame split inside a multibyte character followed by a text diagnostic can therefore produce corrupted transcript output when later binary data is decoded.\n>## Fix Focus Areas\n>- www/a/update.js[503-505]\n>## Recommended Fix\n>Before appending a text frame, flush the streaming decoder with `dec.decode()` and append any returned text first, then append the WebSocket string. This resets the decoder state before the frame-type transition while preserving the existing streaming decode path for binary frames.\n>```\n> <code>\u24d8 Copy this prompt and use it to remediate the issue with your preferred AI generation tools</code>\n></details>\n\n<hr/>\n</details>\n\n\n\n<img src=\"https://www.qodo.ai/wp-content/uploads/2025/11/light-grey-line.svg\" height=\"10%\" alt=\"Grey Divider\">\n\n\n\n<!-- qodo-daily-tip:start -->\n\n<details>\n<summary><strong>Tip of the day</strong></summary>\n\n<br/>\n\n<pre>\ud83d\udca1 Did you know, you can ask Qodo to dismiss a finding you disagree with, with your reason on record</pre>\n\n<a href=\"https://docs.qodo.ai/tips-and-tricks\">More tips \u2197</a> | <a href=\"https://app.qodo.ai/configurations?tab=display-preferences\">Customize Qodo \u2197</a> | <a href=\"https://docs.qodo.ai\">Qodo docs \u2197</a>\n\n</details>\n\n<img src=\"https://www.qodo.ai/wp-content/uploads/2025/11/light-grey-line.svg\" height=\"10%\" alt=\"Grey Divider\">\n<!-- qodo-daily-tip:end -->\n\n<a href=\"https://www.qodo.ai\"><img src=\"https://www.qodo.ai/wp-content/uploads/2025/03/qodo-logo.svg\" width=\"80\" alt=\"Qodo Logo\"></a>",
+          "body": "<h3>Code Review by Qodo</h3>\n\n<code>🐞 Bugs (0)</code>  <code>📘 Rule violations (0)</code>  <code>📎 Requirement gaps (0)</code>  <code>🎨 UX issues (0)</code>  <code>🔗 Cross-repo conflicts (0)</code>  <code>📜 Skill insights (0)</code>\n\n<img src=\"https://www.qodo.ai/wp-content/uploads/2025/11/light-grey-line.svg\" height=\"10%\" alt=\"Grey Divider\">\n\n<br/>\n\n<img src=\"https://img.shields.io/badge/Review_recommended-634FD1?style=flat-square\" height=\"20px\" alt=\"Remediation recommended\">\n\n<details>\n<summary>  1.  <s>Mixed frames can corrupt upgrade logs</s> <code>✓ Resolved</code> <code>🐞 Bug</code> <code>≡ Correctness</code></summary>\n\n<br/>\n\n> <details open>\n><summary>Description</summary>\n><br/>\n>\n><pre>\n><b><i>onmessage</i></b> appends text frames directly while leaving the streaming <b><i>TextDecoder</i></b> state untouched\n>from earlier binary frames. If a binary frame ends midway through a multibyte UTF-8 character and\n>the next frame is text, those pending bytes are not flushed before the text, and later binary data\n>can be decoded with the stale prefix, corrupting or reordering the transcript.\n></pre>\n></details>\n\n> <details>\n><summary>Code</summary>\n><br/>\n>\n><code>[www/a/update.js[R503-505]](https://github.com/OpenIPC/majestic-webui/pull/481/files#diff-308f092e0d3810399235f9477efcddfd4a2d43daceb9d95dd0111f695c69ebc4R503-R505)</code>\n>\n>```diff\n>+\t\tws.onmessage = e => append(typeof e.data === 'string'\n>+\t\t\t? e.data\n>+\t\t\t: dec.decode(new Uint8Array(e.data), { stream: true }));\n>```\n></details>\n\n> <details>\n><summary>Evidence</summary>\n><br/>\n>\n><pre>\n>The changed handler uses <b><i>{ stream: true }</i></b> for binary frames, which intentionally retains decoder\n>state across messages, but the new text branch bypasses both decoding and flushing. The transcript\n>appender receives chunks in frame order, so a pending partial binary character remains unresolved\n>across the inserted text frame and affects subsequent binary decoding.\n></pre>\n>\n> <code>[www/a/update.js[503-505]](https://github.com/OpenIPC/majestic-webui/blob/32a32e9c8c3dffe29b179190b5e399aeca330b11/www/a/update.js/#L503-L505)</code>\n> <code>[www/a/update.js[373-383]](https://github.com/OpenIPC/majestic-webui/blob/32a32e9c8c3dffe29b179190b5e399aeca330b11/www/a/update.js/#L373-L383)</code>\n></details>\n\n> <details>\n><summary>Agent prompt</summary>\n><br/>\n>\n>```\n>The issue below was found during a code review. Follow the provided context and guidance below and implement a solution\n>\n>## Issue description\n>`onmessage` appends text frames directly while the streaming `TextDecoder` may still hold incomplete UTF-8 bytes from a preceding binary frame. A binary frame split inside a multibyte character followed by a text diagnostic can therefore produce corrupted transcript output when later binary data is decoded.\n>## Fix Focus Areas\n>- www/a/update.js[503-505]\n>## Recommended Fix\n>Before appending a text frame, flush the streaming decoder with `dec.decode()` and append any returned text first, then append the WebSocket string. This resets the decoder state before the frame-type transition while preserving the existing streaming decode path for binary frames.\n>```\n> <code>ⓘ Copy this prompt and use it to remediate the issue with your preferred AI generation tools</code>\n></details>\n\n<hr/>\n</details>\n\n\n\n<img src=\"https://www.qodo.ai/wp-content/uploads/2025/11/light-grey-line.svg\" height=\"10%\" alt=\"Grey Divider\">\n\n\n\n<!-- qodo-daily-tip:start -->\n\n<details>\n<summary><strong>Tip of the day</strong></summary>\n\n<br/>\n\n<pre>💡 Did you know, you can ask Qodo to dismiss a finding you disagree with, with your reason on record</pre>\n\n<a href=\"https://docs.qodo.ai/tips-and-tricks\">More tips ↗</a> | <a href=\"https://app.qodo.ai/configurations?tab=display-preferences\">Customize Qodo ↗</a> | <a href=\"https://docs.qodo.ai\">Qodo docs ↗</a>\n\n</details>\n\n<img src=\"https://www.qodo.ai/wp-content/uploads/2025/11/light-grey-line.svg\" height=\"10%\" alt=\"Grey Divider\">\n<!-- qodo-daily-tip:end -->\n\n<a href=\"https://www.qodo.ai\"><img src=\"https://www.qodo.ai/wp-content/uploads/2025/03/qodo-logo.svg\" width=\"80\" alt=\"Qodo Logo\"></a>",
           "read": false
         },
         {
@@ -1373,7 +1373,7 @@
           "url": "https://github.com/OpenIPC/majestic-webui/pull/481#discussion_r4002938320",
           "updatedAt": "2026-09-14T07:53:37Z",
           "state": null,
-          "body": "<img src=\"https://img.shields.io/badge/Review_recommended-634FD1?style=flat-square\" height=\"20px\" alt=\"Remediation recommended\">\n\n1\\. Mixed frames can corrupt upgrade logs <code>\ud83d\udc1e Bug</code> <code>\u2261 Correctness</code>\n\n<pre>\n<b><i>onmessage</i></b> appends text frames directly while leaving the streaming <b><i>TextDecoder</i></b> state untouched\nfrom earlier binary frames. If a binary frame ends midway through a multibyte UTF-8 character and\nthe next frame is text, those pending bytes are not flushed before the text, and later binary data\ncan be decoded with the stale prefix, corrupting or reordering the transcript.\n</pre>\n\n\n<details>\n<summary><strong>Agent Prompt</strong></summary>\n\n```\n## Issue description\n`onmessage` appends text frames directly while the streaming `TextDecoder` may still hold incomplete UTF-8 bytes from a preceding binary frame. A binary frame split inside a multibyte character followed by a text diagnostic can therefore produce corrupted transcript output when later binary data is decoded.\n\n## Fix Focus Areas\n- www/a/update.js[503-505]\n\n## Recommended Fix\nBefore appending a text frame, flush the streaming decoder with `dec.decode()` and append any returned text first, then append the WebSocket string. This resets the decoder state before the frame-type transition while preserving the existing streaming decode path for binary frames.\n```\n\n<code>\u24d8 Copy this prompt and use it to remediate the issue with your preferred AI generation tools</code>\n</details>",
+          "body": "<img src=\"https://img.shields.io/badge/Review_recommended-634FD1?style=flat-square\" height=\"20px\" alt=\"Remediation recommended\">\n\n1\\. Mixed frames can corrupt upgrade logs <code>🐞 Bug</code> <code>≡ Correctness</code>\n\n<pre>\n<b><i>onmessage</i></b> appends text frames directly while leaving the streaming <b><i>TextDecoder</i></b> state untouched\nfrom earlier binary frames. If a binary frame ends midway through a multibyte UTF-8 character and\nthe next frame is text, those pending bytes are not flushed before the text, and later binary data\ncan be decoded with the stale prefix, corrupting or reordering the transcript.\n</pre>\n\n\n<details>\n<summary><strong>Agent Prompt</strong></summary>\n\n```\n## Issue description\n`onmessage` appends text frames directly while the streaming `TextDecoder` may still hold incomplete UTF-8 bytes from a preceding binary frame. A binary frame split inside a multibyte character followed by a text diagnostic can therefore produce corrupted transcript output when later binary data is decoded.\n\n## Fix Focus Areas\n- www/a/update.js[503-505]\n\n## Recommended Fix\nBefore appending a text frame, flush the streaming decoder with `dec.decode()` and append any returned text first, then append the WebSocket string. This resets the decoder state before the frame-type transition while preserving the existing streaming decode path for binary frames.\n```\n\n<code>ⓘ Copy this prompt and use it to remediate the issue with your preferred AI generation tools</code>\n</details>",
           "read": false
         },
         {
@@ -1395,7 +1395,7 @@
           "url": "https://github.com/OpenIPC/majestic-webui/pull/481#pullrequestreview-5195245921",
           "updatedAt": "2026-09-14T08:02:08Z",
           "state": "APPROVED",
-          "body": "Approving.\n\nThe change is the fix #477 prescribes \u2014 decode by frame type instead of assuming binary \u2014 and it is the idiom this tree already uses in `www/a/preview.js` for the `/ws/video` signalling line, so it is consistent rather than novel.\n\nVerified rather than read:\n\n- both new assertions are real regression tests: each fails on the commit before it and passes after \u2014 the text-frame one against the pre-fix handler, the flush one against the first commit;\n- `npm test`, `npm run build:dist` (terser + `node --check`), the haserl template lint and the regenerated purged bootstrap subset are all clean locally. CI had not run on this branch at all \u2014 a fork pull request waits for workflow approval \u2014 so I approved the run; all four jobs pass;\n- measured on an hi3516ev300 + imx335: a raw WebSocket client confirms the camera really does send these diagnostics as text frames on a current build, and the page itself \u2014 driven headless through a genuinely failing upgrade, the kind the updater refuses before it touches flash \u2014 now ends the transcript with the camera's \"Upgrade did not complete\u2026\" sentence, where the shipped build showed nothing at all after the updater's last line.\n\nThree notes, none of them blocking, all cheap to pick up later:\n\n1. The type check carries no comment, in a file where every non-obvious branch has a paragraph. The trap is invisible at the call site: `binaryType = 'arraybuffer'` two lines above reads like a guarantee that `e.data` is an ArrayBuffer, and `new Uint8Array(aString)` is a silent zero-length array rather than a throw. This is the line a future reader simplifies back. The comment that was added explains the flush, which is the smaller half.\n\n2. The second commit's scenario is not reachable on this endpoint. On every path this page can reach, a text frame is the last thing the camera sends before it closes, so there is no later binary data to inherit a stale prefix. The flush is harmless and I have kept it \u2014 but the symmetric case that *is* reachable, a stream ending with a partial sequence and no text frame after it, is still unflushed at `onclose`.\n\n3. The test's payload, `ERROR: invalid upgrade parameters`, is a refusal this page cannot elicit: it validates the kernel/rootfs selection client-side and always names its own source path. The text that does arrive in practice is the pair of \"Upgrade did not complete\u2026\" endings, which is what I exercised on hardware.\n\nThe other half of what the reporter of #474 saw \u2014 the page announcing a reboot that is not coming, then waiting eight minutes \u2014 is #478 and stays open. This fix is what makes the camera's contradicting sentence visible right above that note.\n",
+          "body": "Approving.\n\nThe change is the fix #477 prescribes — decode by frame type instead of assuming binary — and it is the idiom this tree already uses in `www/a/preview.js` for the `/ws/video` signalling line, so it is consistent rather than novel.\n\nVerified rather than read:\n\n- both new assertions are real regression tests: each fails on the commit before it and passes after — the text-frame one against the pre-fix handler, the flush one against the first commit;\n- `npm test`, `npm run build:dist` (terser + `node --check`), the haserl template lint and the regenerated purged bootstrap subset are all clean locally. CI had not run on this branch at all — a fork pull request waits for workflow approval — so I approved the run; all four jobs pass;\n- measured on an hi3516ev300 + imx335: a raw WebSocket client confirms the camera really does send these diagnostics as text frames on a current build, and the page itself — driven headless through a genuinely failing upgrade, the kind the updater refuses before it touches flash — now ends the transcript with the camera's \"Upgrade did not complete…\" sentence, where the shipped build showed nothing at all after the updater's last line.\n\nThree notes, none of them blocking, all cheap to pick up later:\n\n1. The type check carries no comment, in a file where every non-obvious branch has a paragraph. The trap is invisible at the call site: `binaryType = 'arraybuffer'` two lines above reads like a guarantee that `e.data` is an ArrayBuffer, and `new Uint8Array(aString)` is a silent zero-length array rather than a throw. This is the line a future reader simplifies back. The comment that was added explains the flush, which is the smaller half.\n\n2. The second commit's scenario is not reachable on this endpoint. On every path this page can reach, a text frame is the last thing the camera sends before it closes, so there is no later binary data to inherit a stale prefix. The flush is harmless and I have kept it — but the symmetric case that *is* reachable, a stream ending with a partial sequence and no text frame after it, is still unflushed at `onclose`.\n\n3. The test's payload, `ERROR: invalid upgrade parameters`, is a refusal this page cannot elicit: it validates the kernel/rootfs selection client-side and always names its own source path. The text that does arrive in practice is the pair of \"Upgrade did not complete…\" endings, which is what I exercised on hardware.\n\nThe other half of what the reporter of #474 saw — the page announcing a reboot that is not coming, then waiting eight minutes — is #478 and stays open. This fix is what makes the camera's contradicting sentence visible right above that note.\n",
           "read": false
         }
       ],
@@ -1409,7 +1409,7 @@
       "mergedAt": "2026-09-14T08:02:35Z",
       "reporterResponseAt": "2026-09-14T08:02:08Z",
       "ci": "success",
-      "lastSync": "2026-09-14T10:47:47.991Z",
+      "lastSync": "2026-09-14T14:15:51.472Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-14T10:47:47.991Z"
@@ -1450,7 +1450,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T10:47:50.817Z",
+      "lastSync": "2026-09-14T14:15:54.302Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1476,7 +1476,7 @@
           "url": "https://github.com/open-nvr/open-nvr/issues/468#issuecomment-5660545498",
           "updatedAt": "2026-09-14T07:30:13Z",
           "state": null,
-          "body": "Thank you for the detailed report and prototype \u2014 I reproduced the missing fallback on the current `main` revision and opened #470 with a focused implementation and regression tests.\n\nThe PR keeps HTTP Digest first and retries once with WS-Security only for a matching ONVIF SOAP authentication fault. It deliberately does not retry generic connection closures. The pinned baseline fails the new regression; the candidate passes it, plus 102 adjacent ONVIF/camera-settings tests.\n\nWhen convenient, could you test that branch on the same C520WS V2 / firmware 1.2.7 and confirm camera addition, profile discovery, stream URI, and PTZ? A second Digest-compatible camera check would also confirm the unchanged primary path.\n",
+          "body": "Thank you for the detailed report and prototype — I reproduced the missing fallback on the current `main` revision and opened #470 with a focused implementation and regression tests.\n\nThe PR keeps HTTP Digest first and retries once with WS-Security only for a matching ONVIF SOAP authentication fault. It deliberately does not retry generic connection closures. The pinned baseline fails the new regression; the candidate passes it, plus 102 adjacent ONVIF/camera-settings tests.\n\nWhen convenient, could you test that branch on the same C520WS V2 / firmware 1.2.7 and confirm camera addition, profile discovery, stream URI, and PTZ? A second Digest-compatible camera check would also confirm the unchanged primary path.\n",
           "read": false
         }
       ],
@@ -1490,7 +1490,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T10:47:53.774Z",
+      "lastSync": "2026-09-14T14:15:56.820Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1530,7 +1530,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T10:47:57.221Z",
+      "lastSync": "2026-09-14T14:15:59.496Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1556,7 +1556,7 @@
           "url": "https://github.com/FrancescoCeruti/linux-show-player/issues/398#issuecomment-5661236584",
           "updatedAt": "2026-09-14T08:34:04Z",
           "state": null,
-          "body": "I prepared a focused fix in #400.\n\nIt replaces the read-only OSC input address with a selector for each current IPv4 interface plus an `All interfaces` option. The selected address is persisted independently from the OSC output destination, and the listener restarts when it changes. Existing configurations retain the previous automatically selected address.\n\nCould you test the draft on your Debian machine with both networks connected?\n\n1. Open OSC settings and select the interface that should receive OSC.\n2. Apply the settings and send a message to that address and the configured input port.\n3. Restart Linux Show Player and confirm both the selection and reception still work.\n4. If useful, also try `All interfaces`.\n\nThe baseline/candidate regression is red \u2192 green in BCL; the remaining check is the real multi-network route on your host.\n",
+          "body": "I prepared a focused fix in #400.\n\nIt replaces the read-only OSC input address with a selector for each current IPv4 interface plus an `All interfaces` option. The selected address is persisted independently from the OSC output destination, and the listener restarts when it changes. Existing configurations retain the previous automatically selected address.\n\nCould you test the draft on your Debian machine with both networks connected?\n\n1. Open OSC settings and select the interface that should receive OSC.\n2. Apply the settings and send a message to that address and the configured input port.\n3. Restart Linux Show Player and confirm both the selection and reception still work.\n4. If useful, also try `All interfaces`.\n\nThe baseline/candidate regression is red → green in BCL; the remaining check is the real multi-network route on your host.\n",
           "read": false
         }
       ],
@@ -1570,7 +1570,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T10:48:00.349Z",
+      "lastSync": "2026-09-14T14:16:02.166Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1583,7 +1583,7 @@
       "testedHeadSha": null,
       "evidenceStatus": "NOT_BOUND",
       "run": null,
-      "state": "open",
+      "state": "merged",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
@@ -1609,19 +1609,30 @@
           "state": null,
           "body": "> I prepared a focused fix in [#675](https://github.com/LBALab/lba2-classic-community/pull/675). It lets the documented `/sdcard/lba2cc/` location (and its `/storage/emulated/0/` alias) accept a supported disc image, while keeping image scans disabled for the broad shared-storage roots.\n> \n> The discovery target and all 71 host-quick tests pass on macOS. I do not have an Android arm64 device with this rip, so could you please test the PR build with the same BIN/CUE-only folder and confirm that first-launch discovery reaches the game without `last_game_dir.txt`? The most useful evidence would be the `Assets:` and `Disc:` boot-log lines.\n\nThanks @iibaranov-IG ! Yes, I'll test as soon as the PR is ready. I don't have a physical device either, but we have some testers on Discord.",
           "read": false
+        },
+        {
+          "key": "review:5197191734",
+          "kind": "review",
+          "author": "noctonca",
+          "reporter": true,
+          "url": "https://github.com/LBALab/lba2-classic-community/pull/675#pullrequestreview-5197191734",
+          "updatedAt": "2026-09-14T11:43:29Z",
+          "state": "APPROVED",
+          "body": "lgtm - tested it in an emulator. Thanks for the contribution @iibaranov-IG !",
+          "read": false
         }
       ],
-      "unread": 2,
+      "unread": 3,
       "mergeable": null,
       "mergeableState": "unknown",
       "headSha": "1beede02afcb82016be7eed094df3e4485ddfc31",
       "reporter": "noctonca",
       "issueCreatedAt": "2026-09-14T08:44:25Z",
       "prCreatedAt": "2026-09-14T08:51:45Z",
-      "mergedAt": null,
+      "mergedAt": "2026-09-14T11:43:45Z",
       "reporterResponseAt": "2026-09-14T09:51:57Z",
-      "ci": "failure",
-      "lastSync": "2026-09-14T10:48:03.418Z",
+      "ci": "success",
+      "lastSync": "2026-09-14T14:16:04.956Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1651,6 +1662,39 @@
           "read": false
         },
         {
+          "key": "issue-comment:5664315874",
+          "kind": "issue-comment",
+          "author": "Alkly47",
+          "reporter": true,
+          "url": "https://github.com/FalconChristmas/fpp/issues/2957#issuecomment-5664315874",
+          "updatedAt": "2026-09-14T12:57:21Z",
+          "state": null,
+          "body": "Tested build from PR #2958:\n\n<img width=\"1064\" height=\"363\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/568af24c-f495-4309-8e3b-ab4c23d89479\" />\n\n```diff\n2026-09-14T06:40:03.546528-06:00 PiPlayer systemd[1]: systemd-rfkill.service: Deactivated successfully.\n2026-09-14T06:40:03.546548-06:00 PiPlayer fppinit[995]: FPP - PipeWire: creating adapter fpp_alsa_headphones for card 0 (Headphones) [2ch S16LE]\n+2026-09-14T06:40:03.546558-06:00 PiPlayer fppinit[995]: FPP - PipeWire: creating adapter fpp_alsa_audio for card 1 (AUDIO) [2ch S32LE] (USB, sole sink in its group, headroom=1024)\n2026-09-14T06:40:03.546569-06:00 PiPlayer fppinit[995]: FPP - PipeWire: skipping card 2 (vc4hdmi0) — device cannot be opened\n2026-09-14T06:40:03.546580-06:00 PiPlayer fppinit[995]: FPP - PipeWire: skipping card 3 (vc4hdmi1) — device cannot be opened\n2026-09-14T06:40:03.546590-06:00 PiPlayer fppinit[995]: FPP - PipeWire: suppressing WirePlumber duplicate ALSA devices for 2 card(s)\n2026-09-14T06:40:03.546611-06:00 PiPlayer fppinit[995]: FPP - Setting mixer device to\n2026-09-14T06:40:03.546621-06:00 PiPlayer fppinit[995]: FPP - Restoring PipeWire audio output groups config\n2026-09-14T06:40:03.546630-06:00 PiPlayer fppinit[995]: FPP - Installed WirePlumber FPP linking hook\n2026-09-14T06:40:03.546640-06:00 PiPlayer fppinit[995]: FPP - PipeWire audio config valid, loaded, and all referenced cards present; skipping regeneration\n```\n\nHardware is now correctly configured with `S32LE` and the audio pipeline works without manual intervention.\nRate detection is still questionable (Selecting 44100khz despite that rate being the lowest the DAC supports), but audio at least functions now.",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5664457764",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/FalconChristmas/fpp/issues/2957#issuecomment-5664457764",
+          "updatedAt": "2026-09-14T13:07:59Z",
+          "state": null,
+          "body": "Thank you for testing this on the actual SMSL SU-1. Your result confirms the acceptance path for this change: the generated adapter now uses `S32LE`, and the audio pipeline starts without manual intervention.\n\nThe 44.1 kHz choice is a separate question from the impossible-format bug fixed here. This patch preserves FPP's existing rate-selection policy. If 48 kHz is the configured target but the probe still chooses 44.1 kHz, please open a follow-up issue with the configured FPP sample rate and the output of `/proc/asound/card1/stream0`; that gives us a clean second problem to reproduce without widening this proven fix.\n",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5664659511",
+          "kind": "issue-comment",
+          "author": "Alkly47",
+          "reporter": true,
+          "url": "https://github.com/FalconChristmas/fpp/issues/2957#issuecomment-5664659511",
+          "updatedAt": "2026-09-14T13:22:41Z",
+          "state": null,
+          "body": "Thank you. I will delve deeper into the rate selection behavior and open another issue depending on my findings.",
+          "read": false
+        },
+        {
           "key": "pr-comment:5661983563",
           "kind": "pr-comment",
           "author": "OnlineDynamic",
@@ -1662,17 +1706,17 @@
           "read": false
         }
       ],
-      "unread": 2,
-      "mergeable": true,
-      "mergeableState": "clean",
+      "unread": 5,
+      "mergeable": null,
+      "mergeableState": "unknown",
       "headSha": "b9464f422f0a3f979bbfa4a52d07dd1c08e5d385",
       "reporter": "Alkly47",
       "issueCreatedAt": "2026-09-14T02:56:42Z",
       "prCreatedAt": "2026-09-14T09:20:58Z",
       "mergedAt": null,
-      "reporterResponseAt": null,
+      "reporterResponseAt": "2026-09-14T12:57:21Z",
       "ci": "none",
-      "lastSync": "2026-09-14T10:48:06.490Z",
+      "lastSync": "2026-09-14T14:16:07.797Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1698,7 +1742,7 @@
           "url": "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5#issuecomment-5662165344",
           "updatedAt": "2026-09-14T09:53:42Z",
           "state": null,
-          "body": "I reproduced the lifecycle race in the driver and opened draft PR #6 with a focused fix.\n\nA rapid STOP \u2192 START can collapse into one `stream_work` run. At that point `stream_users` is positive again while `streaming` is still true, so the old worker performs no USB action even though the device session crossed through zero. The patch preserves that zero crossing and forces the existing full kill/cold-init/start path.\n\nThe exact baseline fails the BCL negative control; the candidate passes the coalesced restart plus the ordinary start/stop transition matrix. I also built the resulting kernel module successfully against Ubuntu Linux 7.0 headers.\n\nCould you please test the draft on the reported Babyface Pro FS: start full-duplex playback/capture through PipeWire, change Bitwig 1024 \u2192 2048 \u2192 512, and confirm whether audio resumes in both directions after every change without reloading the module or replugging? If it still becomes silent, the dynamic-debug lines around each stop/start would let me refine the patch against the real timing.\n",
+          "body": "I reproduced the lifecycle race in the driver and opened draft PR #6 with a focused fix.\n\nA rapid STOP → START can collapse into one `stream_work` run. At that point `stream_users` is positive again while `streaming` is still true, so the old worker performs no USB action even though the device session crossed through zero. The patch preserves that zero crossing and forces the existing full kill/cold-init/start path.\n\nThe exact baseline fails the BCL negative control; the candidate passes the coalesced restart plus the ordinary start/stop transition matrix. I also built the resulting kernel module successfully against Ubuntu Linux 7.0 headers.\n\nCould you please test the draft on the reported Babyface Pro FS: start full-duplex playback/capture through PipeWire, change Bitwig 1024 → 2048 → 512, and confirm whether audio resumes in both directions after every change without reloading the module or replugging? If it still becomes silent, the dynamic-debug lines around each stop/start would let me refine the patch against the real timing.\n",
           "read": false
         }
       ],
@@ -1712,7 +1756,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T10:48:09.398Z",
+      "lastSync": "2026-09-14T14:16:10.724Z",
       "syncError": null
     },
     {
@@ -1750,9 +1794,20 @@
           "state": null,
           "body": "How can i try it ?\r\n\r\nJust a question : no risk to add connection latency with this logic ?\r\n\r\nThanks a lot",
           "read": false
+        },
+        {
+          "key": "pr-comment:5664450797",
+          "kind": "pr-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/FrancescoCeruti/linux-show-player/pull/401#issuecomment-5664450797",
+          "updatedAt": "2026-09-14T13:07:26Z",
+          "state": null,
+          "body": "You can test the PR directly from a separate checkout:\n\n```bash\ngit fetch https://github.com/iibaranov-IG/linux-show-player.git bcl/linux-show-player-399-7f02b93bef598264\ngit switch --detach FETCH_HEAD\n```\n\nThen repeat the issue sequence: create a JACK cue routed to the external client, remove that client, play and save/reopen the session, reconnect the client, and play again. While the client is absent, the current working route should remain and the log should contain one concise warning. After it returns, the saved route should be restored.\n\nThis does not add latency to the audio path. The new code runs only when Linux Show Player reconciles JACK connections: it takes one snapshot of the currently available input ports and then performs the same connect/disconnect operations as before. It does not run per audio buffer or add a GStreamer/JACK processing stage.\n",
+          "read": false
         }
       ],
-      "unread": 2,
+      "unread": 3,
       "mergeable": true,
       "mergeableState": "clean",
       "headSha": "5b2b73238aadcef6d05f0d15d4522bd69da5c993",
@@ -1762,7 +1817,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T10:33:28Z",
       "ci": "success",
-      "lastSync": "2026-09-14T10:48:12.137Z",
+      "lastSync": "2026-09-14T14:16:13.367Z",
       "syncError": null
     },
     {
@@ -1823,7 +1878,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T10:48:15.217Z",
+      "lastSync": "2026-09-14T14:16:16.408Z",
       "syncError": null
     },
     {
@@ -1833,14 +1888,105 @@
       "pr": "https://github.com/jeffvli/feishin/pull/2464",
       "candidateSha256": "ea4ccfd11f894a7eebc6f71a986b30a533b83f9dcc11dd6896acc241945bb562",
       "testedHeadSha": "2a7ee47ce2090e1df649417a99f3961eca5d9b9d",
-      "evidenceStatus": "BOUND_CANDIDATE",
+      "evidenceStatus": "STALE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34835567662",
-      "state": "open",
+      "state": "draft",
       "hardware": {
-        "status": "NOT_REVIEWED"
+        "status": "NOT_REVIEWED",
+        "priorStatus": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0
+      "events": [
+        {
+          "key": "issue-comment:5657254140",
+          "kind": "issue-comment",
+          "author": "jeffvli",
+          "reporter": false,
+          "url": "https://github.com/jeffvli/feishin/issues/2451#issuecomment-5657254140",
+          "updatedAt": "2026-09-14T00:08:59Z",
+          "state": null,
+          "body": "I just tested with the Ampache demo server and I'm not seeing any issues.\n\nhttps://ampache.org/demo/",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5661363859",
+          "kind": "issue-comment",
+          "author": "andrewk-prog",
+          "reporter": true,
+          "url": "https://github.com/jeffvli/feishin/issues/2451#issuecomment-5661363859",
+          "updatedAt": "2026-09-14T08:45:51Z",
+          "state": null,
+          "body": "Thanks for testing this with the Ampache demo server.\n\nUnfortunately, the problem is still reproducible with my Ampache installation. I did some additional testing to narrow it down.\n\nThe important difference is that Feishin successfully calls:\n\n`getTranscodeDecision.view`\n\nbut after that it does not issue either:\n\n`getTranscodeStream`\n\nor:\n\n`stream.view`\n\nPlayback remains at `0:00`.\n\nThe same Ampache server works correctly with other OpenSubsonic clients.\n\nI also verified the Ampache stream endpoint independently. For example, this request successfully returns the complete FLAC file:\n\n`/rest/stream.view?id=so-10765`\n\nIt returns HTTP 200, `Content-Type: audio/flac`, the correct content length and the complete 25 MB file.\n\nThe problem occurs with both MP3 and FLAC files and with both the stable and development versions of Feishin.\n\nThe relevant Feishin request looks like:\n\n`/rest/getTranscodeDecision.view?c=Feishin&f=json&v=1.13.0&u=apitest&p=apitest01&mediaId=so-11153&mediaType=song`\n\nThe request itself receives HTTP 200.\n\nCould you please check what response from `getTranscodeDecision` Feishin expects before it starts playback?\n\nIf useful, I can provide the complete JSON response returned by my Ampache installation for the affected track, as well as the Feishin Network trace showing that no subsequent stream request is made.\n",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5661507961",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/jeffvli/feishin/issues/2451#issuecomment-5661507961",
+          "updatedAt": "2026-09-14T08:58:48Z",
+          "state": null,
+          "body": "I traced the Feishin path. A successful HTTP 200 is unwrapped and then `getStreamUrl` assumes `body.transcodeDecision` exists. If Ampache's response omits that object or gives it a different shape, Feishin first treats the track as requiring transcoding and then dereferences the missing object, so no stream request follows.\n\nCould you paste the complete JSON body returned by `getTranscodeDecision.view` for one affected track, with any credentials removed, plus the first console error produced when playback is clicked? That will distinguish a response-shape compatibility bug from a different player failure and lets us write a red test against the actual Ampache response before changing the fallback.\n",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5662267148",
+          "kind": "issue-comment",
+          "author": "andrewk-prog",
+          "reporter": true,
+          "url": "https://github.com/jeffvli/feishin/issues/2451#issuecomment-5662267148",
+          "updatedAt": "2026-09-14T10:02:45Z",
+          "state": null,
+          "body": "## Playback fails with Ampache: CORS preflight rejects `content-type`\n\n### Description\n\nPlayback of songs from an Ampache server does not work in Feishin.\n\nWhen clicking Play, the player remains at `0:00` and no actual stream request is sent.\n\nThe problem occurs with both MP3 and FLAC files.\n\nI tested both the stable and development versions of Feishin and get the same result.\n\n### Environment\n\n* **Feishin:** 1.13.0\n* **Platform:** Windows desktop\n* **Server:** Ampache 8.1.0\n* **Ampache:** Docker\n* **API:** OpenSubsonic\n* **OpenSubsonic version reported by Ampache:** 1.16.1\n* **Feishin server URL:** `http://xxx.xxx.x.x:xxxx`\n* **Feishin web origin:** `http://xxx.xxx.x.xx:xxxx`\n* **Test user:** `apitest`\n* Password: omitted intentionally\n\nOther OpenSubsonic clients can play the same Ampache library successfully.\n\n### Initial investigation\n\nThe direct OpenSubsonic stream endpoint works correctly.\n\nFor example:\n\n```text\n/rest/stream.view?...&id=so-10765\n```\n\nreturns HTTP 200 with `audio/flac` and the complete file can be downloaded successfully.\n\nAmpache also returns a valid response from `getTranscodeDecision.view`.\n\nFor an affected FLAC track, the response is:\n\n```json\n{\n    \"subsonic-response\": {\n        \"status\": \"ok\",\n        \"version\": \"1.16.1\",\n        \"type\": \"ampache\",\n        \"serverVersion\": \"8.1.0\",\n        \"openSubsonic\": true,\n        \"transcodeDecision\": {\n            \"canDirectPlay\": true,\n            \"canTranscode\": false,\n            \"sourceStream\": {\n                \"protocol\": \"http\",\n                \"container\": \"flac\",\n                \"codec\": \"flac\",\n                \"audioBitrate\": 659,\n                \"audioChannels\": 2,\n                \"audioSamplerate\": 44100\n            },\n            \"errorReason\": \"Transcoding is disabled on this server\"\n        }\n    }\n}\n```\n\nThis was obtained directly with curl from the Ampache server and confirms that `transcodeDecision` is present and that `canDirectPlay` is `true`.\n\n### Actual browser error\n\nThe first console error when clicking Play is:\n\n```text\nAccess to XMLHttpRequest at 'http://xxx.xxx.x.xx:xxxx/rest/getTranscodeDecision.view?c=Feishin&f=json&v=1.13.0&u=apitest&p=REDACTED&mediaId=so-23048&mediaType=song' from origin 'http://xxx.xxx.x.xx:xxxx' has been blocked by CORS policy: Request header field content-type is not allowed by Access-Control-Allow-Headers in preflight response.\n```\n\nThe password has been replaced with `REDACTED`.\n\n### Network behavior\n\nIn the browser network log I can see the `OPTIONS` request for:\n\n```text\ngetTranscodeDecision.view\n```\n\nwhich returns HTTP 200.\n\nHowever, the browser rejects the CORS preflight because the requested `content-type` header is not included in the server's `Access-Control-Allow-Headers`.\n\nAs a result, the actual `getTranscodeDecision` request is not sent.\n\nThere is consequently no subsequent:\n\n```text\ngetTranscodeStream\n```\n\nor:\n\n```text\nstream.view\n```\n\nrequest from Feishin.\n\n### Relevant Ampache configuration\n\nAmpache is configured with transcoding disabled intentionally.\n\nTherefore the response contains:\n\n```json\n\"canDirectPlay\": true,\n\"canTranscode\": false,\n\"errorReason\": \"Transcoding is disabled on this server\"\n```\n\nThis is intentional. Direct playback should be sufficient for formats supported by the client.\n\nI also corrected Ampache's internal stream URL configuration during troubleshooting:\n\n```text\nlocal_web_path = \"http://ampache\"\n```\n\nThis fixed an earlier internal proxy problem where Ampache attempted to connect to `127.0.0.1:xxxx` from inside its own container.\n\nAfter that correction, direct OpenSubsonic streaming works successfully.\n\n### Expected behavior\n\nFeishin should be able to perform the `getTranscodeDecision` request, process:\n\n```json\n\"canDirectPlay\": true\n```\n\nand proceed to direct playback without requiring transcoding.\n\n### Actual behavior\n\nThe browser blocks the `getTranscodeDecision` request during the CORS preflight because `content-type` is not allowed by the Ampache CORS response.\n\nPlayback therefore never reaches the stream request and remains at `0:00`.\n\n### Question\n\nCould this be a Feishin issue where `getTranscodeDecision` is unnecessarily sent with a `Content-Type` request header that triggers a CORS preflight, or should Ampache/OpenSubsonic include `content-type` in `Access-Control-Allow-Headers` for this endpoint?\n\nThe direct curl response appears structurally valid and contains the expected `transcodeDecision`, so the current evidence points to the CORS preflight occurring before Feishin can process the response.\n\nIf useful, I can also provide the complete request/response headers for the `OPTIONS` request.\n",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5662890146",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/jeffvli/feishin/issues/2451#issuecomment-5662890146",
+          "updatedAt": "2026-09-14T10:58:40Z",
+          "state": null,
+          "body": "I prepared a focused fix in #2464.\n\nThe OpenSubsonic `getTranscodeDecision` endpoint requires a JSON POST, so removing the `content-type` header in Feishin would violate the protocol. Instead, the patch treats a network or CORS failure of that optional request like the existing non-200 response path and falls back to the direct `stream.view` URL that already works in your report.\n\nThe pinned baseline fails the focused regression and the patched candidate passes it. Renderer typecheck, ESLint, staged-file checks, and the independent BCL run also pass.\n\nCould you please test the draft with Ampache 8.1.0, transcoding disabled, and the same browser? The key result is whether playback starts after the `getTranscodeDecision` CORS error and proceeds through `stream.view`. Please include the browser and observed network sequence in your result.\n",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5665393992",
+          "kind": "issue-comment",
+          "author": "andrewk-prog",
+          "reporter": true,
+          "url": "https://github.com/jeffvli/feishin/issues/2451#issuecomment-5665393992",
+          "updatedAt": "2026-09-14T14:15:12Z",
+          "state": null,
+          "body": "Thanks. I can test this against my Ampache 8.1.0 setup with transcoding disabled.\n\nHowever, the Vercel preview deployment linked to the PR currently shows as failed. Could you provide a working preview build or another way to install the draft commit/branch for testing?\n\nOnce available, I will test it in the same browser and report the exact network sequence, especially whether `getTranscodeDecision` fails with CORS and whether Feishin then falls back to `stream.view` and starts playback.\n",
+          "read": false
+        },
+        {
+          "key": "pr-comment:5662886108",
+          "kind": "pr-comment",
+          "author": "vercel[bot]",
+          "reporter": false,
+          "url": "https://github.com/jeffvli/feishin/pull/2464#issuecomment-5662886108",
+          "updatedAt": "2026-09-14T11:17:21Z",
+          "state": null,
+          "body": "[vc]: #xSdf8Lu6naZdaaTuMitkUeCUEZrrg7eI+5QLYte4srI=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJmZWlzaGluIiwicHJvamVjdElkIjoicHJqX3FHcWNTRmFUc3l3Y0NwMmN2cHhOMnRXYVY3Um0iLCJyb290RGlyZWN0b3J5IjpudWxsLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vamVmZnZsaXMtcHJvamVjdHMvZmVpc2hpbi80WUVKcVVmYzdUUnEzdll3V0tZUXVRN1BHZE1rIiwicHJldmlld1VybCI6IiIsIm5leHRDb21taXRTdGF0dXMiOiJGQUlMRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoiIn19XX0=\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated |\n| :--- | :----- | :------ | :------ |\n| <a href=\"https://vercel.com/jeffvlis-projects/feishin\"><sup><img src=\"https://vercel.com/api/www/avatar?projectId=prj_qGqcSFaTsywcCp2cvpxN2tWaV7Rm&teamId=team_Hug1sS6XsM6zVAdg4475Z5jB&s=32\" width=\"16\" height=\"16\" align=\"middle\" alt=\"\" /></sup></a> [feishin](https://vercel.com/jeffvlis-projects/feishin) | ![Error](https://vercel.com/static/status/error.svg) [Error](https://vercel.com/jeffvlis-projects/feishin/4YEJqUfc7TRq3vYwWKYQuQ7PGdMk) |  | <relative-time datetime=\"2026-09-14T11:17:21.286Z\">Sep 14, 2026 11:17am UTC</relative-time> |\n\n",
+          "read": false
+        }
+      ],
+      "unread": 7,
+      "evidenceStaleSince": "2026-09-14T14:16:19.422Z",
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "70305c895e8a5ea6c18fe02053f346c953ae960e",
+      "reporter": "andrewk-prog",
+      "issueCreatedAt": "2026-09-13T14:08:01Z",
+      "prCreatedAt": "2026-09-14T10:58:11Z",
+      "mergedAt": null,
+      "reporterResponseAt": "2026-09-14T08:45:51Z",
+      "ci": "failure",
+      "lastSync": "2026-09-14T14:16:19.422Z",
+      "syncError": null
     },
     {
       "id": "low-latency-audio-36",
@@ -1851,12 +1997,35 @@
       "testedHeadSha": "ef4cef28c91114d54cd32900f4507d680c52606a",
       "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34838140237",
-      "state": "open",
+      "state": "draft",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0
+      "events": [
+        {
+          "key": "issue-comment:5663201839",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/microsoft/low-latency-audio/issues/36#issuecomment-5663201839",
+          "updatedAt": "2026-09-14T11:27:17Z",
+          "state": null,
+          "body": "I prepared a focused candidate in #37.\n\nThe no-connector-control path currently advertises `AcxJackConfigJackDetection` and installs a presence callback even though it represents a dummy jack. The patch advertises that endpoint as static with `AcxJackConfigNoFlags`, keeps its connected state, and leaves the connector-controlled physical jack path unchanged.\n\nThe pinned `yamaha-main` baseline fails the focused source regression and the candidate passes it. The Microsoft CLA check is also green. This still needs the decisive hardware check.\n\nCould you build and install the PR on the Sound Blaster G3, select Aux In, and confirm whether mmsys.cpl now shows Default Device with an active meter? Please also cycle through Microphone, What U Hear and SPDIF In. If possible, verify one device with real connector detection still changes availability when unplugged.\n",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "clean",
+      "headSha": "ef4cef28c91114d54cd32900f4507d680c52606a",
+      "reporter": "ymh-akihiro-tokumasu",
+      "issueCreatedAt": "2026-09-14T09:09:17Z",
+      "prCreatedAt": "2026-09-14T11:26:53Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "success",
+      "lastSync": "2026-09-14T14:16:21.973Z",
+      "syncError": null
     },
     {
       "id": "yi-hack-v5-476",
@@ -1867,12 +2036,46 @@
       "testedHeadSha": "3111aaf4820b71625859fe87481e4cf3bfc58ee0",
       "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34838743052",
-      "state": "open",
+      "state": "draft",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0
+      "events": [
+        {
+          "key": "issue-comment:5663276499",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/alienatedsec/yi-hack-v5/issues/476#issuecomment-5663276499",
+          "updatedAt": "2026-09-14T11:34:31Z",
+          "state": null,
+          "body": "I prepared the focused fix in #478.\n\nThe existing `addPreset`, `delPreset`, and `delAllPreset` functions were already complete, but `registerEventHandler()` only wired movement and Go To Preset. The patch adds delegated click handlers for the three inert buttons.\n\nA behavioral test executes the production PTZ module with a minimal DOM/jQuery boundary. The pinned baseline fails because `#button-add` has no handler; the candidate passes and produces the expected POST requests for add, delete, and delete-all.\n\nCould you test the draft on the YI Dome 63US with firmware 0.4.1? Please add and recall a named preset, delete it, then create several presets and delete all. The useful result is whether each click sends one request, refreshes the list, and preserves the expected physical camera position.\n",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5664939555",
+          "kind": "issue-comment",
+          "author": "osmolo",
+          "reporter": true,
+          "url": "https://github.com/alienatedsec/yi-hack-v5/issues/476#issuecomment-5664939555",
+          "updatedAt": "2026-09-14T13:43:10Z",
+          "state": null,
+          "body": "It all works as intended, thank you!",
+          "read": false
+        }
+      ],
+      "unread": 2,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "3111aaf4820b71625859fe87481e4cf3bfc58ee0",
+      "reporter": "osmolo",
+      "issueCreatedAt": "2026-09-14T10:39:47Z",
+      "prCreatedAt": "2026-09-14T11:33:55Z",
+      "mergedAt": null,
+      "reporterResponseAt": "2026-09-14T13:43:10Z",
+      "ci": "none",
+      "lastSync": "2026-09-14T14:16:24.677Z",
+      "syncError": null
     },
     {
       "id": "thingino-firmware-1636",
@@ -1883,12 +2086,57 @@
       "testedHeadSha": "b1e94bf750930ee0d09ac0b95e8f02a57807aee5",
       "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34840592749",
-      "state": "open",
+      "state": "draft",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0
+      "events": [
+        {
+          "key": "issue-comment:5648871105",
+          "kind": "issue-comment",
+          "author": "Goldstrike75",
+          "reporter": false,
+          "url": "https://github.com/themactep/thingino-firmware/issues/1636#issuecomment-5648871105",
+          "updatedAt": "2026-09-12T21:40:05Z",
+          "state": null,
+          "body": "At the suggestion of Gino on discord (https://discord.com/channels/1086012062649565286/1548395735853174855) I'll include my observations of what apparently is the same issue on a Cinnado D1 running IMAGE_ID=cinnado_d1_t23n_sc2331_atbm6012bx, IMAGE_NAME=\"Cinnado D1 (T23N, SC2331, ATBM6012BX)\", BUILD_ID=\"ciao+b53de03, 2026-09-10 23:57:50 UTC\", BUILD_TIME=\"2026-09-10 23:57:50 UTC\"\n\nThe behavior is that the camera locks up after a minute or two, and eventually reboots when the preview is active in a browser.\n\nThe following logs\n`> cat /dev/kmsg > /mnt/mmcblk0p1/kmsg.log &`\n`> logread -f >> /mnt/mmcblk0p1/messages.log &`\ndid not reveal the \"Out of memory: Killed process ... (prudynt)\" error Gino suggested, even with adding a sync loop:\n`while true; do sync; sleep 5; done &\n`\nThe results of:\n`> while true; do grep -E 'VmSize|VmRSS' /proc/$(pidof prudynt)/status >> /mnt/mmcblk0p1/prudynt.log; sleep 5; done &`\nare:\n```\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  103620 kB\nVmRSS:\t    6360 kB\nVmSize:\t  106780 kB\nVmRSS:\t    7528 kB\nVmSize:\t  109112 kB\nVmRSS:\t    9860 kB\nVmSize:\t  111288 kB\nVmRSS:\t   12064 kB\nVmSize:\t  112756 kB\nVmRSS:\t   13536 kB\nVmSize:\t  114252 kB\nVmRSS:\t   15040 kB\nVmSize:\t  114784 kB\nVmRSS:\t   15572 kB\nVmSize:\t  115952 kB\nVmRSS:\t   16740 kB\nVmSize:\t  116316 kB\nVmRSS:\t   17104 kB\nVmSize:\t  117108 kB\nVmRSS:\t   17896 kB\nVmSize:\t  117956 kB\nVmRSS:\t   18696 kB\nVmSize:\t  118432 kB\nVmRSS:\t   18820 kB\nVmSize:\t  119432 kB\nVmRSS:\t   19272 kB\nVmSize:\t  120036 kB\nVmRSS:\t   19756 kB\nVmSize:\t  120452 kB\nVmRSS:\t   19684 kB\nVmSize:\t  121148 kB\nVmRSS:\t   19908 kB\nVmSize:\t  121420 kB\nVmRSS:\t   19708 kB\nVmSize:\t  121420 kB\nVmRSS:\t   19668 kB\n```\nAnd the results of:\n`> while true; do free >> /mnt/mmcblk0p1/free.log; sleep 5; done &`\nare:\n```\n              total        used        free      shared  buff/cache   available\nMem:          37784       15716        1360           0       20708           0\n-/+ buffers/cache:        15716       22068\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15740        1792           0       20252           0\n-/+ buffers/cache:        15740       22044\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15732        1800           0       20252           0\n-/+ buffers/cache:        15732       22052\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15756        1776           0       20252           0\n-/+ buffers/cache:        15756       22028\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15732        1800           0       20252           0\n-/+ buffers/cache:        15732       22052\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15744        1784           0       20256           0\n-/+ buffers/cache:        15744       22040\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15748        1780           0       20256           0\n-/+ buffers/cache:        15748       22036\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15836        1692           0       20256           0\n-/+ buffers/cache:        15836       21948\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15752        1776           0       20256           0\n-/+ buffers/cache:        15752       22032\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15752        1776           0       20256           0\n-/+ buffers/cache:        15752       22032\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15744        1784           0       20256           0\n-/+ buffers/cache:        15744       22040\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       15948        2216           0       19620           0\n-/+ buffers/cache:        15948       21836\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       18288        1524           0       17972           0\n-/+ buffers/cache:        18288       19496\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       19936        1360           0       16488           0\n-/+ buffers/cache:        19936       17848\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       22160        1192           0       14432           0\n-/+ buffers/cache:        22160       15624\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       23944        1560           0       12280           0\n-/+ buffers/cache:        23944       13840\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       24976        1728           0       11080           0\n-/+ buffers/cache:        24976       12808\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       25496        1468           0       10820           0\n-/+ buffers/cache:        25496       12288\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       26664        1584           0        9536           0\n-/+ buffers/cache:        26664       11120\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       27024        1672           0        9088           0\n-/+ buffers/cache:        27024       10760\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       27784        1608           0        8392           0\n-/+ buffers/cache:        27784       10000\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       28660        1500           0        7624           0\n-/+ buffers/cache:        28660        9124\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       29148        1436           0        7200           0\n-/+ buffers/cache:        29148        8636\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       30148        1552           0        6084           0\n-/+ buffers/cache:        30148        7636\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       30776        1412           0        5596           0\n-/+ buffers/cache:        30776        7008\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       31204        1536           0        5044           0\n-/+ buffers/cache:        31204        6580\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       32080        1008           0        4696           0\n-/+ buffers/cache:        32080        5704\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       32756        1268           0        3760           0\n-/+ buffers/cache:        32756        5028\nSwap:             0           0           0\n              total        used        free      shared  buff/cache   available\nMem:          37784       32844        1220           0        3720           0\n-/+ buffers/cache:        32844        4940\nSwap:             0           0           0\n```\n",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5649271192",
+          "kind": "issue-comment",
+          "author": "bigskookum",
+          "reporter": false,
+          "url": "https://github.com/themactep/thingino-firmware/issues/1636#issuecomment-5649271192",
+          "updatedAt": "2026-09-12T23:01:59Z",
+          "state": null,
+          "body": "I've also seen this, Gino sent me here. T31L camera. Crashes after a few minutes, rolled back to 2026-08-14 and it's fine.",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5663514108",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/themactep/thingino-firmware/issues/1636#issuecomment-5663514108",
+          "updatedAt": "2026-09-14T11:57:05Z",
+          "state": null,
+          "body": "I opened draft PR #1656 to ship the upstream prudynt-t fMP4 cleanup in Thingino.\n\nThe underlying prudynt fix is maintainer commit `354b1b4`: it releases the fMP4 worker claim after the last preview disconnects, avoids writing to an undrained main channel, recycles queued frames, and bounds retained NAL capacity. BCL independently verified the old firmware pin fails the regression check and the proposed pin passes all six source-level checks: https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34840592749\n\n@alump @Goldstrike75 @bigskookum, if a maintainer can provide a candidate image, your hardware results would close the remaining gap. Please open and close Live View ten times with no RTSP client, sample `VmRSS` every five seconds, then leave it running for 50 minutes and confirm there is no OOM/reboot and that RTSP plus fMP4 still play. The PR includes the exact procedure and does not claim firmware hardware verification yet.\n",
+          "read": false
+        }
+      ],
+      "unread": 3,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "b1e94bf750930ee0d09ac0b95e8f02a57807aee5",
+      "reporter": "alump",
+      "issueCreatedAt": "2026-09-12T11:47:59Z",
+      "prCreatedAt": "2026-09-14T11:56:33Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "success",
+      "lastSync": "2026-09-14T14:16:27.475Z",
+      "syncError": null
     },
     {
       "id": "surge-8569",
@@ -1899,12 +2147,79 @@
       "testedHeadSha": "88755e0d44342937d8197aca6bba90ec7db177aa",
       "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34843954537",
-      "state": "open",
+      "state": "closed",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0
+      "events": [
+        {
+          "key": "issue-comment:5663996632",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/surge-synthesizer/surge/issues/8569#issuecomment-5663996632",
+          "updatedAt": "2026-09-14T12:34:10Z",
+          "state": null,
+          "body": "I opened draft PR #8572 with the focused repair and regression test.\n\nThe new test reproduces the missing-map case deterministically: the baseline shifts key 60 to 59, while the candidate uses the MTS period fallback and returns 72. I also built the actual Release test runner locally; the targeted regression and the full `[tun]` suite passed (61,304 assertions across 20 cases). The immutable BCL red/green evidence is here: https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34843954537\n\nThe PR remains draft while the repository's cross-platform checks run. A real MTS-ESP source using a non-octave period is the remaining useful application check.\n",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5664351548",
+          "kind": "issue-comment",
+          "author": "mkruselj",
+          "reporter": true,
+          "url": "https://github.com/surge-synthesizer/surge/issues/8569#issuecomment-5664351548",
+          "updatedAt": "2026-09-14T13:00:42Z",
+          "state": null,
+          "body": "I have opened [a PR](#8574) which fixes this and another semi-related issue (#8570), however I have folded the test from your draft PR because it seemed very useful to have. Thanks for the contrib!",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5664558680",
+          "kind": "issue-comment",
+          "author": "baconpaul",
+          "reporter": false,
+          "url": "https://github.com/surge-synthesizer/surge/issues/8569#issuecomment-5664558680",
+          "updatedAt": "2026-09-14T13:16:59Z",
+          "state": null,
+          "body": "Ooooh hold on. \n\nIn mts-esp mode we have per channel tuning. Channel per octave shouldn't be on in MTS mode.  That is,. it is the job of the MTS source to provide the per channel tuning.\n\nIf surge doesn't do that as a master, we should fix it there. But having the client be 'both what MTS reports on the channel plus an octave shift' is probably not what we want.",
+          "read": false
+        },
+        {
+          "key": "pr-comment:5664053539",
+          "kind": "pr-comment",
+          "author": "mkruselj",
+          "reporter": true,
+          "url": "https://github.com/surge-synthesizer/surge/pull/8572#issuecomment-5664053539",
+          "updatedAt": "2026-09-14T12:47:41Z",
+          "state": null,
+          "body": "Yup, I already have a fix for this issue on a branch, just haven't pushed it yet! And that branch fixes more than one thing, so I would prefer that one to go instead of this one, if you don't mind!",
+          "read": false
+        },
+        {
+          "key": "pr-comment:5664599027",
+          "kind": "pr-comment",
+          "author": "baconpaul",
+          "reporter": false,
+          "url": "https://github.com/surge-synthesizer/surge/pull/8572#issuecomment-5664599027",
+          "updatedAt": "2026-09-14T13:18:13Z",
+          "state": null,
+          "body": "this fix is I think not appropriate\r\n\r\nMTS-ESP has per channel tuning. Surge should consume those and ignore per channel octave shift if it is an MTS client\r\n\r\nIf you would like surge as an MTS source to provide this, we can do that as a separate project",
+          "read": false
+        }
+      ],
+      "unread": 5,
+      "mergeable": true,
+      "mergeableState": "clean",
+      "headSha": "88755e0d44342937d8197aca6bba90ec7db177aa",
+      "reporter": "mkruselj",
+      "issueCreatedAt": "2026-09-14T10:54:48Z",
+      "prCreatedAt": "2026-09-14T12:33:40Z",
+      "mergedAt": null,
+      "reporterResponseAt": "2026-09-14T12:47:41Z",
+      "ci": "none",
+      "lastSync": "2026-09-14T14:16:31.020Z",
+      "syncError": null
     },
     {
       "id": "open-apollo-20",
@@ -1913,14 +2228,61 @@
       "pr": "https://github.com/rolotrealanis98/open-apollo/pull/83",
       "candidateSha256": "0ec4a4ae505c952bb13c0e9b48256f18fc573362c6bde0429f21e4dffc526660",
       "testedHeadSha": "95a733365a64e7d402e0d019e37262534560e36f",
-      "evidenceStatus": "BOUND_CANDIDATE",
+      "evidenceStatus": "STALE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34846846820",
       "state": "open",
       "hardware": {
-        "status": "NOT_REVIEWED"
+        "status": "NOT_REVIEWED",
+        "priorStatus": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0
+      "events": [
+        {
+          "key": "issue-comment:4472552865",
+          "kind": "issue-comment",
+          "author": "emptybottle8709",
+          "reporter": false,
+          "url": "https://github.com/rolotrealanis98/open-apollo/issues/20#issuecomment-4472552865",
+          "updatedAt": "2026-05-17T21:23:08Z",
+          "state": null,
+          "body": "I have installed Open Apollo on Debian 13 today. I had to modify ´install-usb.sh' (line 423) and delete ´midi2.o´ and ´fcp.o´ from makefile to avoid compilation errors. (ChatGPT told me to try that).\n\nApollo Solo USB is working now (only audio output from my monitors tested) in Debian 13. I will try to run all tests and upload the results this week.",
+          "read": false
+        },
+        {
+          "key": "issue-comment:4932022048",
+          "kind": "issue-comment",
+          "author": "TronR2D2",
+          "reporter": false,
+          "url": "https://github.com/rolotrealanis98/open-apollo/issues/20#issuecomment-4932022048",
+          "updatedAt": "2026-07-11T09:03:12Z",
+          "state": null,
+          "body": "Deb 13, Thunderbolt. Hardware detected, install failed because of \n\nSummary ──\n  [FAIL]  deps — install failed: pavucontrol gir1.2-appindicator3-0.1\n\nThe error occurs because gir1.2-appindicator3-0.1 is deprecated or has no installation candidate in modern distributions. In newer Ubuntu and Debian-based systems, it has been replaced by gir1.2-ayatanaappindicator3-0.1\n\nI'm not a Linux expert, so I'm not sure what needs to be done, I assume the install.sh script needs an update or something to reflect the newer version of girl1.2\n\nFix?\nI edited line 313 in the install.sh script and changed \"gir1.2-appindicator3-0.1\" to \"gir1.2-ayatanaappindicator3-0.1\" and now the install script seems to finish without any failure. \n\n",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5664481000",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/rolotrealanis98/open-apollo/issues/20#issuecomment-5664481000",
+          "updatedAt": "2026-09-14T13:09:43Z",
+          "state": null,
+          "body": "I reproduced the Debian 13 dependency failure and prepared #83.\n\nOn the pinned baseline, apt rejects `gir1.2-appindicator3-0.1` with no installation candidate and the dependency step returns 1. The candidate uses `gir1.2-ayatanaappindicator3-0.1`; the same clean Debian 13 transaction completes with return code 0. The package is also available on the supported Ubuntu 20.04, 22.04, and 24.04 bases.\n\nThe PR includes a focused installer regression and the public BCL red/green evidence. No Apollo hardware is required for this package-resolution failure; the issue's playback and capture checklist remains the owner validation after installation.\n",
+          "read": false
+        }
+      ],
+      "unread": 3,
+      "evidenceStaleSince": "2026-09-14T14:16:33.495Z",
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "926c4bb6ff5d2ee95f3c35eab1d378fef10983b8",
+      "reporter": "rolotrealanis98",
+      "issueCreatedAt": "2026-03-23T11:02:15Z",
+      "prCreatedAt": "2026-09-14T13:08:57Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T14:16:33.495Z",
+      "syncError": null
     },
     {
       "id": "amical-165",
@@ -1935,8 +2297,64 @@
       "hardware": {
         "status": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0
+      "events": [
+        {
+          "key": "issue-comment:4980198874",
+          "kind": "issue-comment",
+          "author": "haritabh-z01",
+          "reporter": false,
+          "url": "https://github.com/amicalhq/amical/issues/165#issuecomment-4980198874",
+          "updatedAt": "2026-07-15T11:51:12Z",
+          "state": null,
+          "body": "Based on all my research media recorder should be already handling this.\nCan you please share a mechanism to test this out @fututukamono (virtual mic or whatever mic you use etc)",
+          "read": false
+        },
+        {
+          "key": "issue-comment:4981588966",
+          "kind": "issue-comment",
+          "author": "fututukamono",
+          "reporter": true,
+          "url": "https://github.com/amicalhq/amical/issues/165#issuecomment-4981588966",
+          "updatedAt": "2026-07-15T14:15:08Z",
+          "state": null,
+          "body": "Sure — here's a self-contained repro plus the exact spot in the code.\n\n**Where it happens:** the recorder calls `getUserMedia({ audio: { channelCount: 1, ... } })` and the `audio-recorder-processor` worklet reads only `input[0]`. With `channelCount: 1`, Chromium hands over **only the device's first channel** (it does not downmix), so any input device whose mic sits on channel 2+ records that device's silent channel 1.\n\n**Repro without a pro interface (virtual mic):**\n1. Install **BlackHole 16ch** (free).\n2. Route a test tone (or a real mic via any DAW) to **BlackHole channel 2 only**, leaving channel 1 silent. (Equivalently, a macOS **Aggregate Device** with a silent input as sub-device 1 and your mic as sub-device 2 puts the mic on channel 2.)\n3. Select that device in Amical and record → silence, because only channel 1 is captured.\n\n**Real hardware (mine):** UA Apollo Twin, SM58 on rear input 2 = Core Audio **channel 2**, front Hi-Z (ch1) empty. Amical's WAVs come out at ~**-66 dBFS** (digital silence) — bit-for-bit the interface's silent channel 1, **not** an attenuated downmix, which is what pins it to discrete channel-0 selection. Zoom/Meet capture fine (they take stereo).\n\n**Minimal fix** (mono mics stay unchanged via the fallback):\n```\nchannelCount: 1               → channelCount: 2\nconst channelData = input[0]; → const channelData = input[1] || input[0];\n```\n\nLocal patcher + full writeup: https://github.com/fututukamono/komochi — happy to open a PR with the minimal change, or a fuller version that auto-selects the channel carrying signal.",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5664804945",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/amicalhq/amical/issues/165#issuecomment-5664804945",
+          "updatedAt": "2026-09-14T13:33:15Z",
+          "state": null,
+          "body": "The fix is ready for hardware validation in PR #184: https://github.com/amicalhq/amical/pull/184\n\n@fututukamono, could you please test that build with the Apollo Twin selected, place the microphone or a test tone on input 2 while input 1 is silent, and confirm that the recorded WAV contains the signal and transcription works? If possible, please also repeat once with a mono microphone to confirm the fallback.\n\nThe automated reproduction now passes for a silent channel 1 plus active channel 2, maximum device channel expansion, preservation of the strongest channel without attenuation, mono input, and a device that rejects channel expansion. The full desktop test suite also passes. Physical Apollo validation remains the final check.\n",
+          "read": false
+        },
+        {
+          "key": "pr-comment:5664768896",
+          "kind": "pr-comment",
+          "author": "coderabbitai[bot]",
+          "reporter": false,
+          "url": "https://github.com/amicalhq/amical/pull/184#issuecomment-5664768896",
+          "updatedAt": "2026-09-14T13:37:51Z",
+          "state": null,
+          "body": "<!-- This is an auto-generated comment: summarize by coderabbit.ai -->\n<!-- review_stack_entry_start -->\n\n<a href=\"https://app.coderabbit.ai/change-stack/amicalhq/amical/pull/184#gh-light-mode-only\"><img src=\"https://storage.googleapis.com/coderabbit_public_assets/review-stack-in-coderabbit-ui.svg\" alt=\"Review Change Stack\" width=\"202\" height=\"32\"></a><a href=\"https://app.coderabbit.ai/change-stack/amicalhq/amical/pull/184#gh-dark-mode-only\"><img src=\"https://storage.googleapis.com/coderabbit_public_assets/review-stack-in-coderabbit-ui-dark.svg\" alt=\"Review Change Stack\" width=\"202\" height=\"32\"></a>\n\n<!-- review_stack_entry_end -->\n<!-- recent_review_start -->\n\nNo actionable comments were generated in the recent review. 🎉\n\n<details>\n<summary>ℹ️ Recent review info</summary>\n\n<details>\n<summary>⚙️ Run configuration</summary>\n\n**Configuration used**: defaults\n\n**Review profile**: CHILL\n\n**Plan**: Advanced\n\n**Run ID**: `16a7b1cc-ff13-46bd-b1ad-f15e3e71a9a1`\n\n</details>\n\n<details>\n<summary>📥 Commits</summary>\n\nReviewing files that changed from the base of the PR and between 0d82ae797c4562ed0c7f10d2fb06fa7724c541c0 and 87a7a8f1696b193f5656586ec84489d8ae5b550e.\n\n</details>\n\n<details>\n<summary>📒 Files selected for processing (5)</summary>\n\n* `apps/desktop/src/assets/audio-recorder-processor.js`\n* `apps/desktop/src/hooks/audioCaptureContext.ts`\n* `apps/desktop/src/hooks/audioCaptureDevice.ts`\n* `apps/desktop/tests/renderer/audio-recorder-processor.test.ts`\n* `apps/desktop/tests/renderer/use-audio-capture.test.ts`\n\n</details>\n\n**Included review availability:** Your plan provides up to 4 included reviews per hour; 3 remain after this review.\n\n</details>\n\n---\n\n\n\n<!-- recent_review_end -->\n<!-- walkthrough_start -->\n\n<details>\n<summary>📝 Walkthrough</summary>\n\n## Walkthrough\n\nThe microphone capture path now requests and configures multiple channels. The audio worklet selects the channel with the highest signal power. Tests cover channel selection, worklet options, expansion, and fallback behavior.\n\n### Changes\n\n**Multichannel microphone capture**\n\n|Layer / File(s)|Summary|\n|---|---|\n|**Capture configuration and fallback** <br> `apps/desktop/src/hooks/audioCaptureDevice.ts`, `apps/desktop/src/hooks/audioCaptureContext.ts`, `apps/desktop/tests/renderer/use-audio-capture.test.ts`|Microphone capture requests stereo and attempts expansion to the device maximum. The worklet uses discrete maximum-channel options. Failed expansion keeps stereo capture and logs a warning. Tests cover these options and fallback paths.|\n|**Strongest-channel processing** <br> `apps/desktop/src/assets/audio-recorder-processor.js`, `apps/desktop/tests/renderer/audio-recorder-processor.test.ts`|The processor compares mean squared power across non-empty channels and uses the strongest channel. Tests cover silent first channels and unattenuated strongest-channel selection.|\n\n<!-- change_assessment_start -->\n**Priority:** ➖ Normal\n\n**Estimated code review effort:** 3 (Moderate) | ~25 minutes\n\n<!-- change_assessment_commit:\"87a7a8f1696b193f5656586ec84489d8ae5b550e\" -->\n**Change:** Bug fix\n<!-- change_assessment_end -->\n\n### Sequence Diagram(s)\n\n```mermaid\nsequenceDiagram\n  participant Microphone\n  participant AudioCaptureDevice\n  participant AudioWorkletNode\n  participant AudioRecorderProcessor\n  Microphone->>AudioCaptureDevice: Provide stereo or expanded track\n  AudioCaptureDevice->>AudioWorkletNode: Pass multichannel audio with discrete routing\n  AudioWorkletNode->>AudioRecorderProcessor: Deliver channel buffers\n  AudioRecorderProcessor->>AudioRecorderProcessor: Compute channel power and select strongest channel\n```\n\n**Suggested reviewers:** `haritabh-z01`\n\n</details>\n\n<!-- walkthrough_end -->\n<!-- final_review_risk_start -->\n**Merge Risk:** _⚪ Minimal_ · up to `87a7a`\n<!-- final_review_risk_coverage:{\"sourceCommitId\":\"87a7a8f1696b193f5656586ec84489d8ae5b550e\",\"coveredCommitId\":\"87a7a8f1696b193f5656586ec84489d8ae5b550e\",\"kind\":\"reviewed\"} -->\n\nThe multichannel capture behavior and stereo fallback are covered by automated tests, with no actionable merge-blocking issue identified.\n<!-- final_review_risk_end -->\n<!-- pre_merge_checks_walkthrough_start -->\n\n<details>\n<summary>🚥 Pre-merge checks | ✅ 4 | ❌ 1</summary>\n\n### ❌ Failed checks (1 warning)\n\n|     Check name     | Status     | Explanation                                                                                                                                                                               | Resolution                                                                         |\n| :----------------: | :--------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |\n| Docstring Coverage | ⚠️ Warning | Docstring coverage is 0.00% which is insufficient. The required threshold is 80.00%. Docstring coverage is scoped to functions touched by this diff. Analyzed 4 functions across 5 files. | Write docstrings for the functions missing them to satisfy the coverage threshold. |\n\n<details>\n<summary>✅ Passed checks (4 passed)</summary>\n\n|         Check name         | Status   | Explanation                                                                                                                       |\n| :------------------------: | :------- | :-------------------------------------------------------------------------------------------------------------------------------- |\n|      Description Check     | ✅ Passed | Check skipped - CodeRabbit’s high-level summary is enabled.                                                                       |\n|         Title check        | ✅ Passed | The title clearly and concisely describes the primary change: selecting the active microphone channel on multichannel interfaces. |\n|     Linked Issues check    | ✅ Passed | Check skipped because no linked issues were found for this pull request.                                                          |\n| Out of Scope Changes check | ✅ Passed | Check skipped because no linked issues were found for this pull request.                                                          |\n\n</details>\n\n</details>\n\n<!-- pre_merge_checks_walkthrough_end -->\n\n- [ ] <!-- {\"checkboxId\":\"585bb3f6-faf5-4dbf-96d2-74e382adf19a\"} --> Fix all pre-merge checks with AI\n<!-- finishing_touch_checkbox_start -->\n\n<details>\n<summary>✨ Finishing Touches</summary>\n\n<details>\n<summary>🧪 Generate unit tests (beta)</summary>\n\n- [ ] <!-- {\"checkboxId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\", \"radioGroupId\": \"utg-output-choice-group-unknown_comment_id\"} -->   Create PR with unit tests\n\n</details>\n\n</details>\n\n<!-- finishing_touch_checkbox_end -->\n<!-- tips_start -->\n\n---\n\nThanks for using [CodeRabbit](https://coderabbit.ai?utm_source=oss&utm_medium=github&utm_campaign=amicalhq/amical&utm_content=184)! It's free for OSS, and your support helps us grow. If you like it, consider giving us a shout-out.\n\n<details>\n<summary>❤️ Share</summary>\n\n- [X](https://twitter.com/intent/tweet?text=I%20just%20used%20%40coderabbitai%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20the%20proprietary%20code.%20Check%20it%20out%3A&url=https%3A//coderabbit.ai)\n- [Mastodon](https://mastodon.social/share?text=I%20just%20used%20%40coderabbitai%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20the%20proprietary%20code.%20Check%20it%20out%3A%20https%3A%2F%2Fcoderabbit.ai)\n- [Reddit](https://www.reddit.com/submit?title=Great%20tool%20for%20code%20review%20-%20CodeRabbit&text=I%20just%20used%20CodeRabbit%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20proprietary%20code.%20Check%20it%20out%3A%20https%3A//coderabbit.ai)\n- [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fcoderabbit.ai&mini=true&title=Great%20tool%20for%20code%20review%20-%20CodeRabbit&summary=I%20just%20used%20CodeRabbit%20for%20my%20code%20review%2C%20and%20it%27s%20fantastic%21%20It%27s%20free%20for%20OSS%20and%20offers%20a%20free%20trial%20for%20proprietary%20code)\n\n</details>\n\n\n<sub>Comment `@coderabbitai help` to get the list of available commands.</sub>\n\n<!-- tips_end -->",
+          "read": false
+        }
+      ],
+      "unread": 4,
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "87a7a8f1696b193f5656586ec84489d8ae5b550e",
+      "reporter": "fututukamono",
+      "issueCreatedAt": "2026-07-10T15:30:31Z",
+      "prCreatedAt": "2026-09-14T13:30:30Z",
+      "mergedAt": null,
+      "reporterResponseAt": "2026-07-15T14:15:08Z",
+      "ci": "success",
+      "lastSync": "2026-09-14T14:16:36.172Z",
+      "syncError": null
     },
     {
       "id": "openmixercontrol-80",
@@ -1951,8 +2369,31 @@
       "hardware": {
         "status": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0
+      "events": [
+        {
+          "key": "issue-comment:5664950328",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/OpenMixerProject/OpenMixerControl/issues/80#issuecomment-5664950328",
+          "updatedAt": "2026-09-14T13:43:59Z",
+          "state": null,
+          "body": "I traced the mismatch through the physical surface callback and conversion helpers. The console supplies a raw 12-bit value (`0..4095`) as `uint16_t`; only `Volume::SetFadervalue` exposed `float`, then immediately narrowed it again.\n\nPR #93 makes the setter declaration and definition use the same raw integer type: https://github.com/OpenMixerProject/OpenMixerControl/pull/93\n\nBCL reproduced the mismatch on the pinned baseline and passed four contract checks on the candidate: https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34850745991\n\nThe production diff is two lines. The repository's target CI and a physical fader sweep remain the final integration checks.\n",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "clean",
+      "headSha": "4616fc949c9e05e78f2e7d0ebca17af902e61e16",
+      "reporter": "DrEVILish",
+      "issueCreatedAt": "2026-06-30T12:46:19Z",
+      "prCreatedAt": "2026-09-14T13:42:42Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T14:16:38.972Z",
+      "syncError": null
     },
     {
       "id": "transcripted-1734",
@@ -1963,12 +2404,24 @@
       "testedHeadSha": "4274c81f5b910d993c7fecbaf85704e5697581b5",
       "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34853798547",
-      "state": "open",
+      "state": "draft",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0,
+      "events": [
+        {
+          "key": "issue-comment:5665387808",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/r3dbars/transcripted/issues/1734#issuecomment-5665387808",
+          "updatedAt": "2026-09-14T14:14:46Z",
+          "state": null,
+          "body": "I traced this to the input binding path and opened a focused draft fix in #1735.\n\nThe app currently reads AUHAL's `deviceID` immediately after `setDeviceID`. A USB driver such as the C920 can accept that command and publish the new ID asynchronously, so Transcripted rejects the route before its existing 300 ms settle check. The PR lets a successful route command reach that delayed check; driver errors and routes that are still stale afterward remain rejected.\n\nThe deterministic regression is red on the pinned baseline and green with the patch. BCL also reproduced the source-level red/green contract in [this run](https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34853798547). I do not have the physical C920, so could you test the draft build on the same setup and confirm whether dictation starts normally after switching microphones? Please also check that disconnecting the C920 still reports it unavailable.\n",
+          "read": false
+        }
+      ],
+      "unread": 1,
       "mergeable": true,
       "mergeableState": "blocked",
       "headSha": "4274c81f5b910d993c7fecbaf85704e5697581b5",
@@ -1978,7 +2431,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T14:11:38.032Z",
+      "lastSync": "2026-09-14T14:16:41.615Z",
       "syncError": null,
       "attachment": "BCL_EXISTING_PR"
     }

@@ -1219,6 +1219,34 @@
       "lastSync": "2026-09-14T06:44:15.183Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "cameractrls-118",
+      "title": "Bound PTZ helper discovery during camera GUI startup",
+      "issue": "https://github.com/soyersoyer/cameractrls/issues/118",
+      "pr": "https://github.com/soyersoyer/cameractrls/pull/119",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0,
+      "mergeable": true,
+      "mergeableState": "clean",
+      "headSha": "fd90de8403462fae6c8b799d0e31ed9e5cf385b1",
+      "reporter": "Vanne11",
+      "issueCreatedAt": "2026-09-10T17:34:10Z",
+      "prCreatedAt": "2026-09-14T06:48:21Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T06:48:39.951Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

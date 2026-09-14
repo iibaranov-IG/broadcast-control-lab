@@ -71,6 +71,14 @@ test('baseline setup may not apply production repairs', t => {
   f.c.upstream.setup = [{ cwd: '.', argv: [process.execPath, '-e', 'require("fs").writeFileSync("impl.cjs", "module.exports=()=>2")'] }]
   assert.throws(() => f.s.baseline(), /modified production/)
 })
+test('dirty baseline error identifies every tracked file', t => {
+  const f = fixture(t)
+  const git = args => execFileSync('git', ['-C', f.source, ...args], { stdio: 'pipe' })
+  git(['init', '-q']); git(['add', '.']); git(['-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'baseline'])
+  fs.appendFileSync(path.join(f.source, 'impl.cjs'), '// dirty\n')
+  fs.appendFileSync(path.join(f.source, 'suite.cjs'), '// dirty\n')
+  assert.throws(() => f.s.baseline(), /impl\.cjs, suite\.cjs/)
+})
 test('empty or entirely skipped suites do not qualify; supported summaries record totals', () => {
   assert.throws(() => suiteSummary('python', 'Ran 0 tests'), /nonempty/)
   assert.throws(() => suiteSummary('python', 'Ran 2 tests\nOK (skipped=2)'), /nonempty/)

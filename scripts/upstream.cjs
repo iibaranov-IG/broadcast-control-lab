@@ -79,7 +79,10 @@ function session(root, c, execution) {
   }
   return {
     baseline() {
-      if (fs.existsSync(path.join(source, '.git')) && trackedChanges().length) throw new Error('Upstream baseline already contains tracked modifications')
+      if (fs.existsSync(path.join(source, '.git'))) {
+        const changed = trackedChanges()
+        if (changed.length) throw new Error(`Upstream baseline already contains tracked modifications: ${changed.join(', ')}`)
+      }
       u.setup.forEach(step => command('setup', step))
       if (fs.existsSync(path.join(source, '.git')) && trackedChanges().some(p => !u.testFiles.includes(p))) throw new Error('Baseline setup modified production files outside declared regression tests')
       if (u.kind === 'python') { clearBytecode(source); fs.rmSync(pythonCache, { recursive: true, force: true }) }

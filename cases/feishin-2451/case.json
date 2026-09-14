@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 2,
+  "id": "feishin-2451",
+  "status": "ready",
+  "title": "Fall back to direct playback when OpenSubsonic transcode decision is blocked",
+  "issue": "https://github.com/jeffvli/feishin/issues/2451",
+  "problem": "Feishin leaves playback at 0:00 when a server permits direct streaming but its CORS policy blocks the optional JSON getTranscodeDecision request.",
+  "reproduce": "Use Feishin in a browser against Ampache 8.1.0 with transcoding disabled and a CORS policy that rejects the content-type request header; selecting a track rejects the decision request before a stream URL is returned.",
+  "acceptance": "A transport or CORS failure from getTranscodeDecision is logged and returns the existing direct stream URL; successful transcode decisions and the existing non-200 fallback remain unchanged.",
+  "repair": "Catch failure of the optional transcode-decision request and use the same direct-stream fallback already used for non-200 decision responses.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "jeffvli/feishin",
+      "commit": "08179d2caa8267102a5932e70d02ed30f0088f1c",
+      "directory": "sources/feishin-2451"
+    }
+  ],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/feishin-2451",
+        "argv": ["git", "apply", "../../cases/feishin-2451/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": ["node", "cases/feishin-2451/test.mjs", "sources/feishin-2451"]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": { "report": "reports/feishin-2451.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the pinned source fails before the repair and passes after it, including both direct-stream fallback paths. ESLint, the renderer typecheck and the repository staged-file checks passed separately. Live Ampache browser playback still requires reporter validation.",
+    "ownerCheck": "Install the draft build in the reported Unity-free Feishin web setup against Ampache 8.1.0, keep transcoding disabled, play a track and confirm playback starts through stream.view after the getTranscodeDecision CORS error. Record browser, Feishin build and Ampache version."
+  },
+  "selection": {
+    "report": "cases/feishin-2451/triage.json",
+    "sha256": "35806e8822731ead71a495c77abf9e07b69fb1f90a9062377e5c2eb2b986fd48",
+    "reason": "A same-day playback failure includes the exact CORS error, a working direct stream endpoint and an active reporter. The repair is localized and the official OpenSubsonic contract confirms the JSON request must remain a POST."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "jeffvli/feishin",
+    "base": "development",
+    "paths": ["src/renderer/api/subsonic/subsonic-controller.ts"],
+    "verificationOnlyPaths": ["tests/test_transcode_fallback_bcl.mjs"]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": ["git", "apply", "../../cases/feishin-2451/tests-only.patch"]
+      }
+    ],
+    "build": [],
+    "testFiles": ["tests/test_transcode_fallback_bcl.mjs"],
+    "regression": {
+      "cwd": ".",
+      "argv": ["node", "--test", "tests/test_transcode_fallback_bcl.mjs"]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "catch"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": ["node", "--test", "tests/test_transcode_fallback_bcl.mjs"]
+    },
+    "suiteOutputIncludes": "# tests 1"
+  }
+}

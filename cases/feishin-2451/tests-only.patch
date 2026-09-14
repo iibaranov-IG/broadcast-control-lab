@@ -1,0 +1,23 @@
+diff --git a/tests/test_transcode_fallback_bcl.mjs b/tests/test_transcode_fallback_bcl.mjs
+new file mode 100644
+index 0000000..8825a32
+--- /dev/null
++++ b/tests/test_transcode_fallback_bcl.mjs
+@@ -0,0 +1,17 @@
++import assert from 'node:assert/strict'
++import fs from 'node:fs'
++import test from 'node:test'
++
++const source = fs.readFileSync('src/renderer/api/subsonic/subsonic-controller.ts', 'utf8')
++const decisionStart = source.indexOf('const transcodeDecision = await ssApiClient(apiClientProps)')
++const statusFallback = source.indexOf('if (transcodeDecision.status !== 200)', decisionStart)
++const decisionBlock = source.slice(decisionStart, statusFallback)
++
++test('a failed optional transcode decision falls back to direct streaming', () => {
++  assert.ok(decisionStart >= 0, 'transcode decision request is present')
++  assert.match(decisionBlock, /\.getTranscodeDecision\([\s\S]*?\)\s*\.catch\(\(error: unknown\) => \{/)
++  assert.match(decisionBlock, /logger\.warn\([\s\S]*?falling back to direct stream/)
++  assert.match(decisionBlock, /return null;/)
++  assert.match(decisionBlock, /if \(!transcodeDecision\) \{\s*return streamUrl;\s*\}/)
++  assert.match(source.slice(statusFallback, statusFallback + 400), /if \(transcodeDecision\.status !== 200\) \{[\s\S]*?return streamUrl;/)
++})

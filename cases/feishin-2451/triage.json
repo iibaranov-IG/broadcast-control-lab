@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T10:50:40.928Z",
+  "issue": {
+    "repository": "jeffvli/feishin",
+    "number": "2451",
+    "url": "https://github.com/jeffvli/feishin/issues/2451",
+    "title": "[Bug]: Feishin does not start playback with Ampache OpenSubsonic",
+    "state": "open",
+    "updatedAt": "2026-09-14T10:02:45Z"
+  },
+  "source": {
+    "repository": "jeffvli/feishin",
+    "requestedRef": null,
+    "defaultBranch": "development",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "08179d2caa8267102a5932e70d02ed30f0088f1c",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "AGENTS.md",
+        "url": "https://github.com/jeffvli/feishin/blob/08179d2caa8267102a5932e70d02ed30f0088f1c/AGENTS.md",
+        "content": "## General guidelines\n\n- Never use the em dash \"—\". Use plain dash \"-\" instead.\n- On an explicit commit request: `git add` the changes, run `pnpm lint:staged`, then commit. It lints only staged TS/TSX/CSS/SCSS via eslint+stylelint and auto-fixes; typecheck runs in CI (`test.yml`), not locally. Do not stage or run it outside a commit request.\n\n## Agent skills\n\n### Issue tracker\n\nIssues live as markdown under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.\n\n### Triage labels\n\nDefault vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.\n\n### Domain docs\n\nSingle-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.\n\n### Architecture\n\nProcess boundaries (main / preload / renderer / remote / web, `window.api`, import rules): read `docs/agents/architecture.md` when crossing processes or builds.\n\n### API\n\nServer library data layer (controller, query keys, normalize): read `docs/agents/api.md` when adding or changing fetches, mutations, or backend mapping. Upstream OpenAPI links inside that doc — fetch only as a last resort when in-repo types/controllers are insufficient.\n\n### Mantine\n\nWrapped UI lives under `/@/shared/components` and `/@/shared/hooks`. Read `docs/agents/mantine.md` only when debugging those wrappers or adding a new wrapped component/hook.\n\n### Frontend\n\nRenderer UI (imports, composition, CSS Modules, theme, i18n/icons/toasts/modals, Zustand): read `docs/agents/frontend.md` when writing or changing frontend UI, styles, or client state.\n\n### Logging\n\nApp logging (renderer `logger` / main `log`): read `docs/agents/logging.md` when adding or changing diagnosable code paths — failures, fallbacks, engine/connection lifecycle.\n\n### Commits\n\nConventional Commits + allowed scopes: read `docs/agents/commits.md` when writing a commit message. Enforced by commitlint in CI.\n\n## Working mode\n\nPonytail (lazy senior / YAGNI ladder) on coding tasks. See the `ponytail` skill.\n",
+        "requirementHints": [
+          "- On an explicit commit request: `git add` the changes, run `pnpm lint:staged`, then commit. It lints only staged TS/TSX/CSS/SCSS via eslint+stylelint and auto-fixes; typecheck runs in CI (`test.yml`), not locally. Do not stage or run it outside a commit request.",
+          "### Commits",
+          "Conventional Commits + allowed scopes: read `docs/agents/commits.md` when writing a commit message. Enforced by commitlint in CI."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/jeffvli/feishin/blob/08179d2caa8267102a5932e70d02ed30f0088f1c/CONTRIBUTING.md",
+        "content": "# Contributing to Feishin\n\nThanks for your interest in contributing!\n\nCheck the existing [issues](https://github.com/jeffvli/feishin/issues).\n\n## IMPORTANT\n\nFor feature contributions that do not have an existing feature request, please open an issue, discussion, or ask [Feishin discord server](https://discord.gg/FVKpcMDy5f) **BEFORE** beginning to implement it to determine whether or not the feature would be acceptable for the app. Simply submitting a large feature with thousands of new or changed lines of code without asking if the feature is desired for the application will run the risk of instant closure.\n\nBug fixes are likely to be accepted without discussion.\n\n## Development environment\n\nFeishin is built and tested with Node.js `v23.11.0` and pnpm `11.5.2`. Newer versions of Node.js are also supported.\n\nUseful development commands include:\n\n- `pnpm run dev` - Start the electron app development environment\n- `pnpm run dev:watch` - Start the electron app development environment with main process autoreloading\n- `pnpm run package:dev` - Quick unpacked production build\n- `pnpm run build:remote` - Manually rebuild the remote app if you make changes\n\n## AI Disclosure\n\nAI-generated code **is accepted** under the following conditions:\n\n1. You are a professional or hobbyist developer using agentic coding as a tool rather than a crutch\n2. You are manually reviewing the output code before submitting the pull-request\n3. You are manually testing the functionality of your code before submitting the pull-request\n\nPull requests are **manually reviewed** by maintainers which means that submitting any form of slop wastes our precious time that could otherwise go towards fixing bugs or implementing new features.\n\n## Pull requests\n\nPlease include:\n\n- A clear description of the change\n- Screenshots or recordings for UI changes if applicable\n\n## Translations\n\nTranslations are managed through [Weblate](https://hosted.weblate.org/projects/feishin/). You only need to include translation strings for the `en.json` file. Do not manually update the other language files as these are handled directly by volunteer translators.\n",
+        "requirementHints": [
+          "For feature contributions that do not have an existing feature request, please open an issue, discussion, or ask [Feishin discord server](https://discord.gg/FVKpcMDy5f) **BEFORE** beginning to implement it to determine whether or not the feature would be acceptable for the app. Simply submitting a large feature with thousands of new or changed lines of code without asking if the feature is desired for the application will run the risk of instant closure.",
+          "Feishin is built and tested with Node.js `v23.11.0` and pnpm `11.5.2`. Newer versions of Node.js are also supported.",
+          "2. You are manually reviewing the output code before submitting the pull-request",
+          "3. You are manually testing the functionality of your code before submitting the pull-request",
+          "Pull requests are **manually reviewed** by maintainers which means that submitting any form of slop wastes our precious time that could otherwise go towards fixing bugs or implementing new features.",
+          "## Pull requests"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "assets/assets.d.ts",
+      "commitlint.config.mjs",
+      "electron.vite.config.ts",
+      "eslint.config.mjs",
+      "postcss.config.cjs",
+      "remote.vite.config.ts",
+      "scripts/after-all-artifact-build.mjs",
+      "scripts/update-app-stream.mjs",
+      "src/i18n/i18n.ts",
+      "src/i18n/i18next-parser.config.js"
+    ],
+    "buildFiles": [
+      {
+        "path": "package.json",
+        "kind": "node",
+        "url": "https://github.com/jeffvli/feishin/blob/08179d2caa8267102a5932e70d02ed30f0088f1c/package.json"
+      }
+    ],
+    "nodeScripts": [
+      "build",
+      "build:electron",
+      "build:remote",
+      "build:web",
+      "dev",
+      "dev:remote",
+      "dev:validate-api",
+      "dev:watch",
+      "i18next",
+      "postinstall",
+      "lint",
+      "lint:commits",
+      "lint:fix",
+      "lint:staged",
+      "lint-code",
+      "lint-code:fix",
+      "lint-styles",
+      "lint-styles:fix",
+      "package",
+      "package:dev",
+      "package:linux",
+      "package:linux:pr",
+      "package:linux-arm64:pr",
+      "package:mac",
+      "package:mac:pr",
+      "package:win",
+      "package:win:pr",
+      "package:win-arm64:pr",
+      "publish:linux",
+      "publish:linux:alpha",
+      "publish:linux:beta",
+      "publish:linux-arm64",
+      "publish:linux-arm64:alpha",
+      "publish:linux-arm64:beta",
+      "publish:mac",
+      "publish:mac:alpha",
+      "publish:mac:beta",
+      "publish:win",
+      "publish:win:alpha",
+      "publish:win:beta",
+      "publish:win-arm64",
+      "publish:win-arm64:alpha",
+      "publish:win-arm64:beta",
+      "start",
+      "typecheck",
+      "typecheck:node",
+      "typecheck:web",
+      "version",
+      "postversion"
+    ],
+    "nodeDependencyCount": 120
+  },
+  "findings": [
+    {
+      "code": "NONREGISTRY_DEPENDENCIES",
+      "severity": "info",
+      "detail": "package.json references Git/local/workspace dependencies; resolve them before scheduling a build. Resolved for this revision: The sole Git-hosted runtime package is pinned to an exact commit in the lockfile; a frozen pnpm install completed and the repair changes no dependency manifest.",
+      "url": "https://github.com/jeffvli/feishin/blob/08179d2caa8267102a5932e70d02ed30f0088f1c/package.json",
+      "resolution": {
+        "reason": "The sole Git-hosted runtime package is pinned to an exact commit in the lockfile; a frozen pnpm install completed and the repair changes no dependency manifest.",
+        "evidence": [
+          "https://github.com/jeffvli/feishin/blob/08179d2caa8267102a5932e70d02ed30f0088f1c/pnpm-lock.yaml",
+          "https://github.com/jeffvli/feishin/blob/08179d2caa8267102a5932e70d02ed30f0088f1c/package.json"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:jeffvli/feishin": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 90,
+    "scoreRange": [
+      89,
+      90
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Playback never starts and remains at 0:00 for the affected server.",
+        "evidence": [
+          "https://github.com/jeffvli/feishin/issues/2451"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The complete report arrived today.",
+        "evidence": [
+          "https://github.com/jeffvli/feishin/issues/2451"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter provided precise CORS output and offered headers.",
+        "evidence": [
+          "https://github.com/jeffvli/feishin/issues/2451"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "A failed optional decision request must return the existing direct stream URL.",
+        "evidence": [
+          "src/renderer/api/subsonic/subsonic-controller.ts"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 4,
+        "reason": "The browser network failure maps directly to the uncaught Axios rejection; a focused source regression covers the fallback.",
+        "evidence": [
+          "https://github.com/jeffvli/feishin/issues/2451"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "One request path gains a localized catch and fallback.",
+        "evidence": [
+          "src/renderer/api/subsonic/subsonic-controller.ts"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Lint and full renderer typecheck are local; the reporter owns the live Ampache setup.",
+        "evidence": [
+          "https://github.com/jeffvli/feishin/issues/2451"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Only a previously fatal decision-request exception changes, to the same direct-stream fallback already used for non-200 responses.",
+        "evidence": [
+          "src/renderer/api/subsonic/subsonic-controller.ts"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The source revision and issue are current.",
+        "evidence": [
+          "https://github.com/jeffvli/feishin"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fallback helps browser clients behind imperfect OpenSubsonic CORS implementations.",
+        "evidence": [
+          "https://github.com/jeffvli/feishin/issues/2451"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The behavior applies to any OpenSubsonic server whose optional decision call fails while direct streaming works.",
+        "evidence": [
+          "src/renderer/api/subsonic/subsonic-controller.ts"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "Restoring stream URL generation unblocks the rest of the player pipeline.",
+        "evidence": [
+          "https://github.com/jeffvli/feishin/issues/2451"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 95,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      95,
+      90
+    ],
+    "selectable": true
+  },
+  "durationMs": 4496
+}

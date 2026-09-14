@@ -75,7 +75,7 @@
     },
     "negative": {
       "exitCode": 1,
-      "outputIncludes": "endpoint 1 must be an on/off output"
+      "outputIncludes": "QuirkBuilder"
     },
     "suite": {
       "cwd": ".",

@@ -1937,6 +1937,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "openmixercontrol-80",
+      "title": "Make the raw fader value type consistent",
+      "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/80",
+      "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/93",
+      "candidateSha256": "75f181943f0f0d26517d1c408e684757c2a3a0987f84e0102a3a60ded1b440e5",
+      "testedHeadSha": "be3c4c74e34aef34e927e5ffeccef8be23ffd14c",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34850745991",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

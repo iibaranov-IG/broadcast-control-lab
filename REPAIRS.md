@@ -56,6 +56,7 @@ Updated 2026-09-11.
 | surge-8569 | [Issue](https://github.com/surge-synthesizer/surge/issues/8569) | [PR](https://github.com/surge-synthesizer/surge/pull/8572) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | open-apollo-20 | [Issue](https://github.com/rolotrealanis98/open-apollo/issues/20) | [PR](https://github.com/rolotrealanis98/open-apollo/pull/83) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | amical-165 | [Issue](https://github.com/amicalhq/amical/issues/165) | [PR](https://github.com/amicalhq/amical/pull/184) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
+| openmixercontrol-80 | [Issue](https://github.com/OpenMixerProject/OpenMixerControl/issues/80) | [PR](https://github.com/OpenMixerProject/OpenMixerControl/pull/93) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

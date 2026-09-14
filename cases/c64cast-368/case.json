@@ -83,6 +83,7 @@
   },
   "upstream": {
     "kind": "python",
+    "sourceBytecode": true,
     "source": "upstream",
     "timeoutMs": 600000,
     "setup": [

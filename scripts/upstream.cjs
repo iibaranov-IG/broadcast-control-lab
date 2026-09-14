@@ -16,6 +16,7 @@ function validate(c, relative) {
   const u = c.upstream
   if (!u) return
   if (!['cpp-cmake', 'cpp-autotools', 'python', 'node'].includes(u.kind)) throw new Error('Unsupported upstream kind')
+  if (u.sourceBytecode !== undefined && typeof u.sourceBytecode !== 'boolean') throw new Error('sourceBytecode must be boolean')
   if (!c.sources.some(s => s.id === u.source)) throw new Error('Unknown upstream source')
   if (c.publish && c.publish.source !== u.source) throw new Error('Upstream and publication must use the same source')
   for (const key of ['setup', 'build']) if (!Array.isArray(u[key])) throw new Error(`Missing upstream ${key}`)
@@ -36,7 +37,7 @@ function session(root, c, execution) {
   const directory = path.join(root, 'reports', c.id)
   fs.mkdirSync(directory, { recursive: true })
   const pythonCache = path.join(directory, 'python-cache')
-  const pythonEnv = { ...process.env, PYTHONPYCACHEPREFIX: pythonCache }
+  const pythonEnv = u.sourceBytecode ? process.env : { ...process.env, PYTHONPYCACHEPREFIX: pythonCache }
   const result = execution.upstream = { kind: u.kind, source: u.source, status: 'FAIL', commands: [], logs: [], testFiles: [] }
   const inside = p => {
     const real = fs.realpathSync(path.join(source, p))

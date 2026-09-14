@@ -3,7 +3,7 @@ new file mode 100644
 index 0000000..96c242d
 --- /dev/null
 +++ b/tests/test_hobeian_bcl.mjs
-@@ -0,0 +1,19 @@
+@@ -0,0 +1,20 @@
 +import assert from 'node:assert/strict'
 +import fs from 'node:fs'
 +import test from 'node:test'

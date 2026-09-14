@@ -71,7 +71,10 @@ function containerRun(c, { harness = false, shared = null, legacy = false } = {}
       const git = args => exec('git', ['-c', 'core.hooksPath=/dev/null', '-C', destination, ...args])
       git(['init', '--quiet'])
       git(['remote', 'add', 'origin', `https://github.com/${source.repository}.git`])
-      require('./retry.cjs').retrySync(() => exec('git', ['-c', 'core.hooksPath=/dev/null', '-C', destination, 'fetch', '--quiet', '--depth=1', 'origin', source.commit], { stdio: 'pipe', timeout: 60000 }))
+      // Large media and audio repositories can legitimately need more than a minute
+      // for their immutable, depth-one source fetch. Passport commands retain their
+      // own tighter limits and still run later with networking disabled.
+      require('./retry.cjs').retrySync(() => exec('git', ['-c', 'core.hooksPath=/dev/null', '-C', destination, 'fetch', '--quiet', '--depth=1', 'origin', source.commit], { stdio: 'pipe', timeout: 300000 }))
       git(['checkout', '--quiet', '--detach', 'FETCH_HEAD'])
       }
       const destination = path.join(stage, source.directory)

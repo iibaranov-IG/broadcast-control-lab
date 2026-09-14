@@ -2478,6 +2478,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "blueye-sdk-225",
+      "title": "Preserve multibeam recording during camera recording commands",
+      "issue": "https://github.com/BluEye-Robotics/blueye.sdk/issues/225",
+      "pr": "https://github.com/BluEye-Robotics/blueye.sdk/pull/226",
+      "candidateSha256": "b5088aa76ecb3f359ee5768ea15d3e144816d126baabd6cf42db9540efe7b44d",
+      "testedHeadSha": "afe4af5dba567c205840fe6378e6582a7a12c271",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34872569365",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

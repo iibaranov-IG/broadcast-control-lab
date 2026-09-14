@@ -60,6 +60,7 @@ Updated 2026-09-11.
 | transcripted-1734 | [Issue](https://github.com/r3dbars/transcripted/issues/1734) | [PR](https://github.com/r3dbars/transcripted/pull/1735) | draft | none | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-14T14:16:41.615Z |
 | camera-gallery-card-237 | [Issue](https://github.com/TheScubaDiver/camera-gallery-card/issues/237) | [PR](https://github.com/TheScubaDiver/camera-gallery-card/pull/238) | open | success | NOT_BOUND | 0 | NOT_REVIEWED | 2026-09-14T15:00:42.840Z |
 | noisy-studio-99 | [Issue](https://github.com/noisy/noisy-studio/issues/99) | [PR](https://github.com/noisy/noisy-studio/pull/103) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
+| blueye-sdk-225 | [Issue](https://github.com/BluEye-Robotics/blueye.sdk/issues/225) | [PR](https://github.com/BluEye-Robotics/blueye.sdk/pull/226) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

@@ -12,6 +12,23 @@ function suiteSummary(kind, text) {
   if (total <= 0 || skipped >= total) throw new Error('Upstream suite has no recognized nonempty executed-test summary')
   return { total, skipped, parser: kind, source: 'upstream output; successful exit required' }
 }
+function clearBytecode(directory) {
+  let entries
+  try { entries = fs.readdirSync(directory, { withFileTypes: true }) }
+  catch (error) {
+    // A case-insensitive checkout can expose colliding Git paths to a
+    // case-sensitive container as a directory entry which has no resolvable path.
+    if (error.code === 'ENOENT') return
+    throw error
+  }
+  for (const e of entries) {
+    if (e.isSymbolicLink() || ['.git', '.venv', 'node_modules'].includes(e.name)) continue
+    const p = path.join(directory, e.name)
+    if (e.isDirectory() && e.name === '__pycache__') fs.rmSync(p, { recursive: true, force: true })
+    else if (e.isDirectory()) clearBytecode(p)
+    else if (e.isFile() && /\.py[co]$/.test(e.name)) fs.rmSync(p, { force: true })
+  }
+}
 function validate(c, relative) {
   const u = c.upstream
   if (!u) return
@@ -46,15 +63,6 @@ function session(root, c, execution) {
   }
   const tests = () => u.testFiles.map(p => ({ path: p, sha256: hash(fs.readFileSync(inside(p))) }))
   const trackedChanges = () => execFileSync('git', ['-C', source, 'diff', '--name-only', 'HEAD'], { encoding: 'utf8' }).trim().split('\n').filter(Boolean)
-  function clearBytecode(directory) {
-    for (const e of fs.readdirSync(directory, { withFileTypes: true })) {
-      if (e.isSymbolicLink() || ['.git', '.venv', 'node_modules'].includes(e.name)) continue
-      const p = path.join(directory, e.name)
-      if (e.isDirectory() && e.name === '__pycache__') fs.rmSync(p, { recursive: true })
-      else if (e.isDirectory()) clearBytecode(p)
-      else if (e.isFile() && /\.py[co]$/.test(e.name)) fs.unlinkSync(p)
-    }
-  }
   function command(label, step, expected = 0, marker = '') {
     const name = `upstream-${result.commands.length + 1}-${label}.log`
     const filename = path.join(directory, name)
@@ -106,4 +114,4 @@ function session(root, c, execution) {
     },
   }
 }
-module.exports = { validate, session, suiteSummary }
+module.exports = { clearBytecode, validate, session, suiteSummary }

@@ -1,0 +1,91 @@
+diff --git a/psychopy/experiment/components/_base.py b/psychopy/experiment/components/_base.py
+index 824eaea..5400985 100644
+--- a/psychopy/experiment/components/_base.py
++++ b/psychopy/experiment/components/_base.py
+@@ -710,7 +710,7 @@ class BaseComponent:
+         # Return True if stop test was written
+         return buff.indentLevel - startIndent
+ 
+-    def writeStopTestCodeJS(self, buff, extra=""):
++    def writeStopTestCodeJS(self, buff, extra="", updateStatus=True):
+         """Test whether we need to stop
+                            
+         Parameters
+@@ -721,6 +721,10 @@ class BaseComponent:
+             Additional conditions to check, including any boolean operators (and, or, etc.). Use 
+             `%(key)s` syntax to insert the values of any necessary params. Default is an empty 
+             string.
++        updateStatus : bool
++            If `True`, mark the component as finished after writing its stop timing data. Components
++            which need to perform work while still started can defer this and update their status
++            after that work is complete.
+         """
+         # create copy of params dict so we can change stuff without harm
+         params = self.params.copy()
+@@ -796,11 +800,12 @@ class BaseComponent:
+         )
+         buff.writeIndentedLines(code % params)
+         # set status
+-        code = (
+-            "// update status\n"
+-            "%(name)s.status = PsychoJS.Status.FINISHED;\n"
+-        )
+-        buff.writeIndentedLines(code % params)
++        if updateStatus:
++            code = (
++                "// update status\n"
++                "%(name)s.status = PsychoJS.Status.FINISHED;\n"
++            )
++            buff.writeIndentedLines(code % params)
+ 
+         # Return True if stop test was written
+         return buff.indentLevel - startIndent
+diff --git a/psychopy/experiment/components/microphone/__init__.py b/psychopy/experiment/components/microphone/__init__.py
+index 05a1594..8cb786b 100644
+--- a/psychopy/experiment/components/microphone/__init__.py
++++ b/psychopy/experiment/components/microphone/__init__.py
+@@ -405,9 +405,12 @@ class MicrophoneComponent(BaseDeviceComponent):
+         buff.writeIndentedLines(code % inits)
+         if self.params['stopVal'].val not in ['', None, -1, 'None']:
+             # Stop the recording
+-            self.writeStopTestCodeJS(buff)
++            # Microphone.pause() only acts while the microphone status is STARTED,
++            # so defer marking it FINISHED until after the recording is paused.
++            self.writeStopTestCodeJS(buff, updateStatus=False)
+             code = (
+                     "%(name)s.pause();\n"
++                    "%(name)s.status = PsychoJS.Status.FINISHED;\n"
+             )
+             buff.writeIndentedLines(code % inits)
+             buff.setIndentLevel(-1, relative=True)
+diff --git a/psychopy/tests/test_experiment/test_component_compile_js.py b/psychopy/tests/test_experiment/test_component_compile_js.py
+index 4701edb..d8c018f 100644
+--- a/psychopy/tests/test_experiment/test_component_compile_js.py
++++ b/psychopy/tests/test_experiment/test_component_compile_js.py
+@@ -38,6 +38,21 @@ class TestComponentCompilerJS():
+                     # except IOError as err:
+                     #     compareTextFiles('new{}.js'.format(compName), correctPath, tolerance=3)
+ 
++    def test_microphone_pauses_before_finishing(self):
++        """Generated code must pause an active recorder before changing its status."""
++        self.reset_experiment('MicrophoneComponent')
++        self.add_components('MicrophoneComponent')
++        jsFilePath = self.create_component_output('MicrophoneComponent')
++
++        with open(jsFilePath, encoding='utf-8-sig') as jsFile:
++            script = jsFile.read()
++
++        pause = script.index('mic.pause();')
++        finished = script.index(
++            'mic.status = PsychoJS.Status.FINISHED;', pause
++        )
++        assert pause < finished
++
+     def reset_experiment(self, compName):
+         """Resets the exp object for each component"""
+         self.exp = Experiment()  # create once, not every test
+@@ -57,3 +72,4 @@ class TestComponentCompilerJS():
+         """Create the JS script"""
+         jsFilePath = os.path.join(self.temp_dir, 'new{}.js'.format(compName))
+         psyexpCompile.compileScript(infile=self.exp, outfile=jsFilePath)
++        return jsFilePath

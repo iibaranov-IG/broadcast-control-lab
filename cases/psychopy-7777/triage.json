@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T21:56:13.142Z",
+  "issue": {
+    "repository": "psychopy/psychopy",
+    "number": "7777",
+    "url": "https://github.com/psychopy/psychopy/issues/7777",
+    "title": "[Bug]: microphone component does not stop properly when transpiling to JS",
+    "state": "open",
+    "updatedAt": "2026-09-14T15:40:48Z"
+  },
+  "source": {
+    "repository": "psychopy/psychopy",
+    "requestedRef": "release",
+    "defaultBranch": "dev",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "7e5205e188f158d1f52777660748970d16f47697",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/psychopy/psychopy/blob/7e5205e188f158d1f52777660748970d16f47697/CONTRIBUTING.md",
+        "content": "# Have you ever contributed to an Open Source project?\nYour first contribution can be a bit intimidating, but feel free to give it a try. If you get stuck, don't hesitate to ask for help in our [developer forum](https://discourse.psychopy.org/c/dev). This is also a good place to pitch your idea. Next up:\n* **I won't program it myself.** Please file a [GitHub issue](https://github.com/psychopy/psychopy/issues).\n* **I'd like to take a shot.** Read on to find out how!\n\n# How to contribute\nContributing to PsychoPy consists of four steps:\n1. Getting your own copy\n2. Making your changes\n3. Committing your changes\n4. Submitting a Pull Request\n\n## 1. Getting your own copy of the PsychoPy codebase\nTo be sure your improvements can easily be integrated, follow these steps:\n1. **Make a [fork](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) of the [PsychoPy repo](https://github.com/psychopy/psychopy).** This provides you with your own copy of the PsychoPy source code.\n2. **Inside your fork, make a new [branch](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-branches) for the feature you've got in mind.** If you'd like to fix a bug, base your new branch on the *release* branch. If you'd like to add a new feature, base it on the *dev* branch. We tend to name branches after the feature we're building. For example `olfactory_component`.\n3. **Clone your fork to your hard drive.** Next, switch to the new branch and you're all set up!\n\nLook [here](https://www.psychopy.org/developers/repository.html) to see how the PsychoPy repo is organized.\n\n## 2. Making your changes\nTo help you get started with modifying PsychoPy, we've got some [developer guides](https://www.psychopy.org/developers/index.html). To try out your modified PsychoPy, do a [developer's install](https://www.psychopy.org/download.html#developers-install).\n\n## 3. Committing your changes\nOnce you're happy with your changes, commit them to your GitHub repo. Please use the tags below in your commit and add an informative message.\n  - **BF:** bug fix. For fixing bugs in the *release* branch.\n  - **FF:** ‘feature’ fix. For fixing bugs in the *dev* branch.\n  - **RF:** refactoring\n  - **NF:** new feature\n  - **ENH:** enhancement (to existing code, but don't worry too much about the difference between this and NF)\n  - **DOC:** for all kinds of documentation related commits\n  - **TEST:** for adding or changing tests\n\n## 4. File a Pull Request\nOnce you're done, it's time to add it to the central PsychoPy source code. File a [Pull Request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) from your own fork and branch to the PsychoPy repo. Be sure to target the right branch in PsychoPy (*release* or *dev*). Thanks for contributing!",
+        "requirementHints": [
+          "3. Committing your changes",
+          "4. Submitting a Pull Request",
+          "## 3. Committing your changes",
+          "Once you're happy with your changes, commit them to your GitHub repo. Please use the tags below in your commit and add an informative message.",
+          "  - **DOC:** for all kinds of documentation related commits",
+          "  - **TEST:** for adding or changing tests",
+          "## 4. File a Pull Request",
+          "Once you're done, it's time to add it to the central PsychoPy source code. File a [Pull Request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) from your own fork and branch to the PsychoPy repo. Be sure to target the right branch in PsychoPy (*release* or *dev*). Thanks for contributing!"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      ".github/workflows/checksum.py",
+      "building/__init__.py",
+      "building/buildRelease.py",
+      "building/releaseNotes.py",
+      "building/searchCopyrightYear.py",
+      "building/semanticVersion.py",
+      "building/updateBuilderDemos.py",
+      "psychopy/__init__.py",
+      "psychopy/alerts/__init__.py",
+      "psychopy/alerts/_alerts.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/psychopy/psychopy/blob/7e5205e188f158d1f52777660748970d16f47697/pyproject.toml"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:psychopy/psychopy": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 92,
+    "scoreRange": [
+      92,
+      93
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "A looping microphone experiment fails on its second iteration.",
+        "evidence": [
+          "Issue #7777 exception and reproduction"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report was opened today against current 2026.2 releases.",
+        "evidence": [
+          "Issue created 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter supplied a live minimal reproduction and precise diagnosis.",
+        "evidence": [
+          "Issue #7777"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Generated code must pause while status is STARTED before marking FINISHED.",
+        "evidence": [
+          "PsychoJS state guards linked from issue"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "Code generation deterministically exposes the wrong statement order.",
+        "evidence": [
+          "Generated MicrophoneComponent JavaScript"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repair is confined to stop-code generation and a regression test.",
+        "evidence": [
+          "Local source review"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "A focused compiler test checks the emitted program order.",
+        "evidence": [
+          "psychopy/tests/test_experiment/test_component_compile_js.py"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Default behavior remains unchanged for other components and is covered by the all-components compiler test.",
+        "evidence": [
+          "writeStopTestCodeJS default updateStatus=True"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The release branch and issue tracker are active today.",
+        "evidence": [
+          "release commit 7e5205e",
+          "Issue #7777"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fix restores online microphone experiments with repeated routines.",
+        "evidence": [
+          "Issue's Pavlovia reproduction"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "Every online PsychoPy microphone component in a repeated routine uses this generator.",
+        "evidence": [
+          "MicrophoneComponent.writeFrameCodeJS"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Correct recorder lifecycle also permits end-of-routine stop and recording upload.",
+        "evidence": [
+          "MicrophoneComponent.writeRoutineEndCodeJS"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      92
+    ],
+    "selectable": true
+  },
+  "durationMs": 3371
+}

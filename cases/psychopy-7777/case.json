@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 2,
+  "id": "psychopy-7777",
+  "status": "ready",
+  "title": "Pause PsychoJS microphones before finishing their component state",
+  "issue": "https://github.com/psychopy/psychopy/issues/7777",
+  "problem": "Generated PsychoJS marks a microphone FINISHED before calling pause(). PsychoJS only pauses a recorder whose status is STARTED, so the MediaRecorder remains active and the next loop iteration raises InvalidStateError when start() is called again.",
+  "reproduce": "Execute the pinned production BaseComponent and MicrophoneComponent JavaScript generator methods for a two-second recording. In the baseline output, the FINISHED assignment precedes mic.pause().",
+  "acceptance": "The generated stop block calls mic.pause() while its status is still STARTED, then performs exactly one transition to PsychoJS.Status.FINISHED. The complete PsychoPy component compiler test also passes.",
+  "repair": "Allow components to defer the common generated FINISHED transition; use that option for MicrophoneComponent and emit the transition immediately after pause(). Add a generator regression test for the required order.",
+  "sources": [
+    {
+      "id": "baseline",
+      "repository": "psychopy/psychopy",
+      "commit": "7e5205e188f158d1f52777660748970d16f47697",
+      "directory": "sources/psychopy-7777"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": ["cases/psychopy-7777/"],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{"cwd":"sources/psychopy-7777","argv":["git","apply","../../cases/psychopy-7777/repair.patch"]}],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/psychopy-7777/test.mjs",
+          "sources/psychopy-7777"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/psychopy-7777.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL executes the production generator methods and proves the baseline-to-candidate statement order. The local upstream compiler tests pass. A browser MediaRecorder and real microphone loop remain reporter-operated checks.",
+    "ownerCheck": "Open the reporter's two-iteration Pavlovia reproduction with microphone permission granted. Complete both recording iterations and confirm the second starts without InvalidStateError and both clips are available."
+  },
+  "selection": {
+    "report": "cases/psychopy-7777/triage.json",
+    "sha256": "a1b18e1b9d348028f924bd3f42a5a4f30f7ddf7061e275f7f4e258d52af13576"
+  },
+  "template": {
+    "language": "python",
+    "protocol": "none"
+  },
+  "publish": {
+    "source": "baseline",
+    "target": "psychopy/psychopy",
+    "base": "release",
+    "commitMessage": "BF: pause online microphones before finishing",
+    "paths": [
+      "psychopy/experiment/components/_base.py",
+      "psychopy/experiment/components/microphone/__init__.py",
+      "psychopy/tests/test_experiment/test_component_compile_js.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "baseline",
+    "timeoutMs": 60000,
+    "setup": [],
+    "build": [],
+    "testFiles": ["psychopy/tests/test_experiment/test_component_compile_python.py"],
+    "regression": {"cwd":".","argv":["node","../../cases/psychopy-7777/test.mjs","."]},
+    "negative": {"exitCode":1,"outputIncludes":"MICROPHONE_STOP_ORDER"},
+    "suite": {"cwd":".","argv":["node","../../cases/psychopy-7777/test.mjs","."]},
+    "suiteOutputIncludes": "PASS: generated PsychoJS pauses the active microphone before marking it FINISHED"
+  }
+}

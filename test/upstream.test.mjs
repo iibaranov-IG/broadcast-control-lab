@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { session, suiteSummary } from '../scripts/upstream.cjs'
+import { clearBytecode, session, suiteSummary } from '../scripts/upstream.cjs'
 import { execFileSync } from 'node:child_process'
 import { context, run } from '../scripts/batch.cjs'
 import { writeEvidence } from '../scripts/evidence.cjs'
@@ -75,6 +75,16 @@ test('Python red/green invalidates timestamp bytecode even for same-size rapid r
   fs.writeFileSync(filename, 'def value(): return 2\n'); fs.utimesSync(filename, stamp, stamp)
   f.s.candidate(); assert.equal(f.execution.upstream.status, 'PASS')
   assert.equal(fs.existsSync(path.join(f.source, '__pycache__')), false)
+})
+test('Python bytecode cleanup tolerates vanished and case-colliding checkout paths', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'bcl-bytecode-test-'))
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }))
+  const cache = path.join(root, '__pycache__')
+  fs.mkdirSync(cache)
+  fs.writeFileSync(path.join(cache, 'module.pyc'), 'stale')
+  clearBytecode(root)
+  assert.equal(fs.existsSync(cache), false)
+  assert.doesNotThrow(() => clearBytecode(path.join(root, 'GoNoGo')))
 })
 test('baseline setup may not apply production repairs', t => {
   const f = fixture(t)

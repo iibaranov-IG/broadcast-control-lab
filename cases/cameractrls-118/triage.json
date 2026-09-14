@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T06:46:17.855Z",
+  "issue": {
+    "repository": "soyersoyer/cameractrls",
+    "number": "118",
+    "url": "https://github.com/soyersoyer/cameractrls/issues/118",
+    "title": "A hanging PTZ helper blocks GUI startup forever (exec_and_get_lines has no timeout)",
+    "state": "open",
+    "updatedAt": "2026-09-10T17:34:10Z"
+  },
+  "source": {
+    "repository": "soyersoyer/cameractrls",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "NOASSERTION",
+    "commit": "6f388257ac21a0e91b143ad11cb2457036fa2c27",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "cameractrls.py",
+      "cameractrlsd.py",
+      "cameractrlsgtk.py",
+      "cameractrlsgtk4.py",
+      "cameraptzgame.py",
+      "cameraptzmidi.py",
+      "cameraptzspnav.py",
+      "cameraview.py"
+    ],
+    "buildFiles": []
+  },
+  "findings": [
+    {
+      "code": "NO_BUILD_RECIPE",
+      "severity": "info",
+      "detail": "No recognized build manifest found; the build procedure needs review. Resolved for this revision: This revision is a directly executable Python project and the repair has an explicit built-in unittest command.",
+      "url": "https://github.com/soyersoyer/cameractrls",
+      "resolution": {
+        "reason": "This revision is a directly executable Python project and the repair has an explicit built-in unittest command.",
+        "evidence": [
+          "python3 -m unittest discover -s tests -v passes two focused tests.",
+          "python3 -m py_compile cameractrls.py tests/test_cameractrls.py succeeds."
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:soyersoyer/cameractrls": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 92,
+    "scoreRange": [
+      92,
+      93
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "One hung helper prevents every GUI launch and leaves a hidden CPU-consuming process.",
+        "evidence": [
+          "Issue gives the first and subsequent launch failures."
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report is four days old and applies to current main.",
+        "evidence": [
+          "Issue created 2026-09-10 and baseline remains unbounded."
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "The reporter supplied a tested candidate behavior and exact environment.",
+        "evidence": [
+          "Issue includes observed five-second fallback result."
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "A hung helper must return an empty result after a fixed bound.",
+        "evidence": [
+          "Normal output must remain split into lines."
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "Timeout and successful output paths are deterministic.",
+        "evidence": [
+          "Mocked subprocess regression covers both branches."
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "One helper function and two focused tests are sufficient.",
+        "evidence": [
+          "No GUI or hardware code needs modification."
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Built-in Python unittest completes in milliseconds.",
+        "evidence": [
+          "Two tests pass locally without dependencies."
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Normal helper output is unchanged and only non-terminating probes are skipped.",
+        "evidence": [
+          "The success-path test asserts the original byte-line result."
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository and pull requests were updated this week.",
+        "evidence": [
+          "Repository updated 2026-09-12."
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Every PTZ helper and GUI startup path gets bounded failure.",
+        "evidence": [
+          "Three helper executables share exec_and_get_lines."
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The bounded runner applies to every current controller probe.",
+        "evidence": [
+          "get_ptz_hw_controllers loops through the common function."
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "One fix protects GTK3 and GTK4 startup consumers.",
+        "evidence": [
+          "Both frontends use the shared cameractrls module."
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 93,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      93,
+      92
+    ],
+    "selectable": true
+  },
+  "durationMs": 2805
+}

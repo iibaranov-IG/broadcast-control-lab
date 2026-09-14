@@ -116,6 +116,22 @@ test('reviewed submodule revisions can resolve only the matching triage finding'
   assert.equal(report.findings.find(value => value.code === 'SUBMODULES').severity, 'info')
   assert.throws(() => triage.applyResolutions(report, { resolutions: { READ_INCOMPLETE: { reason: 'assumed', evidence: ['none'] } } }), /cannot be resolved/)
 })
+
+test('a reviewed executable test command can resolve a missing build manifest', () => {
+  const report = {
+    findings: [{ code: 'NO_BUILD_RECIPE', severity: 'question', detail: 'No manifest' }],
+  }
+  triage.applyResolutions(report, {
+    resolutions: {
+      NO_BUILD_RECIPE: {
+        reason: 'The repository is a directly executable Python project.',
+        evidence: ['python3 -m unittest discover -s tests completed successfully'],
+      },
+    },
+  })
+  assert.equal(report.decision, 'READY_TO_INVESTIGATE')
+  assert.equal(report.findings[0].severity, 'info')
+})
 test('contribution rules are discovered regardless of filename case', async () => {
   const rule = '.github/contributing.md'
   const f = fixture({

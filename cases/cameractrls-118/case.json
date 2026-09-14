@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "id": "cameractrls-118",
+  "status": "ready",
+  "title": "Bound PTZ helper discovery during camera GUI startup",
+  "issue": "https://github.com/soyersoyer/cameractrls/issues/118",
+  "problem": "A PTZ helper that does not exit blocks camera GUI startup forever and leaves subsequent launches unable to activate the frozen process.",
+  "reproduce": "Make one executable PTZ helper hang and start the GUI; the baseline subprocess call has no timeout and never returns.",
+  "acceptance": "Every helper probe has a finite bound, timeout produces a warning and empty controller list, and normal helper output remains unchanged.",
+  "repair": "Pass a five-second timeout to subprocess.run, catch TimeoutExpired, log the skipped helper, and add focused standard-library tests.",
+  "sources": [{"id":"upstream","repository":"soyersoyer/cameractrls","commit":"6f388257ac21a0e91b143ad11cb2457036fa2c27","directory":"sources/cameractrls-118"}],
+  "runtime": {"node":"22.20.0","python":"3.12.14"},
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{"cwd":"sources/cameractrls-118","argv":["git","apply","../../cases/cameractrls-118/repair.patch"]}],
+    "test": [{"cwd":".","argv":["node","cases/cameractrls-118/test.mjs","sources/cameractrls-118"]}],
+    "build": [{"cwd":"sources/cameractrls-118","argv":["python3","-m","py_compile","cameractrls.py","tests/test_cameractrls.py"]}]
+  },
+  "artifacts": {"report":"reports/cameractrls-118.json"},
+  "selection": {"report":"cases/cameractrls-118/triage.json","sha256":"587501b1f584ac6a3babace2d2bb80ee6602ab5d6d449e15e126227b04cf01f2","reason":"A four-day-old hardware-user report has exact reproduction, deterministic acceptance, no competing PR, and a two-branch regression."},
+  "verification": {"hardwareVerified":false,"applicationVerified":false,"limitations":"BCL verifies both subprocess branches and Python syntax without GTK, D-Bus or a physical PTZ device. Upstream review must choose whether five seconds is the preferred user-facing bound.","ownerCheck":"Start the GUI with one PTZ helper intentionally blocked. Confirm a warning appears after five seconds, the window opens, and the remaining controllers are still available."},
+  "publish": {"source":"upstream","target":"soyersoyer/cameractrls","base":"main","paths":["cameractrls.py","tests/test_cameractrls.py"]},
+  "upstream": {
+    "kind":"python","source":"upstream","timeoutMs":60000,
+    "setup":[{"cwd":".","argv":["git","apply","../../cases/cameractrls-118/tests-only.patch"]}],
+    "build": [],
+    "testFiles":["tests/test_cameractrls.py"],
+    "regression":{"cwd":".","argv":["python3","../../cases/cameractrls-118/upstream.py"]},
+    "negative":{"exitCode":1,"outputIncludes":"BUG_PTZ_HELPER_HANGS_STARTUP"},
+    "suite":{"cwd":".","argv":["python3","../../cases/cameractrls-118/upstream.py"]},
+    "suiteOutputIncludes":"Ran 2 tests"
+  }
+}

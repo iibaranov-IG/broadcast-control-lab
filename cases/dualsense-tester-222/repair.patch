@@ -1,0 +1,275 @@
+diff --git a/src/components/common/MediaFilePlayer.vue b/src/components/common/MediaFilePlayer.vue
+index dd0978d..d40280d 100644
+--- a/src/components/common/MediaFilePlayer.vue
++++ b/src/components/common/MediaFilePlayer.vue
+@@ -33,8 +33,8 @@ const audioEnabled = defineModel<boolean>('audioEnabled', { default: true })
+ const hapticEnabled = defineModel<boolean>('hapticEnabled', { default: false })
+ /** 音频目标（扬声器/耳机），USB 下父组件据此切 HID 音量。 */
+ const audioTarget = defineModel<string>('audioTarget', { default: 'speaker' })
+-/** 音频音量 0–255：蓝牙写进 0x36 报告，USB 由父组件写 HID 音量。 */
+-const audioVolume = defineModel<number>('audioVolume', { default: 200 })
++/** 音频音量百分比：蓝牙写进 0x36 报告，USB 由父组件转换为 HID 音量。 */
++const audioVolume = defineModel<number>('audioVolume', { default: 100 })
+ /** 触觉强度（百分比，100=原始振幅）：USB/蓝牙均在软件层缩放触觉 PCM 振幅，不走 HID。 */
+ const hapticGain = ref(100)
+ 
+@@ -291,7 +291,7 @@ defineExpose({ player })
+             <PopoverContent class="settings-popover" align="end" :side-offset="8">
+               <div v-if="audioEnabled" class="popover-row">
+                 <span class="field-label">{{ $t('audio_panel.volume') }}</span>
+-                <SliderBox v-model="audioVolume" :min="0" :max="255" :digits="0" class="popover-volume" />
++                <SliderBox v-model="audioVolume" :min="0" :max="100" :digits="0" class="popover-volume" />
+               </div>
+               <div v-if="hapticEnabled" class="popover-row">
+                 <span class="field-label">{{ $t('audio_panel.haptic_strength') }}</span>
+diff --git a/src/composables/useBtAudioPlayer.ts b/src/composables/useBtAudioPlayer.ts
+index 5c297ff..17d5fd4 100644
+--- a/src/composables/useBtAudioPlayer.ts
++++ b/src/composables/useBtAudioPlayer.ts
+@@ -2,6 +2,7 @@ import type { Ref } from 'vue'
+ import type { DualSensePlayerError } from '@/composables/useDualSensePlayer'
+ import { onScopeDispose, ref, shallowRef, watch } from 'vue'
+ import { useDevice } from '@/composables/useInjectValues'
++import { audioVolumePercentToDeviceValue } from '@/utils/dualsense/audioVolume'
+ import {
+   buildReportSix,
+   encodeOpusFrames,
+@@ -120,7 +121,8 @@ export function useBtAudioPlayer(options: { audioEnabled: Ref<boolean>, hapticEn
+       haptic = src ? processHaptic(src) : emptyHaptic
+     }
+     const target = audioTarget.value === 'headphone' ? 'headphone' : 'speaker'
+-    const payload = buildReportSix(opus, haptic, sendSeq, frameCounter, target, audioVolume.value)
++    const deviceVolume = audioVolumePercentToDeviceValue(target, audioVolume.value)
++    const payload = buildReportSix(opus, haptic, sendSeq, frameCounter, target, deviceVolume)
+     const hidDevice = device.value?.device
+     if (!hidDevice) {
+       // 设备已断连/切换，停止发送，避免 raf 回调解引用 undefined。
+diff --git a/src/router/DualSense/views/AudioControlWidget.vue b/src/router/DualSense/views/AudioControlWidget.vue
+index ffe3974..0908b6e 100644
+--- a/src/router/DualSense/views/AudioControlWidget.vue
++++ b/src/router/DualSense/views/AudioControlWidget.vue
+@@ -5,6 +5,7 @@ import MediaFilePlayer from '@/components/common/MediaFilePlayer.vue'
+ import { useConnectionType, useDevice } from '@/composables/useInjectValues'
+ import { DeviceConnectionType } from '@/device-based-router/shared'
+ import { controlWaveOut } from '@/utils/dualsense/ds.util'
++import { audioVolumePercentToDeviceValue, DUALSENSE_AUDIO_VOLUME_MAX } from '@/utils/dualsense/audioVolume'
+ import { sleep } from '@/utils/time.util'
+ import { useEventBusEmit } from '../_utils/eventbus.util'
+ 
+@@ -22,37 +23,39 @@ const isFilePlaybackSupported = computed(() =>
+ const audioEnabled = ref(true)
+ const hapticEnabled = ref(false)
+ const audioTarget = ref('speaker')
+-const audioVolume = ref(200)
++const audioVolume = ref(100)
+ 
+ // USB 下音量靠 HID 报告切换；蓝牙音量在 0x36 流报告内携带，跳过。
+ let volumeStored = false
+ 
+ function applyVolume() {
++  const target = audioTarget.value === 'headphone' ? 'headphone' : 'speaker'
++  const deviceVolume = audioVolumePercentToDeviceValue(target, audioVolume.value)
+   if (hapticEnabled.value) {
+-    // 触觉走 ch2/ch3，强度吃音频子系统总增益，所以非音频目标的那一路拉满 255。
++    // 触觉走 ch2/ch3，强度吃音频子系统总增益，所以非音频目标的那一路拉满。
+     if (audioEnabled.value) {
+       // 音频同时开：目标那一路用 audioVolume（音量可调），另一路 255 给触觉；
+       // 目标路最后写，确保 audioControl 路由到目标输出（扬声器/耳机互斥）。
+       if (audioTarget.value === 'headphone') {
+-        eventBusEmit('output:set-speaker-volume', 255)
+-        eventBusEmit('output:set-headphone-volume', audioVolume.value)
++        eventBusEmit('output:set-speaker-volume', DUALSENSE_AUDIO_VOLUME_MAX.speaker)
++        eventBusEmit('output:set-headphone-volume', deviceVolume)
+       }
+       else {
+-        eventBusEmit('output:set-headphone-volume', 255)
+-        eventBusEmit('output:set-speaker-volume', audioVolume.value)
++        eventBusEmit('output:set-headphone-volume', DUALSENSE_AUDIO_VOLUME_MAX.headphone)
++        eventBusEmit('output:set-speaker-volume', deviceVolume)
+       }
+     }
+     else {
+       // 纯触觉：两路都拉满。
+-      eventBusEmit('output:set-speaker-volume', 255)
+-      eventBusEmit('output:set-headphone-volume', 255)
++      eventBusEmit('output:set-speaker-volume', DUALSENSE_AUDIO_VOLUME_MAX.speaker)
++      eventBusEmit('output:set-headphone-volume', DUALSENSE_AUDIO_VOLUME_MAX.headphone)
+     }
+   }
+   else if (audioTarget.value === 'headphone') {
+-    eventBusEmit('output:set-headphone-volume', audioVolume.value)
++    eventBusEmit('output:set-headphone-volume', deviceVolume)
+   }
+   else {
+-    eventBusEmit('output:set-speaker-volume', audioVolume.value)
++    eventBusEmit('output:set-speaker-volume', deviceVolume)
+   }
+ }
+ 
+diff --git a/src/router/DualSense/views/OutputPanel.vue b/src/router/DualSense/views/OutputPanel.vue
+index a563e25..5035cab 100644
+--- a/src/router/DualSense/views/OutputPanel.vue
++++ b/src/router/DualSense/views/OutputPanel.vue
+@@ -9,6 +9,7 @@ import SelfResettingSlider from '@/components/common/SelfResettingSlider.vue'
+ import SliderBox from '@/components/common/SliderBox.vue'
+ import { useDevice } from '@/composables/useInjectValues'
+ import { hexToRgb, hsvToRgb, rgbToHex } from '@/utils/color.util'
++import { DUALSENSE_AUDIO_VOLUME_MAX } from '@/utils/dualsense/audioVolume'
+ import { MuteButtonLedControl, PlayerLedControl } from '@/utils/dualsense/ds.type'
+ import { sendOutputReportFactory } from '@/utils/dualsense/ds.util'
+ import { bitShiftByte } from '@/utils/format.util'
+@@ -501,7 +502,7 @@ useEventBusRegister('output:retrieve-headphone-volume', () => {
+         </td>
+         <td class="value">
+           <div>
+-            <SliderBox v-model="speakerVolume" class="w-full" :min="0" :max="255" />
++            <SliderBox v-model="speakerVolume" class="w-full" :min="0" :max="DUALSENSE_AUDIO_VOLUME_MAX.speaker" />
+           </div>
+         </td>
+       </tr>
+@@ -511,7 +512,7 @@ useEventBusRegister('output:retrieve-headphone-volume', () => {
+         </td>
+         <td class="value">
+           <div>
+-            <SliderBox v-model="headphoneVolume" class="w-full" :min="0" :max="255" />
++            <SliderBox v-model="headphoneVolume" class="w-full" :min="0" :max="DUALSENSE_AUDIO_VOLUME_MAX.headphone" />
+           </div>
+         </td>
+       </tr>
+diff --git a/src/router/DualSenseEdge/views/AudioControlWidget.vue b/src/router/DualSenseEdge/views/AudioControlWidget.vue
+index ffe3974..0908b6e 100644
+--- a/src/router/DualSenseEdge/views/AudioControlWidget.vue
++++ b/src/router/DualSenseEdge/views/AudioControlWidget.vue
+@@ -5,6 +5,7 @@ import MediaFilePlayer from '@/components/common/MediaFilePlayer.vue'
+ import { useConnectionType, useDevice } from '@/composables/useInjectValues'
+ import { DeviceConnectionType } from '@/device-based-router/shared'
+ import { controlWaveOut } from '@/utils/dualsense/ds.util'
++import { audioVolumePercentToDeviceValue, DUALSENSE_AUDIO_VOLUME_MAX } from '@/utils/dualsense/audioVolume'
+ import { sleep } from '@/utils/time.util'
+ import { useEventBusEmit } from '../_utils/eventbus.util'
+ 
+@@ -22,37 +23,39 @@ const isFilePlaybackSupported = computed(() =>
+ const audioEnabled = ref(true)
+ const hapticEnabled = ref(false)
+ const audioTarget = ref('speaker')
+-const audioVolume = ref(200)
++const audioVolume = ref(100)
+ 
+ // USB 下音量靠 HID 报告切换；蓝牙音量在 0x36 流报告内携带，跳过。
+ let volumeStored = false
+ 
+ function applyVolume() {
++  const target = audioTarget.value === 'headphone' ? 'headphone' : 'speaker'
++  const deviceVolume = audioVolumePercentToDeviceValue(target, audioVolume.value)
+   if (hapticEnabled.value) {
+-    // 触觉走 ch2/ch3，强度吃音频子系统总增益，所以非音频目标的那一路拉满 255。
++    // 触觉走 ch2/ch3，强度吃音频子系统总增益，所以非音频目标的那一路拉满。
+     if (audioEnabled.value) {
+       // 音频同时开：目标那一路用 audioVolume（音量可调），另一路 255 给触觉；
+       // 目标路最后写，确保 audioControl 路由到目标输出（扬声器/耳机互斥）。
+       if (audioTarget.value === 'headphone') {
+-        eventBusEmit('output:set-speaker-volume', 255)
+-        eventBusEmit('output:set-headphone-volume', audioVolume.value)
++        eventBusEmit('output:set-speaker-volume', DUALSENSE_AUDIO_VOLUME_MAX.speaker)
++        eventBusEmit('output:set-headphone-volume', deviceVolume)
+       }
+       else {
+-        eventBusEmit('output:set-headphone-volume', 255)
+-        eventBusEmit('output:set-speaker-volume', audioVolume.value)
++        eventBusEmit('output:set-headphone-volume', DUALSENSE_AUDIO_VOLUME_MAX.headphone)
++        eventBusEmit('output:set-speaker-volume', deviceVolume)
+       }
+     }
+     else {
+       // 纯触觉：两路都拉满。
+-      eventBusEmit('output:set-speaker-volume', 255)
+-      eventBusEmit('output:set-headphone-volume', 255)
++      eventBusEmit('output:set-speaker-volume', DUALSENSE_AUDIO_VOLUME_MAX.speaker)
++      eventBusEmit('output:set-headphone-volume', DUALSENSE_AUDIO_VOLUME_MAX.headphone)
+     }
+   }
+   else if (audioTarget.value === 'headphone') {
+-    eventBusEmit('output:set-headphone-volume', audioVolume.value)
++    eventBusEmit('output:set-headphone-volume', deviceVolume)
+   }
+   else {
+-    eventBusEmit('output:set-speaker-volume', audioVolume.value)
++    eventBusEmit('output:set-speaker-volume', deviceVolume)
+   }
+ }
+ 
+diff --git a/src/router/DualSenseEdge/views/OutputPanel.vue b/src/router/DualSenseEdge/views/OutputPanel.vue
+index 8e2eb78..2cd062c 100644
+--- a/src/router/DualSenseEdge/views/OutputPanel.vue
++++ b/src/router/DualSenseEdge/views/OutputPanel.vue
+@@ -9,6 +9,7 @@ import SelfResettingSlider from '@/components/common/SelfResettingSlider.vue'
+ import SliderBox from '@/components/common/SliderBox.vue'
+ import { useDevice } from '@/composables/useInjectValues'
+ import { hexToRgb, hsvToRgb, rgbToHex } from '@/utils/color.util'
++import { DUALSENSE_AUDIO_VOLUME_MAX } from '@/utils/dualsense/audioVolume'
+ import { MuteButtonLedControl, PlayerLedControl } from '@/utils/dualsense/ds.type'
+ import { sendOutputReportFactory } from '@/utils/dualsense/ds.util'
+ import { bitShiftByte } from '@/utils/format.util'
+@@ -504,7 +505,7 @@ useEventBusRegister('output:retrieve-headphone-volume', () => {
+         </td>
+         <td class="value">
+           <div>
+-            <SliderBox v-model="speakerVolume" class="w-full" :min="0" :max="255" />
++            <SliderBox v-model="speakerVolume" class="w-full" :min="0" :max="DUALSENSE_AUDIO_VOLUME_MAX.speaker" />
+           </div>
+         </td>
+       </tr>
+@@ -514,7 +515,7 @@ useEventBusRegister('output:retrieve-headphone-volume', () => {
+         </td>
+         <td class="value">
+           <div>
+-            <SliderBox v-model="headphoneVolume" class="w-full" :min="0" :max="255" />
++            <SliderBox v-model="headphoneVolume" class="w-full" :min="0" :max="DUALSENSE_AUDIO_VOLUME_MAX.headphone" />
+           </div>
+         </td>
+       </tr>
+diff --git a/src/utils/dualsense/audioVolume.test.ts b/src/utils/dualsense/audioVolume.test.ts
+new file mode 100644
+index 0000000..b958094
+--- /dev/null
++++ b/src/utils/dualsense/audioVolume.test.ts
+@@ -0,0 +1,21 @@
++import { describe, expect, it } from 'vitest'
++import { audioVolumePercentToDeviceValue, DUALSENSE_AUDIO_VOLUME_MAX } from './audioVolume'
++
++describe('DualSense audio volume', () => {
++  it('maps player percentages to the speaker range', () => {
++    expect(audioVolumePercentToDeviceValue('speaker', 0)).toBe(0)
++    expect(audioVolumePercentToDeviceValue('speaker', 50)).toBe(50)
++    expect(audioVolumePercentToDeviceValue('speaker', 100)).toBe(0x64)
++  })
++
++  it('maps player percentages to the headphone range', () => {
++    expect(audioVolumePercentToDeviceValue('headphone', 0)).toBe(0)
++    expect(audioVolumePercentToDeviceValue('headphone', 50)).toBe(64)
++    expect(audioVolumePercentToDeviceValue('headphone', 100)).toBe(0x7F)
++  })
++
++  it('clamps values outside the percentage range', () => {
++    expect(audioVolumePercentToDeviceValue('speaker', -1)).toBe(0)
++    expect(audioVolumePercentToDeviceValue('speaker', 255)).toBe(DUALSENSE_AUDIO_VOLUME_MAX.speaker)
++  })
++})
+diff --git a/src/utils/dualsense/audioVolume.ts b/src/utils/dualsense/audioVolume.ts
+new file mode 100644
+index 0000000..604a3eb
+--- /dev/null
++++ b/src/utils/dualsense/audioVolume.ts
+@@ -0,0 +1,12 @@
++export type DualSenseAudioTarget = 'speaker' | 'headphone'
++
++export const DUALSENSE_AUDIO_VOLUME_MAX: Record<DualSenseAudioTarget, number> = {
++  speaker: 0x64,
++  headphone: 0x7F,
++}
++
++/** Convert the player volume percentage to the controller's HID value. */
++export function audioVolumePercentToDeviceValue(target: DualSenseAudioTarget, percent: number): number {
++  const normalized = Math.max(0, Math.min(100, percent))
++  return Math.round(normalized * DUALSENSE_AUDIO_VOLUME_MAX[target] / 100)
++}

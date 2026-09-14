@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T21:20:23.493Z",
+  "issue": {
+    "repository": "daidr/dualsense-tester",
+    "number": "222",
+    "url": "https://github.com/daidr/dualsense-tester/issues/222",
+    "title": "Audio volume issue",
+    "state": "open",
+    "updatedAt": "2026-09-14T13:51:53Z"
+  },
+  "source": {
+    "repository": "daidr/dualsense-tester",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "2da4617213fcd096aadf087dccb82f21c9df36dc",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "config/crowdin.ts",
+      "config/git.ts",
+      "env.d.ts",
+      "eslint.config.mjs",
+      "packages/fancy-controller/scripts/build.ts",
+      "plugins/html-plugin/index.ts",
+      "src/@types/global.d.ts",
+      "src/composables/magicTeleportStore.ts",
+      "src/composables/onDocumentUnload.ts",
+      "src/composables/useBtAudioPlayer.ts"
+    ],
+    "buildFiles": [
+      {
+        "path": "package.json",
+        "kind": "node",
+        "url": "https://github.com/daidr/dualsense-tester/blob/2da4617213fcd096aadf087dccb82f21c9df36dc/package.json"
+      },
+      {
+        "path": "packages/fancy-controller/package.json",
+        "kind": "node",
+        "url": "https://github.com/daidr/dualsense-tester/blob/2da4617213fcd096aadf087dccb82f21c9df36dc/packages/fancy-controller/package.json"
+      }
+    ],
+    "nodeScripts": [
+      "dev",
+      "build:icon",
+      "preview",
+      "build",
+      "build-only",
+      "test",
+      "type-check",
+      "lint",
+      "lint:migrate"
+    ],
+    "nodeDependencyCount": 45
+  },
+  "findings": [
+    {
+      "code": "NONREGISTRY_DEPENDENCIES",
+      "severity": "info",
+      "detail": "package.json references Git/local/workspace dependencies; resolve them before scheduling a build. Resolved for this revision: The only non-registry dependency is the in-repository fancy-controller workspace; Bun resolved it locally and the complete production build succeeded.",
+      "url": "https://github.com/daidr/dualsense-tester/blob/2da4617213fcd096aadf087dccb82f21c9df36dc/package.json",
+      "resolution": {
+        "reason": "The only non-registry dependency is the in-repository fancy-controller workspace; Bun resolved it locally and the complete production build succeeded.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/blob/2da4617213fcd096aadf087dccb82f21c9df36dc/package.json",
+          "https://github.com/daidr/dualsense-tester/tree/2da4617213fcd096aadf087dccb82f21c9df36dc/packages/fancy-controller"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:daidr/dualsense-tester": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 86,
+    "scoreRange": [
+      85,
+      86
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "File playback volume is quiet and most of the displayed range is ineffective on a real controller.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/issues/222"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The issue was opened today.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/issues/222"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "The reporter supplied current detailed reproduction data and owns the affected hardware.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/issues/222"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "The player must expose 0–100 percent and map it to each HID field's effective range without a dead 100–255 segment.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/issues/222",
+          "https://github.com/nowrep/dualsensectl/blob/main/main.c#L3397-L3426"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The baseline hard-codes a 0–255 player slider and forwards it raw; deterministic tests cover both output targets.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/blob/2da4617213fcd096aadf087dccb82f21c9df36dc/src/components/common/MediaFilePlayer.vue"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "The repair adds one conversion utility and applies it to USB, Bluetooth, DualSense and Edge paths.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/tree/2da4617213fcd096aadf087dccb82f21c9df36dc/src"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Unit tests and a full web build are local; perceived loudness needs one owner hardware check.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/blob/2da4617213fcd096aadf087dccb82f21c9df36dc/package.json"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Clamping and target-specific conversion constrain every emitted value to documented limits.",
+        "evidence": [
+          "https://github.com/torvalds/linux/blob/master/drivers/hid/hid-playstation.c"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The default branch and releases are actively maintained in September 2026.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/commits/main"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The correction applies to all users of USB and Bluetooth file playback on DualSense and Edge.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/issues/222"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "One shared converter covers speaker and headphone paths across both controller models.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/tree/2da4617213fcd096aadf087dccb82f21c9df36dc/src"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "The shared player also feeds the Bluetooth report and both controller-specific widgets.",
+        "evidence": [
+          "https://github.com/daidr/dualsense-tester/blob/2da4617213fcd096aadf087dccb82f21c9df36dc/src/composables/useBtAudioPlayer.ts"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 83,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      83,
+      86
+    ],
+    "selectable": true
+  },
+  "durationMs": 2665
+}

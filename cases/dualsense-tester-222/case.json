@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "dualsense-tester-222",
+  "status": "ready",
+  "title": "Map audio volume to effective DualSense HID ranges",
+  "issue": "https://github.com/daidr/dualsense-tester/issues/222",
+  "problem": "Audio file playback exposes 0–255 even though the DualSense speaker stops responding above 0x64, leaving most of the slider dead and forwarding percentage-like values directly to different HID ranges.",
+  "reproduce": "On the pinned source, the media player declares a 0–255 slider and the USB and Bluetooth paths forward that number directly. Values 100–255 therefore produce no additional speaker change, matching the reporter's controller observation.",
+  "acceptance": "The player exposes 0–100 percent, maps 100% to speaker 0x64 and headphone 0x7f, clamps out-of-range input, and uses the conversion in USB and Bluetooth paths for both DualSense models.",
+  "repair": "Introduce one target-aware percentage converter, use valid maxima in all player and diagnostic controls, and add regression tests for endpoints, midpoint rounding and clamping.",
+  "sources": [{"id":"upstream","repository":"daidr/dualsense-tester","commit":"2da4617213fcd096aadf087dccb82f21c9df36dc","directory":"sources/dualsense-tester-222"}],
+  "runtime": {"node":"22.20.0","python":"3.12.14"},
+  "watch": ["cases/dualsense-tester-222/"],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{"cwd":"sources/dualsense-tester-222","argv":["git","apply","../../cases/dualsense-tester-222/repair.patch"]}],
+    "test": [{"cwd":".","argv":["node","cases/dualsense-tester-222/test.mjs","sources/dualsense-tester-222"]}],
+    "build": []
+  },
+  "artifacts": {"report":"reports/dualsense-tester-222.json"},
+  "selection": {"report":"cases/dualsense-tester-222/triage.json","sha256":"d2147aa55b982c287f759f513273a9ba102bde22c2a7e89e24ce29cd9d41eaa9"},
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the baseline dead range and all target-specific conversions on the immutable source. The upstream Vitest suite and production web build pass separately. Perceived loudness and macOS endpoint volume still require the reporter's controller.",
+    "ownerCheck": "Open Audio file playback on the same Mac and controller, confirm the slider reads 0–100, compare 25/50/75/100 for a smooth increase, and report whether 100% now matches the 1 kHz speaker test closely enough. Repeat once over USB and Bluetooth if both are available."
+  },
+  "publish": {
+    "source":"upstream","target":"daidr/dualsense-tester","base":"main","commitMessage":"fix(audio): map volume percentage to DualSense ranges",
+    "paths":["src/components/common/MediaFilePlayer.vue","src/composables/useBtAudioPlayer.ts","src/router/DualSense/views/AudioControlWidget.vue","src/router/DualSense/views/OutputPanel.vue","src/router/DualSenseEdge/views/AudioControlWidget.vue","src/router/DualSenseEdge/views/OutputPanel.vue","src/utils/dualsense/audioVolume.ts","src/utils/dualsense/audioVolume.test.ts"]
+  },
+  "upstream": {
+    "kind":"node","source":"upstream","timeoutMs":60000,"setup":[],"build":[],"testFiles":["tests/MediaFilePlayer.spec.ts","tests/useDualSensePlayer.spec.ts"],
+    "regression":{"cwd":".","argv":["node","../../cases/dualsense-tester-222/test.mjs","."]},
+    "negative":{"exitCode":1,"outputIncludes":"DEAD_VOLUME_RANGE"},
+    "suite":{"cwd":".","argv":["node","../../cases/dualsense-tester-222/test.mjs","."]},
+    "suiteOutputIncludes":"PASS: 0–100 player volume"
+  }
+}

@@ -31,6 +31,11 @@ These are triage statuses, separate from executable case readiness and publicati
 qualification. A reviewed fix can later be reverted; ancestry alone is not semantic
 proof. The caller must bind the product pin to the correct manifest/configuration.
 
+Large repositories may declare `sparsePaths` on a pinned source. BCL then fetches
+only the files required by the case while retaining the authenticated commit index.
+Candidate trees permit missing unchanged blobs locally; publication still rebuilds
+the complete tree from the target repository and refuses a different tree ID.
+
 Next: automatically bind product revisions and dependency manifests, compare two
 product versions, connect dependency and product red/green evidence, import cited
 measurements separately from BCL-run results, and persist source caches across runs.

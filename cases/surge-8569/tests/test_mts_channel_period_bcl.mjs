@@ -1,0 +1,28 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+
+test('channel octave shift delegates to the tuning period and has an MTS regression', () => {
+  const voice = fs.readFileSync('src/common/dsp/SurgeVoice.cpp', 'utf8')
+  const start = voice.indexOf('float SurgeVoice::channelKeyEquivalent(')
+  const end = voice.indexOf('\n    return res;', start)
+  assert.ok(start >= 0 && end > start, 'find channelKeyEquivalent implementation')
+  const body = voice.slice(start, end)
+  assert.match(body, /res \+= storage->tuningPeriodSemitones\(\) \* shift;/,
+    'channel shifts use tuningPeriodSemitones')
+  assert.doesNotMatch(body, /MTS_GetMapSize|isStandardTuning|currentScale/,
+    'channel shifts do not duplicate tuning-mode calculations')
+
+  const storage = fs.readFileSync('src/common/SurgeStorage.cpp', 'utf8')
+  const periodStart = storage.indexOf('float SurgeStorage::tuningPeriodSemitones() const')
+  const periodEnd = storage.indexOf('\n}', periodStart)
+  const periodBody = storage.slice(periodStart, periodEnd)
+  assert.match(periodBody, /oddsound_mts_active_as_client[\s\S]*MTS_GetPeriodSemitones/,
+    'MTS clients use the source period')
+
+  const unit = fs.readFileSync('src/surge-testrunner/UnitTestsTUN.cpp', 'utf8')
+  assert.match(unit, /TEST_CASE\("MTS channel-to-octave shift uses the period fallback"/,
+    'upstream C++ regression is present')
+  assert.match(unit, /REQUIRE\(shifted == Approx\(72\.0f\)\)/,
+    'regression checks the missing-map fallback direction')
+})

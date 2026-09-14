@@ -1,0 +1,59 @@
+diff --git a/src/common/dsp/SurgeVoice.cpp b/src/common/dsp/SurgeVoice.cpp
+index f05604c7..5f8e2ef9 100644
+--- a/src/common/dsp/SurgeVoice.cpp
++++ b/src/common/dsp/SurgeVoice.cpp
+@@ -123,25 +123,7 @@ float SurgeVoice::channelKeyEquivalent(float key, int channel, SurgeStorage *sto
+         shift = channel;
+     }
+ 
+-    if (storage->isStandardTuning)
+-    {
+-        res += 12 * shift;
+-    }
+-    else if (storage->oddsound_mts_active_as_client)
+-    {
+-        res += MTS_GetMapSize(storage->oddsound_mts_client) * shift;
+-    }
+-    else if (storage->tuningApplicationMode == SurgeStorage::RETUNE_ALL)
+-    {
+-        // keys are in scale space so move scale.count
+-        res += storage->currentScale.count * shift;
+-    }
+-    else
+-    {
+-        // keys are in tuning space so move cents worth of keys
+-        auto ct = storage->currentScale.tones[storage->currentScale.count - 1].cents;
+-        res += ct / 100 * shift;
+-    }
++    res += storage->tuningPeriodSemitones() * shift;
+ 
+     return res;
+ }
+diff --git a/src/surge-testrunner/UnitTestsTUN.cpp b/src/surge-testrunner/UnitTestsTUN.cpp
+index bbb5a2d0..05e63942 100644
+--- a/src/surge-testrunner/UnitTestsTUN.cpp
++++ b/src/surge-testrunner/UnitTestsTUN.cpp
+@@ -35,6 +35,23 @@
+ 
+ using namespace Surge::Test;
+ 
++#ifndef SURGE_SKIP_ODDSOUND_MTS
++TEST_CASE("MTS channel-to-octave shift uses the period fallback", "[tun][mts]")
++{
++    auto surge = surgeOnSine();
++    REQUIRE(surge->storage.oddsound_mts_client);
++
++    // Model an MTS source which does not publish a map size. The MTS API defines a
++    // 12-semitone period fallback, while MTS_GetMapSize() returns -1.
++    surge->storage.isStandardTuning = false;
++    surge->storage.oddsound_mts_active_as_client = true;
++    REQUIRE(surge->storage.tuningPeriodSemitones() == Approx(12.0f));
++
++    auto shifted = SurgeVoice::channelKeyEquivalent(60.0f, 1, &surge->storage, false);
++    REQUIRE(shifted == Approx(72.0f));
++}
++#endif
++
+ TEST_CASE("Retune Surge XT to Scala Files", "[tun]")
+ {
+     auto surge = Surge::Headless::createSurge(44100);

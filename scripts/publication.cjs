@@ -50,7 +50,11 @@ function capture(root, c) {
       indexed(['read-tree', s.commit])
       const publishedChanges = changed.filter(p => c.publish.paths.includes(p))
       if (publishedChanges.length) indexed(['add', '-A', '--', ...publishedChanges])
-      tree = indexed(['write-tree']).trim()
+      // Sparse, blob-filtered checkouts intentionally omit unchanged baseline blobs.
+      // Their IDs are still authenticated by the pinned commit's index. GitHub later
+      // reconstructs this tree from the same baseline and candidate bytes and must
+      // produce this exact tree ID before a PR can be created.
+      tree = indexed(['write-tree', '--missing-ok']).trim()
     } finally { fs.rmSync(directory, { recursive: true, force: true }) }
   }
   let size = 0

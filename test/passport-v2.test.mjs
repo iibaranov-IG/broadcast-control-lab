@@ -27,6 +27,18 @@ test('invalid source aliases and mutable references are rejected', () => {
   d.sources[0].commit = 'main'
   assert.throws(() => validate(d), /immutable/)
 })
+test('sparse source acquisition paths are explicit and repository-relative', () => {
+  const c = load('surge-8569')
+  assert.deepEqual(c.sources[0].sparsePaths, [
+    '.clang-format',
+    '.gitignore',
+    'src/common/dsp/SurgeVoice.cpp',
+    'src/common/SurgeStorage.cpp',
+    'src/surge-testrunner/UnitTestsTUN.cpp'
+  ])
+  c.sources[0].sparsePaths = ['../outside']
+  assert.throws(() => validate(c), /repository-relative/)
+})
 test('new issue yields a draft with a pinned source, never a claimed repair', () => {
   const c = scaffold('https://github.com/example/control/issues/123', 'a'.repeat(40), 'Cannot connect')
   assert.equal(c.id, 'control-123')

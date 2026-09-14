@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T12:11:03.532Z",
+  "issue": {
+    "repository": "surge-synthesizer/surge",
+    "number": "8569",
+    "url": "https://github.com/surge-synthesizer/surge/issues/8569",
+    "title": "Channel-to-octave shift is wrong when Surge XT is an MTS-ESP client",
+    "state": "open",
+    "updatedAt": "2026-09-14T11:03:29Z"
+  },
+  "source": {
+    "repository": "surge-synthesizer/surge",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "e2b3494b0b12172b7582e340cac182606bf36f9f",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "libs/CLI11/include/CLI11/CLI11.hpp",
+      "libs/airwindows/grab.py",
+      "libs/airwindows/include/airwindows/AirWinBaseClass.h",
+      "libs/airwindows/src/ADClip7.cpp",
+      "libs/airwindows/src/ADClip7.h",
+      "libs/airwindows/src/ADClip7Proc.cpp",
+      "libs/airwindows/src/Air.cpp",
+      "libs/airwindows/src/Air.h",
+      "libs/airwindows/src/AirProc.cpp",
+      "libs/airwindows/src/AirWinBaseClass_pluginRegistry.cpp"
+    ],
+    "buildFiles": [
+      {
+        "path": "CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/CMakeLists.txt"
+      },
+      {
+        "path": "libs/CLI11/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/libs/CLI11/CMakeLists.txt"
+      },
+      {
+        "path": "libs/airwindows/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/libs/airwindows/CMakeLists.txt"
+      },
+      {
+        "path": "libs/binn/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/libs/binn/CMakeLists.txt"
+      },
+      {
+        "path": "libs/catch2_v3/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/libs/catch2_v3/CMakeLists.txt"
+      },
+      {
+        "path": "libs/eurorack/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/libs/eurorack/CMakeLists.txt"
+      },
+      {
+        "path": "libs/luajitlib/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/libs/luajitlib/CMakeLists.txt"
+      },
+      {
+        "path": "libs/oddsound-mts/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/libs/oddsound-mts/CMakeLists.txt"
+      },
+      {
+        "path": "libs/sqlite-3.23.3/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/libs/sqlite-3.23.3/CMakeLists.txt"
+      },
+      {
+        "path": "resources/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/resources/CMakeLists.txt"
+      },
+      {
+        "path": "src/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/CMakeLists.txt"
+      },
+      {
+        "path": "src/common/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/common/CMakeLists.txt"
+      },
+      {
+        "path": "src/lua/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/lua/CMakeLists.txt"
+      },
+      {
+        "path": "src/platform/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/platform/CMakeLists.txt"
+      },
+      {
+        "path": "src/surge-fx/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/surge-fx/CMakeLists.txt"
+      },
+      {
+        "path": "src/surge-python/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/surge-python/CMakeLists.txt"
+      },
+      {
+        "path": "src/surge-python/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/surge-python/pyproject.toml"
+      },
+      {
+        "path": "src/surge-python/setup.py",
+        "kind": "python",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/surge-python/setup.py"
+      },
+      {
+        "path": "src/surge-rs/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/surge-rs/CMakeLists.txt"
+      },
+      {
+        "path": "src/surge-testrunner/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/surge-testrunner/CMakeLists.txt"
+      },
+      {
+        "path": "src/surge-xt/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/surge-xt/CMakeLists.txt"
+      },
+      {
+        "path": "src/surge-xt/cli/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/surge-xt/cli/CMakeLists.txt"
+      },
+      {
+        "path": "src/surge-xt/xt-tests/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/surge-synthesizer/surge/blob/e2b3494b0b12172b7582e340cac182606bf36f9f/src/surge-xt/xt-tests/CMakeLists.txt"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: All recursive submodules were fetched at the exact gitlink revisions recorded by the source commit, and the project test runner configured and built successfully from that checkout.",
+      "url": "https://github.com/surge-synthesizer/surge/tree/e2b3494b0b12172b7582e340cac182606bf36f9f",
+      "resolution": {
+        "reason": "All recursive submodules were fetched at the exact gitlink revisions recorded by the source commit, and the project test runner configured and built successfully from that checkout.",
+        "evidence": [
+          "git submodule update --init --recursive completed at source e2b3494b0b12172b7582e340cac182606bf36f9f",
+          "CMake configured the release test runner with the pinned MTS-ESP submodule ec13f5749ea8c4ad45158477ce284082f3ce4e0d",
+          "surge-testrunner built successfully on macOS arm64"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:surge-synthesizer/surge": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 90,
+    "scoreRange": [
+      89,
+      90
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "Affected notes transpose to a wrong pitch or direction when using MTS-ESP channel shifts.",
+        "evidence": [
+          "Issue reports 12-semitone shifts for a 19.02-semitone period and -1-semitone shifts when map size is absent"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The issue was opened today against current source.",
+        "evidence": [
+          "Issue opened 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "The reporter supplied exact code paths and reproduction steps.",
+        "evidence": [
+          "Issue author identified channelKeyEquivalent and tuningPeriodSemitones"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "One MIDI channel must move by one tuning period.",
+        "evidence": [
+          "Fallback regression expects MIDI key 60 shifted to 72, not 59"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "A deterministic headless regression reproduces the fallback failure.",
+        "evidence": [
+          "Baseline test fails 59.0 versus expected 72.0"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The production change replaces duplicated branch logic with the existing period helper.",
+        "evidence": [
+          "One production expression changes"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "The project's test runner verifies the repair without external hardware.",
+        "evidence": [
+          "Targeted test and full tuning suite run locally"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "The helper documents equivalent behavior for all internal modes while correcting MTS behavior.",
+        "evidence": [
+          "tuningPeriodSemitones returns 12, scale count, tuning cents, or MTS period as appropriate"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository and issue are currently active.",
+        "evidence": [
+          "Source and issue updated 2026-09-14"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fix benefits MTS-ESP users of microtonal and non-octave scales.",
+        "evidence": [
+          "Issue includes Bohlen-Pierce and missing-map cases"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The corrected helper applies to every MIDI channel and all MTS-ESP sources.",
+        "evidence": [
+          "channelKeyEquivalent is shared across voice and synthesizer paths"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Correct period shifts also establish the right start-point basis for the related portamento issue.",
+        "evidence": [
+          "Issue #8570 depends on channelKeyEquivalent consistency"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 93,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      93,
+      90
+    ],
+    "selectable": true
+  },
+  "durationMs": 3590
+}

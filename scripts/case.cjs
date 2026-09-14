@@ -20,6 +20,10 @@ function validate(c, id = c.id) {
     if (!/^[\w.-]+\/[\w.-]+$/.test(s.repository) || !/^[a-f0-9]{40}$/.test(s.commit)) throw new Error('Pin each source to an immutable commit')
     relative(s.directory)
     if (!s.directory.startsWith('sources/') || dirs.has(s.directory) || [...dirs].some(d => d.startsWith(s.directory + '/') || s.directory.startsWith(d + '/'))) throw new Error('Source directories must be distinct and below sources/')
+    if (s.sparsePaths !== undefined) {
+      if (!Array.isArray(s.sparsePaths) || !s.sparsePaths.length || new Set(s.sparsePaths).size !== s.sparsePaths.length) throw new Error('Source sparsePaths must be a nonempty distinct path list')
+      s.sparsePaths.forEach(relative)
+    }
     dirs.add(s.directory)
   }
   for (const lang of ['node', 'python']) if (c.runtime?.[lang] && !/^\d+\.\d+\.\d+$/.test(c.runtime[lang])) throw new Error(`Pin ${lang} version`)

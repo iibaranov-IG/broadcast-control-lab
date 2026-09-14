@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "id": "surge-8569",
+  "status": "ready",
+  "title": "Use the MTS-ESP tuning period for MIDI channel shifts",
+  "issue": "https://github.com/surge-synthesizer/surge/issues/8569",
+  "problem": "With Use MIDI Channel for Octave Shift enabled, an MTS-ESP client uses 12 semitones when the source period differs and can shift down by one semitone when the source supplies no map size.",
+  "reproduce": "Mark a Surge storage instance as an MTS-ESP client whose source has no map size, then shift MIDI key 60 by channel index 1. The old channelKeyEquivalent path uses MTS_GetMapSize()=-1 and returns key 59 instead of the MTS period fallback at key 72.",
+  "acceptance": "Channel shifts delegate to tuningPeriodSemitones(), which uses MTS_GetPeriodSemitones() for an active client and preserves the existing behavior for standard and internal tunings; the missing-map regression returns 72 and the complete tuning suite remains green.",
+  "repair": "Replace the duplicated tuning-mode branch in channelKeyEquivalent() with the existing tuningPeriodSemitones() helper and add a C++ regression for an MTS source without map metadata.",
+  "sources": [
+    {
+      "id": "surge",
+      "repository": "surge-synthesizer/surge",
+      "commit": "e2b3494b0b12172b7582e340cac182606bf36f9f",
+      "directory": "sources/surge-8569",
+      "sparsePaths": [
+        ".clang-format",
+        ".gitignore",
+        "src/common/dsp/SurgeVoice.cpp",
+        "src/common/SurgeStorage.cpp",
+        "src/surge-testrunner/UnitTestsTUN.cpp"
+      ]
+    }
+  ],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      { "cwd": "sources/surge-8569", "argv": ["git", "apply", "../../cases/surge-8569/repair.patch"] }
+    ],
+    "test": [
+      { "cwd": ".", "argv": ["node", "cases/surge-8569/test.mjs", "sources/surge-8569"] }
+    ],
+    "build": []
+  },
+  "artifacts": { "report": "reports/surge-8569.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies the exact source transformation, the MTS-period dispatch, and presence of the executable upstream C++ regression. A local macOS arm64 Release build passed the targeted regression and all 20 tuning test cases (61,304 assertions), but that local run is not treated as immutable BCL Actions evidence. Upstream cross-platform CI remains the publication gate.",
+    "ownerCheck": "Connect Surge XT as an MTS-ESP client to a source using a non-octave scale such as Bohlen-Pierce, enable Use MIDI Channel for Octave Shift, and play the same note on channels 1 and 2. Confirm channel 2 is one source period (3:1 for Bohlen-Pierce) above channel 1. Repeat with a source that omits map size and confirm channel 2 moves up one 12-semitone fallback period rather than down one semitone."
+  },
+  "selection": {
+    "report": "cases/surge-8569/triage.json",
+    "sha256": "7bc7b50594b53d8ffc9bc13380cb8e3b7427f36ae084fc4ec037cfe55cf5989e",
+    "reason": "A fresh deterministic pitch defect has exact reproduction steps, no competing PR, a one-expression repair, an executable upstream regression, and direct cross-platform CI coverage."
+  },
+  "publish": {
+    "source": "surge",
+    "target": "surge-synthesizer/surge",
+    "base": "main",
+    "commitMessage": "Fix MTS-ESP channel octave shifts",
+    "paths": ["src/common/dsp/SurgeVoice.cpp", "src/surge-testrunner/UnitTestsTUN.cpp"],
+    "verificationOnlyPaths": ["tests/test_mts_channel_period_bcl.mjs"]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "surge",
+    "timeoutMs": 60000,
+    "setup": [
+      { "cwd": ".", "argv": ["git", "apply", "../../cases/surge-8569/tests-only.patch"] }
+    ],
+    "build": [],
+    "testFiles": ["tests/test_mts_channel_period_bcl.mjs"],
+    "regression": { "cwd": ".", "argv": ["node", "--test", "tests/test_mts_channel_period_bcl.mjs"] },
+    "negative": { "exitCode": 1, "outputIncludes": "channel shifts use tuningPeriodSemitones" },
+    "suite": { "cwd": ".", "argv": ["node", "--test", "tests/test_mts_channel_period_bcl.mjs"] },
+    "suiteOutputIncludes": "# tests 1"
+  }
+}

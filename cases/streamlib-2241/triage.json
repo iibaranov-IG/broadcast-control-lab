@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T06:52:33.613Z",
+  "issue": {
+    "repository": "tatolab/streamlib",
+    "number": "2241",
+    "url": "https://github.com/tatolab/streamlib/issues/2241",
+    "title": "fix(examples): microphone-reverb-speaker's processors take a config class instead of keyword parameters",
+    "state": "open",
+    "updatedAt": "2026-09-13T13:28:13Z"
+  },
+  "source": {
+    "repository": "tatolab/streamlib",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "NOASSERTION",
+    "commit": "72339eae225029acd6aced3329c21134efaf53a2",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "adapters/streamlib-adapter-cpu-readback/src/adapter.rs",
+      "adapters/streamlib-adapter-cpu-readback/src/context.rs",
+      "adapters/streamlib-adapter-cpu-readback/src/lib.rs",
+      "adapters/streamlib-adapter-cpu-readback/src/state.rs",
+      "adapters/streamlib-adapter-cpu-readback/src/view.rs",
+      "adapters/streamlib-adapter-cpu-readback/tests/common.rs",
+      "adapters/streamlib-adapter-cpu-readback/tests/concurrent_read_timeline_signals.rs",
+      "adapters/streamlib-adapter-cpu-readback/tests/conformance.rs",
+      "adapters/streamlib-adapter-cpu-readback/tests/consumer_carve_out.rs",
+      "adapters/streamlib-adapter-cpu-readback/tests/cpu_readable_plane_aware.rs"
+    ],
+    "buildFiles": [
+      {
+        "path": "Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/Cargo.toml"
+      },
+      {
+        "path": "adapters/streamlib-adapter-cpu-readback/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/adapters/streamlib-adapter-cpu-readback/Cargo.toml"
+      },
+      {
+        "path": "adapters/streamlib-adapter-cuda/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/adapters/streamlib-adapter-cuda/Cargo.toml"
+      },
+      {
+        "path": "adapters/streamlib-adapter-opengl/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/adapters/streamlib-adapter-opengl/Cargo.toml"
+      },
+      {
+        "path": "adapters/streamlib-adapter-skia/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/adapters/streamlib-adapter-skia/Cargo.toml"
+      },
+      {
+        "path": "adapters/streamlib-adapter-vulkan/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/adapters/streamlib-adapter-vulkan/Cargo.toml"
+      },
+      {
+        "path": "adapters/streamlib-surface-adapter/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/adapters/streamlib-surface-adapter/Cargo.toml"
+      },
+      {
+        "path": "examples/audio-mixer-demo/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/audio-mixer-demo/pyproject.toml"
+      },
+      {
+        "path": "examples/camera-audio-recorder/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/camera-audio-recorder/pyproject.toml"
+      },
+      {
+        "path": "examples/camera-codec-roundtrip/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/camera-codec-roundtrip/pyproject.toml"
+      },
+      {
+        "path": "examples/camera-compute-kernel/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/camera-compute-kernel/pyproject.toml"
+      },
+      {
+        "path": "examples/camera-display/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/camera-display/pyproject.toml"
+      },
+      {
+        "path": "examples/camera-halftone/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/camera-halftone/pyproject.toml"
+      },
+      {
+        "path": "examples/camera-python-effects/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/camera-python-effects/pyproject.toml"
+      },
+      {
+        "path": "examples/camera-virtual-camera/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/camera-virtual-camera/pyproject.toml"
+      },
+      {
+        "path": "examples/camera-webrtc-publish/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/camera-webrtc-publish/pyproject.toml"
+      },
+      {
+        "path": "examples/fisheye-object-detection/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/fisheye-object-detection/pyproject.toml"
+      },
+      {
+        "path": "examples/jpeg-psnr/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/jpeg-psnr/Cargo.toml"
+      },
+      {
+        "path": "examples/microphone-reverb-speaker/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/microphone-reverb-speaker/pyproject.toml"
+      },
+      {
+        "path": "examples/moq-broadcast-roundtrip/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/moq-broadcast-roundtrip/pyproject.toml"
+      },
+      {
+        "path": "examples/raytracing-showcase/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/raytracing-showcase/pyproject.toml"
+      },
+      {
+        "path": "examples/screen-recorder/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/screen-recorder/Cargo.toml"
+      },
+      {
+        "path": "examples/tokio-integration/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/examples/tokio-integration/Cargo.toml"
+      },
+      {
+        "path": "packages/clap/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/packages/clap/Cargo.toml"
+      },
+      {
+        "path": "packages/jpeg/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/packages/jpeg/Cargo.toml"
+      },
+      {
+        "path": "packages/screen-capture/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/packages/screen-capture/Cargo.toml"
+      },
+      {
+        "path": "packages/streamlib-moq/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/packages/streamlib-moq/Cargo.toml"
+      },
+      {
+        "path": "packages/streamlib-moq/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/packages/streamlib-moq/pyproject.toml"
+      },
+      {
+        "path": "packages/streamlib-moq/vendor/moq-transport/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/packages/streamlib-moq/vendor/moq-transport/Cargo.toml"
+      },
+      {
+        "path": "packages/streamlib-webrtc/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/tatolab/streamlib/blob/72339eae225029acd6aced3329c21134efaf53a2/packages/streamlib-webrtc/Cargo.toml"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [
+    {
+      "url": "https://github.com/tatolab/streamlib/pull/2243",
+      "relation": "issue timeline cross-reference",
+      "title": "docs(plan): fold agent-readable-processor-catalog into the plan and archive it",
+      "author": "tato123",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "headSha": "5a32dcd92fb8f58550b5edcd9cb39cd2bc845016",
+      "updatedAt": "2026-09-13T13:53:16Z"
+    }
+  ],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:tatolab/streamlib": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 88,
+    "scoreRange": [
+      88,
+      89
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "The shipped microphone-reverb-speaker example cannot import or start.",
+        "evidence": [
+          "Published decorator raises TypeError during module import."
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The owner filed the regression today against the current release.",
+        "evidence": [
+          "Issue created 2026-09-13 and wheel 0.22.6 reproduces it."
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The repository owner authored the issue and exact desired constructor.",
+        "evidence": [
+          "Issue includes Done means and Validation shape sections."
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "One annotated config object must replace four keyword parameters.",
+        "evidence": [
+          "Baseline decorator error states the same exact contract."
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "Import fails deterministically before and succeeds after.",
+        "evidence": [
+          "Fresh published wheel was used in an amd64 container."
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "One processor file and two focused tests are sufficient.",
+        "evidence": [
+          "The app's existing rt.add call stays unchanged."
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Import and construction tests are fast but need the published x86_64 wheel.",
+        "evidence": [
+          "Two unit tests complete in milliseconds after uv sync."
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Defaults and range validation are preserved through dataclass fields.",
+        "evidence": [
+          "Tests cover original wet/dry defaults and invalid room size."
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Repository and issue are active today.",
+        "evidence": [
+          "Main revision and issue activity are current."
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The repair restores a documented live-audio example.",
+        "evidence": [
+          "microphone-reverb-speaker is a shipped consumer example."
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 3,
+        "reason": "This is one consumer migration that models the current config idiom.",
+        "evidence": [
+          "ShaderEffectConfig is the in-tree model cited by the owner."
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "The fix unblocks users copying this audio processor example.",
+        "evidence": [
+          "Processor imports and constructs against the current wheel."
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 95,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      95,
+      88
+    ],
+    "selectable": true
+  },
+  "durationMs": 3341
+}

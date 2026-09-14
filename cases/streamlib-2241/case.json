@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "id": "streamlib-2241",
+  "status": "ready",
+  "title": "Migrate microphone reverb to the processor config-class API",
+  "issue": "https://github.com/tatolab/streamlib/issues/2241",
+  "problem": "The microphone reverb processor still exposes four constructor keywords, so the current processor decorator rejects the module during import.",
+  "reproduce": "Import ReverbEffect against published StreamLib 0.22.6; the baseline decorator raises that a processor config must be one class.",
+  "acceptance": "ReverbEffect takes one annotated dataclass config, preserves all four defaults and range checks, and imports against the current published wheel.",
+  "repair": "Add ReverbEffectConfig, consume its fields in the constructor, and add focused default and validation tests.",
+  "sources": [{"id":"upstream","repository":"tatolab/streamlib","commit":"72339eae225029acd6aced3329c21134efaf53a2","directory":"sources/streamlib-2241"}],
+  "runtime": {"node":"22.20.0","python":"3.12.14"},
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{"cwd":"sources/streamlib-2241","argv":["git","apply","../../cases/streamlib-2241/repair.patch"]}],
+    "test": [{"cwd":".","argv":["node","cases/streamlib-2241/test.mjs","sources/streamlib-2241"]}],
+    "build": [{"cwd":"sources/streamlib-2241","argv":["python3","-m","py_compile","examples/microphone-reverb-speaker/processors/reverb_effect.py","examples/microphone-reverb-speaker/tests/test_reverb_effect.py"]}]
+  },
+  "artifacts": {"report":"reports/streamlib-2241.json"},
+  "selection": {"report":"cases/streamlib-2241/triage.json","sha256":"802297b8825b392c48cb1aa24b928402126430f0123b08bdd1363c715ffaae1c","reason":"A same-day owner-filed audio regression has an exact decorator error, published-wheel reproduction, no competing PR, and a small specified migration."},
+  "verification": {"hardwareVerified":false,"applicationVerified":false,"limitations":"BCL's portable regression enforces the config-class decorator contract and construction tests. Separately, the candidate imported and constructed with StreamLib 0.22.6 on amd64. The complete microphone-to-speaker graph was not run because it requires audio hardware.","ownerCheck":"Run the example with a microphone and speaker after uv sync, confirm the graph reaches Running, and verify the default wet/dry mix sounds unchanged."},
+  "publish": {"source":"upstream","target":"tatolab/streamlib","base":"main","paths":["examples/microphone-reverb-speaker/processors/reverb_effect.py","examples/microphone-reverb-speaker/tests/test_reverb_effect.py"]},
+  "upstream": {
+    "kind":"python","source":"upstream","timeoutMs":60000,
+    "setup":[{"cwd":".","argv":["git","apply","../../cases/streamlib-2241/tests-only.patch"]}],
+    "build": [],
+    "testFiles":["examples/microphone-reverb-speaker/tests/test_reverb_effect.py"],
+    "regression":{"cwd":".","argv":["python3","../../cases/streamlib-2241/upstream.py"]},
+    "negative":{"exitCode":1,"outputIncludes":"BUG_REVERB_PROCESSOR_CONFIG_SIGNATURE"},
+    "suite":{"cwd":".","argv":["python3","../../cases/streamlib-2241/upstream.py"]},
+    "suiteOutputIncludes":"Ran 2 tests"
+  }
+}

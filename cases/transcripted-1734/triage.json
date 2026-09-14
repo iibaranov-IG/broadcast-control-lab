@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T13:49:47.730Z",
+  "issue": {
+    "repository": "r3dbars/transcripted",
+    "number": "1734",
+    "url": "https://github.com/r3dbars/transcripted/issues/1734",
+    "title": "\"Selected mic unavailable\" since last Transcripted update (1.1.59)",
+    "state": "open",
+    "updatedAt": "2026-09-14T08:35:09Z"
+  },
+  "source": {
+    "repository": "r3dbars/transcripted",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "6c85575631cfe942e040f22fa57cad28abcb3a95",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": ".agent-review/AGENTS.md",
+        "url": "https://github.com/r3dbars/transcripted/blob/6c85575631cfe942e040f22fa57cad28abcb3a95/.agent-review/AGENTS.md",
+        "content": "# Agent Review Folder\n\nOnly write sanitized PR review evidence here.\n\nDo not use existing images in this folder as current UI truth. They may belong\nto older branches or closed issues.\n",
+        "requirementHints": [],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": ".github/PULL_REQUEST_TEMPLATE.md",
+        "url": "https://github.com/r3dbars/transcripted/blob/6c85575631cfe942e040f22fa57cad28abcb3a95/.github/PULL_REQUEST_TEMPLATE.md",
+        "content": "## Why\n\n<!-- What problem does this change solve? -->\n\n## Product Impact\n\n- Affects: `dictation` / `meetings` / `agent artifacts` / `docs only`\n- Lane: `activation` / `dictation reliability` / `meeting reliability` / `release ops` / `agent workflow`\n- Why this matters:\n\n## What changed\n\n-\n\n## How I checked it\n\n- [ ] `scripts/dev/agent-preflight.sh`\n- [ ] Selected checks from `.agents/test-matrix.yml` for the files changed\n- [ ] `bash build.sh --no-open`\n- [ ] `bash run-tests.sh`\n- [ ] Performance budget passed (`bash build.sh --no-open` runs the bundle gate; for runtime-sensitive changes run `TRANSCRIPTED_RUNTIME_BUDGET=1 bash build.sh --no-open`, which scores your local event log against the ratchet ceilings \u2014 a bare `performance-budget.rb --events <log>` scores the aspirational targets the app does not meet yet and is expected to fail)\n- [ ] `bash run-integration-smoke.sh` if I touched `Sources/Meeting/` or `Sources/TranscriptedCore/`\n- [ ] `swift test` if I touched `Package.swift`, `Sources/TranscriptedCore/`, or the public core seam\n- [ ] Manual check:\n\n## Risk Review\n\n- [ ] Privacy / local-first behavior reviewed\n- [ ] Storage path or migration impact reviewed\n- [ ] Public-facing copy stays concrete and matches current product scope\n- [ ] Release/update impact reviewed (`CFBundleShortVersionString`, `docs/appcast.xml`, or user-facing caveats if applicable)\n- [ ] Agent PRs link the issue/workpad and stay draft until human review\n- [ ] UI changes include sanitized `.agent-review/visuals/` evidence\n- [ ] No private transcripts, audio, tokens, personal paths, or customer data are included\n\n## Notes\n\n<!-- Related issues, follow-ups, screenshots, or legacy-branch impact -->\n\n## Agent handoff\n\n<!-- For delegated work, paste the one-line closeout from docs/agent-closeout.md. -->\n\n`COORD_DONE: GREEN/BRIEF/RED | PR URL if any | changes made | GitHub cleanup recommendations | decisions needed | tests/checks run | smallest next action`\n",
+        "requirementHints": [
+          "- [ ] Selected checks from `.agents/test-matrix.yml` for the files changed",
+          "- [ ] `bash run-tests.sh`",
+          "- [ ] `bash run-integration-smoke.sh` if I touched `Sources/Meeting/` or `Sources/TranscriptedCore/`",
+          "- [ ] `swift test` if I touched `Package.swift`, `Sources/TranscriptedCore/`, or the public core seam",
+          "`COORD_DONE: GREEN/BRIEF/RED | PR URL if any | changes made | GitHub cleanup recommendations | decisions needed | tests/checks run | smallest next action`"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "AGENTS.md",
+        "url": "https://github.com/r3dbars/transcripted/blob/6c85575631cfe942e040f22fa57cad28abcb3a95/AGENTS.md",
+        "content": "# Transcripted Agent Guide\n\n## Current repo truth\n\n- `main` is the current Transcripted product, derived from the earlier Draft codebase.\n- The current app on `main` supports **dictation** and **meetings**.\n- Meeting capture includes local mic + system audio, imported-audio transcription, optional local-speaker review, and agent-readable Markdown output.\n- The older draft / ghostwriting flow is not active on `main`.\n- `Sources/TranscriptedCore/` is an in-repo library consumed through `Sources/Meeting/`. Keep it as a library boundary.\n- `Sources/Speech/` owns the app-owned local STT path. Meetings reuse that path through `Sources/Meeting/MeetingSTTAdapter.swift`.\n- `Sources/Reliability/` owns wake / sleep recovery for hotkeys and active capture flows.\n- `build.sh` builds the app target. The root `Package.swift` exists for `TranscriptedCore` package tests and smoke coverage, not as the main app build.\n\n## Product capability contract\n\nSimplification work must preserve the current product surface unless the owner\nexplicitly approves a capability change. In particular, keep:\n\n- automatic meeting detection and its record / dismiss / remind flow\n- the Speakers directory and speaker review, rename, merge, and delete tools\n- per-app dictation Auto Enter\n- manual model-cache inspection and cleanup controls\n- the status item's right-click quick menu\n- retained meeting-audio playback; transcript rows stay static and do not\n  highlight or follow the playhead\n\nThese surfaces may share less code underneath, but do not delete, hide, or make\nthem harder to reach as part of an architecture or visual cleanup.\n\n## Response voice\n\n- Write like a real person texting a friend, not like a presentation.\n- Keep things simple, direct, and useful.\n- Use short, punchy sentences most of the time.\n- Vary the rhythm. Short punch. Then a little more detail when it helps.\n- Use casual connectors when they fit: \"so\", \"anyway\", \"plus\", \"also\".\n- Be honest when something is weird, unclear, or unknown.\n- Use light natural hesitation sparingly: \"I think maybe\", \"probably\", \"not sure but\".\n- Avoid marketing speak, corporate buzzwords, stiff transitions, and obvious AI phrases like \"dive into\", \"delve into\", or \"let's explore\".\n- Avoid piling on adjectives.\n- Keep capitalization normal.\n- Be relaxed, but still clear. Real, not sloppy.\n\n## Read this first\n\n0. `AGENT_START.md` for the short agent entrypoint\n1. `README.md`\n2. `AGENTS.md`\n3. `docs/repo-layout.md`\n4. `docs/agent-onboarding.md`\n5. `CLAUDE.md`\n6. `Sources/CLAUDE.md`\n7. the nearest local `CLAUDE.md` for the area you are changing\n8. `Sources/Accessibility/CLAUDE.md` when touching focused-editor AX metadata, overlay placement, or paste-back context\n9. `Sources/Dictation/CLAUDE.md` when touching dictation persistence\n10. `Sources/Meeting/CLAUDE.md` when touching meeting capture or meeting UI\n11. `Sources/TranscriptedCore/CLAUDE.md` when touching the shared library\n12. `Sources/Speech/CLAUDE.md` when touching dictation STT, audio recovery, or device handling\n13. `Sources/Support/CLAUDE.md` when touching shared preferences, permissions, paths, or Claude Desktop install flow\n14. `Sources/UI/CLAUDE.md` when touching overlay, menubar, onboarding, settings, or agent-connect UI\n15. `Sources/Capture/CLAUDE.md` when touching hotkeys or physical dictation trigger routing\n16. `Tests/README.md`\n17. `docs/storage-paths.md`\n18. `Sources/Reliability/CLAUDE.md` when touching wake / sleep recovery or hotkey recovery\n19. `Sources/Observability/CLAUDE.md` when touching crash reporting, event forwarding, anonymous analytics, or app updates\n20. `docs/release-packaging.md` when touching packaging, signing, notarization, or user-facing releases\n21. `docs/sparkle-updates.md` when touching app updates or cutting a release users should receive in-app\n22. `Tools/*/CLAUDE.md` when touching standalone CLI, MCP, or QA tools\n\nUse `docs/repo-layout.md` as the canonical directory map and doc hierarchy.\nUse `.agents/test-matrix.yml` as the quick path-to-verification map, with this\nfile taking precedence when there is any conflict.\n\n## Coordinator closeout\n\nWhen a worker lane reports back to the Transcripted coordinator, use this exact\none-line shape and keep it short:\n\n`COORD_DONE: GREEN/BRIEF/RED | PR URL if any | changes made | GitHub cleanup recommendations | decisions needed | tests/checks run | lanes used: Codex=...; Claude=...; Local=...; Windows=... | smallest next action`\n\nFor review, merge-room, and worker-thread prompts, include the Maestro lane\ncontract. Codex is the final reviewer / merger. Claude is for risky reasoning.\nMac local models and the Windows worker are cheap first-pass lanes for summaries,\nclustering, log triage, and draft work. If a lane is skipped, say why in the\ncloseout.\n\nFor non-Codex lanes, use `~/.codex/bin/maestro-delegate` whenever possible, for\nexample `maestro-delegate local --label pr-dedupe -- \"...\"`,\n`maestro-delegate windows --label review -- \"...\"`, or\n`maestro-delegate claude --label risk-review -- \"...\"`. A lane only counts as\nused if the closeout includes a real `MAESTRO_PROOF` path, output path, or pasted\ncommand output.\n\nUse `docs/agent-closeout.md` for the status meanings and GitHub cleanup\nboundaries.\n\n## Build and test\n\n```bash\nbash build-deps.sh\nbash build.sh --no-open\nbash run-tests.sh\nbash run-integration-smoke.sh\nswift test\n```\n\nRules. Use `.agents/test-matrix.yml` for the full path-to-verification map;\nthese are the common minimums:\n\n1. After changing Swift source, run `bash build.sh --no-open` and `bash run-tests.sh`.\n2. If you touch `Sources/Meeting/` or `Sources/TranscriptedCore/`, also run `bash build-deps.sh --force` and `bash run-integration-smoke.sh`.\n3. If you touch `Package.swift`, `Sources/TranscriptedCore/`, or the public core seam, also run `bash build-deps.sh --force`, `bash run-integration-smoke.sh`, and `swift test`.\n4. `build.sh` must not compile `Sources/TranscriptedCore/` directly into the app target.\n\nPR QA levels:\n\n- Tiny docs-only: run `scripts/dev/agent-preflight.sh` and the mapped docs gate. Do not require full release QA for spelling, comments, or internal docs that do not change release truth.\n- Meaningful code: run `codex-review` against the real PR base, then run the union of `.agents/test-matrix.yml` checks for the changed paths.\n- Broad, risky, or release-impacting: run `codex-review`, the mapped checks, and `bash scripts/ops/transcripted-qa-bench.sh --mode full`.\n\nTreat release notes, appcast/update docs, Homebrew cask docs, QA-gate docs, and\npublic download/release-truth docs as release-impacting even when the diff is\nMarkdown-only.\n\n`codex-review` means: an independent model review of the full PR diff against\nthe real base branch \u2014 e.g. `codex review` from the OpenAI Codex CLI, or an\nequivalent independent agent reviewer. Record the verdict (and any findings you\nrejected, with reasons) in the PR description. It is not defined as a repo\nscript; any tool that reviews the true diff qualifies.\n\n## Before opening a repair branch\n\nWhen a PR goes dirty (conflicting) the reflex is to spin up a fresh\n`repair-pr-NNNN` branch. Do not. First confirm the change did not ALREADY merge\nunder a different PR number \u2014 this has burned multiple threads that each\nre-opened a repair branch for a fix that was already on `main`.\n\nRequired step before opening any repair/redo/reland branch:\n\n```bash\npython3 scripts/dev/check-superseded.py --pr <dirty-pr-number>\n# or, once you are on the repair branch:\npython3 scripts/dev/check-superseded.py --branch \"$(git branch --show-current)\"\n```\n\n- Exit `3` with `STOP: #NNNN already merged this` means the scope is already on\n  `main`. Close the dirty PR as superseded and do the work only if something is\n  genuinely still missing. Do not open the repair branch.\n- Exit `0` (`no merged PR already covers ...`) means the change is novel. Proceed.\n\n`scripts/dev/agent-preflight.sh` also prints this reminder automatically when it\ndetects a repair-shaped branch name.\n\n## Releases, Sparkle, and Homebrew\n\nWhen the task is a user-facing release, package handoff, or update-path change,\nagents must treat Sparkle as part of the release contract, not as optional\nfollow-up work.\n\nRules:\n\n1. Read `docs/release-packaging.md` and `docs/sparkle-updates.md` before changing release flow.\n2. For builds intended for other machines, use `build-beta.sh`, not `build.sh`.\n3. A release is not complete just because a DMG exists. For in-app updates to work, the release flow must also:\n   - publish the signed archive where users can fetch it\n   - update `docs/appcast.xml`\n   - push the updated appcast to the branch that backs the live feed\n4. If the release should also be installable or upgradeable through Homebrew, the release flow must also:\n   - run `bash scripts/release/update-cask.sh <version>` after the GitHub release is published\n   - commit the updated `Casks/transcripted.rb`\n   - push that cask update so `brew install` and `brew upgrade` see the new version\n5. If Sparkle metadata was not updated, say explicitly that existing installs will not discover the new release in-app yet.\n6. If the Homebrew cask was not updated, say explicitly that `brew install` / `brew upgrade` will still point at the older release.\n7. If the release artifact URL, appcast URL, public key, Sparkle tooling, or Homebrew install path changes, update the docs in the same change.\n8. Keep `Info.plist` Sparkle settings aligned with the actual release feed:\n   - `SUFeedURL`\n   - `SUPublicEDKey`\n   - any automatic-check / automatic-download flags\n9. Preferred release verification for release-path changes:\n   - `bash build-deps.sh --force` when dependency tooling changes\n   - `bash build.sh --no-open`\n   - `bash run-tests.sh`\n   - `SKIP_NOTARIZATION=1 bash build-beta.sh '' <user-name>` for packaging smoke, or the full notarized path when cutting a real release\n\n## Observability, Sentry, and Analytics\n\nTreat Sentry and PostHog as explicitly bounded integrations, not generic log\nsinks.\n\nRules:\n\n1. Read `Sources/Observability/CLAUDE.md` before changing crash reporting, event forwarding, anonymous analytics, file logging, or update plumbing.\n2. Runtime Sentry config lives in `Info.plist` under:\n   - `TranscriptedSentryDSN`\n   - `TranscriptedSentryEnvironment`\n   - `TranscriptedSentryReleasePrefix`\n   - optional: `TranscriptedSentryAppHangTrackingEnabled`\n3. Local overrides for testing can come from process environment:\n   - `SENTRY_DSN`\n   - `SENTRY_ENVIRONMENT`\n   - `SENTRY_RELEASE`\n   - `SENTRY_DIST`\n   - `SENTRY_ENABLE_APP_HANG_TRACKING`\n4. Runtime PostHog config lives in `Info.plist` under:\n   - `TranscriptedPostHogAPIKey`\n   - `TranscriptedPostHogHost`\n5. Local overrides for analytics testing can come from process environment:\n   - `POSTHOG_API_KEY`\n   - `POSTHOG_HOST`\n6. The user-facing crash reporting and anonymous analytics preferences are stored by `CrashReportingPreferences` and `AnalyticsPreferences`. Both default to enabled until the user changes them in Settings or onboarding.\n7. `EventReporter` does not forward every `.error` event to Sentry. Off-device forwarding is gated by the explicit allowlist in `Sources/Observability/SentryEventPolicy.swift`.\n8. PostHog events and properties are gated by `Sources/Observability/AnalyticsEventPolicy.swift`.\n9. Keep off-device payloads privacy-safe. Do not send raw transcript text, audio references, meeting titles, speaker names, emails, tokens, or absolute file paths. If payload shape changes, update the relevant sanitizer and tests in the same change:\n   - `Sources/Observability/SentryPayloadSanitizer.swift`\n   - `Sources/Observability/AnalyticsPayloadSanitizer.swift`\n10. Test and smoke runs should keep local production logs clean with `TRANSCRIPTED_DISABLE_FILE_LOGGER=1` when invoking binaries directly.\n11. Preserve the user verification path when touching the integrations:\n   - Settings should still expose the crash-reporting toggle\n   - Settings should still expose the anonymous analytics toggle\n   - About should still expose the `Send diagnostics` action when Sentry is configured (the old `Send Test Sentry Event` settings row was removed by owner decision in the 2026-08 settings simplification)\n12. Preferred verification for observability-related changes:\n   - `bash build.sh --no-open`\n   - `bash run-tests.sh`\n   - confirm Sentry, analytics, and observability preference tests still pass through `run-tests.sh`\n\n## Testing gotchas\n\n- `run-tests.sh` is a custom `swiftc` runner, not XCTest.\n- Root fast tests are discovered by convention: `Tests/FooTests.swift` must expose exactly one top-level `testFoo()` entry function.\n- `Tests/TranscriptedCoreTests/` is a separate Swift Package target, run via `swift test` rather than `run-tests.sh`.\n\n## Storage\n\nCurrent app builds on `main` default to Transcripted-named Application Support paths:\n\n- app support root: `~/Library/Application Support/Transcripted/`\n- capture library: `~/Library/Application Support/Transcripted/captures/`\n- meetings: `~/Library/Application Support/Transcripted/captures/meetings/`\n- dictations: `~/Library/Application Support/Transcripted/captures/dictations/`\n\nThe user can relocate the capture library in Settings via\n`transcriptSaveLocation`. App-owned state, cache, logs, and temp files stay\nunder `~/Library/Application Support/Transcripted/`.\n\nHistoric `Draft` paths still exist for migration and standalone-tool fallback.\n\nSee `docs/storage-paths.md` for the canonical storage map, including legacy fallbacks and `TranscriptedCore` standalone defaults.\n\n## Default orchestration: ultracode + workflows\n\nFor substantive work \u2014 research, audits, multi-file or cross-cutting changes, design, and reviews \u2014 default to authoring and running a **Workflow** that fans out parallel agents and adversarially verifies findings, rather than working solo. Reserve solo execution for trivial mechanical edits and conversational replies. Spawned worker threads inherit this default: a thread doing real work should itself orchestrate with a workflow wherever breadth or independent verification helps. Token cost is not the constraint here \u2014 correctness and coverage are. This is \"ultracode\" as the standing default for this repo.\n",
+        "requirementHints": [
+          "- `Sources/TranscriptedCore/` is an in-repo library consumed through `Sources/Meeting/`. Keep it as a library boundary.",
+          "- `build.sh` builds the app target. The root `Package.swift` exists for `TranscriptedCore` package tests and smoke coverage, not as the main app build.",
+          "Simplification work must preserve the current product surface unless the owner",
+          "11. `Sources/TranscriptedCore/CLAUDE.md` when touching the shared library",
+          "16. `Tests/README.md`",
+          "Use `.agents/test-matrix.yml` as the quick path-to-verification map, with this",
+          "`COORD_DONE: GREEN/BRIEF/RED | PR URL if any | changes made | GitHub cleanup recommendations | decisions needed | tests/checks run | lanes used: Codex=...; Claude=...; Local=...; Windows=... | smallest next action`",
+          "## Build and test",
+          "bash run-tests.sh",
+          "swift test",
+          "Rules. Use `.agents/test-matrix.yml` for the full path-to-verification map;",
+          "1. After changing Swift source, run `bash build.sh --no-open` and `bash run-tests.sh`.",
+          "2. If you touch `Sources/Meeting/` or `Sources/TranscriptedCore/`, also run `bash build-deps.sh --force` and `bash run-integration-smoke.sh`.",
+          "3. If you touch `Package.swift`, `Sources/TranscriptedCore/`, or the public core seam, also run `bash build-deps.sh --force`, `bash run-integration-smoke.sh`, and `swift test`.",
+          "4. `build.sh` must not compile `Sources/TranscriptedCore/` directly into the app target.",
+          "- Tiny docs-only: run `scripts/dev/agent-preflight.sh` and the mapped docs gate. Do not require full release QA for spelling, comments, or internal docs that do not change release truth.",
+          "- Meaningful code: run `codex-review` against the real PR base, then run the union of `.agents/test-matrix.yml` checks for the changed paths.",
+          "## Before opening a repair branch",
+          "Required step before opening any repair/redo/reland branch:",
+          "agents must treat Sparkle as part of the release contract, not as optional",
+          "1. Read `docs/release-packaging.md` and `docs/sparkle-updates.md` before changing release flow.",
+          "3. A release is not complete just because a DMG exists. For in-app updates to work, the release flow must also:",
+          "4. If the release should also be installable or upgradeable through Homebrew, the release flow must also:",
+          "   - commit the updated `Casks/transcripted.rb`",
+          "   - `bash run-tests.sh`",
+          "1. Read `Sources/Observability/CLAUDE.md` before changing crash reporting, event forwarding, anonymous analytics, file logging, or update plumbing.",
+          "3. Local overrides for testing can come from process environment:",
+          "5. Local overrides for analytics testing can come from process environment:",
+          "9. Keep off-device payloads privacy-safe. Do not send raw transcript text, audio references, meeting titles, speaker names, emails, tokens, or absolute file paths. If payload shape changes, update the relevant sanitizer and tests in the same change:",
+          "10. Test and smoke runs should keep local production logs clean with `TRANSCRIPTED_DISABLE_FILE_LOGGER=1` when invoking binaries directly.",
+          "   - About should still expose the `Send diagnostics` action when Sentry is configured (the old `Send Test Sentry Event` settings row was removed by owner decision in the 2026-08 settings simplification)",
+          "   - `bash run-tests.sh`",
+          "   - confirm Sentry, analytics, and observability preference tests still pass through `run-tests.sh`",
+          "## Testing gotchas",
+          "- `run-tests.sh` is a custom `swiftc` runner, not XCTest.",
+          "- Root fast tests are discovered by convention: `Tests/FooTests.swift` must expose exactly one top-level `testFoo()` entry function.",
+          "- `Tests/TranscriptedCoreTests/` is a separate Swift Package target, run via `swift test` rather than `run-tests.sh`.",
+          "See `docs/storage-paths.md` for the canonical storage map, including legacy fallbacks and `TranscriptedCore` standalone defaults."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/r3dbars/transcripted/blob/6c85575631cfe942e040f22fa57cad28abcb3a95/CONTRIBUTING.md",
+        "content": "# Contributing to Transcripted\n\nTranscripted is a local Mac app that turns meetings and dictation into\nstructured voice artifacts people and agents can both use.\n\nQuick repo orientation before you jump in:\n\n- `main` is the current Transcripted product built from the Draft codebase\n- the old standalone Transcripted app is preserved on `legacy/transcripted-standalone`\n  and `pre-draft-takeover-2026-04-06`\n- persisted app paths now default to Transcripted-named storage, though some helper names and standalone-tool fallbacks still reflect the Draft transition\n- coding agents should start with `AGENT_START.md`, then follow `AGENTS.md`\n\nIn public docs and user-facing copy, prefer concrete present-tense claims about\nwhat the product does today. The broader \"audio as a context layer\" thesis is\nreal, but it should be earned through proof rather than stated as if the future\nstate already exists.\n\n## Development Setup\n\n### Prerequisites\n\n- macOS 26+\n- Xcode command line tools\n- Apple Silicon\n\n### Getting Started\n\n1. Fork the repo and clone your fork:\n\n   ```bash\n   git clone https://github.com/YOUR_USERNAME/transcripted.git\n   cd transcripted\n   ```\n\n2. Build dependencies and the app:\n\n   ```bash\n   bash build-deps.sh\n   bash build.sh --no-open\n   ```\n\n3. Run the test suite:\n\n   ```bash\n   bash run-tests.sh\n   ```\n\nIf you touch meeting integration or `TranscriptedCore`, also run:\n\n```bash\nbash run-integration-smoke.sh\n```\n\nOn first launch, models may download from HuggingFace if they are not already\ncached locally.\n\nBuild note: `build.sh` is the authoritative app build and uses raw `swiftc`.\n`Package.swift` exists for `TranscriptedCore` compilation and testing, but it\nis not the main app build.\n\nFor the current script surface and legacy helpers, see `scripts/README.md`.\nFor the active repo map and directory responsibilities, see `docs/repo-layout.md`.\nFor the path-to-verification map used by agents, see `.agents/test-matrix.yml`\nor run:\n\n```bash\nscripts/dev/agent-preflight.sh\n```\n\n## Product Framing\n\nWhen you change README copy, onboarding text, or public docs, keep these rules\nin mind:\n\n- lead with the concrete product: local dictation and local meeting capture\n- treat \"agent-ready artifacts\" as a present-tense capability\n- treat \"ambient context layer\" as vision language, not current product language\n- be precise about what stays local and what may still contact external services\n- explain legacy `Draft` paths as compatibility behavior, not as a second product\n\n## Making Changes\n\n### Branch Naming\n\nCreate a branch from `main` with a descriptive name:\n\n```text\nfeat/description\nfix/description\ndocs/description\nrefactor/description\n```\n\n### Code Style\n\n- Follow existing Swift conventions in the codebase\n- Use `// MARK:` comments to organize sections within files\n- Never do I/O, locks, or allocations inside CoreAudio real-time callbacks\n- Keep `@MainActor` annotations correct\n\n### Architecture\n\nThe codebase is organized around the current Transcripted app:\n\n| Area | Directory | Responsibility |\n|------|-----------|----------------|\n| App entry + state | `Sources/` | app lifecycle, hotkeys, paths, shared state |\n| Dictation capture and storage | `Sources/Speech/`, `Sources/Dictation/`, `Sources/Capture/` | speech capture, trigger routing, saved dictation transcripts |\n| Meeting pipeline | `Sources/Meeting/` | meeting recording, model warmup, transcript flow |\n| UI | `Sources/UI/` | grouped app surfaces: `Overlay/`, `MenuBar/`, `Settings/`, `Shared/` |\n| Shared meeting core | `Sources/TranscriptedCore/` | extracted meeting/transcription library and agent artifacts |\n\nSome internal folders still use `Draft` naming while the repo and product are\nbeing aligned publicly around Transcripted. Treat those as implementation\ndetails unless a change specifically affects compatibility paths.\n\nFor the canonical root and directory map, see `docs/repo-layout.md`.\n\n### Artifact-First Principle\n\nTranscripted prefers durable local outputs over opaque app-only state.\n\nThat means changes should preserve or improve:\n\n- readable Markdown outputs\n- structured JSON sidecars and indexes\n- stable storage paths\n- the ability for external agents to consume saved artifacts directly\n\n### Threading\n\nTranscripted has strict threading rules due to CoreAudio's real-time\nrequirements:\n\n| Component | Thread | Notes |\n|-----------|--------|-------|\n| Session controllers + UI state | `@MainActor` | UI-bound state |\n| Audio capture internals | `DispatchQueue` + `NSLock` | Real-time audio I/O |\n| CoreAudio I/O callbacks | real-time thread | **No I/O, locks, allocations, or ObjC calls** |\n\nCoreAudio I/O callbacks run on real-time threads. Buffers are deep-copied\nbefore async dispatch, never processed in-place.\n\n### Testing\n\nRun the default test suite from the command line:\n\n```bash\nbash run-tests.sh\n```\n\nIf you're changing meeting integration or `TranscriptedCore`, also run:\n\n```bash\nbash run-integration-smoke.sh\n```\n\n`run-tests.sh` discovers root fast tests by convention. A new\n`Tests/FooTests.swift` file must expose exactly one top-level `testFoo()` entry.\nUpdate `run-tests.sh` only when the compiled source list or runner behavior changes.\n\n## Submitting a Pull Request\n\n1. Make sure your code builds without warnings\n2. Run the relevant test suite\n3. Keep PRs focused, one feature or fix per PR\n4. Explain both what changed and why it matters\n5. Call out privacy, storage-path, or migration implications when relevant\n6. Link any related issues\n\n## Reporting Bugs\n\nOpen a GitHub issue with:\n\n- macOS version\n- steps to reproduce\n- expected vs actual behavior\n- whether the issue affects dictation, meetings, or agent artifacts\n- relevant logs from `~/Library/Application Support/Transcripted/logs/events.jsonl` or `~/Library/Application Support/Transcripted/logs/debug.log`\n\nIf your machine uses a custom capture library or you are reproducing against\nlegacy Draft-era artifacts, mention that in the report.\n\n## Questions?\n\nOpen a GitHub issue for questions or discussion.\n",
+        "requirementHints": [
+          "Quick repo orientation before you jump in:",
+          "3. Run the test suite:",
+          "   bash run-tests.sh",
+          "If you touch meeting integration or `TranscriptedCore`, also run:",
+          "`Package.swift` exists for `TranscriptedCore` compilation and testing, but it",
+          "For the path-to-verification map used by agents, see `.agents/test-matrix.yml`",
+          "- Use `// MARK:` comments to organize sections within files",
+          "| Shared meeting core | `Sources/TranscriptedCore/` | extracted meeting/transcription library and agent artifacts |",
+          "before async dispatch, never processed in-place.",
+          "### Testing",
+          "Run the default test suite from the command line:",
+          "bash run-tests.sh",
+          "If you're changing meeting integration or `TranscriptedCore`, also run:",
+          "`run-tests.sh` discovers root fast tests by convention. A new",
+          "`Tests/FooTests.swift` file must expose exactly one top-level `testFoo()` entry.",
+          "Update `run-tests.sh` only when the compiled source list or runner behavior changes.",
+          "## Submitting a Pull Request",
+          "2. Run the relevant test suite"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "archive/AGENTS.md",
+        "url": "https://github.com/r3dbars/transcripted/blob/6c85575631cfe942e040f22fa57cad28abcb3a95/archive/AGENTS.md",
+        "content": "# Archive\n\nThis directory is historical.\n\nDo not edit or follow archived code as current product behavior unless the user\nexplicitly asks for archive work. The live app is under `Sources/`, current\ntools are under `Tools/`, and current docs are under `docs/`.\n",
+        "requirementHints": [],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "Tools/SpeakerEvalHarness/contamination_drift_sim.py",
+      "archive/backend-beta-worker/src/index.ts",
+      "scripts/ab_dot_vs_cloud.py",
+      "scripts/aggregate_sweep.py",
+      "scripts/build_voxceleb_sessions.py",
+      "scripts/convert_eres2net_fused.py",
+      "scripts/dev/agent-check.py",
+      "scripts/dev/agent-context.py",
+      "scripts/dev/bluetooth-route-metrics.py",
+      "scripts/dev/check-analytics-emitters.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "archive/backend-beta-worker/package.json",
+        "kind": "node",
+        "url": "https://github.com/r3dbars/transcripted/blob/6c85575631cfe942e040f22fa57cad28abcb3a95/archive/backend-beta-worker/package.json"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:r3dbars/transcripted": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 91,
+    "scoreRange": [
+      91,
+      91
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Dictation cannot start with the reporter\u2019s selected USB microphone.",
+        "evidence": [
+          "Issue #1734 user-visible startup failure"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report was filed against the current 1.1.59 release today.",
+        "evidence": [
+          "Issue created and updated 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "The reporter supplied the exact app, macOS, and microphone versions.",
+        "evidence": [
+          "Issue #1734 environment and reproduction"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "A successful USB route command must reach delayed verification while stale settled routes still fail.",
+        "evidence": [
+          "Existing 300 ms settled verification"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The asynchronous ID publication sequence is deterministic in the policy seam.",
+        "evidence": [
+          "Focused C920 policy harness"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The production change is confined to the binding policy.",
+        "evidence": [
+          "Single production source file"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "The route policy is executable locally; final live capture requires the reporter\u2019s C920.",
+        "evidence": [
+          "Focused Swift harness"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Setter errors and strict delayed identity checks remain intact.",
+        "evidence": [
+          "Existing ParakeetEngine settled snapshot"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository is actively releasing and reviewing changes.",
+        "evidence": [
+          "Current v1.1.59 release and open PR activity"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Asynchronous USB route publication can affect webcams and audio interfaces beyond one C920.",
+        "evidence": [
+          "Shared AUHAL input binding path"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The fix applies to every asynchronously switching external input.",
+        "evidence": [
+          "Shared dictation device policy"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Allowing route settling restores recording and downstream transcription.",
+        "evidence": [
+          "Dictation startup path"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 94,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability.",
+    "queueKey": [
+      4,
+      94,
+      91
+    ],
+    "selectable": true
+  },
+  "durationMs": 4881
+}

@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 2,
+  "id": "transcripted-1734",
+  "status": "ready",
+  "title": "Allow asynchronous USB microphone binding to settle",
+  "issue": "https://github.com/r3dbars/transcripted/issues/1734",
+  "problem": "Transcripted verifies AUHAL's device ID immediately after setDeviceID, so a Logitech C920 driver that publishes a successful route change asynchronously is rejected before the existing settle delay and eventually appears unavailable.",
+  "reproduce": "Model a C920 route whose setDeviceID call succeeds while the immediate deviceID read remains on the prior microphone. The pinned baseline throws selectedDeviceNotBound before the settle phase.",
+  "acceptance": "A successful asynchronous USB route command reaches the existing 300 ms settle phase; driver errors, zero IDs, and routes that remain stale after settling are still rejected.",
+  "repair": "Validate the selected ID before binding, return a successful changed binding to the caller's settle phase, and retain strict verification on the delayed snapshot.",
+  "sources": [
+    {
+      "id": "transcripted",
+      "repository": "r3dbars/transcripted",
+      "commit": "6c85575631cfe942e040f22fa57cad28abcb3a95",
+      "directory": "sources/transcripted-1734",
+      "sparsePaths": [
+        ".gitignore",
+        "Sources/Speech/DictationInputDeviceSelectionPolicy.swift",
+        "Sources/Speech/ParakeetEngine.swift",
+        "Sources/Support/DictationPersistentInputPreferences.swift",
+        "Tests/TestHelpers.swift",
+        "Tests/DictationInputDeviceSelectionPolicyTests.swift"
+      ]
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/transcripted-1734",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/transcripted-1734/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/transcripted-1734/test.mjs",
+          "sources/transcripted-1734"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/transcripted-1734.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the source-level two-phase binding contract on the pinned baseline and candidate. A separate focused Swift harness reproduced baseline red and candidate green on macOS 15.7.2. Transcripted requires macOS 26 and full Xcode for its complete build; physical C920 capture remains unverified.",
+    "ownerCheck": "Install the PR build on macOS 26, select the Logitech HD Pro Webcam C920, trigger dictation repeatedly after switching from another microphone, and confirm recording starts without the switching/unavailable sequence. Also confirm disconnecting the C920 still reports it unavailable."
+  },
+  "selection": {
+    "report": "cases/transcripted-1734/triage.json",
+    "reason": "The fresh issue names the exact release, USB device, user-visible failure, and reproduction steps; no competing PR or assignee existed, and the asynchronous route boundary is deterministic without hardware.",
+    "sha256": "2751c7d34e1e934201f2aab4f06cf35dc5c09b03fffec1880db8a5be73d33a32"
+  },
+  "publish": {
+    "source": "transcripted",
+    "target": "r3dbars/transcripted",
+    "base": "main",
+    "commitMessage": "Fix asynchronous USB input binding",
+    "paths": [
+      "Sources/Speech/DictationInputDeviceSelectionPolicy.swift",
+      "Tests/DictationInputDeviceSelectionPolicyTests.swift"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "transcripted",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/transcripted-1734/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "Tests/DictationInputDeviceSelectionPolicyTests.swift"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "../../cases/transcripted-1734/probe.mjs",
+        "."
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "BUG_ASYNC_USB_BINDING_REJECTED"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "../../cases/transcripted-1734/probe.mjs",
+        "."
+      ]
+    },
+    "suiteOutputIncludes": "PASS: asynchronous USB binding reaches strict settled verification"
+  }
+}

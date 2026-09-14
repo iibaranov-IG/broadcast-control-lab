@@ -2863,6 +2863,22 @@
       "lastSync": "2026-09-14T22:08:18.429Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "kalico-970",
+      "title": "Refresh the automatic USB product after changing MCU architecture",
+      "issue": "https://github.com/KalicoCrew/kalico/issues/970",
+      "pr": "https://github.com/KalicoCrew/kalico/pull/971",
+      "candidateSha256": "b0f4c684b6e0b000b14dc3d14ee970a2dc89a039aeb5cecb4408a6c2feec8a66",
+      "testedHeadSha": "ee77d2c72946f3ee5d3ed543ff30583379734fbf",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34904142153",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

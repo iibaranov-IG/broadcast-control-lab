@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 2,
+  "id": "yi-hack-v5-476",
+  "status": "ready",
+  "title": "Wire the YI Dome PTZ preset buttons to their existing actions",
+  "issue": "https://github.com/alienatedsec/yi-hack-v5/issues/476",
+  "problem": "The YI Hack v5 PTZ page renders Add Preset, Delete Preset and Delete All Preset buttons without click handlers, so the controls produce no network request.",
+  "reproduce": "Open the PTZ page on firmware 0.4.1 for a YI Dome 63US, enter a preset name and click Add Preset, or select a preset and click either delete button; no CGI request occurs.",
+  "acceptance": "The three buttons invoke the existing addPreset, delPreset and delAllPreset functions and issue the expected POST requests while the existing Go To Preset control remains unchanged.",
+  "repair": "Register delegated click handlers for all three preset-management buttons and route them to the existing request functions.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "alienatedsec/yi-hack-v5",
+      "commit": "d1997ae29ddeaf7d39d4d42c6da85901b7e56bcd",
+      "directory": "sources/yi-hack-v5-476"
+    }
+  ],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/yi-hack-v5-476",
+        "argv": ["git", "apply", "../../cases/yi-hack-v5-476/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": ["node", "cases/yi-hack-v5-476/test.mjs", "sources/yi-hack-v5-476"]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": { "report": "reports/yi-hack-v5-476.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL executes the real PTZ module with a minimal DOM and jQuery boundary, proving the baseline has no handlers and the candidate sends all three expected CGI requests. It does not flash firmware or move a physical camera.",
+    "ownerCheck": "Install the candidate web files on the reported YI Dome 63US. Add a named preset, move the camera and return to it, delete that preset, then create several presets and delete all. Confirm each click sends one request, the lists refresh, and camera movement matches the selected preset."
+  },
+  "selection": {
+    "report": "cases/yi-hack-v5-476/triage.json",
+    "sha256": "7300c5beb69dad9cee07f70c866e1647063f4124bdcba3d8c328432f2eda2a37",
+    "reason": "A same-day YI Dome owner supplied the exact firmware, model and inert controls. The existing functions and CGI endpoints make the expected behavior deterministic and the reporter can immediately validate it on the camera."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "alienatedsec/yi-hack-v5",
+    "base": "master",
+    "commitMessage": "Fix PTZ preset button handlers",
+    "paths": ["src/www/httpd/htdocs/js/modules/ptz.js"],
+    "verificationOnlyPaths": ["tests/test_ptz_preset_handlers_bcl.mjs"]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": ["git", "apply", "../../cases/yi-hack-v5-476/tests-only.patch"]
+      }
+    ],
+    "build": [],
+    "testFiles": ["tests/test_ptz_preset_handlers_bcl.mjs"],
+    "regression": {
+      "cwd": ".",
+      "argv": ["node", "--test", "tests/test_ptz_preset_handlers_bcl.mjs"]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "#button-add has a click handler"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": ["node", "--test", "tests/test_ptz_preset_handlers_bcl.mjs"]
+    },
+    "suiteOutputIncludes": "# tests 1"
+  }
+}

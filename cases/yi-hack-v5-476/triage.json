@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T11:31:10.152Z",
+  "issue": {
+    "repository": "alienatedsec/yi-hack-v5",
+    "number": "476",
+    "url": "https://github.com/alienatedsec/yi-hack-v5/issues/476",
+    "title": "[bug] Preset management does not work in web interface",
+    "state": "open",
+    "updatedAt": "2026-09-14T10:39:47Z"
+  },
+  "source": {
+    "repository": "alienatedsec/yi-hack-v5",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "d1997ae29ddeaf7d39d4d42c6da85901b7e56bcd",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "src/dropbear/localoptions.h",
+      "src/h264grabber/h264grabber/h264grabber.c",
+      "src/ipc_cmd/ipc_cmd/ipc2file.c",
+      "src/ipc_cmd/ipc_cmd/ipc2file.h",
+      "src/ipc_cmd/ipc_cmd/ipc_cmd.c",
+      "src/ipc_cmd/ipc_cmd/ipc_cmd.h",
+      "src/ipc_cmd/ipc_cmd/ipc_multiplex.c",
+      "src/ipc_cmd/ipc_cmd/ipc_multiplex.h",
+      "src/ipc_cmd/ipc_cmd/ipc_notify.c",
+      "src/ipc_cmd/ipc_cmd/ipc_notify.h"
+    ],
+    "buildFiles": [
+      {
+        "path": "src/h264grabber/h264grabber/Makefile",
+        "kind": "make",
+        "url": "https://github.com/alienatedsec/yi-hack-v5/blob/d1997ae29ddeaf7d39d4d42c6da85901b7e56bcd/src/h264grabber/h264grabber/Makefile"
+      },
+      {
+        "path": "src/ipc_cmd/ipc_cmd/Makefile",
+        "kind": "make",
+        "url": "https://github.com/alienatedsec/yi-hack-v5/blob/d1997ae29ddeaf7d39d4d42c6da85901b7e56bcd/src/ipc_cmd/ipc_cmd/Makefile"
+      },
+      {
+        "path": "src/mqtt-config/mqtt-config/Makefile",
+        "kind": "make",
+        "url": "https://github.com/alienatedsec/yi-hack-v5/blob/d1997ae29ddeaf7d39d4d42c6da85901b7e56bcd/src/mqtt-config/mqtt-config/Makefile"
+      },
+      {
+        "path": "src/proccgi/proccgi/Makefile",
+        "kind": "make",
+        "url": "https://github.com/alienatedsec/yi-hack-v5/blob/d1997ae29ddeaf7d39d4d42c6da85901b7e56bcd/src/proccgi/proccgi/Makefile"
+      },
+      {
+        "path": "src/snapshot/snapshot/Makefile",
+        "kind": "make",
+        "url": "https://github.com/alienatedsec/yi-hack-v5/blob/d1997ae29ddeaf7d39d4d42c6da85901b7e56bcd/src/snapshot/snapshot/Makefile"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: The repair changes only the tracked web UI module and exercises it directly in Node; none of the firmware build submodules is needed or modified.",
+      "url": "https://github.com/alienatedsec/yi-hack-v5/tree/d1997ae29ddeaf7d39d4d42c6da85901b7e56bcd",
+      "resolution": {
+        "reason": "The repair changes only the tracked web UI module and exercises it directly in Node; none of the firmware build submodules is needed or modified.",
+        "evidence": [
+          "https://github.com/alienatedsec/yi-hack-v5/blob/d1997ae29ddeaf7d39d4d42c6da85901b7e56bcd/src/www/httpd/htdocs/js/modules/ptz.js",
+          "https://github.com/alienatedsec/yi-hack-v5/blob/d1997ae29ddeaf7d39d4d42c6da85901b7e56bcd/.gitmodules"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:alienatedsec/yi-hack-v5": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 93,
+    "scoreRange": [
+      92,
+      93
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "All add and delete PTZ preset controls are inert.",
+        "evidence": [
+          "https://github.com/alienatedsec/yi-hack-v5/issues/476"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report was filed today.",
+        "evidence": [
+          "https://github.com/alienatedsec/yi-hack-v5/issues/476"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter supplied device model, firmware, exact clicks and a code-level observation.",
+        "evidence": [
+          "https://github.com/alienatedsec/yi-hack-v5/issues/476"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Each button must invoke its already-implemented add, delete or delete-all CGI request.",
+        "evidence": [
+          "src/www/httpd/htdocs/js/modules/ptz.js"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "A behavioral DOM and jQuery harness proves no handler exists before the change and all three requests occur after it.",
+        "evidence": [
+          "https://github.com/alienatedsec/yi-hack-v5/issues/476"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "Three event bindings call existing functions without altering CGI behavior.",
+        "evidence": [
+          "src/www/httpd/htdocs/js/modules/ptz.js"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "The event and request behavior is deterministic; only final camera UI confirmation remains.",
+        "evidence": [
+          "https://github.com/alienatedsec/yi-hack-v5/issues/476"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "The change only connects previously inert buttons to existing functions.",
+        "evidence": [
+          "src/www/httpd/htdocs/js/modules/ptz.js"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The issue and master revision are current.",
+        "evidence": [
+          "https://github.com/alienatedsec/yi-hack-v5"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Preset management is a core PTZ operation for supported YI dome cameras.",
+        "evidence": [
+          "https://github.com/alienatedsec/yi-hack-v5/issues/476"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "All supported PTZ models use this shared page module.",
+        "evidence": [
+          "src/www/httpd/htdocs/js/modules/ptz.js"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "Restored preset editing completes the existing goto and CGI workflow.",
+        "evidence": [
+          "https://github.com/alienatedsec/yi-hack-v5/issues/476"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      93
+    ],
+    "selectable": true
+  },
+  "durationMs": 2861
+}

@@ -45,6 +45,7 @@ Updated 2026-09-11.
 | reolink-aio-204 | [Issue](https://github.com/starkillerOG/reolink_aio/issues/204) | [PR](https://github.com/starkillerOG/reolink_aio/pull/206) | open | none | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T08:14:12.119Z |
 | linux-show-player-398 | [Issue](https://github.com/FrancescoCeruti/linux-show-player/issues/398) | [PR](https://github.com/FrancescoCeruti/linux-show-player/pull/400) | draft | none | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T08:34:15.646Z |
 | lba2-classic-community-674 | [Issue](https://github.com/LBALab/lba2-classic-community/issues/674) | [PR](https://github.com/LBALab/lba2-classic-community/pull/675) | draft | failure | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T08:57:06.143Z |
+| fpp-2957 | [Issue](https://github.com/FalconChristmas/fpp/issues/2957) | [PR](https://github.com/FalconChristmas/fpp/pull/2958) | draft | none | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T09:26:41.323Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

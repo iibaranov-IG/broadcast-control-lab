@@ -1555,6 +1555,46 @@
       "lastSync": "2026-09-14T08:57:06.143Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "fpp-2957",
+      "title": "Select an advertised PipeWire format for USB DACs without S16",
+      "issue": "https://github.com/FalconChristmas/fpp/issues/2957",
+      "pr": "https://github.com/FalconChristmas/fpp/pull/2958",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "draft",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "issue-comment:5661784539",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/FalconChristmas/fpp/issues/2957#issuecomment-5661784539",
+          "updatedAt": "2026-09-14T09:21:09Z",
+          "state": null,
+          "body": "I prepared a focused fix in draft PR #2958. It removes the assumption that every card supports S16LE while preserving the conservative rate comparison for cards that do advertise S16. It also bumps the generated ALSA sink configuration to generation 8 so existing installs re-probe after upgrade. Could you test a build from that PR on the SMSL SU-1 and confirm that `95-fpp-alsa-sink.conf` now contains `audio.format = \"S32LE\"` and audio starts normally?",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "clean",
+      "headSha": "b9464f422f0a3f979bbfa4a52d07dd1c08e5d385",
+      "reporter": "Alkly47",
+      "issueCreatedAt": "2026-09-14T02:56:42Z",
+      "prCreatedAt": "2026-09-14T09:20:58Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T09:26:41.323Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

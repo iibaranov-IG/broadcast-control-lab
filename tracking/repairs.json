@@ -2494,6 +2494,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "rmfakecloud-485",
+      "title": "Offer Firefox permission recovery for USB screen sharing",
+      "issue": "https://github.com/ddvk/rmfakecloud/issues/485",
+      "pr": "https://github.com/ddvk/rmfakecloud/pull/486",
+      "candidateSha256": "387cfdc2db29d9aaf83ffc637906f873cd46fb05c5b22704b8c0aa2fd69fc113",
+      "testedHeadSha": "19dce9aca962ecac954ea30d55deeaef7a8599e5",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34874268293",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

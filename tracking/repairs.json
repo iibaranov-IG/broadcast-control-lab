@@ -1435,6 +1435,46 @@
       "lastSync": "2026-09-14T07:46:32.274Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "reolink-aio-204",
+      "title": "Discover detection capabilities on every reported camera stream",
+      "issue": "https://github.com/starkillerOG/reolink_aio/issues/204",
+      "pr": "https://github.com/starkillerOG/reolink_aio/pull/206",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "issue-comment:5660997494",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/starkillerOG/reolink_aio/issues/204#issuecomment-5660997494",
+          "updatedAt": "2026-09-14T08:13:05Z",
+          "state": null,
+          "body": "I prepared #206 from the ability data and event shape in this report. The unchanged regression is red on 3766907 and green with the patch: channel 1 gets motion/people/vehicle/dog-cat capabilities, its Baichuan event updates those states, and an unadvertised extra stream stays unmarked. Could you test the PR branch on the OMVI 3i PoE and confirm that the four lens-2 entities return and that triggering each type no longer produces `received unknown event`? Your live-camera result is the remaining validation.",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "23880bae998f7e528420d4fbea8d5fd0848fb06c",
+      "reporter": "chriscortez1976",
+      "issueCreatedAt": "2026-09-13T10:39:45Z",
+      "prCreatedAt": "2026-09-14T08:12:51Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T08:14:12.119Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

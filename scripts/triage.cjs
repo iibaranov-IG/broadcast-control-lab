@@ -32,6 +32,11 @@ const buildNames = new Map([
   ['Makefile', 'make'], ['Cargo.toml', 'rust'], ['go.mod', 'go'],
 ])
 const sourcePattern = /\.(c|cc|cpp|cxx|h|hpp|py|js|mjs|cjs|ts|tsx|rs|go)$/i
+const nonRegistryDependency = /(git\+|git:\/\/|github:|git@github|https?:\/\/github\.com\/[^\s"']+\.git|(?:file|workspace):)/i
+function packageDependencyText(pkg) {
+  const sections = ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies', 'resolutions', 'overrides']
+  return sections.flatMap(name => Object.values(pkg?.[name] || {})).map(value => typeof value === 'string' ? value : JSON.stringify(value)).join('\n')
+}
 function mentions(text, issue, sameRepo) {
   const full = `${issue.repository}#${issue.number}`
   if (String(text).includes(issue.url) && new RegExp(`${issue.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?!\\d)`).test(text)) return true
@@ -106,11 +111,15 @@ async function inspect(url, opts = {}, request = require('./github-read.cjs').re
           if (item.size > 131072 || item.encoding !== 'base64' || !item.content) { finding('MANIFEST_UNREAD', 'question', `${name} is unavailable inline or exceeds the metadata limit.`, `https://github.com/${source}/blob/${commit.sha}/${name}`); continue }
           const body = Buffer.from(item.content, 'base64').toString('utf8')
           const link = `https://github.com/${source}/blob/${commit.sha}/${name}`
-          if (/(git\+|git:\/\/|github:|git@github|https?:\/\/github\.com\/[^\s"']+\.git|(?:file|workspace):)/i.test(body)) finding('NONREGISTRY_DEPENDENCIES', 'question', `${name} references Git/local/workspace dependencies; resolve them before scheduling a build.`, link)
           if (name === 'package.json') {
-            try { const pkg = JSON.parse(body); report.source.nodeScripts = Object.keys(pkg.scripts || {}); report.source.nodeDependencyCount = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies }).length }
+            try {
+              const pkg = JSON.parse(body)
+              report.source.nodeScripts = Object.keys(pkg.scripts || {})
+              report.source.nodeDependencyCount = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies }).length
+              if (nonRegistryDependency.test(packageDependencyText(pkg))) finding('NONREGISTRY_DEPENDENCIES', 'question', `${name} references Git/local/workspace dependencies; resolve them before scheduling a build.`, link)
+            }
             catch { finding('INVALID_MANIFEST', 'question', 'package.json could not be parsed.', link) }
-          }
+          } else if (nonRegistryDependency.test(body)) finding('NONREGISTRY_DEPENDENCIES', 'question', `${name} references Git/local/workspace dependencies; resolve them before scheduling a build.`, link)
         }
       }
     }

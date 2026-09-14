@@ -98,6 +98,16 @@ test('Git dependency and submodule signals require review without running instal
   assert.ok(r.findings.some(f => f.code === 'NONREGISTRY_DEPENDENCIES'))
   assert.equal(r.source.nodeDependencyCount, 1)
 })
+test('package repository metadata is not mistaken for a Git dependency', async () => {
+  const pkg = { repository: 'github:team/project', dependencies: { example: '^1.2.3' } }
+  const f = fixture({
+    'repos/team/project/git/trees/tree?recursive=1': { tree: [{ type: 'blob', path: 'src/main.js' }, { type: 'blob', path: 'package.json' }] },
+    [`repos/team/project/contents/package.json?ref=${sha}`]: { size: 100, encoding: 'base64', content: Buffer.from(JSON.stringify(pkg)).toString('base64') },
+  })
+  const r = await triage.inspect(url, {}, f.api)
+  assert.equal(r.decision, 'READY_TO_INVESTIGATE')
+  assert.ok(!r.findings.some(f => f.code === 'NONREGISTRY_DEPENDENCIES'))
+})
 test('reviewed submodule revisions can resolve only the matching triage finding', async () => {
   const f = fixture({ 'repos/team/project/git/trees/tree?recursive=1': { tree: [{ type: 'blob', path: 'src/main.cpp' }, { type: 'blob', path: 'CMakeLists.txt' }, { type: 'commit', path: 'vendor/device' }] } })
   const report = await triage.inspect(url, {}, f.api)

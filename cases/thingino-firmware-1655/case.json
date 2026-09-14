@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "id": "thingino-firmware-1655",
+  "status": "ready",
+  "title": "Advertise FOV-relative PTZ when camera geometry is configured",
+  "issue": "https://github.com/themactep/thingino-firmware/issues/1655",
+  "problem": "Thingino implements FOV-relative PTZ moves but every media and PTZ configuration response advertises GenericSpace as the default, so Frigate 0.18 disables autotracking.",
+  "reproduce": "Inspect the five PTZ configuration templates on the pinned thingino-onvif revision; none can emit TranslationSpaceFov as DefaultRelativePanTiltTranslationSpace, even when fov_pan and fov_tilt are configured.",
+  "acceptance": "All media v1, media v2 and PTZ configuration responses select TranslationSpaceFov when both FOV dimensions are positive and preserve TranslationGenericSpace for zero, incomplete or invalid geometry.",
+  "repair": "Replace the hardcoded URI with a shared template value selected from configured FOV geometry and supply it at every render call site.",
+  "sources": [{"id":"upstream","repository":"themactep/thingino-onvif","commit":"03e8595c1ffcb8c2c0c0cbf1af3855fabd42088d","directory":"sources/thingino-firmware-1655"}],
+  "runtime": {"node":"22.20.0","python":"3.12.14"},
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{"cwd":"sources/thingino-firmware-1655","argv":["git","apply","../../cases/thingino-firmware-1655/repair.patch"]}],
+    "test": [{"cwd":".","argv":["node","cases/thingino-firmware-1655/test.mjs","sources/thingino-firmware-1655"]}],
+    "build": [{"cwd":"sources/thingino-firmware-1655","argv":["python3","-m","py_compile","tests/test_fov_default_space.py"]}]
+  },
+  "artifacts": {"report":"reports/thingino-firmware-1655.json"},
+  "selection": {"report":"cases/thingino-firmware-1655/triage.json","sha256":"fb872ad408b6721dbd15af5bdbe662770a75f25a0ee593751f43a0a7f08a02ac","reason":"A one-day-old hardware-owner report traces Frigate's exact gate and the server's already-implemented movement path, with no overlapping PR and immediate device access."},
+  "verification": {"hardwareVerified":false,"applicationVerified":false,"limitations":"BCL executes the selector boundary cases and verifies every configuration template and rendering call site. The real onvif_simple_server also compiles and links in Linux; the repository's separate WSD binary has an unrelated existing link failure. Firmware and Frigate were not run locally.","ownerCheck":"Build firmware with the patched thingino-onvif revision on the Jooan A2R-U, query GetProfiles and GetConfigurationOptions, then confirm Frigate 0.18 exposes pt-r-fov and keeps autotracking enabled through a real pan/tilt sequence."},
+  "publish": {"source":"upstream","target":"themactep/thingino-onvif","base":"master","paths":["res/media2_service_files/GetProfiles_PTZ.xml","res/media_service_files/GetProfile_PTZ.xml","res/ptz_service_files/GetCompatibleConfigurations.xml","res/ptz_service_files/GetConfiguration.xml","res/ptz_service_files/GetConfigurations.xml","src/media2_service.c","src/media_service.c","src/ptz_service.c","src/ptz_service.h","tests/test_fov_default_space.py"]},
+  "upstream": {
+    "kind":"python","source":"upstream","timeoutMs":60000,
+    "setup":[{"cwd":".","argv":["git","apply","../../cases/thingino-firmware-1655/tests-only.patch"]}],
+    "build": [],
+    "testFiles":["tests/test_fov_default_space.py"],
+    "regression":{"cwd":".","argv":["python3","tests/test_fov_default_space.py"]},
+    "negative":{"exitCode":1,"outputIncludes":"FAILED (failures=8, errors=1)"},
+    "suite":{"cwd":".","argv":["python3","tests/test_fov_default_space.py"]},
+    "suiteOutputIncludes":"Ran 3 tests"
+  }
+}

@@ -1,0 +1,254 @@
+diff --git a/res/media2_service_files/GetProfiles_PTZ.xml b/res/media2_service_files/GetProfiles_PTZ.xml
+index 4634cfa..d0c011f 100644
+--- a/res/media2_service_files/GetProfiles_PTZ.xml
++++ b/res/media2_service_files/GetProfiles_PTZ.xml
+@@ -4,7 +4,7 @@
+                         <tt:NodeToken>PTZNodeToken</tt:NodeToken>
+                         <tt:DefaultAbsolutePantTiltPositionSpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace</tt:DefaultAbsolutePantTiltPositionSpace>
+ %ZOOM_DEFAULT_SPACES%
+-                        <tt:DefaultRelativePanTiltTranslationSpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/TranslationGenericSpace</tt:DefaultRelativePanTiltTranslationSpace>
++                        <tt:DefaultRelativePanTiltTranslationSpace>%PANTILT_RELATIVE_DEFAULT_SPACE%</tt:DefaultRelativePanTiltTranslationSpace>
+                         <tt:DefaultContinuousPanTiltVelocitySpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/VelocityGenericSpace</tt:DefaultContinuousPanTiltVelocitySpace>
+                         <tt:DefaultPTZSpeed>
+                             <tt:PanTilt x="1.0" y="1.0" space="http://www.onvif.org/ver10/tptz/PanTiltSpaces/GenericSpeedSpace"/>
+diff --git a/res/media_service_files/GetProfile_PTZ.xml b/res/media_service_files/GetProfile_PTZ.xml
+index cb19acb..39d9d2e 100644
+--- a/res/media_service_files/GetProfile_PTZ.xml
++++ b/res/media_service_files/GetProfile_PTZ.xml
+@@ -4,7 +4,7 @@
+                     <tt:NodeToken>PTZNodeToken</tt:NodeToken>
+                     <tt:DefaultAbsolutePantTiltPositionSpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace</tt:DefaultAbsolutePantTiltPositionSpace>
+ %ZOOM_DEFAULT_SPACES%
+-                    <tt:DefaultRelativePanTiltTranslationSpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/TranslationGenericSpace</tt:DefaultRelativePanTiltTranslationSpace>
++                    <tt:DefaultRelativePanTiltTranslationSpace>%PANTILT_RELATIVE_DEFAULT_SPACE%</tt:DefaultRelativePanTiltTranslationSpace>
+                     <tt:DefaultContinuousPanTiltVelocitySpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/VelocityGenericSpace</tt:DefaultContinuousPanTiltVelocitySpace>
+                     <tt:DefaultPTZSpeed>
+                         <tt:PanTilt x="1.0" y="1.0" space="http://www.onvif.org/ver10/tptz/PanTiltSpaces/GenericSpeedSpace"/>
+diff --git a/res/ptz_service_files/GetCompatibleConfigurations.xml b/res/ptz_service_files/GetCompatibleConfigurations.xml
+index 929507d..2d774e1 100644
+--- a/res/ptz_service_files/GetCompatibleConfigurations.xml
++++ b/res/ptz_service_files/GetCompatibleConfigurations.xml
+@@ -13,7 +13,7 @@
+                 <tt:NodeToken>PTZNodeToken</tt:NodeToken>
+                 <tt:DefaultAbsolutePantTiltPositionSpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace</tt:DefaultAbsolutePantTiltPositionSpace>
+                 <tt:DefaultAbsoluteZoomPositionSpace>http://www.onvif.org/ver10/tptz/ZoomSpaces/PositionGenericSpace</tt:DefaultAbsoluteZoomPositionSpace>
+-                <tt:DefaultRelativePanTiltTranslationSpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/TranslationGenericSpace</tt:DefaultRelativePanTiltTranslationSpace>
++                <tt:DefaultRelativePanTiltTranslationSpace>%PANTILT_RELATIVE_DEFAULT_SPACE%</tt:DefaultRelativePanTiltTranslationSpace>
+                 <tt:DefaultRelativeZoomTranslationSpace>http://www.onvif.org/ver10/tptz/ZoomSpaces/TranslationGenericSpace</tt:DefaultRelativeZoomTranslationSpace>
+                 <tt:DefaultContinuousPanTiltVelocitySpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/VelocityGenericSpace</tt:DefaultContinuousPanTiltVelocitySpace>
+                 <tt:DefaultContinuousZoomVelocitySpace>http://www.onvif.org/ver10/tptz/ZoomSpaces/VelocityGenericSpace</tt:DefaultContinuousZoomVelocitySpace>
+diff --git a/res/ptz_service_files/GetConfiguration.xml b/res/ptz_service_files/GetConfiguration.xml
+index 30bb5de..1a40fff 100644
+--- a/res/ptz_service_files/GetConfiguration.xml
++++ b/res/ptz_service_files/GetConfiguration.xml
+@@ -13,7 +13,7 @@
+                 <tt:NodeToken>PTZNodeToken</tt:NodeToken>
+                 <tt:DefaultAbsolutePantTiltPositionSpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace</tt:DefaultAbsolutePantTiltPositionSpace>
+ %ZOOM_DEFAULT_SPACES%
+-                <tt:DefaultRelativePanTiltTranslationSpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/TranslationGenericSpace</tt:DefaultRelativePanTiltTranslationSpace>
++                <tt:DefaultRelativePanTiltTranslationSpace>%PANTILT_RELATIVE_DEFAULT_SPACE%</tt:DefaultRelativePanTiltTranslationSpace>
+                 <tt:DefaultContinuousPanTiltVelocitySpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/VelocityGenericSpace</tt:DefaultContinuousPanTiltVelocitySpace>
+                 <tt:DefaultPTZSpeed>
+                     <tt:PanTilt x="1.0"
+diff --git a/res/ptz_service_files/GetConfigurations.xml b/res/ptz_service_files/GetConfigurations.xml
+index ff71f66..3783c61 100644
+--- a/res/ptz_service_files/GetConfigurations.xml
++++ b/res/ptz_service_files/GetConfigurations.xml
+@@ -13,7 +13,7 @@
+                 <tt:NodeToken>PTZNodeToken</tt:NodeToken>
+                 <tt:DefaultAbsolutePantTiltPositionSpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace</tt:DefaultAbsolutePantTiltPositionSpace>
+ %ZOOM_DEFAULT_SPACES%
+-                <tt:DefaultRelativePanTiltTranslationSpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/TranslationGenericSpace</tt:DefaultRelativePanTiltTranslationSpace>
++                <tt:DefaultRelativePanTiltTranslationSpace>%PANTILT_RELATIVE_DEFAULT_SPACE%</tt:DefaultRelativePanTiltTranslationSpace>
+                 <tt:DefaultContinuousPanTiltVelocitySpace>http://www.onvif.org/ver10/tptz/PanTiltSpaces/VelocityGenericSpace</tt:DefaultContinuousPanTiltVelocitySpace>
+                 <tt:DefaultPTZSpeed>
+                     <tt:PanTilt x="1.0"
+diff --git a/src/media2_service.c b/src/media2_service.c
+index 1bd668a..ecbbf8e 100644
+--- a/src/media2_service.c
++++ b/src/media2_service.c
+@@ -264,7 +264,9 @@ int media2_get_profiles()
+                         const char *zoom_def = ptz_supports_zoom() ? ZOOM_DEFAULT_SPACES_XML : "";
+                         const char *zoom_spd = ptz_supports_zoom() ? ZOOM_SPEED_XML : "";
+                         const char *zoom_lim = ptz_supports_zoom() ? ZOOM_LIMITS_XML : "";
+-                        size += cat(dest, "media2_service_files/GetProfiles_PTZ.xml", 6,
++                        size += cat(dest, "media2_service_files/GetProfiles_PTZ.xml", 8,
++                                "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                                ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                                 "%ZOOM_DEFAULT_SPACES%", zoom_def,
+                                 "%ZOOM_SPEED%", zoom_spd,
+                                 "%ZOOM_LIMITS%", zoom_lim);
+@@ -368,7 +370,9 @@ int media2_get_profiles()
+                         const char *zoom_def = ptz_supports_zoom() ? ZOOM_DEFAULT_SPACES_XML : "";
+                         const char *zoom_spd = ptz_supports_zoom() ? ZOOM_SPEED_XML : "";
+                         const char *zoom_lim = ptz_supports_zoom() ? ZOOM_LIMITS_XML : "";
+-                        size += cat(dest, "media2_service_files/GetProfiles_PTZ.xml", 6,
++                        size += cat(dest, "media2_service_files/GetProfiles_PTZ.xml", 8,
++                                "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                                ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                                 "%ZOOM_DEFAULT_SPACES%", zoom_def,
+                                 "%ZOOM_SPEED%", zoom_spd,
+                                 "%ZOOM_LIMITS%", zoom_lim);
+@@ -461,7 +465,9 @@ int media2_get_profiles()
+                         const char *zoom_def = ptz_supports_zoom() ? ZOOM_DEFAULT_SPACES_XML : "";
+                         const char *zoom_spd = ptz_supports_zoom() ? ZOOM_SPEED_XML : "";
+                         const char *zoom_lim = ptz_supports_zoom() ? ZOOM_LIMITS_XML : "";
+-                        size += cat(dest, "media2_service_files/GetProfiles_PTZ.xml", 6,
++                        size += cat(dest, "media2_service_files/GetProfiles_PTZ.xml", 8,
++                                "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                                ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                                 "%ZOOM_DEFAULT_SPACES%", zoom_def,
+                                 "%ZOOM_SPEED%", zoom_spd,
+                                 "%ZOOM_LIMITS%", zoom_lim);
+diff --git a/src/media_service.c b/src/media_service.c
+index c867616..4c4c376 100644
+--- a/src/media_service.c
++++ b/src/media_service.c
+@@ -309,7 +309,9 @@ int media_get_profiles()
+                         const char *zoom_def = ptz_supports_zoom() ? ZOOM_DEFAULT_SPACES_XML : "";
+                         const char *zoom_spd = ptz_supports_zoom() ? ZOOM_SPEED_XML : "";
+                         const char *zoom_lim = ptz_supports_zoom() ? ZOOM_LIMITS_XML : "";
+-                size += cat(dest, "media_service_files/GetProfile_PTZ.xml", 8,
++                size += cat(dest, "media_service_files/GetProfile_PTZ.xml", 10,
++                        "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                        ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                         "%USE_COUNT%", "1",
+                         "%ZOOM_DEFAULT_SPACES%", zoom_def,
+                         "%ZOOM_SPEED%", zoom_spd,
+@@ -386,7 +388,9 @@ int media_get_profiles()
+                         const char *zoom_def = ptz_supports_zoom() ? ZOOM_DEFAULT_SPACES_XML : "";
+                         const char *zoom_spd = ptz_supports_zoom() ? ZOOM_SPEED_XML : "";
+                         const char *zoom_lim = ptz_supports_zoom() ? ZOOM_LIMITS_XML : "";
+-                size += cat(dest, "media_service_files/GetProfile_PTZ.xml", 8,
++                size += cat(dest, "media_service_files/GetProfile_PTZ.xml", 10,
++                        "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                        ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                         "%USE_COUNT%", "2",
+                         "%ZOOM_DEFAULT_SPACES%", zoom_def,
+                         "%ZOOM_SPEED%", zoom_spd,
+@@ -450,7 +454,9 @@ int media_get_profiles()
+                         const char *zoom_def = ptz_supports_zoom() ? ZOOM_DEFAULT_SPACES_XML : "";
+                         const char *zoom_spd = ptz_supports_zoom() ? ZOOM_SPEED_XML : "";
+                         const char *zoom_lim = ptz_supports_zoom() ? ZOOM_LIMITS_XML : "";
+-                size += cat(dest, "media_service_files/GetProfile_PTZ.xml", 8,
++                size += cat(dest, "media_service_files/GetProfile_PTZ.xml", 10,
++                        "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                        ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                         "%USE_COUNT%", "2",
+                         "%ZOOM_DEFAULT_SPACES%", zoom_def,
+                         "%ZOOM_SPEED%", zoom_spd,
+@@ -568,7 +574,9 @@ int media_get_profile()
+                         const char *zoom_def = ptz_supports_zoom() ? ZOOM_DEFAULT_SPACES_XML : "";
+                         const char *zoom_spd = ptz_supports_zoom() ? ZOOM_SPEED_XML : "";
+                         const char *zoom_lim = ptz_supports_zoom() ? ZOOM_LIMITS_XML : "";
+-                size += cat(dest, "media_service_files/GetProfile_PTZ.xml", 6,
++                size += cat(dest, "media_service_files/GetProfile_PTZ.xml", 8,
++                        "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                        ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                         "%ZOOM_DEFAULT_SPACES%", zoom_def,
+                         "%ZOOM_SPEED%", zoom_spd,
+                         "%ZOOM_LIMITS%", zoom_lim);
+@@ -644,7 +652,9 @@ int media_get_profile()
+                         const char *zoom_def = ptz_supports_zoom() ? ZOOM_DEFAULT_SPACES_XML : "";
+                         const char *zoom_spd = ptz_supports_zoom() ? ZOOM_SPEED_XML : "";
+                         const char *zoom_lim = ptz_supports_zoom() ? ZOOM_LIMITS_XML : "";
+-                size += cat(dest, "media_service_files/GetProfile_PTZ.xml", 6,
++                size += cat(dest, "media_service_files/GetProfile_PTZ.xml", 8,
++                        "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                        ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                         "%ZOOM_DEFAULT_SPACES%", zoom_def,
+                         "%ZOOM_SPEED%", zoom_spd,
+                         "%ZOOM_LIMITS%", zoom_lim);
+diff --git a/src/ptz_service.c b/src/ptz_service.c
+index a709cb0..cf005d7 100644
+--- a/src/ptz_service.c
++++ b/src/ptz_service.c
+@@ -500,9 +500,9 @@ int ptz_get_configurations()
+     const char *zoom_speed = ptz_supports_zoom() ? ZOOM_SPEED_XML : "";
+     const char *zoom_limits = ptz_supports_zoom() ? ZOOM_LIMITS_XML : "";
+ 
+-    long size = cat(NULL,
+-                    "ptz_service_files/GetConfigurations.xml",
+-                    20,
++    long size = cat(NULL, "ptz_service_files/GetConfigurations.xml", 22,
++                    "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                    ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                     "%USE_COUNT%",
+                     use_count,
+                     "%MIN_X%",
+@@ -526,9 +526,9 @@ int ptz_get_configurations()
+ 
+     output_http_headers(size);
+ 
+-    return cat("stdout",
+-               "ptz_service_files/GetConfigurations.xml",
+-               20,
++    return cat("stdout", "ptz_service_files/GetConfigurations.xml", 22,
++               "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++               ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                "%USE_COUNT%",
+                use_count,
+                "%MIN_X%",
+@@ -569,9 +569,9 @@ int ptz_get_configuration()
+     const char *zoom_speed = ptz_supports_zoom() ? ZOOM_SPEED_XML : "";
+     const char *zoom_limits = ptz_supports_zoom() ? ZOOM_LIMITS_XML : "";
+ 
+-    long size = cat(NULL,
+-                    "ptz_service_files/GetConfiguration.xml",
+-                    18,
++    long size = cat(NULL, "ptz_service_files/GetConfiguration.xml", 20,
++                    "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                    ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                     "%MIN_X%",
+                     pan_min,
+                     "%MAX_X%",
+@@ -593,9 +593,9 @@ int ptz_get_configuration()
+ 
+     output_http_headers(size);
+ 
+-    return cat("stdout",
+-               "ptz_service_files/GetConfiguration.xml",
+-               18,
++    return cat("stdout", "ptz_service_files/GetConfiguration.xml", 20,
++               "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++               ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                "%MIN_X%",
+                pan_min,
+                "%MAX_X%",
+@@ -2778,9 +2778,13 @@ int ptz_get_compatible_configurations()
+         sprintf(use_count, "0");
+     }
+ 
+-    long size = cat(NULL, "ptz_service_files/GetCompatibleConfigurations.xml", 2,
++    long size = cat(NULL, "ptz_service_files/GetCompatibleConfigurations.xml", 4,
++                    "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++                    ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                     "%USE_COUNT%", use_count);
+     output_http_headers(size);
+-    return cat("stdout", "ptz_service_files/GetCompatibleConfigurations.xml", 2,
++    return cat("stdout", "ptz_service_files/GetCompatibleConfigurations.xml", 4,
++               "%PANTILT_RELATIVE_DEFAULT_SPACE%",
++               ptz_default_relative_pantilt_space(service_ctx.ptz_node.fov_pan, service_ctx.ptz_node.fov_tilt),
+                "%USE_COUNT%", use_count);
+ }
+diff --git a/src/ptz_service.h b/src/ptz_service.h
+index dbace04..60ffba1 100644
+--- a/src/ptz_service.h
++++ b/src/ptz_service.h
+@@ -65,6 +65,16 @@ int ptz_unsupported(const char *method);
+ 
+ int ptz_supports_zoom();
+ 
++#define PANTILT_RELATIVE_GENERIC_SPACE_URI \
++    "http://www.onvif.org/ver10/tptz/PanTiltSpaces/TranslationGenericSpace"
++#define PANTILT_RELATIVE_FOV_SPACE_URI \
++    "http://www.onvif.org/ver10/tptz/PanTiltSpaces/TranslationSpaceFov"
++
++static inline const char *ptz_default_relative_pantilt_space(double fov_pan, double fov_tilt)
++{
++    return fov_pan > 0.0 && fov_tilt > 0.0 ? PANTILT_RELATIVE_FOV_SPACE_URI : PANTILT_RELATIVE_GENERIC_SPACE_URI;
++}
++
+ // Zoom template sections – passed as replacements for %ZOOM_*% placeholders.
+ // When ptz_supports_zoom() is false, these expand to empty strings.
+ #define ZOOM_DEFAULT_SPACES_XML \

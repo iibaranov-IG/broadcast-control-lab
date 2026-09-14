@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T07:41:28.009Z",
+  "issue": {
+    "repository": "themactep/thingino-firmware",
+    "number": "1655",
+    "url": "https://github.com/themactep/thingino-firmware/issues/1655",
+    "title": "ONVIF PTZ: FOV translation space never advertised as profile default — Frigate autotracking disables with \"FOV relative movement not supported\"",
+    "state": "open",
+    "updatedAt": "2026-09-13T22:18:11Z"
+  },
+  "source": {
+    "repository": "themactep/thingino-onvif",
+    "requestedRef": "03e8595c1ffcb8c2c0c0cbf1af3855fabd42088d",
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "03e8595c1ffcb8c2c0c0cbf1af3855fabd42088d",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "frigate/fovtest.py",
+      "src/audio_output_enabled.c",
+      "src/audio_output_enabled.h",
+      "src/conf.c",
+      "src/conf.h",
+      "src/device_service.c",
+      "src/device_service.h",
+      "src/deviceio_service.c",
+      "src/deviceio_service.h",
+      "src/events_service.c"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/themactep/thingino-onvif/blob/03e8595c1ffcb8c2c0c0cbf1af3855fabd42088d/Makefile"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: The only submodule is docs/onvif-specs; the changed server sources, templates and focused tests do not import or build it.",
+      "url": "https://github.com/themactep/thingino-onvif/tree/03e8595c1ffcb8c2c0c0cbf1af3855fabd42088d",
+      "resolution": {
+        "reason": "The only submodule is docs/onvif-specs; the changed server sources, templates and focused tests do not import or build it.",
+        "evidence": [
+          "thingino-onvif .gitmodules maps only docs/onvif-specs",
+          "focused test and Linux server build compile the changed code without initializing that submodule"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:themactep/thingino-firmware": "complete",
+    "openPRs:themactep/thingino-onvif": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 96,
+    "scoreRange": [
+      95,
+      96
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Frigate disables autotracking although the camera can execute the movement.",
+        "evidence": [
+          "Exact disabling warning in issue."
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The owner filed the report yesterday against current source and Frigate 0.18.",
+        "evidence": [
+          "Created 2026-09-13."
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter owns the Jooan camera and supplied exact versions and code locations.",
+        "evidence": [
+          "Issue hardware and firmware section."
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "FOV URI appears as default only when both configured dimensions are positive.",
+        "evidence": [
+          "Frigate's two stated detection conditions."
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The baseline lacks the placeholder in all five templates; the focused executable test fails before and passes after.",
+        "evidence": [
+          "Baseline 8 failures plus 1 compile error; candidate 3 tests pass."
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "One selector and five template substitutions touch nine small files because the protocol repeats the PTZ configuration shape.",
+        "evidence": [
+          "Production diff is 59 insertions/deletions across repeated render sites."
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Focused tests are dependency-free; native Linux build compiles the ONVIF and notify servers, with only an unrelated existing WSD link failure.",
+        "evidence": [
+          "3 focused tests pass; onvif_simple_server ELF produced."
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "All PTZ profile/configuration responses change, but zero or incomplete FOV configuration preserves GenericSpace.",
+        "evidence": [
+          "Four boundary assertions cover positive, zero and negative values."
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Both firmware and ONVIF source were updated this week.",
+        "evidence": [
+          "Firmware pushed 2026-09-13; source pinned by current firmware."
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 5,
+        "reason": "Every Thingino PTZ camera with real FOV geometry can become eligible for Frigate autotracking.",
+        "evidence": [
+          "Shared response templates and standard ONVIF URI."
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "The selector is reused by media v1, media v2 and all PTZ configuration endpoints.",
+        "evidence": [
+          "Fourteen rendering call sites share the helper."
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 5,
+        "reason": "One capability correction unlocks feature detection and subsequent FOV relative moves already implemented by the server.",
+        "evidence": [
+          "Issue traces Frigate pt-r-fov gating and existing PTZ handler."
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      96
+    ],
+    "selectable": true
+  },
+  "durationMs": 2920
+}

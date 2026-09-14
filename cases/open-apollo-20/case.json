@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 2,
+  "id": "open-apollo-20",
+  "status": "ready",
+  "title": "Install the Apollo tray dependency on Debian 13",
+  "issue": "https://github.com/rolotrealanis98/open-apollo/issues/20",
+  "problem": "The Thunderbolt installer requests gir1.2-appindicator3-0.1, which has no installation candidate on Debian 13, so dependency installation fails before an Apollo interface can be configured.",
+  "reproduce": "Run check_install_deps from the current installer in a clean Debian 13 container. Apt rejects gir1.2-appindicator3-0.1 with 'no installation candidate' and the dependency step returns 1.",
+  "acceptance": "Apt-based installs request gir1.2-ayatanaappindicator3-0.1, the dependency step completes on Debian 13, older supported apt releases retain an available package, and the selection has an executable regression test.",
+  "repair": "Use the maintained Ayatana AppIndicator GIR package for apt distributions and add the dependency selector to the installer unit-test job.",
+  "sources": [
+    {
+      "id": "open-apollo",
+      "repository": "rolotrealanis98/open-apollo",
+      "commit": "d3cdd5bf020f213444ca68e9e7ed179db3c122c5",
+      "directory": "sources/open-apollo-20",
+      "sparsePaths": [
+        ".gitignore",
+        ".github/workflows/pr-checks.yml",
+        "scripts/install.sh",
+        "tests/test-install-dependencies.sh"
+      ]
+    }
+  ],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      { "cwd": "sources/open-apollo-20", "argv": ["git", "apply", "../../cases/open-apollo-20/repair.patch"] }
+    ],
+    "test": [
+      { "cwd": ".", "argv": ["node", "cases/open-apollo-20/test.mjs", "sources/open-apollo-20"] }
+    ],
+    "build": []
+  },
+  "artifacts": { "report": "reports/open-apollo-20.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": true,
+    "limitations": "BCL proves the dependency selector and a Debian 13 container proves the apt transaction. No Apollo hardware is needed for this installer failure; audio playback and capture are outside this change.",
+    "ownerCheck": "On Debian 13, run sudo bash scripts/install.sh and confirm the dependency summary installs gir1.2-ayatanaappindicator3-0.1 without the former 'no installation candidate' error. Continue with the issue's playback and capture checklist on the connected Apollo."
+  },
+  "selection": {
+    "report": "cases/open-apollo-20/triage.json",
+    "sha256": "f72d7e5e115f23af4e429464f87343a3a46fb67eed478f5bbe053b7de0aa8c44",
+    "reason": "An Apollo owner supplied the exact failing Debian package and a manual fix; there is no competing PR, and the failure is reproducible without access to the interface."
+  },
+  "publish": {
+    "source": "open-apollo",
+    "target": "rolotrealanis98/open-apollo",
+    "base": "master",
+    "commitMessage": "fix: use Ayatana AppIndicator on apt distributions",
+    "paths": [".github/workflows/pr-checks.yml", "scripts/install.sh", "tests/test-install-dependencies.sh"]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "open-apollo",
+    "timeoutMs": 60000,
+    "setup": [
+      { "cwd": ".", "argv": ["git", "apply", "../../cases/open-apollo-20/tests-only.patch"] }
+    ],
+    "build": [],
+    "testFiles": ["tests/test-install-dependencies.sh"],
+    "regression": { "cwd": ".", "argv": ["bash", "tests/test-install-dependencies.sh"] },
+    "negative": { "exitCode": 1, "outputIncludes": "apt_appindicator_package" },
+    "suite": { "cwd": ".", "argv": ["bash", "tests/test-install-dependencies.sh"] },
+    "suiteOutputIncludes": "PASS: apt AppIndicator dependency selection"
+  }
+}

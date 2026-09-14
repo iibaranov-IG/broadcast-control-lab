@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T16:58:46.127Z",
+  "issue": {
+    "repository": "BluEye-Robotics/blueye.sdk",
+    "number": "225",
+    "url": "https://github.com/BluEye-Robotics/blueye.sdk/issues/225",
+    "title": "Starting or stopping a camera recording stops an ongoing multibeam recording",
+    "state": "open",
+    "updatedAt": "2026-09-13T19:20:05Z"
+  },
+  "source": {
+    "repository": "BluEye-Robotics/blueye.sdk",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "LGPL-3.0",
+    "commit": "d1fbfaeb9630b34d5c5eb97ce298e79f24e8fb02",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": ".github/PULL_REQUEST_TEMPLATE.md",
+        "url": "https://github.com/BluEye-Robotics/blueye.sdk/blob/d1fbfaeb9630b34d5c5eb97ce298e79f24e8fb02/.github/PULL_REQUEST_TEMPLATE.md",
+        "content": "<!-- \n(Thanks for sending a pull request! \nPlease make sure you fill out the blanks below.)\n-->\n\n**Description**\n<!-- Describe the contents of the Pull request and problems it solves. -->\n\n<!-- Add the issue number that is fixed by this PR (In the form Fixes #123) --> \nFixes #\n\n\n#### Checklist before merging\n\n- [ ] Run the tests while connected to a drone\n- [ ] Update the package version according to [semver](https://semver.org/)\n",
+        "requirementHints": [
+          "(Thanks for sending a pull request! ",
+          "<!-- Describe the contents of the Pull request and problems it solves. -->",
+          "#### Checklist before merging",
+          "- [ ] Run the tests while connected to a drone"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "contributing.md",
+        "url": "https://github.com/BluEye-Robotics/blueye.sdk/blob/d1fbfaeb9630b34d5c5eb97ce298e79f24e8fb02/contributing.md",
+        "content": "# Contributing to blueye.sdk\n\n## Project structure and context\n`blueye.sdk` is a Python package that exposes the functionality of the Blueye app.\nThe SDK depends on three projects:\n\n* [`ProtocolDefinitons`](https://github.com/BluEye-Robotics/ProtocolDefinitions) : This repository contains the definitions for the Protobuf messages used to communicate with the drone.\n* [`blueye.protocol`](https://github.com/BluEye-Robotics/blueye.protocol) : This is the generated python package from the definitions in `ProtocolDefinitions`.\n* [`blueye.sdk`](https://github.com/BluEye-Robotics/blueye.sdk) : Defines [ZeroMQ](https://zeromq.org/) sockets for telemetry-, control-, and request-response messages. These sockets are then wrapped into an easy to use Python object. `blueye.sdk` also adds functionality for downloading log files from the drone.\n\n## Tests\nTo run the tests when connected to a surface unit with an active drone, do:\n\n```shell\nuv run pytest\n```\n\nTo run tests when not connected to a drone, do:\n\n``` shell\nuv run pytest -k \"not connected_to_drone\"\n```\n\n## Documentation\nThe documentation is written in markdown and converted to html with [mkdocs](https://www.mkdocs.org/). To generate and open the documentation locally run\n\n``` shell\nuv run mkdocs serve\n```\n\n## Formatting\nTo keep the code style consistent [`Black`](https://pypi.org/project/black/) is used for code formatting.\nTo format code with black run `black .` in the project root directory.\nAdding a pre-commit hook ensures black is run before every commit\n\n```shell\nuv tool install pre-commit --with pre-commit-uv --force-reinstall\npre-commit install\n```\n\n## Can't find what you are looking for?\nWe're continuously improving this project and if you feel features are missing or something feels clunky, please open an [issue](https://github.com/BluEye-Robotics/blueye.sdk/issues) and suggest a change. Bug reports and fixes are of course always welcome!\n",
+        "requirementHints": [
+          "## Tests",
+          "To run the tests when connected to a surface unit with an active drone, do:",
+          "uv run pytest",
+          "To run tests when not connected to a drone, do:",
+          "uv run pytest -k \"not connected_to_drone\"",
+          "Adding a pre-commit hook ensures black is run before every commit",
+          "uv tool install pre-commit --with pre-commit-uv --force-reinstall",
+          "pre-commit install"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "blueye/sdk/__init__.py",
+      "blueye/sdk/battery.py",
+      "blueye/sdk/camera.py",
+      "blueye/sdk/cli/__init__.py",
+      "blueye/sdk/cli/commands/__init__.py",
+      "blueye/sdk/cli/commands/_common.py",
+      "blueye/sdk/cli/commands/bundle_model/__init__.py",
+      "blueye/sdk/cli/commands/bundle_model/bundle.py",
+      "blueye/sdk/cli/commands/bundle_model/command.py",
+      "blueye/sdk/cli/commands/bundle_model/heuristics.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/BluEye-Robotics/blueye.sdk/blob/d1fbfaeb9630b34d5c5eb97ce298e79f24e8fb02/pyproject.toml"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:BluEye-Robotics/blueye.sdk": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 90,
+    "scoreRange": [
+      89,
+      90
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "Any camera recording command can silently stop an ongoing multibeam recording.",
+        "evidence": [
+          "https://github.com/BluEye-Robotics/blueye.sdk/issues/225"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report was filed yesterday against current master.",
+        "evidence": [
+          "Issue created 2026-09-13"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "A project contributor supplied exact affected methods and acceptance behavior.",
+        "evidence": [
+          "Issue author follesoe provided current commit and suggested boundary"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Both camera paths must preserve the cached multibeam boolean in RecordCtrl.",
+        "evidence": [
+          "RecordOn has main, guestport, and multibeam fields"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The emitted protobuf and both caller argument lists are deterministic without hardware.",
+        "evidence": [
+          "Three focused tests fail on baseline and pass on candidate"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "Two production methods and three focused tests cover the behavior.",
+        "evidence": [
+          "Candidate diff reviewed locally"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Focused checks complete in under a second and the non-hardware suite in under a minute.",
+        "evidence": [
+          "684 non-hardware tests passed locally"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Existing main and guestport values are unchanged; one required protocol boolean is added.",
+        "evidence": [
+          "blueye.protocol 3.3.0 RecordOn schema"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Current master and the issue were updated this week.",
+        "evidence": [
+          "Repository HEAD d1fbfae",
+          "Issue created 2026-09-13"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Protects multibeam survey recordings for SDK users controlling either camera.",
+        "evidence": [
+          "Both main and guestport camera paths share the affected command"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The corrected control client contract protects every caller of recording state.",
+        "evidence": [
+          "CtrlClient.set_recording_state constructs the common RecordCtrl"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Fix covers current set_recording and deprecated is_recording property callers.",
+        "evidence": [
+          "Camera.is_recording delegates to set_recording"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 83,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      83,
+      90
+    ],
+    "selectable": true
+  },
+  "durationMs": 4095
+}

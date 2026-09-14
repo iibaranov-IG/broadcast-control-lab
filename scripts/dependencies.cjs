@@ -4,6 +4,13 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { load } = require('./case.cjs')
 const c = load(process.argv[2])
+if (c.id === 'blueye-sdk-225' && c.sources.length === 1 && c.sources[0].repository === 'BluEye-Robotics/blueye.sdk' && c.sources[0].commit === 'd1fbfaeb9630b34d5c5eb97ce298e79f24e8fb02') {
+  const source = path.resolve(c.sources[0].directory)
+  const expected = { 'pyproject.toml': 'e6acf89bb51aa47d0273f70d85181521a25cd23045e8d1ff03e1442410d10c67', 'uv.lock': '866386ffe3ac1b28910c682ccadb80bcdf49bb835734650429ddde13297cbdb0' }
+  for (const [name, sha] of Object.entries(expected)) if (require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(source, name))).digest('hex') !== sha) throw new Error('blueye-sdk dependency manifest changed; review required')
+  execFileSync('uv', ['sync', '--frozen', '--no-install-project', '--group', 'dev', '--no-build', '--python', '/usr/local/bin/python3'], { cwd: source, stdio: 'inherit', env: { ...process.env, UV_CACHE_DIR: '/work/.cache/uv', UV_PYTHON_DOWNLOADS: 'never', UV_LINK_MODE: 'copy' } })
+  process.exit(0)
+}
 if (c.id === 'noisy-studio-99' && c.sources.length === 1 && c.sources[0].repository === 'noisy/noisy-studio' && c.sources[0].commit === '55024b577cbcb015b2979785160b3f74e047ee65') {
   const source = path.resolve(c.sources[0].directory)
   const expected = { 'pyproject.toml': 'e3218d6eba934fb38b9f0180ed771ff44ae803d478fd741848ff6335617d6248', 'uv.lock': '4f061c16c3b6ca6d591bed02003f0cd3875e2d5a6144a8b369938ff23ac3dc14', 'dashboard/package.json': 'e5be74411f9a95e6c54cb00b641762c94ff1a3d93c86ef053a414cf84b622ce9', 'dashboard/package-lock.json': '3a31936b6fc2360a577bde06a4114425fceb5f82f9b7aba153bc741b96211c6d' }

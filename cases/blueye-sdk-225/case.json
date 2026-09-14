@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 2,
+  "id": "blueye-sdk-225",
+  "status": "ready",
+  "title": "Preserve multibeam recording during camera recording commands",
+  "issue": "https://github.com/BluEye-Robotics/blueye.sdk/issues/225",
+  "problem": "Camera.set_recording preserves the other camera state but CtrlClient omits the multibeam bit, so every camera recording command sends multibeam=false and can stop an ongoing sonar recording.",
+  "reproduce": "Seed RecordStateTel with multibeam_is_recording=true, invoke either main or guestport Camera.set_recording, and inspect the resulting CtrlClient call and serialized RecordCtrl.",
+  "acceptance": "The unchanged focused tests fail on the pinned baseline and pass after the repair, the emitted RecordCtrl retains multibeam=true, both camera paths preserve telemetry state, and the complete non-hardware test suite passes.",
+  "repair": "Add the multibeam boolean to CtrlClient.set_recording_state and pass the cached RecordStateTel value from both Camera.set_recording branches.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "BluEye-Robotics/blueye.sdk",
+      "commit": "d1fbfaeb9630b34d5c5eb97ce298e79f24e8fb02",
+      "directory": "sources/blueye-sdk-225"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [{"cwd":"sources/blueye-sdk-225","argv":["audited-profile","blueye-sdk-225"]}],
+    "prepare": [{"cwd":"sources/blueye-sdk-225","argv":["git","apply","../../cases/blueye-sdk-225/repair.patch"]}],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/blueye-sdk-225/test.mjs",
+          "sources/blueye-sdk-225"
+        ]
+      }
+    ],
+    "build": [
+      {
+        "cwd": "sources/blueye-sdk-225",
+        "argv": [".venv/bin/black","--check","blueye/sdk/camera.py","blueye/sdk/connection.py","tests/test_sdk.py","tests/test_ctrl_client.py"]
+      }
+    ]
+  },
+  "artifacts": {
+    "report": "reports/blueye-sdk-225.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies the actual blueye.protocol RecordCtrl, both SDK camera paths and all tests that do not require a connected drone on Linux/Python 3.12. It does not prove behavior on a physical Blueye drone or close the telemetry race already identified in the issue.",
+    "ownerCheck": "Start a multibeam recording in the Blueye app, then start and stop both main and guestport camera recordings through this SDK branch. Confirm RecordStateTel keeps multibeam_is_recording=true until the multibeam recording is explicitly stopped."
+  },
+  "selection": {
+    "report": "cases/blueye-sdk-225/triage.json",
+    "sha256": "21cd768489a5ea19cab874ab7e35ad53a57589c8cdf2fc4743719fe1b38d9c2f"
+  },
+  "upstream": {
+    "kind":"python","source":"upstream","timeoutMs":180000,
+    "setup":[
+      {"cwd":".","argv":[".venv/bin/python","../../cases/blueye-sdk-225/install-metadata.py"]},
+      {"cwd":".","argv":["git","apply","../../cases/blueye-sdk-225/tests-only.patch"]}
+    ],
+    "build":[],
+    "testFiles":["tests/test_sdk.py","tests/test_ctrl_client.py"],
+    "regression":{"cwd":".","argv":[".venv/bin/python","../../cases/blueye-sdk-225/upstream.py","focused"]},
+    "negative":{"exitCode":1,"outputIncludes":"multibeam"},
+    "suite":{"cwd":".","argv":[".venv/bin/python","../../cases/blueye-sdk-225/upstream.py","suite"]},
+    "suiteOutputIncludes":"BCL_SUITE_COMPLETE"
+  },
+  "publish": {
+    "source":"upstream","target":"BluEye-Robotics/blueye.sdk","base":"master",
+    "commitMessage":"Preserve multibeam recording state in camera controls",
+    "paths":["blueye/sdk/camera.py","blueye/sdk/connection.py","tests/test_sdk.py","tests/test_ctrl_client.py"]
+  }
+}

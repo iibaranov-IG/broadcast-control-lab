@@ -1825,6 +1825,22 @@
       "ci": "success",
       "lastSync": "2026-09-14T10:48:15.217Z",
       "syncError": null
+    },
+    {
+      "id": "feishin-2451",
+      "title": "Fall back to direct playback when OpenSubsonic transcode decision is blocked",
+      "issue": "https://github.com/jeffvli/feishin/issues/2451",
+      "pr": "https://github.com/jeffvli/feishin/pull/2464",
+      "candidateSha256": "ea4ccfd11f894a7eebc6f71a986b30a533b83f9dcc11dd6896acc241945bb562",
+      "testedHeadSha": "2a7ee47ce2090e1df649417a99f3961eca5d9b9d",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34835567662",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

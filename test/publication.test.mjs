@@ -181,6 +181,7 @@ test('Hardware kit includes actual owner instructions and preserves filled resul
 })
 test('Option parser refuses unknown switches and duplicate targets', () => {
   assert.deepEqual(publisher.parseOptions(['--fork', 'me/project', '--dry-run']), { fork: 'me/project', dryRun: true })
+  assert.deepEqual(publisher.parseOptions(['--batch', '--run', 'https://example.test']), { batch: true, run: 'https://example.test' })
   assert.throws(() => publisher.parseOptions(['--force']), /Use --fork/)
   assert.throws(() => publisher.parseOptions(['--fork', 'me/a', '--fork', 'me/b']), /Duplicate/)
 })

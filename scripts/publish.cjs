@@ -75,7 +75,7 @@ function parseOptions(args) {
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--dry-run') { options.dryRun = true; continue }
     if (args[i] === '--batch') { options.batch = true; continue }
-    if (!['--fork', '--run'].includes(args[i]) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error('Use --fork owner/repo, --run <Actions URL>, and optionally --dry-run')
+    if (!['--fork', '--run'].includes(args[i]) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error('Use --fork owner/repo, --run <Actions URL>, and optionally --batch or --dry-run')
     const key = args[i].slice(2)
     if (options[key]) throw new Error('Duplicate option')
     options[key] = args[++i]

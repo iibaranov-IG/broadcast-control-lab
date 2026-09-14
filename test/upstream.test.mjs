@@ -53,6 +53,18 @@ test('nine cases reuse one download and image with independent copies', t => {
   assert.equal(ctx.metrics.imageBuilds, 1); assert.equal(ctx.metrics.imageReuses, 8)
   assert.equal(fs.readFileSync(path.join(root, 'case-0/code'), 'utf8'), 'repair-0')
 })
+test('shared source copies preserve relative symbolic links verbatim', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'bcl-symlink-test-')); t.after(() => fs.rmSync(root, { recursive: true, force: true }))
+  const ctx = context(path.join(root, 'cache'))
+  const source = { repository: 'owner/project', commit: 'b'.repeat(40) }
+  const destination = path.join(root, 'case')
+  ctx.source(source, destination, dir => {
+    fs.mkdirSync(path.join(dir, '.github'), { recursive: true })
+    fs.writeFileSync(path.join(dir, '.github/instructions.md'), 'rules\n')
+    fs.symlinkSync('.github/instructions.md', path.join(dir, 'AGENTS.md'))
+  })
+  assert.equal(fs.readlinkSync(path.join(destination, 'AGENTS.md')), '.github/instructions.md')
+})
 test('Python red/green invalidates timestamp bytecode even for same-size rapid repair', t => {
   const f = fixture(t)
   const filename = path.join(f.source, 'impl.py'), stamp = new Date(1000000000000)

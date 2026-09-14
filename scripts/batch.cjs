@@ -22,7 +22,7 @@ function context(directory) {
       } else metrics.sourceReuses++
       const begin = Date.now()
       // Never hardlink or mount the shared cache into an executing case.
-      fs.cpSync(sources.get(key), destination, { recursive: true })
+      fs.cpSync(sources.get(key), destination, { recursive: true, verbatimSymlinks: true })
       metrics.copyMs += Date.now() - begin
     },
     image(key, prepare) {

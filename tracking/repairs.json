@@ -2870,7 +2870,7 @@
       "issue": "https://github.com/KalicoCrew/kalico/issues/970",
       "pr": "https://github.com/KalicoCrew/kalico/pull/971",
       "candidateSha256": "b0f4c684b6e0b000b14dc3d14ee970a2dc89a039aeb5cecb4408a6c2feec8a66",
-      "testedHeadSha": "ee77d2c72946f3ee5d3ed543ff30583379734fbf",
+      "testedHeadSha": "29aa8439739411dda7d9423d8add15d6cdc68680",
       "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34904142153",
       "state": "open",
@@ -2878,7 +2878,9 @@
         "status": "NOT_REVIEWED"
       },
       "events": [],
-      "unread": 0
+      "unread": 0,
+      "headSha": "29aa8439739411dda7d9423d8add15d6cdc68680",
+      "commitEnvelopeNote": "GPG-signed DCO commit; tree 8e3db56133dbbb8eec6d2a5dfd52ddb0490da609 matches the BCL-tested candidate tree"
     }
   ],
   "schemaVersion": 1

@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 2,
+  "id": "camera-gallery-card-237",
+  "status": "ready",
+  "title": "Unavailable Cameras are not shown in the Camera picker",
+  "issue": "https://github.com/TheScubaDiver/camera-gallery-card/issues/237",
+  "problem": "The visual editor filters camera entities whose current Home Assistant state is unknown or unavailable, even though the same entities are accepted through YAML.",
+  "reproduce": "Populate hass.states with camera.available, camera.unavailable and camera.unknown; the pinned editor list drops the latter two before rendering suggestions.",
+  "acceptance": "The editor offers every camera.* entity present in hass.states regardless of runtime state, excludes non-camera entities, preserves friendly-name ordering, and the complete project check passes.",
+  "repair": "Move editor camera discovery into a tested pure helper that filters only by the camera domain and deliberately keeps unknown and unavailable entities.",
+  "sources": [
+    {
+      "id": "baseline",
+      "repository": "TheScubaDiver/camera-gallery-card",
+      "commit": "8972c56d3f37aae14fba8b9f3c73e85206af8a0b",
+      "directory": "sources/camera-gallery-card-237"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [
+    "cases/camera-gallery-card-237/"
+  ],
+  "steps": {
+    "dependencies": [
+      {
+        "cwd": "sources/camera-gallery-card-237",
+        "argv": [
+          "audited-profile",
+          "camera-gallery-card-237"
+        ]
+      }
+    ],
+    "prepare": [
+      {
+        "cwd": "sources/camera-gallery-card-237",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/camera-gallery-card-237/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/camera-gallery-card-237/test.mjs",
+          "sources/camera-gallery-card-237"
+        ]
+      }
+    ],
+    "build": [
+      {
+        "cwd": "sources/camera-gallery-card-237",
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "report": "reports/camera-gallery-card-237.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL executes the real editor-list regression and all repository checks against deterministic Home Assistant state fixtures. It does not render the card inside a running Home Assistant instance.",
+    "ownerCheck": "Open the visual editor while a camera entity is unavailable or unknown, search under Cameras in picker, and confirm it can be selected and saved without switching to YAML."
+  },
+  "selection": {
+    "report": "cases/camera-gallery-card-237/triage.json",
+    "sha256": "f037bf5e092d2d24167d3b36098542e336e3e3351a1c5e2a3c67426155b73c0c"
+  },
+  "template": {
+    "language": "node",
+    "protocol": "none"
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "baseline",
+    "timeoutMs": 120000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/camera-gallery-card-237/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "src/data/live-config.spec.ts"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "../../cases/camera-gallery-card-237/probe.mjs",
+        "."
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "getEditorCameraEntities is not a function"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "../../cases/camera-gallery-card-237/probe.mjs",
+        "."
+      ]
+    },
+    "suiteOutputIncludes": "PASS: unavailable and unknown cameras remain selectable"
+  },
+  "publish": {
+    "source": "baseline",
+    "target": "TheScubaDiver/camera-gallery-card",
+    "base": "main",
+    "commitMessage": "Keep unavailable cameras selectable in the editor",
+    "paths": [
+      "src/data/live-config.ts",
+      "src/data/live-config.spec.ts",
+      "src/index.js"
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+diff --git a/src/data/live-config.ts b/src/data/live-config.ts
+index 0827a75..a1c94fe 100644
+--- a/src/data/live-config.ts
++++ b/src/data/live-config.ts
+@@ -31,6 +31,27 @@ const STREAM_ID_LEGACY_ALIAS = "__cgc_stream__";
+ 
+ type LiveCameraEntry = NonNullable<CameraGalleryCardConfig["live_cameras"]>[number];
+ 
++/**
++ * Camera entities offered by the visual editor.
++ *
++ * Runtime state must not decide whether an entity can be configured: cameras
++ * commonly report `unknown` or `unavailable` while they are starting, offline,
++ * or being repaired. Home Assistant still keeps those entities in `hass.states`,
++ * and YAML already accepts them, so the editor should expose them as well.
++ */
++export function getEditorCameraEntities(
++  hassStates: Readonly<Record<string, HassEntity>> | null | undefined
++): string[] {
++  const states = hassStates ?? {};
++  return Object.keys(states)
++    .filter((id) => id.startsWith("camera."))
++    .sort((a, b) => {
++      const an = String(states[a]?.attributes?.["friendly_name"] ?? a).toLowerCase();
++      const bn = String(states[b]?.attributes?.["friendly_name"] ?? b).toLowerCase();
++      return an.localeCompare(bn);
++    });
++}
++
+ /**
+  * Canonical live-cameras list. Reads `config.live_cameras` when populated;
+  * otherwise builds it on the fly from the legacy keys
+diff --git a/src/index.js b/src/index.js
+index 268f75b..d7d1482 100644
+--- a/src/index.js
++++ b/src/index.js
+@@ -55,6 +55,7 @@ import {
+ import {
+   friendlyCameraName as liveFriendlyCameraName,
+   getAllLiveCameraEntities,
++  getEditorCameraEntities,
+   getGridCameraEntities,
+   getLiveCameraEntityIds,
+   getLiveCameraOptions,
+@@ -7987,26 +7988,7 @@ class CameraGalleryCardEditor extends HTMLElement {
+     const liveLayout = c.live_layout === "grid" ? "grid" : "single";
+ 
+ 
+-    const cameraEntities = Object.keys(this._hass?.states || {})
+-      .filter((id) => {
+-        if (!id.startsWith("camera.")) return false;
+-
+-        const st = this._hass?.states?.[id];
+-        if (!st) return false;
+-
+-        const state = String(st.state || "").toLowerCase();
+-
+-        return state !== "unavailable" && state !== "unknown";
+-      })
+-      .sort((a, b) => {
+-        const an = String(
+-          this._hass?.states?.[a]?.attributes?.friendly_name || a
+-        ).toLowerCase();
+-        const bn = String(
+-          this._hass?.states?.[b]?.attributes?.friendly_name || b
+-        ).toLowerCase();
+-        return an.localeCompare(bn);
+-      });
++    const cameraEntities = getEditorCameraEntities(this._hass?.states);
+ 
+     const rootVars = `
+       --ed-radius-panel: 18px;

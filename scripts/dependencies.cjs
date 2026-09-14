@@ -22,6 +22,15 @@ if (c.id === 'c64cast-368' && c.sources.length === 1 && c.sources[0].repository 
   execFileSync('uv', ['pip', 'install', '--python', '.venv/bin/python', '--no-build', 'setuptools==83.0.0'], { cwd: source, stdio: 'inherit', env: { ...process.env, UV_CACHE_DIR: '/work/.cache/uv', UV_PYTHON_DOWNLOADS: 'never', UV_LINK_MODE: 'copy' } })
   process.exit(0)
 }
+if (c.id === 'reolink-aio-204' && c.sources.length === 1 && c.sources[0].repository === 'starkillerOG/reolink_aio' && c.sources[0].commit === '3766907e1c49cc7ea2186ce5edc905160f6b2664') {
+  const source = path.resolve(c.sources[0].directory)
+  const expected = { 'requirements.txt': '6e54b2a4585872f39007f34c2c78e2833d2772b76c5608534caebcc99fa5e65c' }
+  for (const [name, sha] of Object.entries(expected)) if (require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(source, name))).digest('hex') !== sha) throw new Error('reolink-aio dependency manifest changed; review required')
+  const env = { ...process.env, UV_CACHE_DIR: '/work/.cache/uv', UV_PYTHON_DOWNLOADS: 'never', UV_LINK_MODE: 'copy' }
+  execFileSync('uv', ['venv', '--python', '/usr/local/bin/python3', '.venv'], { cwd: source, stdio: 'inherit', env })
+  execFileSync('uv', ['pip', 'install', '--python', '.venv/bin/python', '--no-build', 'aiohttp==3.14.3', 'aiortsp==1.4.0', 'orjson==3.12.0', 'pycryptodomex==3.23.0', 'typing-extensions==4.16.0'], { cwd: source, stdio: 'inherit', env })
+  process.exit(0)
+}
 if (c.id !== 'aten-2029' || c.sources[0].repository !== 'bitfocus/companion-module-aten-matrix') throw new Error('No audited dependency acquisition recipe for this case')
 const source = path.resolve(c.sources[0].directory)
 const deps = '/work/.cache/dependencies'

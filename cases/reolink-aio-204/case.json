@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 2,
+  "id": "reolink-aio-204",
+  "status": "ready",
+  "title": "Discover detection capabilities on every reported camera stream",
+  "issue": "https://github.com/starkillerOG/reolink_aio/issues/204",
+  "problem": "Multi-lens cameras outside a two-model allowlist discard channel-1 motion and AI events even when that lens advertises and sends those detections.",
+  "reproduce": "Give a camera one primary channel and a second stream whose Baichuan abilities advertise motion plus people, vehicle and dog/cat detection; the pinned baseline creates no channel-1 detection capabilities or state entries.",
+  "acceptance": "The second stream receives only its explicitly advertised motion and AI capabilities, incoming channel-1 events update those states, and an extra stream without detection bits remains unadvertised.",
+  "repair": "Discover basic motion and object detection for every reported stream channel, retain the legacy missing-motion fallback only for real camera channels, and replace the model gate with reported detection evidence while keeping the old allowlist as a compatibility fallback.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "starkillerOG/reolink_aio",
+      "commit": "3766907e1c49cc7ea2186ce5edc905160f6b2664",
+      "directory": "sources/reolink-aio-204"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [
+      {
+        "cwd": "sources/reolink-aio-204",
+        "argv": [
+          "audited-profile",
+          "reolink-aio-204-runtime"
+        ]
+      }
+    ],
+    "prepare": [
+      {
+        "cwd": "sources/reolink-aio-204",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/reolink-aio-204/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/reolink-aio-204/test.mjs",
+          "sources/reolink-aio-204"
+        ]
+      }
+    ],
+    "build": [
+      {
+        "cwd": "sources/reolink-aio-204",
+        "argv": [
+          ".venv/bin/python",
+          "-m",
+          "compileall",
+          "-q",
+          "reolink_aio",
+          "tests/test_multilens_detection_capabilities.py"
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "report": "reports/reolink-aio-204.json"
+  },
+  "selection": {
+    "report": "cases/reolink-aio-204/triage.json",
+    "sha256": "7e9ca381e0ef3378a4b74f492287d950b9a1300150b0ba43831d1675e5824c34",
+    "reason": "A less-than-one-day-old report gives an exact regression window, raw ability/event data and two affected models; the owner is waiting with a live camera and explicitly offers immediate branch validation."
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL executes the real Baichuan ability parser, combined capability construction and channel-1 event parser against the reporter's advertised bit pattern. It also verifies that an unadvertised stream gains no false detection capability. The physical OMVI 3i PoE and RLC-81MA remain owner-validated.",
+    "ownerCheck": "Install the branch on Home Assistant with the OMVI 3i PoE or RLC-81MA, restart the integration, confirm motion/person/vehicle/animal entities exist for lens 2, then trigger each detection and verify only the matching entity changes without unknown-event warnings."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "starkillerOG/reolink_aio",
+    "base": "main",
+    "paths": [
+      "reolink_aio/api.py",
+      "reolink_aio/baichuan/baichuan.py",
+      "tests/test_multilens_detection_capabilities.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/reolink-aio-204/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "tests/test_multilens_detection_capabilities.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "env",
+        "PYTHONPATH=.",
+        ".venv/bin/python",
+        "tests/test_multilens_detection_capabilities.py"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "FAILED (failures=1)"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "env",
+        "PYTHONPATH=.",
+        ".venv/bin/python",
+        "tests/test_multilens_detection_capabilities.py"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 1 test"
+  }
+}

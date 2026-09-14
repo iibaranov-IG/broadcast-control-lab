@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T08:03:32.985Z",
+  "issue": {
+    "repository": "starkillerOG/reolink_aio",
+    "number": "204",
+    "url": "https://github.com/starkillerOG/reolink_aio/issues/204",
+    "title": "Second lens AI/motion detections discarded on multi-lens cameras not in DUAL_LENS_DUAL_MOTION_MODELS (OMVI 3i PoE, RLC-81MA)",
+    "state": "open",
+    "updatedAt": "2026-09-13T10:39:45Z"
+  },
+  "source": {
+    "repository": "starkillerOG/reolink_aio",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "3766907e1c49cc7ea2186ce5edc905160f6b2664",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "reolink_aio/__init__.py",
+      "reolink_aio/api.py",
+      "reolink_aio/baichuan/__init__.py",
+      "reolink_aio/baichuan/baichuan.py",
+      "reolink_aio/baichuan/base_protocol.py",
+      "reolink_aio/baichuan/tcp_protocol.py",
+      "reolink_aio/baichuan/udp_protocol.py",
+      "reolink_aio/baichuan/util.py",
+      "reolink_aio/baichuan/webhook_server.py",
+      "reolink_aio/baichuan/xmls.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "reolink_aio/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/starkillerOG/reolink_aio/blob/3766907e1c49cc7ea2186ce5edc905160f6b2664/reolink_aio/pyproject.toml"
+      },
+      {
+        "path": "setup.py",
+        "kind": "python",
+        "url": "https://github.com/starkillerOG/reolink_aio/blob/3766907e1c49cc7ea2186ce5edc905160f6b2664/setup.py"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:starkillerOG/reolink_aio": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 97,
+    "scoreRange": [
+      97,
+      97
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Live detections from the second lens are discarded in daily use.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/issues/204"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "Issue was opened less than one day before selection.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/issues/204"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "Reporter explicitly offers branch testing, commands and logs.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/issues/204"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Expected four second-lens detection entities and event state are explicit.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/issues/204"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "Reported a precise version boundary and raw ability/event data suitable for an offline test.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/issues/204"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "Repair is localized to detection capability discovery and its model gate.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/blob/3766907e1c49cc7ea2186ce5edc905160f6b2664/reolink_aio/baichuan/baichuan.py"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Ability parsing and incoming events can be verified without hardware; owner can perform final camera check.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/issues/204"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Extra channels require explicit advertised bits and a negative case prevents false capabilities.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/issues/204"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Default branch was updated immediately before issue selection.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/commits/main"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 5,
+        "reason": "Fix covers multiple current multi-lens models and Home Assistant users.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/issues/204",
+          "https://github.com/home-assistant/core/issues/177630"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "Capability-driven discovery covers future models reporting the same protocol bits.",
+        "evidence": [
+          "https://github.com/starkillerOG/reolink_aio/issues/204"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 5,
+        "reason": "Library fix restores downstream Home Assistant entity creation.",
+        "evidence": [
+          "https://github.com/home-assistant/core/issues/177630"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      97
+    ],
+    "selectable": true
+  },
+  "durationMs": 2930
+}

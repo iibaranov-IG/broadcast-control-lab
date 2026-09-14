@@ -1857,6 +1857,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "yi-hack-v5-476",
+      "title": "Wire the YI Dome PTZ preset buttons to their existing actions",
+      "issue": "https://github.com/alienatedsec/yi-hack-v5/issues/476",
+      "pr": "https://github.com/alienatedsec/yi-hack-v5/pull/478",
+      "candidateSha256": "c03a2c36ecd5bb8bc461559fd65928c37d13dea4798942e8136a32d2d822901c",
+      "testedHeadSha": "3111aaf4820b71625859fe87481e4cf3bfc58ee0",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34838743052",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

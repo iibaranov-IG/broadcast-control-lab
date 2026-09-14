@@ -54,7 +54,7 @@ function publishPlan(p, request = api) {
   const refPath = `${fork}/git/ref/heads/${p.branch}`
   let ref = optional(request, refPath)
   if (!ref) {
-    const commit = request('POST', `${fork}/git/commits`, { message: p.title, tree: tree.sha, parents: [p.candidate.source.commit] })
+    const commit = request('POST', `${fork}/git/commits`, { message: p.commitMessage || p.title, tree: tree.sha, parents: [p.candidate.source.commit] })
     try { ref = request('POST', `${fork}/git/refs`, { ref: `refs/heads/${p.branch}`, sha: commit.sha }) }
     catch (error) { if (error.status !== 422) throw error; ref = request('GET', refPath) }
   }

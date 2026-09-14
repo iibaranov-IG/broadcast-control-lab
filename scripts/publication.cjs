@@ -12,6 +12,7 @@ function validatePublication(c) {
   const p = c.publish
   if (!c.sources.some(s => s.id === p.source) || !repoPattern.test(p.target || '') || typeof p.base !== 'string' || !/^[\w][\w./-]*$/.test(p.base) || p.base.includes('..')) throw new Error('Invalid publication source, target or base')
   if (!Array.isArray(p.paths) || !p.paths.length || p.paths.length > 100 || new Set(p.paths).size !== p.paths.length) throw new Error('Publication needs distinct explicit file paths (maximum 100)')
+  if (p.commitMessage !== undefined && (typeof p.commitMessage !== 'string' || !p.commitMessage.trim() || /[\r\n]/.test(p.commitMessage))) throw new Error('Publication commit message must be one nonempty line')
   p.paths.forEach(filePath)
   if (p.verificationOnlyPaths !== undefined) {
     if (!c.upstream || !Array.isArray(p.verificationOnlyPaths) || p.verificationOnlyPaths.length > 100 || new Set(p.verificationOnlyPaths).size !== p.verificationOnlyPaths.length) throw new Error('Verification-only paths require distinct upstream test files (maximum 100)')
@@ -134,6 +135,6 @@ function plan(directory, c, options) {
     `Hardware verified: ${c.verification.hardwareVerified}. Full application verified: ${c.verification.applicationVerified}.`, '',
     'The evidence artifact contains HARDWARE-CHECK.md and owner-result.json. Automated checks do not certify hardware.', '',
     `<!-- bcl:${c.id}:${digest} -->`, ''].join('\n')
-  return { target: c.publish.target, fork: options.fork, base: c.publish.base, branch, title: c.title, body, candidate, digest }
+  return { target: c.publish.target, fork: options.fork, base: c.publish.base, branch, title: c.title, commitMessage: c.publish.commitMessage || c.title, body, candidate, digest }
 }
 module.exports = { validatePublication, capture, bundle, hardwareKit, plan, hash, regular }

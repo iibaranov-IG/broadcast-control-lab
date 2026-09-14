@@ -146,6 +146,21 @@ test('Publish creates one draft PR and reuses it on repeat, even after closure',
   assert.equal(mock.calls.filter(x => x.method === 'POST' && x.endpoint.endsWith('/pulls')).length, 1)
   assert.equal(mock.calls.filter(x => x.method === 'PATCH').length, 0)
 })
+test('Publication can use a repository-specific commit message without changing the PR title', t => {
+  const f = fixture(t)
+  f.c.publish.commitMessage = 'fix(player): restore direct playback'
+  fs.writeFileSync(path.join(f.directory, 'case.json'), JSON.stringify(f.c, null, 2) + '\n')
+  const bytes = publication.capture(f.root, f.c)
+  fs.writeFileSync(path.join(f.directory, 'candidate.json'), bytes)
+  const evidencePath = path.join(f.directory, 'evidence.json')
+  const evidence = JSON.parse(fs.readFileSync(evidencePath))
+  fs.writeFileSync(evidencePath, JSON.stringify({ ...evidence, publication: { path: 'candidate.json', sha256: publication.hash(bytes) } }))
+  const plan = publication.plan(f.directory, f.c, f.options)
+  const mock = github(plan)
+  publisher.publishPlan(plan, mock.api)
+  assert.equal(plan.title, 'Example repair')
+  assert.equal(mock.calls.find(call => call.endpoint.endsWith('/git/commits')).body.message, 'fix(player): restore direct playback')
+})
 test('Retry resumes after branch creation and PR request failure', t => {
   const f = fixture(t), mock = github(f.p)
   mock.state.failure = true

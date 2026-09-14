@@ -1,0 +1,35 @@
+diff --git a/SOURCES/RES_DISCOVERY.CPP b/SOURCES/RES_DISCOVERY.CPP
+index 408be90..4d898cc 100644
+--- a/SOURCES/RES_DISCOVERY.CPP
++++ b/SOURCES/RES_DISCOVERY.CPP
+@@ -591,11 +591,13 @@ bool ResolveGameDataDir(char *outDir, U16 outMax, int *argc, char **argv) {
+      * docs/ANDROID.md). Try /sdcard/lba2cc/ first so users can keep data in a
+      * subdirectory. Harmless no-op on non-Android. */
+     Res_SetDiscoverySource("/sdcard/lba2cc");
+-    if (TryJoinBaseSub("/sdcard/", "lba2cc", outDir, outMax, tried, &triedCount)) {
++    if (TryJoinBaseSub("/sdcard/", "lba2cc", outDir, outMax, tried, &triedCount,
++                       true)) {
+         return true;
+     }
+     Res_SetDiscoverySource("/storage/emulated/0/lba2cc");
+-    if (TryJoinBaseSub("/storage/emulated/0/", "lba2cc", outDir, outMax, tried, &triedCount)) {
++    if (TryJoinBaseSub("/storage/emulated/0/", "lba2cc", outDir, outMax, tried,
++                       &triedCount, true)) {
+         return true;
+     }
+     Res_SetDiscoverySource("/sdcard");
+diff --git a/docs/ANDROID.md b/docs/ANDROID.md
+index dcb192a..e1e8759 100644
+--- a/docs/ANDROID.md
++++ b/docs/ANDROID.md
+@@ -128,6 +128,10 @@ be invisible to the app's own view, so prefer `/sdcard/lba2cc/`.
+ 8. Parent-directory walk
+ 9. Folder picker fallback (if compiled with debug tools)
+ 
++The two `lba2cc/` folders accept either extracted retail files or a disc image
++such as a BIN/CUE rip. The bare external-storage roots only check for extracted
++files, avoiding an expensive scan across an entire shared-storage directory.
++
+ ## Where the game saves
+ 
+ Saves, `lba2.cfg`, `adeline.log` and `recordings/` all live in the user

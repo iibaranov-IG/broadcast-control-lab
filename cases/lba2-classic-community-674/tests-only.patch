@@ -1,0 +1,41 @@
+diff --git a/tests/discovery/test_android_image_policy.py b/tests/discovery/test_android_image_policy.py
+new file mode 100644
+index 0000000..872dfe4
+--- /dev/null
++++ b/tests/discovery/test_android_image_policy.py
+@@ -0,0 +1,35 @@
++import pathlib
++import re
++import unittest
++
++
++ROOT = pathlib.Path(__file__).resolve().parents[2]
++
++
++class AndroidImageDiscoveryPolicyTest(unittest.TestCase):
++    def test_app_specific_shared_storage_accepts_disc_images(self):
++        source = (ROOT / "SOURCES/RES_DISCOVERY.CPP").read_text()
++        for root in ("/sdcard/", "/storage/emulated/0/"):
++            call = re.compile(
++                rf'TryJoinBaseSub\("{re.escape(root)}",\s*"lba2cc",'
++                rf'[\s\S]*?&triedCount,\s*true\)'
++            )
++            self.assertRegex(source, call)
++
++    def test_broad_shared_storage_keeps_cheap_probe(self):
++        source = (ROOT / "SOURCES/RES_DISCOVERY.CPP").read_text()
++        self.assertIn(
++            'NormalizeAndTry("/sdcard/", outDir, outMax, tried, &triedCount)',
++            source,
++        )
++
++    def test_android_docs_describe_the_image_scope(self):
++        docs = (ROOT / "docs/ANDROID.md").read_text()
++        self.assertIn(
++            "The two `lba2cc/` folders accept either extracted retail files or a disc image",
++            docs,
++        )
++
++
++if __name__ == "__main__":
++    unittest.main()

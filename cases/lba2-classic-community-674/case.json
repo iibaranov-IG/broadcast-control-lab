@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 2,
+  "id": "lba2-classic-community-674",
+  "status": "ready",
+  "title": "Discover Android BIN/CUE data in the documented app folder",
+  "issue": "https://github.com/LBALab/lba2-classic-community/issues/674",
+  "problem": "Android directs players to /sdcard/lba2cc, but that probe only accepts extracted HQR files, so a supported BIN/CUE-only rip is rejected on first launch.",
+  "reproduce": "At the pinned baseline, inspect both app-specific shared-storage probes: neither passes allowImage=true to TryJoinBaseSub, although an explicitly selected directory containing the same image is accepted.",
+  "acceptance": "Both lba2cc probes use image-aware validation, the broad /sdcard probes remain extracted-file-only to avoid expensive directory walks, and the documented behavior matches the implementation.",
+  "repair": "Enable the existing image-aware validator for /sdcard/lba2cc and /storage/emulated/0/lba2cc and document the deliberate scope of the scan.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "LBALab/lba2-classic-community",
+      "commit": "069138f56515f7679bfb2b897bee16b1a77edfe4",
+      "directory": "sources/lba2-classic-community-674"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/lba2-classic-community-674",
+        "argv": ["git", "apply", "../../cases/lba2-classic-community-674/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/lba2-classic-community-674/test.mjs",
+          "sources/lba2-classic-community-674"
+        ]
+      }
+    ],
+    "build": [
+      {
+        "cwd": "sources/lba2-classic-community-674",
+        "argv": ["git", "diff", "--check"]
+      }
+    ]
+  },
+  "artifacts": {
+    "report": "reports/lba2-classic-community-674.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the two exact discovery-policy calls and their documented performance boundary at the pinned source revision. Host discovery and 71 host-quick tests passed outside the portable case. A real Android arm64 first launch with the reporter's BIN/CUE rip remains owner-validated.",
+    "ownerCheck": "Install the PR build on the same Android arm64 target, place only the BIN/CUE rip in /sdcard/lba2cc without last_game_dir.txt, launch, and report the Assets and Disc boot-log lines."
+  },
+  "selection": {
+    "report": "cases/lba2-classic-community-674/triage.json",
+    "sha256": "7950d30bc3b14fde77931958da890cedde37b7ff8ca4b6550aab812265b2a2cd"
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "LBALab/lba2-classic-community",
+    "base": "main",
+    "paths": ["SOURCES/RES_DISCOVERY.CPP", "docs/ANDROID.md"],
+    "verificationOnlyPaths": ["tests/discovery/test_android_image_policy.py"]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": ["git", "apply", "../../cases/lba2-classic-community-674/tests-only.patch"]
+      }
+    ],
+    "build": [],
+    "testFiles": ["tests/discovery/test_android_image_policy.py"],
+    "regression": {
+      "cwd": ".",
+      "argv": ["python3", "-m", "unittest", "-v", "tests/discovery/test_android_image_policy.py"]
+    },
+    "negative": {"exitCode": 1, "outputIncludes": "FAIL: test_app_specific_shared_storage_accepts_disc_images"},
+    "suite": {
+      "cwd": ".",
+      "argv": ["python3", "-m", "unittest", "-v", "tests/discovery/test_android_image_policy.py"]
+    },
+    "suiteOutputIncludes": "Ran 3 tests"
+  }
+}

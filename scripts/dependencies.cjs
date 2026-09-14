@@ -4,6 +4,13 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { load } = require('./case.cjs')
 const c = load(process.argv[2])
+if (c.id === 'rmfakecloud-485' && c.sources.length === 1 && c.sources[0].repository === 'ddvk/rmfakecloud' && c.sources[0].commit === '1958bff18a530038d3916cba0168ad99a24220b4') {
+  const source = path.resolve(c.sources[0].directory)
+  const expected = { 'ui/package.json': 'd3084024d201cac60925ff500378b7d4f0980f294200f900886a6676a535194b', 'ui/pnpm-lock.yaml': '28fa36d604416e840e70e95ecdf8896e636702f351f91c246ce57e74127e3718' }
+  for (const [name, sha] of Object.entries(expected)) if (require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(source, name))).digest('hex') !== sha) throw new Error('rmfakecloud dependency manifest changed; review required')
+  execFileSync('corepack', ['pnpm@10.17.1', 'install', '--frozen-lockfile', '--ignore-scripts'], { cwd: path.join(source, 'ui'), stdio: 'inherit' })
+  process.exit(0)
+}
 if (c.id === 'blueye-sdk-225' && c.sources.length === 1 && c.sources[0].repository === 'BluEye-Robotics/blueye.sdk' && c.sources[0].commit === 'd1fbfaeb9630b34d5c5eb97ce298e79f24e8fb02') {
   const source = path.resolve(c.sources[0].directory)
   const expected = { 'pyproject.toml': 'e6acf89bb51aa47d0273f70d85181521a25cd23045e8d1ff03e1442410d10c67', 'uv.lock': '866386ffe3ac1b28910c682ccadb80bcdf49bb835734650429ddde13297cbdb0' }

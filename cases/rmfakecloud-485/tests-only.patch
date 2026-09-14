@@ -1,0 +1,25 @@
+diff --git a/ui/tests/firefox-usb-regression.test.mjs b/ui/tests/firefox-usb-regression.test.mjs
+new file mode 100644
+index 0000000..23b3a7e
+--- /dev/null
++++ b/ui/tests/firefox-usb-regression.test.mjs
+@@ -0,0 +1,19 @@
++import assert from "node:assert/strict";
++import { existsSync, readFileSync } from "node:fs";
++import test from "node:test";
++
++test("Firefox users can recover the reMarkable USB ICE route", () => {
++  const page = readFileSync("ui/src/pages/ScreenShare/index.jsx", "utf8");
++  const docs = readFileSync("docs/install/configuration.md", "utf8");
++  const helperPath = "ui/src/pages/ScreenShare/firefoxUsb.js";
++  const helper = existsSync(helperPath) ? readFileSync(helperPath, "utf8") : "";
++
++  assert.ok(
++    page.includes("Enable Firefox USB access") &&
++      page.includes("firefoxBrowser") &&
++      docs.includes("10.11.99.5") &&
++      helper.includes("getUserMedia({ audio: true })") &&
++      helper.includes("track.stop()"),
++    "Firefox USB recovery control is missing",
++  );
++});

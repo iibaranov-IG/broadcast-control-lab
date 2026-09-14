@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T17:17:21.139Z",
+  "issue": {
+    "repository": "ddvk/rmfakecloud",
+    "number": "485",
+    "url": "https://github.com/ddvk/rmfakecloud/issues/485",
+    "title": "Firefox: USB screensharing requires camera/microphone permission",
+    "state": "open",
+    "updatedAt": "2026-09-14T16:38:04Z"
+  },
+  "source": {
+    "repository": "ddvk/rmfakecloud",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "AGPL-3.0",
+    "commit": "1958bff18a530038d3916cba0168ad99a24220b4",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/ddvk/rmfakecloud/blob/1958bff18a530038d3916cba0168ad99a24220b4/CONTRIBUTING.md",
+        "content": "# Contributing to rmfakecloud\n\nContributions are welcome.\n",
+        "requirementHints": [],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "cmd/history2git15/main.go",
+      "cmd/relinkfile15/main.go",
+      "cmd/rmfakecloud/main.go",
+      "cmd/testclient/main.go",
+      "internal/app/app.go",
+      "internal/app/claims.go",
+      "internal/app/codeconnector.go",
+      "internal/app/codeconnector_test.go",
+      "internal/app/handlers.go",
+      "internal/app/hub/hub.go"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/ddvk/rmfakecloud/blob/1958bff18a530038d3916cba0168ad99a24220b4/Makefile"
+      },
+      {
+        "path": "go.mod",
+        "kind": "go",
+        "url": "https://github.com/ddvk/rmfakecloud/blob/1958bff18a530038d3916cba0168ad99a24220b4/go.mod"
+      },
+      {
+        "path": "ui/package.json",
+        "kind": "node",
+        "url": "https://github.com/ddvk/rmfakecloud/blob/1958bff18a530038d3916cba0168ad99a24220b4/ui/package.json"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:ddvk/rmfakecloud": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 81,
+    "scoreRange": [
+      80,
+      81
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "Firefox silently stays on Wi-Fi despite a connected reMarkable USB route.",
+        "evidence": [
+          "Issue reports missing 10.11.99.5 candidate"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "Reported today against current master.",
+        "evidence": [
+          "Issue created 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "Reporter supplied exact candidates, active route output and reversible permission behavior.",
+        "evidence": [
+          "https://github.com/ddvk/rmfakecloud/issues/485"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Firefox users receive an explicit action that requests permission and releases every media track.",
+        "evidence": [
+          "Candidate UI and unit contract"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 4,
+        "reason": "Permission logic and UI build are deterministic; final ICE route requires Firefox plus a tablet.",
+        "evidence": [
+          "Three local Node tests"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "One helper, one focused UI addition, documentation and three tests.",
+        "evidence": [
+          "Candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Focused tests and complete production UI build finish in seconds.",
+        "evidence": [
+          "Local Node test and pnpm build"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "The control is Firefox-only and existing WebRTC signaling stays unchanged.",
+        "evidence": [
+          "No signaling method modified"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 4,
+        "reason": "Current repository and issue are active.",
+        "evidence": [
+          "Pinned current master and issue timestamp"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Helps all Firefox users using reMarkable USB screen sharing.",
+        "evidence": [
+          "Shared Screen Share page"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 3,
+        "reason": "Permission helper can support future Firefox local-interface features.",
+        "evidence": [
+          "Standalone firefoxUsb.js helper"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "One UI path covers both REST and MQTT signaling modes documented by the project.",
+        "evidence": [
+          "Shared ScreenShare component"
+        ]
+      }
+    ],
+    "class": "QUICK_REVIEW",
+    "deliveryReadiness": 83,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      83,
+      81
+    ],
+    "selectable": true
+  },
+  "durationMs": 3016
+}

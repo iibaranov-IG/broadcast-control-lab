@@ -1,0 +1,151 @@
+diff --git a/docs/install/configuration.md b/docs/install/configuration.md
+index f90466a..e4af04a 100644
+--- a/docs/install/configuration.md
++++ b/docs/install/configuration.md
+@@ -45,6 +45,10 @@ To be able to send email from your reMarkable, fill the following variables:
+ 
+ Screen sharing streams your tablet display to a browser via WebRTC. There are two signaling modes depending on your tablet's software version.
+ 
++#### Firefox and USB connections
++
++Firefox normally limits WebRTC local network candidates to the interface used to load the site until that site has camera or microphone permission. If rmfakecloud is open over Wi-Fi, this can hide the reMarkable USB interface (`10.11.99.5`) even though the tablet advertises its USB address (`10.11.99.1`). The Screen Share page shows an **Enable Firefox USB access** button in Firefox. It requests microphone permission, immediately stops the resulting media tracks, and retries discovery; rmfakecloud does not keep or transmit microphone audio. If permission is denied, allow microphone access for the rmfakecloud site in Firefox and try again.
++
+ ### REST-based (reMarkable OS 3.27+)
+ 
+ Starting with OS 3.27, the tablet can use REST-based signaling instead of MQTT. No additional setup is required, screen sharing works out of the box.
+diff --git a/ui/src/pages/ScreenShare/index.jsx b/ui/src/pages/ScreenShare/index.jsx
+index 32a1235..95ad9ce 100644
+--- a/ui/src/pages/ScreenShare/index.jsx
++++ b/ui/src/pages/ScreenShare/index.jsx
+@@ -4,6 +4,7 @@ import { Container, Alert, Spinner, Button } from "react-bootstrap";
+ import { BsGearFill, BsFullscreenExit, BsArrowCounterclockwise, BsArrowClockwise } from "react-icons/bs";
+ import pako from "pako";
+ import constants from "../../common/constants";
++import { isFirefox, requestLocalCandidateAccess } from "./firefoxUsb";
+ 
+ const STATUS = {
+   WAITING: "waiting",
+@@ -64,6 +65,8 @@ export default function ScreenShare() {
+   const [showControls, setShowControls] = useState(false);
+   const [pinnedPosition, setPinnedPosition] = useState(null);
+   const [controlsPosition, setControlsPosition] = useState("right");
++  const [firefoxUsbStatus, setFirefoxUsbStatus] = useState("idle");
++  const firefoxBrowser = isFirefox(window.navigator.userAgent);
+   const controlsRef = useRef(null);
+   const manualRotationRef = useRef(0);
+ 
+@@ -477,6 +480,20 @@ export default function ScreenShare() {
+     setStatus(STATUS.WAITING);
+   };
+ 
++  const enableFirefoxUsb = async () => {
++    setFirefoxUsbStatus("requesting");
++    try {
++      await requestLocalCandidateAccess(window.navigator.mediaDevices);
++      cleanup();
++      disconnectedRef.current = false;
++      setErrorMsg("");
++      setStatus(STATUS.WAITING);
++      setFirefoxUsbStatus("granted");
++    } catch {
++      setFirefoxUsbStatus("denied");
++    }
++  };
++
+ 
+   return (
+     <Container className="mt-4">
+@@ -495,6 +512,31 @@ export default function ScreenShare() {
+         <Alert variant="info">
+           <Spinner animation="border" size="sm" className="me-2" />
+           Waiting for reMarkable to start screen sharing...
++          {firefoxBrowser && (
++            <div className="mt-2">
++              Using the reMarkable USB connection? Firefox may hide the USB network interface
++              until this site has media permission. rmfakecloud does not keep or send audio.
++              <Button
++                variant="outline-primary"
++                size="sm"
++                className="ms-2"
++                disabled={firefoxUsbStatus === "requesting" || firefoxUsbStatus === "granted"}
++                onClick={enableFirefoxUsb}
++              >
++                {firefoxUsbStatus === "requesting"
++                  ? "Requesting permission..."
++                  : firefoxUsbStatus === "granted"
++                    ? "USB access enabled"
++                    : "Enable Firefox USB access"}
++              </Button>
++              {firefoxUsbStatus === "denied" && (
++                <div className="text-danger mt-1">
++                  Permission was not granted. Allow microphone access for this site in Firefox,
++                  then try again.
++                </div>
++              )}
++            </div>
++          )}
+         </Alert>
+       )}
+ 
+diff --git a/ui/src/pages/ScreenShare/firefoxUsb.js b/ui/src/pages/ScreenShare/firefoxUsb.js
+new file mode 100644
+index 0000000..1998f2c
+--- /dev/null
++++ b/ui/src/pages/ScreenShare/firefoxUsb.js
+@@ -0,0 +1,16 @@
++export function isFirefox(userAgent) {
++  return /Firefox\//.test(userAgent);
++}
++
++export async function requestLocalCandidateAccess(mediaDevices) {
++  if (!mediaDevices?.getUserMedia) {
++    throw new Error("Media permissions are unavailable in this browser context");
++  }
++
++  const stream = await mediaDevices.getUserMedia({ audio: true });
++  try {
++    return true;
++  } finally {
++    for (const track of stream.getTracks()) track.stop();
++  }
++}
+diff --git a/ui/src/pages/ScreenShare/firefoxUsb.test.js b/ui/src/pages/ScreenShare/firefoxUsb.test.js
+new file mode 100644
+index 0000000..e8f72c7
+--- /dev/null
++++ b/ui/src/pages/ScreenShare/firefoxUsb.test.js
+@@ -0,0 +1,34 @@
++import assert from "node:assert/strict";
++import test from "node:test";
++
++import { isFirefox, requestLocalCandidateAccess } from "./firefoxUsb.js";
++
++test("recognizes Firefox without treating Chromium as Firefox", () => {
++  assert.equal(isFirefox("Mozilla/5.0 Firefox/142.0"), true);
++  assert.equal(isFirefox("Mozilla/5.0 Chrome/142.0 Safari/537.36"), false);
++});
++
++test("requests audio permission and immediately stops every track", async () => {
++  const stopped = [];
++  const mediaDevices = {
++    async getUserMedia(constraints) {
++      assert.deepEqual(constraints, { audio: true });
++      return {
++        getTracks: () => [
++          { stop: () => stopped.push("first") },
++          { stop: () => stopped.push("second") },
++        ],
++      };
++    },
++  };
++
++  assert.equal(await requestLocalCandidateAccess(mediaDevices), true);
++  assert.deepEqual(stopped, ["first", "second"]);
++});
++
++test("fails clearly when media permissions are unavailable", async () => {
++  await assert.rejects(
++    requestLocalCandidateAccess(undefined),
++    /Media permissions are unavailable/,
++  );
++});

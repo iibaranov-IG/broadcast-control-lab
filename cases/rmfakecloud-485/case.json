@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 2,
+  "id": "rmfakecloud-485",
+  "status": "ready",
+  "title": "Offer Firefox permission recovery for USB screen sharing",
+  "issue": "https://github.com/ddvk/rmfakecloud/issues/485",
+  "problem": "Firefox can omit the reMarkable USB interface from WebRTC ICE candidates until the rmfakecloud origin has media permission, leaving screen sharing on Wi-Fi with no explanation or recovery control.",
+  "reproduce": "Open rmfakecloud over Wi-Fi in Firefox with a reMarkable connected over USB and no site media permission; the browser exposes its Wi-Fi candidate but omits local 10.11.99.5 while the tablet advertises 10.11.99.1.",
+  "acceptance": "The unchanged source-contract regression fails on the baseline and passes on the candidate; Firefox alone shows an explicit USB action, the action requests audio permission and stops all acquired tracks, denial is explained, documentation records the browser behavior, focused tests pass, and the complete UI production build succeeds.",
+  "repair": "Add a Firefox-only USB recovery control that requests media permission, immediately releases every track, resets peer state for discovery retry, reports denial, and document why the permission is needed.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "ddvk/rmfakecloud",
+      "commit": "1958bff18a530038d3916cba0168ad99a24220b4",
+      "directory": "sources/rmfakecloud-485"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [{"cwd":"sources/rmfakecloud-485","argv":["audited-profile","rmfakecloud-485"]}],
+    "prepare": [{"cwd":"sources/rmfakecloud-485","argv":["git","apply","../../cases/rmfakecloud-485/repair.patch"]}],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/rmfakecloud-485/test.mjs",
+          "sources/rmfakecloud-485"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/rmfakecloud-485.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies browser detection, permission cleanup, the rendered source contract and the complete production UI build on Linux/Node 22. It cannot prove Firefox exposes 10.11.99.5 without a physical reMarkable USB connection and browser permission store.",
+    "ownerCheck": "In Firefox, load rmfakecloud over Wi-Fi with the reMarkable connected over USB. Confirm 10.11.99.5 is absent before permission, click Enable Firefox USB access, grant microphone permission, confirm the capture indicator stops immediately, then verify about:webrtc selects 10.11.99.5 <-> 10.11.99.1 and screen sharing works."
+  },
+  "selection": {
+    "report": "cases/rmfakecloud-485/triage.json",
+    "sha256": "8896dcb7099451502a286a480ab7f44e68a03e813e3998329481cd2373b5172e"
+  },
+  "upstream": {
+    "kind":"node","source":"upstream","timeoutMs":180000,
+    "setup":[{"cwd":".","argv":["git","apply","../../cases/rmfakecloud-485/tests-only.patch"]}],
+    "build":[],
+    "testFiles":["ui/tests/firefox-usb-regression.test.mjs"],
+    "regression":{"cwd":".","argv":["node","--test","ui/tests/firefox-usb-regression.test.mjs"]},
+    "negative":{"exitCode":1,"outputIncludes":"Firefox USB recovery control is missing"},
+    "suite":{"cwd":".","argv":["node","../../cases/rmfakecloud-485/upstream.mjs"]},
+    "suiteOutputIncludes":"BCL_UI_SUITE_COMPLETE"
+  },
+  "publish": {
+    "source":"upstream","target":"ddvk/rmfakecloud","base":"master",
+    "commitMessage":"Add Firefox USB screen-sharing recovery",
+    "paths":["docs/install/configuration.md","ui/src/pages/ScreenShare/index.jsx","ui/src/pages/ScreenShare/firefoxUsb.js","ui/src/pages/ScreenShare/firefoxUsb.test.js"],
+    "verificationOnlyPaths":["ui/tests/firefox-usb-regression.test.mjs"]
+  }
+}

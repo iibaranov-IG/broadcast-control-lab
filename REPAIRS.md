@@ -49,6 +49,7 @@ Updated 2026-09-11.
 | babyface-pro-linux-5 | [Issue](https://github.com/ismail-bahloul/babyface-pro-linux/issues/5) | [PR](https://github.com/ismail-bahloul/babyface-pro-linux/pull/6) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | linux-show-player-399 | [Issue](https://github.com/FrancescoCeruti/linux-show-player/issues/399) | [PR](https://github.com/FrancescoCeruti/linux-show-player/pull/401) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | zha-device-handlers-5329 | [Issue](https://github.com/zigpy/zha-device-handlers/issues/5329) | [PR](https://github.com/zigpy/zha-device-handlers/pull/5342) | draft | success | NOT_BOUND | 2 | NOT_REVIEWED | 2026-09-14T10:43:40.798Z |
+| zha-device-handlers-5329 | [Issue](https://github.com/zigpy/zha-device-handlers/issues/5329) | [PR](https://github.com/zigpy/zha-device-handlers/pull/5343) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

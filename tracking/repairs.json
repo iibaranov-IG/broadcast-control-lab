@@ -1678,6 +1678,22 @@
       "lastSync": "2026-09-14T10:43:40.798Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "zha-device-handlers-5329",
+      "title": "Expose both HOBEIAN ZG-305Z USB outputs as switches",
+      "issue": "https://github.com/zigpy/zha-device-handlers/issues/5329",
+      "pr": "https://github.com/zigpy/zha-device-handlers/pull/5343",
+      "candidateSha256": "214da52cfa179db869ef862c7bd4b51892770079b4e23338f4b6fbb17e22b6fe",
+      "testedHeadSha": "238045da40a6dbc44d26246a3f9985ddb5109012",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34834519588",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

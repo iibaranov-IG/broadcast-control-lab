@@ -1889,6 +1889,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "surge-8569",
+      "title": "Use the MTS-ESP tuning period for MIDI channel shifts",
+      "issue": "https://github.com/surge-synthesizer/surge/issues/8569",
+      "pr": "https://github.com/surge-synthesizer/surge/pull/8572",
+      "candidateSha256": "b72a628f7fbf7050cb6a133e408e02d219a9027098eddac0830606d9ba27fbf5",
+      "testedHeadSha": "88755e0d44342937d8197aca6bba90ec7db177aa",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34843954537",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

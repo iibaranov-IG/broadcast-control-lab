@@ -53,6 +53,7 @@ Updated 2026-09-11.
 | low-latency-audio-36 | [Issue](https://github.com/microsoft/low-latency-audio/issues/36) | [PR](https://github.com/microsoft/low-latency-audio/pull/37) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | yi-hack-v5-476 | [Issue](https://github.com/alienatedsec/yi-hack-v5/issues/476) | [PR](https://github.com/alienatedsec/yi-hack-v5/pull/478) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | thingino-firmware-1636 | [Issue](https://github.com/themactep/thingino-firmware/issues/1636) | [PR](https://github.com/themactep/thingino-firmware/pull/1656) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
+| surge-8569 | [Issue](https://github.com/surge-synthesizer/surge/issues/8569) | [PR](https://github.com/surge-synthesizer/surge/pull/8572) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

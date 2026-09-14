@@ -25,3 +25,12 @@ test('denylist, active PR, missing license and explicit exclusion override high 
   const a = assessment(); a.gates.nonSecurity.status = 'REJECT'
   assert.equal(evaluate(report(), a).class, 'REJECT')
 })
+test('reviewed non-overlapping related PR does not occupy the repair', () => {
+  const r = report()
+  r.relatedPRs.push({ state: 'open' })
+  r.findings = [{
+    code: 'ACTIVE_RELATED_PR', severity: 'info',
+    resolution: { reason: 'Distinct implementation scope', evidence: ['reviewed diff'] },
+  }]
+  assert.equal(evaluate(r, assessment()).class, 'TAKE_NOW')
+})

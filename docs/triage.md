@@ -34,7 +34,9 @@ requests are made. Transient failures use the shared bounded retry helper.
 | `REJECT` | A selection exclusion applies, including a denied project, active related PR or established missing license. |
 
 The current selection policy rejects a candidate with an active explicitly related
-PR. Establish that work is unclaimed before selecting a new repair.
+PR. A reviewed assessment may resolve `ACTIVE_RELATED_PR` only when cited diffs
+show that the linked PR has a distinct scope and does not implement the candidate
+repair. Establish that work is unclaimed before selecting a new repair.
 Closed dependency issues and merged dependency PRs satisfy this metadata check;
 they do not prove the required change exists in the revision you intend to build.
 

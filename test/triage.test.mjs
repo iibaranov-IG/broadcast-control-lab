@@ -117,6 +117,22 @@ test('reviewed submodule revisions can resolve only the matching triage finding'
   assert.throws(() => triage.applyResolutions(report, { resolutions: { READ_INCOMPLETE: { reason: 'assumed', evidence: ['none'] } } }), /cannot be resolved/)
 })
 
+test('reviewed active PR scope can be resolved with evidence', () => {
+  const report = {
+    findings: [{ code: 'ACTIVE_RELATED_PR', severity: 'question', detail: 'Review scope' }],
+  }
+  triage.applyResolutions(report, {
+    resolutions: {
+      ACTIVE_RELATED_PR: {
+        reason: 'The linked PR changes motor geometry while this repair changes capability advertisement.',
+        evidence: ['reviewed PR diff', 'candidate file list'],
+      },
+    },
+  })
+  assert.equal(report.decision, 'READY_TO_INVESTIGATE')
+  assert.equal(report.findings[0].severity, 'info')
+})
+
 test('a reviewed executable test command can resolve a missing build manifest', () => {
   const report = {
     findings: [{ code: 'NO_BUILD_RECIPE', severity: 'question', detail: 'No manifest' }],

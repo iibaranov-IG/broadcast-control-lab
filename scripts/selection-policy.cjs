@@ -9,7 +9,8 @@ function evaluate(report, assessment = {}, policy = {}) {
   if (assessment.sourceCommit && assessment.sourceCommit !== report.source.commit) throw new Error('Assessment source revision is stale')
   const exclusions = []
   if (blocked(report.issue.repository, policy) || blocked(report.source.repository, policy)) exclusions.push('Project is on the publication/selection denylist')
-  if (report.relatedPRs.some(p => p.state === 'open')) exclusions.push('An active related PR already occupies this issue; competition must be resolved before selection')
+  const relatedPrResolution = report.findings?.some(f => f.code === 'ACTIVE_RELATED_PR' && f.severity === 'info' && f.resolution)
+  if (report.relatedPRs.some(p => p.state === 'open') && !relatedPrResolution) exclusions.push('An active related PR already occupies this issue; competition must be resolved before selection')
   if (report.source.licenseMissing === true) exclusions.push('No license identified in a complete source tree or repository metadata')
   const unknownGates = []
   for (const key of gates) {

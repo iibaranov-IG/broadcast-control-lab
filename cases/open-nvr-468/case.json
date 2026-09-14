@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 2,
+  "id": "open-nvr-468",
+  "status": "ready",
+  "title": "Retry ONVIF authentication faults with WS-Security PasswordDigest",
+  "issue": "https://github.com/open-nvr/open-nvr/issues/468",
+  "problem": "A TP-Link Tapo C520WS returns an ONVIF NotAuthorized SOAP fault instead of an HTTP Digest challenge, preventing profile discovery, stream URI retrieval, camera addition and PTZ.",
+  "reproduce": "Return a SOAP Fault containing ter:NotAuthorized and Authority failure to an authenticated request; the pinned baseline returns that failure without trying WS-Security.",
+  "acceptance": "HTTP Digest remains first, a recognized authenticated SOAP fault triggers exactly one WS-Security PasswordDigest request, and successes, unrelated errors and anonymous requests do not retry.",
+  "repair": "Generate a standards-shaped UsernameToken PasswordDigest envelope and perform one bounded fallback in the shared ONVIF request primitive only for matching SOAP authentication faults.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "open-nvr/open-nvr",
+      "commit": "1f68653b2523b0d9a37b2cbe48ccde45554abb7f",
+      "directory": "sources/open-nvr-468"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/open-nvr-468",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/open-nvr-468/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/open-nvr-468/test.mjs",
+          "sources/open-nvr-468"
+        ]
+      }
+    ],
+    "build": [
+      {
+        "cwd": "sources/open-nvr-468",
+        "argv": [
+          "python3",
+          "-m",
+          "py_compile",
+          "server/services/onvif_digest_service.py",
+          "server/tests/test_onvif_wsse_fallback.py"
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "report": "reports/open-nvr-468.json"
+  },
+  "selection": {
+    "report": "cases/open-nvr-468/triage.json",
+    "sha256": "c7e4fbf11bf1cd66a76f42ff5d831b2fcc001f0d868dccb8ef1f6c1ce2454f62",
+    "reason": "A two-day-old owner report includes exact current hardware and firmware, a local proof, no competing PR, deterministic protocol reproduction and immediate access to the camera for final validation."
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL executes the real request primitive against deterministic fake camera responses and validates the generated PasswordDigest. Locally, 102 adjacent OpenNVR tests also pass. The physical Tapo C520WS remains owner-validated.",
+    "ownerCheck": "Update OpenNVR on the TP-Link Tapo C520WS V2 (firmware 1.2.7 Build 260716), add the camera with ONVIF credentials, and confirm profiles, live stream URI and PTZ all work. Confirm another Digest-compatible camera still connects normally."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "open-nvr/open-nvr",
+    "base": "main",
+    "paths": [
+      "CHANGELOG.md",
+      "server/services/onvif_digest_service.py",
+      "server/tests/test_onvif_wsse_fallback.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/open-nvr-468/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "server/tests/test_onvif_wsse_fallback.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "../../cases/open-nvr-468/upstream.py"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "FAILED (failures=1)"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "../../cases/open-nvr-468/upstream.py"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 2 tests"
+  }
+}

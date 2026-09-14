@@ -1,0 +1,345 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T07:23:57.997Z",
+  "issue": {
+    "repository": "open-nvr/open-nvr",
+    "number": "468",
+    "url": "https://github.com/open-nvr/open-nvr/issues/468",
+    "title": "TP-Link Tapo C520WS ONVIF fails with HTTP Digest; WS-Security fallback fixes profiles, stream URI and PTZ",
+    "state": "open",
+    "updatedAt": "2026-09-12T08:36:40Z"
+  },
+  "source": {
+    "repository": "open-nvr/open-nvr",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "AGPL-3.0",
+    "commit": "1f68653b2523b0d9a37b2cbe48ccde45554abb7f",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/CONTRIBUTING.md",
+        "content": "# Contributing to OpenNVR\n\nThanks for thinking about contributing. The shortest possible summary: fork,\nbranch off `main`, write tests, open a PR with a small / focused changeset.\nEverything else on this page is detail.\n\n## What we want most\n\nIn rough order of impact:\n\n1. **New AI adapters.** YOLOv11, BoT-SORT tracking, pose estimation, CLIP for\n   semantic search, PaddleOCR, depth estimation, audio-event detection. See\n   the [AI adapter authoring guide](https://github.com/open-nvr/ai-adapter#-write-your-own-adapter)\n   in the sister repo — the SDK keeps a working adapter at around 30 lines.\n2. **New example apps.** Everything under `examples/` is a copy-as-template\n   starting point. New examples that pair an existing adapter with a\n   different predicate (fall detection, package theft, dwell-time heatmaps)\n   land cleanly because the shape is already proven.\n3. **Bug reports with reproducers.** A focused issue with the camera type,\n   adapter version, exact log line, and minimum repro saves hours.\n4. **Documentation.** Docs that teach the same thing twice or that drifted\n   away from the code are higher-impact than they look — if you spot one,\n   PR the fix.\n5. **Security-hardening improvements.** Reproducer + suggested mitigation\n   gets prioritised. For vulnerabilities themselves, see [SECURITY.md](SECURITY.md)\n   first — please don't open public issues for those.\n\n## Setting up to contribute\n\nYou need both repos side-by-side:\n\n```bash\ngit clone https://github.com/open-nvr/open-nvr.git\ngit clone https://github.com/open-nvr/ai-adapter.git\ncd open-nvr\n```\n\nThen pick the path that matches what you're doing:\n\n### Fast iteration (Docker)\n\nBest for testing your changes end-to-end against the same stack the standard stack\ninstall runs on. Slower per-iteration than the bare-metal path below because\nevery change rebuilds an image.\n\n```bash\ncp .env.example .env\n./scripts/generate-secrets.sh --write\n./start.sh build               # builds opennvr-core locally from your tree\n```\n\n### Bare-metal dev shell (no Docker)\n\nBest for working on the Python code itself. Each subsystem runs in its own\nterminal, restarts fast on change, hot-reloads via uvicorn / Vite.\n\n```bash\n# Backend (Python)\ncd open-nvr/server\nuv venv && source .venv/bin/activate     # Windows: .venv\\Scripts\\activate\nuv sync\nalembic upgrade head\npython start.py\n\n# KAI-C (in a second terminal)\ncd open-nvr/kai-c\nuv venv && source .venv/bin/activate\nuv sync\npython start.py\n\n# Frontend (in a third terminal)\ncd open-nvr/app\nnpm install\nnpm run dev                              # http://localhost:5173\n\n# AI adapter monolith (in a fourth terminal, optional)\ncd ai-adapter\nuv venv && source .venv/bin/activate\nuv sync --extra all --extra cpu\nuv run python download_models.py\nuv run uvicorn app.main:app --reload --port 9100\n\n# MediaMTX (in a fifth terminal — binary, not a venv)\n./mediamtx open-nvr/mediamtx.local.yml\n```\n\nBare-metal walkthrough with prerequisites and gotchas:\n[`docs/LOCAL_SETUP.md`](docs/LOCAL_SETUP.md).\n\n## Branching and PR flow\n\n```bash\n# Start a branch off main\ngit checkout -b feature/<short-name>     # or fix/<short-name>\n\n# Make your changes, write tests, run tests locally\npytest                                    # in server/, kai-c/, and any examples/* you touched\n\n# Push and open the PR against main\ngit push -u origin feature/<short-name>\n```\n\n**Tests are required.** Every behaviour change needs a test. PRs without tests\nare blocked — not as a paperwork ritual, but because the codebase only stays\nmaintainable if its invariants are encoded somewhere a future contributor will\nsee.\n\n**One topic per PR.** Drive-by refactors that happen alongside the real change\ngo in their own PR. Reviewers can't push back on \"the small refactor looks\nweird\" when the PR title is about something else.\n\n**Reviewers respond fast and pull no punches.** Don't take it personally; we\nreview code the same way we expect to be reviewed.\n\n## Coding standards\n\nThe standards below are enforced by CI. Local `pre-commit install` runs them\non every commit; CI runs them again on every PR.\n\n### Python (server, kai-c, examples, ai-adapter)\n\n- **Python 3.11+.** Type hints required on function signatures.\n- **Black + isort + ruff.** Line length 100, isort uses the `black` profile.\n- **mypy** is informational, not blocking — fix what you can.\n- **Docstrings** on every public function. Google style. If a comment\n  explains *why* (not *what*) it gets in; if it parrots the code it doesn't.\n\n```python\nfrom typing import Optional\n\ndef get_camera_by_id(camera_id: int, db: Session) -> Optional[Camera]:\n    \"\"\"Retrieve a camera by its database ID.\n\n    Returns None if no camera with that ID exists. Caller is responsible\n    for treating None as \"not found\" rather than \"transient DB error\" —\n    those raise DatabaseError.\n    \"\"\"\n    return db.query(Camera).filter(Camera.id == camera_id).first()\n```\n\n### TypeScript (`app/`)\n\n- **ESLint** configured in `app/eslint.config.js`. `npm run lint` and\n  `npm run type-check`.\n- **No `any`** unless absolutely necessary (and noted in a comment).\n- **Functional components with hooks.** PascalCase files for components,\n  camelCase for utilities.\n\n### Commit messages\n\n[Conventional Commits](https://www.conventionalcommits.org/) — the bot in CI\nparses these for the changelog generator, so the format matters:\n\n```\n<type>(<scope>): <subject>\n\n<optional body>\n<optional footer>\n```\n\nCommon types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `chore`.\n\n```text\nfeat(adapters): add YOLOv11 detector with ByteTrack tracking\nfix(auth): keep session alive across active streaming reconnects\ndocs(quickstart): clarify Windows path syntax for RECORDINGS_PATH\n```\n\n## Adding a new AI adapter\n\nThe SDK pattern is the supported way to ship a new adapter — a contract-\ncompliant container, ~30 lines of Python, no changes to OpenNVR itself.\n\n```bash\npip install opennvr-adapter-sdk\n```\n\n```python\nfrom datetime import datetime, timezone\nfrom opennvr_adapter_sdk import (\n    AdapterApp, AdapterService, BodyShape, BODY_BYTES_KEY,\n    HardwareEvaluationResponse, HardwareVerdict,\n    InferResponse, ModelInfo,\n)\n\nclass MyDetector(AdapterService):\n    def load(self):\n        # Eagerly load weights. Called once at startup before /health goes green.\n        ...\n\n    def is_ready(self) -> bool:\n        return True\n\n    def fingerprint(self) -> str | None:\n        return \"sha256:...\"          # sha256 of the model weights on disk\n\n    def model_info(self) -> ModelInfo:\n        return ModelInfo(\n            name=\"my-model\", version=\"1.0.0\",\n            framework=\"onnx\", fingerprint=self.fingerprint(),\n        )\n\n    def hardware_evaluation(self) -> HardwareEvaluationResponse:\n        return HardwareEvaluationResponse(\n            verdict=HardwareVerdict.OK, reasoning=\"ok\",\n            checked_at=datetime.now(timezone.utc), details={},\n        )\n\n    def infer(self, payload) -> InferResponse:\n        frame_bytes = payload[BODY_BYTES_KEY]\n        # ... run your model ...\n        return InferResponse(\n            model_name=\"my-model\", model_version=\"1.0.0\",\n            inference_ms=42,\n            result={\"detections\": [{\"label\": \"person\", \"confidence\": 0.93}]},\n        )\n\napp = AdapterApp(\n    service=MyDetector(),\n    name=\"my-detector\", version=\"1.0.0\", vendor=\"me\", license=\"MIT\",\n    tasks_advertised=[\"object_detection\"],\n    body_shape=BodyShape.IMAGE,\n).fastapi_app\n```\n\nRun with `uvicorn my_module:app --port 9001`, point KAI-C's\n`ADAPTER_URL` at it, and you're online.\n\nFull walkthrough in the [SDK README](https://github.com/open-nvr/ai-adapter/blob/main/opennvr_adapter_sdk/README.md)\nand reference implementations in `ai-adapter/adapters/yolov8/`,\n`adapters/whisper/`, `adapters/piper/`.\n\n**Adding to the reference monolith instead?** The `ai-adapter` repo's\n`app/adapters/` directory uses an older `BaseAdapter` plugin pattern that\npredates the SDK. It's still supported for contributors extending the\nbundled server, but it's not the path we recommend for new adapters — the\nSDK pattern gives you a contract-compliant container with no OpenNVR code\nchanges. See [`ai-adapter/CONTRIBUTING.md`](https://github.com/open-nvr/ai-adapter/blob/main/CONTRIBUTING.md)\nfor the monolith path.\n\n## Adding a new example app\n\nExamples are first-class community contribution surface. The shape is\ndeliberate so reviewers can read one and know where everything lives in\nthe others.\n\n1. Open a [discussion](https://github.com/open-nvr/open-nvr/discussions) with\n   your idea, the camera setup you'll demo against, and the adapter(s) you'll\n   chain.\n2. Fork, branch, and `cp -r` one of the shipped examples whose shape is\n   closest to yours as your starting template.\n3. Replace the predicate (`zone.contains?`, the dwell-time state machine,\n   etc.) with your domain logic. Keep `alerts.py`, the config-loading shape,\n   and the test surface roughly as they are.\n4. Open a PR. Reviewers look for: clarity, test coverage of the predicate,\n   honest documentation of what the example does NOT yet do, and consistency\n   with the rest of the gallery.\n\nIf yours lands as a first-party example, your name goes on it.\n\n## Getting your app into the App Store\n\nAn example folder teaches the pattern; the **App Store index** is how an app\nbecomes browsable and one-click installable in every deployment's App\nCatalog. Publishing an image and adding one reviewed entry to\n`server/config/apps_index.yml` is a documented, validated, PR-based flow\n(the Homebrew-tap / Home-Assistant-add-on model). Full walkthrough —\nbuild on the SDK, publish + pin your image digest, add the entry, run\n`make validate-apps-index`, open the PR — in\n[`docs/CONTRIBUTING_APPS.md`](docs/CONTRIBUTING_APPS.md).\n\n## Running tests\n\nEvery subsystem has its own `pytest` suite. Run them where they live:\n\n```bash\n# Backend\ncd server && pytest\n\n# KAI-C orchestrator\ncd kai-c && pytest\n\n# Example apps (each is independent)\ncd examples/intrusion-detection && pytest\ncd examples/camera-agent && uv sync --extra dev && pytest\n\n# Frontend\ncd app && npm test\n```\n\nCoverage reports: `pytest --cov=.` (Python) or `npm test -- --coverage`\n(frontend).\n\nCI runs the full matrix on every PR. Local green is a strong signal but not\na guarantee — CI also runs the smoke matrix that boots each adapter image\nend-to-end, which won't run on your laptop without Docker.\n\n## PR checklist\n\nThe PR template will ask you to confirm these. Going through the list before\nopening the PR saves a review cycle.\n\n- [ ] Code follows the style guide above (`pre-commit` is green).\n- [ ] Tests added or updated for the behaviour change.\n- [ ] Docs updated if user-visible behaviour changed.\n- [ ] CHANGELOG entry added under `## Unreleased` if the change is\n      user-visible.\n- [ ] PR title follows Conventional Commits.\n- [ ] PR description states *what* the change does and *why* — a sentence\n      each is fine.\n\n## Issue labels\n\n| Label | Description |\n|-------|-------------|\n| `bug` | Something is broken |\n| `enhancement` | New feature or feature request |\n| `documentation` | Docs improvements |\n| `good first issue` | Reasonable starting point for new contributors |\n| `help wanted` | We'd accept a PR for this; nobody is actively working on it |\n| `security` | Security-relevant; coordinate via [SECURITY.md](SECURITY.md) |\n| `ai-adapter` | Adapter authoring / SDK changes |\n| `performance` | Latency / throughput / memory regressions |\n\n## Code of conduct\n\nWe want this to stay a project people enjoy contributing to. The expectation is welcoming, inclusive language and respectful disagreement; personal attacks, harassment, doxxing, and inflammatory off-topic posting are not part of that. Report violations to **contact@opennvr.org** — reports are confidential.\n\n## Getting help while you contribute\n\nFor deeper reference reading, [`docs/AI_ADAPTER_CONTRACT.md`](docs/AI_ADAPTER_CONTRACT.md) covers the wire spec and [`docs/SECURITY_ARCHITECTURE.md`](docs/SECURITY_ARCHITECTURE.md) covers the threat model. Open a [Discussion](https://github.com/open-nvr/open-nvr/discussions) for \"is this the right approach?\" questions before you start writing code, and an [Issue](https://github.com/open-nvr/open-nvr/issues) for \"I think I found a bug\" reports.\n\n\n## Licensing of contributions (CLA / DCO)\n\nOpenNVR is dual-licensed (AGPL-3.0-or-later + a commercial license —\nsee [docs/LICENSING.md](docs/LICENSING.md)), which requires the project\nto hold dual-licensing rights over every contributed line of the AGPL\ncore:\n\n- **AGPL components** (server, app, kai-c, camera-agent, examples):\n  PRs require the one-time [CLA](docs/CLA.md). You keep your\n  copyright; you grant the project the right to also offer your\n  contribution under the commercial license.\n- **Apache-2.0 SDKs** (`sdk/`, the adapter contract): no CLA — add a\n  DCO `Signed-off-by:` line to your commits.\n",
+        "requirementHints": [
+          "Thanks for thinking about contributing. The shortest possible summary: fork,",
+          "branch off `main`, write tests, open a PR with a small / focused changeset.",
+          "Best for testing your changes end-to-end against the same stack the standard stack",
+          "# Make your changes, write tests, run tests locally",
+          "pytest                                    # in server/, kai-c/, and any examples/* you touched",
+          "**Tests are required.** Every behaviour change needs a test. PRs without tests",
+          "The standards below are enforced by CI. Local `pre-commit install` runs them",
+          "on every commit; CI runs them again on every PR.",
+          "- **Python 3.11+.** Type hints required on function signatures.",
+          "- **Docstrings** on every public function. Google style. If a comment",
+          "- **No `any`** unless absolutely necessary (and noted in a comment).",
+          "### Commit messages",
+          "[Conventional Commits](https://www.conventionalcommits.org/) — the bot in CI",
+          "Common types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `chore`.",
+          "        # Eagerly load weights. Called once at startup before /health goes green.",
+          "   and the test surface roughly as they are.",
+          "4. Open a PR. Reviewers look for: clarity, test coverage of the predicate,",
+          "## Running tests",
+          "Every subsystem has its own `pytest` suite. Run them where they live:",
+          "cd server && pytest",
+          "cd kai-c && pytest",
+          "cd examples/intrusion-detection && pytest",
+          "cd examples/camera-agent && uv sync --extra dev && pytest",
+          "cd app && npm test",
+          "Coverage reports: `pytest --cov=.` (Python) or `npm test -- --coverage`",
+          "The PR template will ask you to confirm these. Going through the list before",
+          "- [ ] Code follows the style guide above (`pre-commit` is green).",
+          "- [ ] Tests added or updated for the behaviour change.",
+          "- [ ] PR title follows Conventional Commits.",
+          "For deeper reference reading, [`docs/AI_ADAPTER_CONTRACT.md`](docs/AI_ADAPTER_CONTRACT.md) covers the wire spec and [`docs/SECURITY_ARCHITECTURE.md`](docs/SECURITY_ARCHITECTURE.md) covers the threat model. Open a [Discussion](https://github.com/open-nvr/open-nvr/discussions) for \"is this the right approach?\" questions before you start writing code, and an [Issue](https://github.com/open-nvr/open-nvr/issues) for \"I think I found a bug\" reports.",
+          "## Licensing of contributions (CLA / DCO)",
+          "  DCO `Signed-off-by:` line to your commits."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "app/eslint.config.js",
+      "app/postcss.config.js",
+      "app/src/auth/AuthContext.tsx",
+      "app/src/components/AddCameraDialog.tsx",
+      "app/src/components/AlertBell.tsx",
+      "app/src/components/AuthedImage.tsx",
+      "app/src/components/DeviceBlockedOverlay.tsx",
+      "app/src/components/ErrorBoundary.tsx",
+      "app/src/components/Modal.tsx",
+      "app/src/components/MultiCamTimeline.tsx"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/Makefile"
+      },
+      {
+        "path": "app/package.json",
+        "kind": "node",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/app/package.json"
+      },
+      {
+        "path": "detect-pipeline/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/detect-pipeline/pyproject.toml"
+      },
+      {
+        "path": "examples/abandoned-object/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/abandoned-object/pyproject.toml"
+      },
+      {
+        "path": "examples/alert-notifier/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/alert-notifier/pyproject.toml"
+      },
+      {
+        "path": "examples/alerts-subscriber/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/alerts-subscriber/pyproject.toml"
+      },
+      {
+        "path": "examples/camera-agent/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/camera-agent/pyproject.toml"
+      },
+      {
+        "path": "examples/footage-search/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/footage-search/pyproject.toml"
+      },
+      {
+        "path": "examples/gate-controller/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/gate-controller/pyproject.toml"
+      },
+      {
+        "path": "examples/home-assistant-relay/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/home-assistant-relay/pyproject.toml"
+      },
+      {
+        "path": "examples/inference-listener/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/inference-listener/pyproject.toml"
+      },
+      {
+        "path": "examples/intrusion-detection/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/intrusion-detection/pyproject.toml"
+      },
+      {
+        "path": "examples/license-plate-recognition/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/license-plate-recognition/pyproject.toml"
+      },
+      {
+        "path": "examples/line-crossing/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/line-crossing/pyproject.toml"
+      },
+      {
+        "path": "examples/loitering-detection/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/loitering-detection/pyproject.toml"
+      },
+      {
+        "path": "examples/occupancy-counting/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/occupancy-counting/pyproject.toml"
+      },
+      {
+        "path": "examples/package-delivery/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/package-delivery/pyproject.toml"
+      },
+      {
+        "path": "examples/smart-doorbell/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/examples/smart-doorbell/pyproject.toml"
+      },
+      {
+        "path": "kai-c/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/kai-c/pyproject.toml"
+      },
+      {
+        "path": "sdk/opennvr-app-sdk/opennvr_app_sdk/templates/app/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/sdk/opennvr-app-sdk/opennvr_app_sdk/templates/app/pyproject.toml"
+      },
+      {
+        "path": "sdk/opennvr-app-sdk/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/sdk/opennvr-app-sdk/pyproject.toml"
+      },
+      {
+        "path": "server/pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/open-nvr/open-nvr/blob/1f68653b2523b0d9a37b2cbe48ccde45554abb7f/server/pyproject.toml"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:open-nvr/open-nvr": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 97,
+    "scoreRange": [
+      97,
+      97
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "The camera cannot complete ONVIF profile discovery, stream URI retrieval or PTZ.",
+        "evidence": [
+          "Reporter lists all three broken operations."
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The hardware report is two days old and uses current firmware.",
+        "evidence": [
+          "Issue created 2026-09-12 with firmware 1.2.7 Build 260716."
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The owner supplied the camera model, firmware and tested patch and asks for review.",
+        "evidence": [
+          "Issue body and attached patch."
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Digest must stay primary and only a recognized auth fault may trigger one WSSE retry.",
+        "evidence": [
+          "Issue acceptance statement and focused regression."
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "A deterministic fake camera response reproduces the missing fallback on the pinned baseline.",
+        "evidence": [
+          "Baseline focused test: 1 failed, 3 passed; candidate: 4 passed."
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "One request primitive gains a bounded compatibility branch and envelope helper.",
+        "evidence": [
+          "Affected production file is server/services/onvif_digest_service.py."
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "The focused protocol test runs in under one second and adjacent suites run locally.",
+        "evidence": [
+          "4 focused tests and 102 adjacent tests completed locally."
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Every authenticated ONVIF operation shares the primitive, but the original path is unchanged unless a matching SOAP fault is returned.",
+        "evidence": [
+          "No retry occurs on success, unrelated error or missing credentials."
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository and issue were updated in the current week.",
+        "evidence": [
+          "Pinned main commit and issue timestamps."
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fallback may help other ONVIF devices with the same standards-compatible fault behavior.",
+        "evidence": [
+          "Fallback is based on ONVIF fault markers rather than model name."
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "Profiles, stream URI, device info and PTZ all use the corrected request primitive.",
+        "evidence": [
+          "Call sites share _onvif_request."
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 5,
+        "reason": "One bounded fix restores camera addition and subsequent control operations.",
+        "evidence": [
+          "Reporter confirmed those operations with the same fallback."
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      97
+    ],
+    "selectable": true
+  },
+  "durationMs": 17253
+}

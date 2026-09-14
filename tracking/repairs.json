@@ -1873,6 +1873,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "thingino-firmware-1636",
+      "title": "Ship the prudynt fMP4 preview memory-leak fix",
+      "issue": "https://github.com/themactep/thingino-firmware/issues/1636",
+      "pr": "https://github.com/themactep/thingino-firmware/pull/1656",
+      "candidateSha256": "dbc26dd459197b14ad051bdac86d6bbd3c07b34399e26ed99481b6d80d4faf45",
+      "testedHeadSha": "b1e94bf750930ee0d09ac0b95e8f02a57807aee5",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34840592749",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

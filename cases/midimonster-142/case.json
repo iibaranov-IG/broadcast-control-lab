@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "id": "midimonster-142",
+  "status": "ready",
+  "title": "Encode sACN discovery universe lists in network byte order",
+  "issue": "https://github.com/cbdevnet/midimonster/issues/142",
+  "problem": "sACN discovery copies bytes directly from an array of state structures, so universe numbers use host byte order and later entries are read at the wrong stride.",
+  "reproduce": "Encode universes 1, 256 and 0x1234 on a little-endian host; the baseline cannot produce the required 00 01 01 00 12 34 payload.",
+  "acceptance": "Every discovery universe is selected from its structure entry and encoded as a 16-bit big-endian value.",
+  "repair": "Replace the raw memcpy with an element-wise network-order serializer and add a byte-exact C regression.",
+  "sources": [{"id":"upstream","repository":"cbdevnet/midimonster","commit":"c247b034e6e06850af8e58a6ba4adf85c0a18071","directory":"sources/midimonster-142"}],
+  "runtime":{"node":"22.20.0","python":"3.12.14"},
+  "watch":[],
+  "steps":{
+    "dependencies":[],
+    "prepare":[{"cwd":"sources/midimonster-142","argv":["git","apply","../../cases/midimonster-142/repair.patch"]}],
+    "test":[{"cwd":".","argv":["node","cases/midimonster-142/test.mjs","sources/midimonster-142"]}],
+    "build":[{"cwd":"sources/midimonster-142","argv":["cc","-g","-fPIC","-I.","-Wall","-Wpedantic","backends/sacn.c","backends/libmmbackend.c","-o","/tmp/midimonster-sacn.so","-shared"]}]
+  },
+  "artifacts":{"report":"reports/midimonster-142.json"},
+  "selection":{"report":"cases/midimonster-142/triage.json","sha256":"4ce3b8d407519eb71da22e50713240baddfb1a52ee7e4bb29b9aadcead6caaa0","reason":"The owner-acknowledged protocol defect has exact byte-level acceptance, no competing PR, and a hardware-free native regression."},
+  "verification":{"hardwareVerified":false,"applicationVerified":false,"limitations":"BCL verifies exact discovery payload bytes and builds the sACN backend on Linux. No physical sACN receiver was used.","ownerCheck":"Run discovery with multiple configured universes and confirm a receiver lists each expected universe."},
+  "publish":{"source":"upstream","target":"cbdevnet/midimonster","base":"master","paths":["Makefile","backends/sacn.c","tests/sacn_discovery.c"]},
+  "upstream":{
+    "kind":"node","source":"upstream","timeoutMs":60000,
+    "setup":[{"cwd":".","argv":["git","apply","../../cases/midimonster-142/tests-only.patch"]}],
+    "build":[],
+    "testFiles":["tests/sacn_discovery.c"],
+    "regression":{"cwd":".","argv":["node","../../cases/midimonster-142/upstream.mjs"]},
+    "negative":{"exitCode":1,"outputIncludes":"BUG_INVALID_SACN_DISCOVERY_LIST"},
+    "suite":{"cwd":".","argv":["node","../../cases/midimonster-142/upstream.mjs"]},
+    "suiteOutputIncludes":"# tests 1"
+  }
+}

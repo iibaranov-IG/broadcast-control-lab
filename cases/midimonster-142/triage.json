@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T06:26:23.139Z",
+  "issue": {
+    "repository": "cbdevnet/midimonster",
+    "number": "142",
+    "url": "https://github.com/cbdevnet/midimonster/issues/142",
+    "title": "sACN universe list in discovery messages uses incorrect byte ordering",
+    "state": "open",
+    "updatedAt": "2024-06-24T15:41:56Z"
+  },
+  "source": {
+    "repository": "cbdevnet/midimonster",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "BSD-2-Clause",
+    "commit": "c247b034e6e06850af8e58a6ba4adf85c0a18071",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "backends/artnet.c",
+      "backends/artnet.h",
+      "backends/evdev.c",
+      "backends/evdev.h",
+      "backends/jack.c",
+      "backends/jack.h",
+      "backends/libmmbackend.c",
+      "backends/libmmbackend.h",
+      "backends/loopback.c",
+      "backends/loopback.h"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/cbdevnet/midimonster/blob/c247b034e6e06850af8e58a6ba4adf85c0a18071/Makefile"
+      },
+      {
+        "path": "backends/Makefile",
+        "kind": "make",
+        "url": "https://github.com/cbdevnet/midimonster/blob/c247b034e6e06850af8e58a6ba4adf85c0a18071/backends/Makefile"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:cbdevnet/midimonster": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 77,
+    "scoreRange": [
+      77,
+      78
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "Discovery advertises incorrect universes.",
+        "evidence": [
+          "The PDU data is copied from structured host memory."
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 2,
+        "reason": "The report remains open but repository activity is older.",
+        "evidence": [
+          "Issue is open since 2024."
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 3,
+        "reason": "Owner acknowledged the issue.",
+        "evidence": [
+          "Maintainer replied on issue #142."
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Expected network bytes are defined by sACN.",
+        "evidence": [
+          "Universe 0x1234 must encode as 12 34."
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "A hardware-free byte test reproduces the defect.",
+        "evidence": [
+          "Three nonadjacent structure values expose both stride and endian faults."
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "One bounded encoder loop replaces memcpy.",
+        "evidence": [
+          "Production change is localized to sacn discovery."
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Native C test and backend build are fast.",
+        "evidence": [
+          "macOS and Ubuntu focused executions pass."
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Change affects only discovery list serialization.",
+        "evidence": [
+          "Transmission and input paths are untouched."
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 2,
+        "reason": "Repository is available but not recently pushed.",
+        "evidence": [
+          "Latest repository push reported in 2024."
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "sACN discovery interoperability affects lighting controllers.",
+        "evidence": [
+          "Incorrect universe lists prevent correct discovery."
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 3,
+        "reason": "All sACN discovery pages use this serializer.",
+        "evidence": [
+          "sacn_discovery calls the helper for each page."
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "Fix covers every advertised universe on every interface.",
+        "evidence": [
+          "The loop handles the full per-page list."
+        ]
+      }
+    ],
+    "class": "QUICK_REVIEW",
+    "deliveryReadiness": 86,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      86,
+      77
+    ],
+    "selectable": true
+  },
+  "durationMs": 8110
+}

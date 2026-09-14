@@ -1,0 +1,63 @@
+diff --git a/Makefile b/Makefile
+index 4e5161e..442fb3e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,4 +1,4 @@
+-.PHONY: all clean run sanitize backends windows full backends-full install
++.PHONY: all clean run sanitize backends windows full backends-full install test
+ CORE_OBJS = core/core.o core/config.o core/backend.o core/plugin.o core/routing.o
+ 
+ PREFIX ?= /usr
+@@ -30,6 +30,9 @@ endif
+ ifeq ($(SYSTEM),Darwin)
+ midimonster: LDFLAGS += -Wl,-export_dynamic
+ midimonster_gui: LDFLAGS += -Wl,-export_dynamic
++TEST_LDFLAGS = -Wl,-dead_strip
++else
++TEST_LDFLAGS = -Wl,--gc-sections
+ endif
+ 
+ # Allow overriding the locations for backend plugins and default configuration
+@@ -87,8 +90,15 @@ clean:
+ 	$(RM) libmmapi.a
+ 	$(RM) assets/resource.o
+ 	$(RM) $(CORE_OBJS)
++	$(RM) tests/sacn_discovery
+ 	$(MAKE) -C backends clean
+ 
++test: tests/sacn_discovery
++	./tests/sacn_discovery
++
++tests/sacn_discovery: tests/sacn_discovery.c backends/sacn.c backends/sacn.h
++	$(CC) $(CFLAGS) -ffunction-sections -fdata-sections -I./ $< $(TEST_LDFLAGS) -o $@
++
+ run:
+ 	valgrind --leak-check=full --show-leak-kinds=all ./midimonster
+ 
+diff --git a/backends/sacn.c b/backends/sacn.c
+index 3c0cdab..94a052b 100644
+--- a/backends/sacn.c
++++ b/backends/sacn.c
+@@ -492,6 +492,13 @@ static int sacn_process_frame(instance* inst, sacn_frame_root* frame, sacn_frame
+ 	return 0;
+ }
+ 
++static void sacn_discovery_list(uint16_t* destination, sacn_output_universe* source, size_t universes){
++	size_t u;
++	for(u = 0; u < universes; u++){
++		destination[u] = htobe16(source[u].universe);
++	}
++}
++
+ static void sacn_discovery(size_t fd){
+ 	size_t page = 0, pages = (global_cfg.fd[fd].universes / 512) + 1, universes;
+ 	struct sockaddr_in discovery_dest = {
+@@ -532,7 +539,7 @@ static void sacn_discovery(size_t fd){
+ 		pdu.data.flags = htobe16(0x7000 | (8 + universes * sizeof(uint16_t)));
+ 
+ 		pdu.data.page = page;
+-		memcpy(pdu.data.data, global_cfg.fd[fd].universe + page * 512, universes * sizeof(uint16_t));
++		sacn_discovery_list(pdu.data.data, global_cfg.fd[fd].universe + page * 512, universes);
+ 
+ 		if(sendto(global_cfg.fd[fd].fd, (uint8_t*) &pdu, sizeof(pdu) - (512 - universes) * sizeof(uint16_t), 0, (struct sockaddr*) &discovery_dest, sizeof(discovery_dest)) < 0){
+ 			#ifdef _WIN32

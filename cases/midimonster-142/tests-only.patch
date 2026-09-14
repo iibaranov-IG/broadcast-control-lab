@@ -1,0 +1,25 @@
+diff --git a/tests/sacn_discovery.c b/tests/sacn_discovery.c
+new file mode 100644
+index 0000000..b1912fb
+--- /dev/null
++++ b/tests/sacn_discovery.c
+@@ -0,0 +1,19 @@
++#include <assert.h>
++#include <stdint.h>
++#include <string.h>
++
++#include "backends/sacn.c"
++
++int main(void){
++	sacn_output_universe source[3] = { 0 };
++	uint16_t destination[3] = { 0 };
++	uint8_t expected[] = { 0x00, 0x01, 0x01, 0x00, 0x12, 0x34 };
++
++	source[0].universe = 1;
++	source[1].universe = 256;
++	source[2].universe = 0x1234;
++	sacn_discovery_list(destination, source, 3);
++
++	assert(!memcmp(destination, expected, sizeof(expected)));
++	return 0;
++}

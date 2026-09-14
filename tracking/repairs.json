@@ -1179,6 +1179,46 @@
       "prCreatedAt": "2026-09-11T12:16:34Z",
       "mergedAt": null,
       "reporterResponseAt": "2023-02-09T20:02:22Z"
+    },
+    {
+      "id": "ola-1995",
+      "title": "Accept labeled integer values outside declared intervals",
+      "issue": "https://github.com/OpenLightingProject/ola/issues/1995",
+      "pr": "https://github.com/OpenLightingProject/ola/pull/2074",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "issue-comment:2679868305",
+          "kind": "issue-comment",
+          "author": "peternewman",
+          "reporter": true,
+          "url": "https://github.com/OpenLightingProject/ola/issues/1995#issuecomment-2679868305",
+          "updatedAt": "2025-02-24T22:58:56Z",
+          "state": null,
+          "body": "This is currently only an issue when there are ranges specified...\n\nBut otherwise it assumes that anything is valid...",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "159fe830df029bcc3fc35b2aefa1e8a51a7a5aa9",
+      "reporter": "peternewman",
+      "issueCreatedAt": "2025-02-24T22:46:24Z",
+      "prCreatedAt": "2026-09-14T06:40:43Z",
+      "mergedAt": null,
+      "reporterResponseAt": "2025-02-24T22:58:56Z",
+      "ci": "none",
+      "lastSync": "2026-09-14T06:41:17.377Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

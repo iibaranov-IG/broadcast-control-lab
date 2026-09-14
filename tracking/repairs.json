@@ -1841,6 +1841,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "low-latency-audio-36",
+      "title": "Keep USB audio inputs without connector detection available",
+      "issue": "https://github.com/microsoft/low-latency-audio/issues/36",
+      "pr": "https://github.com/microsoft/low-latency-audio/pull/37",
+      "candidateSha256": "6f1b6b17700d96d09eb3b3e0920af97601c0f9a42688582db677bc8bd7313253",
+      "testedHeadSha": "ef4cef28c91114d54cd32900f4507d680c52606a",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34838140237",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

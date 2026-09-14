@@ -50,6 +50,7 @@ Updated 2026-09-11.
 | linux-show-player-399 | [Issue](https://github.com/FrancescoCeruti/linux-show-player/issues/399) | [PR](https://github.com/FrancescoCeruti/linux-show-player/pull/401) | draft | success | BOUND_CANDIDATE | 2 | NOT_REVIEWED | 2026-09-14T10:48:12.137Z |
 | zha-device-handlers-5329 | [Issue](https://github.com/zigpy/zha-device-handlers/issues/5329) | [PR](https://github.com/zigpy/zha-device-handlers/pull/5343) | draft | success | BOUND_CANDIDATE | 3 | NOT_REVIEWED | 2026-09-14T10:48:15.217Z |
 | feishin-2451 | [Issue](https://github.com/jeffvli/feishin/issues/2451) | [PR](https://github.com/jeffvli/feishin/pull/2464) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
+| low-latency-audio-36 | [Issue](https://github.com/microsoft/low-latency-audio/issues/36) | [PR](https://github.com/microsoft/low-latency-audio/pull/37) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

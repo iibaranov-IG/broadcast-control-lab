@@ -1,0 +1,25 @@
+diff --git a/tests/test_static_dummy_jack_bcl.mjs b/tests/test_static_dummy_jack_bcl.mjs
+new file mode 100644
+index 0000000..09de4cb
+--- /dev/null
++++ b/tests/test_static_dummy_jack_bcl.mjs
+@@ -0,0 +1,19 @@
++import assert from 'node:assert/strict'
++import fs from 'node:fs'
++import test from 'node:test'
++
++const source = fs.readFileSync('src/uac2-driver/CircuitCommon.cpp', 'utf8')
++const physicalStart = source.indexOf('NTSTATUS Codec_AddAudioJackToBridgePin(')
++const dummyStart = source.indexOf('NTSTATUS Codec_AddAudioDummyJackToBridgePin(')
++const nextFunction = source.indexOf('static NTSTATUS AllocateElementContext(', dummyStart)
++const physical = source.slice(physicalStart, dummyStart)
++const dummy = source.slice(dummyStart, nextFunction)
++
++test('only connector-controlled jacks advertise presence detection', () => {
++  assert.match(dummy, /jackCfg\.Flags = AcxJackConfigNoFlags;/)
++  assert.doesNotMatch(dummy, /AcxJackConfigJackDetection/)
++  assert.doesNotMatch(dummy, /EvtAcxJackRetrievePresenceState/)
++  assert.match(physical, /jackCfg\.Flags = AcxJackConfigJackDetection;/)
++  assert.match(physical, /EvtAcxJackRetrievePresenceState = EvtJackRetrievePresence;/)
++  assert.match(dummy, /jackContext->IsConnected = TRUE;/)
++})

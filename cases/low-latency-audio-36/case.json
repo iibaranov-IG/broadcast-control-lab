@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 2,
+  "id": "low-latency-audio-36",
+  "status": "ready",
+  "title": "Keep USB audio inputs without connector detection available",
+  "issue": "https://github.com/microsoft/low-latency-audio/issues/36",
+  "problem": "USBAudio2-ACX advertises jack detection on endpoints whose USB terminals have no connector control, causing a selected input behind a hardware selector to appear unavailable in the legacy Windows sound panel.",
+  "reproduce": "Install the yamaha-main driver for a USB Audio 2 device with a Selector Unit, select an input such as Aux In in Windows Settings, then open the Recording page in mmsys.cpl; the selected endpoint says Currently unavailable and its level meter stays idle.",
+  "acceptance": "Dummy jacks for terminals without connector control are advertised as static, connector-controlled physical jacks retain presence detection, and the selected MUX input remains available in mmsys.cpl.",
+  "repair": "Configure the no-connector-control dummy jack with no detection flag or presence callback while preserving its connected state and leaving the physical jack path unchanged.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "microsoft/low-latency-audio",
+      "commit": "7af4ddaec3e930a029a3e27750fe181b03a7ea2a",
+      "directory": "sources/low-latency-audio-36"
+    }
+  ],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/low-latency-audio-36",
+        "argv": ["git", "apply", "../../cases/low-latency-audio-36/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": ["node", "cases/low-latency-audio-36/test.mjs", "sources/low-latency-audio-36"]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": { "report": "reports/low-latency-audio-36.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies the pinned production source is red before the change and green after it, and that connector-controlled jacks retain detection. The Windows kernel driver has not been built or installed by BCL; the final UI and meter behavior require the reporter's Sound Blaster G3.",
+    "ownerCheck": "Build and install the candidate USBAudio2-ACX driver on the reported Windows setup. Select Aux In, open mmsys.cpl Recording, and confirm it shows Default Device with an active level meter. Repeat with Microphone, What U Hear and SPDIF In, then check a device with real connector detection still changes availability when unplugged."
+  },
+  "selection": {
+    "report": "cases/low-latency-audio-36/triage.json",
+    "sha256": "c830b331d8ac0b66f371b0344b23665951e306935ffca3e1e0c1c5563d5caafc",
+    "reason": "A same-day report reproduces on x64 and Arm64 and on two USB Audio 2 devices. The exact yamaha-main revision is supplied, and the reporter can immediately validate the driver on a Sound Blaster G3."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "microsoft/low-latency-audio",
+    "base": "yamaha-main",
+    "commitMessage": "Fix: Mark endpoints without connector control as static",
+    "paths": ["src/uac2-driver/CircuitCommon.cpp"],
+    "verificationOnlyPaths": ["tests/test_static_dummy_jack_bcl.mjs"]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": ["git", "apply", "../../cases/low-latency-audio-36/tests-only.patch"]
+      }
+    ],
+    "build": [],
+    "testFiles": ["tests/test_static_dummy_jack_bcl.mjs"],
+    "regression": {
+      "cwd": ".",
+      "argv": ["node", "--test", "tests/test_static_dummy_jack_bcl.mjs"]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "AcxJackConfigNoFlags"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": ["node", "--test", "tests/test_static_dummy_jack_bcl.mjs"]
+    },
+    "suiteOutputIncludes": "# tests 1"
+  }
+}

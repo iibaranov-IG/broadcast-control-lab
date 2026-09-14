@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T11:22:43.362Z",
+  "issue": {
+    "repository": "microsoft/low-latency-audio",
+    "number": "36",
+    "url": "https://github.com/microsoft/low-latency-audio/issues/36",
+    "title": "[BUG]: Recording endpoint remains \"Currently unavailable\" in mmsys.cpl when selected through a KSNODETYPE_MUX topology",
+    "state": "open",
+    "updatedAt": "2026-09-14T10:17:51Z"
+  },
+  "source": {
+    "repository": "microsoft/low-latency-audio",
+    "requestedRef": "yamaha-main",
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "7af4ddaec3e930a029a3e27750fe181b03a7ea2a",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "src/asio-control-panel/AboutPage.xaml.cpp",
+      "src/asio-control-panel/AboutPage.xaml.h",
+      "src/asio-control-panel/App.xaml.cpp",
+      "src/asio-control-panel/App.xaml.h",
+      "src/asio-control-panel/AsioPage.xaml.cpp",
+      "src/asio-control-panel/AsioPage.xaml.h",
+      "src/asio-control-panel/AsioViewModel.cpp",
+      "src/asio-control-panel/AsioViewModel.h",
+      "src/asio-control-panel/DeviceEnumerationService.cpp",
+      "src/asio-control-panel/DeviceEnumerationService.h"
+    ],
+    "buildFiles": []
+  },
+  "findings": [
+    {
+      "code": "NO_BUILD_RECIPE",
+      "severity": "info",
+      "detail": "No recognized build manifest found; the build procedure needs review. Resolved for this revision: The pinned branch contains the ACX driver solution and documents MSBuild from a Visual Studio 2022 developer prompt; only the UAC2 driver solution is relevant to this repair and does not use the separately licensed ASIO SDK.",
+      "url": "https://github.com/microsoft/low-latency-audio",
+      "resolution": {
+        "reason": "The pinned branch contains the ACX driver solution and documents MSBuild from a Visual Studio 2022 developer prompt; only the UAC2 driver solution is relevant to this repair and does not use the separately licensed ASIO SDK.",
+        "evidence": [
+          "https://github.com/microsoft/low-latency-audio/blob/7af4ddaec3e930a029a3e27750fe181b03a7ea2a/src/uac2-driver/USBAudioAcxDriver.sln",
+          "https://github.com/microsoft/low-latency-audio/blob/7af4ddaec3e930a029a3e27750fe181b03a7ea2a/build/build.ps1"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:microsoft/low-latency-audio": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 90,
+    "scoreRange": [
+      89,
+      90
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "The selected input looks unavailable and has no meter even though capture works.",
+        "evidence": [
+          "https://github.com/microsoft/low-latency-audio/issues/36"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The complete report was filed today.",
+        "evidence": [
+          "https://github.com/microsoft/low-latency-audio/issues/36"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter tested two machines, two USB devices and named the exact branch revision.",
+        "evidence": [
+          "https://github.com/microsoft/low-latency-audio/issues/36"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Endpoints without connector detection must be static and remain available.",
+        "evidence": [
+          "src/uac2-driver/CircuitCommon.cpp"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 4,
+        "reason": "The issue is stable on two architectures; a source regression verifies the incorrect jack capability before live validation.",
+        "evidence": [
+          "https://github.com/microsoft/low-latency-audio/issues/36"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "One dummy-jack configuration removes an invalid capability and callback.",
+        "evidence": [
+          "src/uac2-driver/CircuitCommon.cpp"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 3,
+        "reason": "Source evidence is cheap, while final confirmation requires a Windows driver build and physical USB device.",
+        "evidence": [
+          "https://github.com/microsoft/low-latency-audio/issues/36"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Physical connector-controlled jacks retain detection; only the no-control dummy path becomes static.",
+        "evidence": [
+          "src/uac2-driver/CircuitCommon.cpp"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The yamaha-main branch and issue are current.",
+        "evidence": [
+          "https://github.com/microsoft/low-latency-audio"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 5,
+        "reason": "The path applies across USB Audio 2 selector devices, including Sound Blaster G3 and VID 147A PID E055.",
+        "evidence": [
+          "https://github.com/microsoft/low-latency-audio/issues/36"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "All endpoints without connector control share the corrected static-jack configuration.",
+        "evidence": [
+          "src/uac2-driver/CircuitCommon.cpp"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Correct availability restores mmsys.cpl state and the endpoint level meter for the selected hardware input.",
+        "evidence": [
+          "https://github.com/microsoft/low-latency-audio/issues/36"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 95,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      95,
+      90
+    ],
+    "selectable": true
+  },
+  "durationMs": 3019
+}

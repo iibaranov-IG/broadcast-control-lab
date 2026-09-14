@@ -2510,6 +2510,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "esp-osc-2",
+      "title": "Build tinyosc cleanly with strict aliasing enabled",
+      "issue": "https://github.com/256dpi/esp-osc/issues/2",
+      "pr": "https://github.com/256dpi/esp-osc/pull/3",
+      "candidateSha256": "4bcfea946751b4b5c895236a22a16294e17cb1863e06a6fa1ee941b30769ec7c",
+      "testedHeadSha": "394ec37490373661d769938bb4e72cc18198cc9e",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34875713979",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "id": "linux-show-player-398",
+  "status": "ready",
+  "title": "Select the local OSC listening interface",
+  "issue": "https://github.com/FrancescoCeruti/linux-show-player/issues/398",
+  "problem": "Linux Show Player derives one local address from the routing table and binds its OSC listener there, so a user with multiple networks cannot receive show-control traffic on another interface.",
+  "reproduce": "Expose two IPv4 interfaces in the OSC settings and request a specific bind address; the pinned baseline has no selector and OscServer cannot accept a bind-address argument.",
+  "acceptance": "The settings list all current IPv4 interfaces plus an all-interfaces option, retain a saved address that is temporarily unavailable, pass the selection to the OSC listener, and restart the listener when it changes.",
+  "repair": "Add a local-address combo box, persist bindAddress independently from the remote OSC hostname, preserve the previous auto-selected address for legacy configurations, and restart the UDP listener on changes.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "FrancescoCeruti/linux-show-player",
+      "commit": "592ef069f3eb63aa4e47c67f4aab95c798000acd",
+      "directory": "sources/linux-show-player-398"
+    }
+  ],
+  "runtime": {"node": "22.20.0", "python": "3.12.14"},
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {"cwd": "sources/linux-show-player-398", "argv": ["git", "apply", "../../cases/linux-show-player-398/repair.patch"]}
+    ],
+    "test": [
+      {"cwd": ".", "argv": ["node", "cases/linux-show-player-398/test.mjs", "sources/linux-show-player-398"]}
+    ],
+    "build": [
+      {"cwd": "sources/linux-show-player-398", "argv": ["python3", "-m", "compileall", "-q", "lisp/plugins/osc", "tests/test_osc_bind_address.py"]}
+    ]
+  },
+  "artifacts": {"report": "reports/linux-show-player-398.json"},
+  "selection": {
+    "report": "cases/linux-show-player-398/triage.json",
+    "sha256": "2f5ebf60fc153fbd04c058ba22b7774b5ee4531f181f7ab4de19b97fa9f98c6d",
+    "reason": "A two-day-old external report gives an exact multi-network failure on current develop; the focused UI and server tests reproduce it without hardware and the reporter can immediately validate routing on Debian."
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL exercises the actual Qt settings widget and OSC server wiring with deterministic interface and UDP-server doubles. A live multi-interface Debian installation remains owner-validated.",
+    "ownerCheck": "Open OSC settings on the Debian machine with both networks connected, select the control-network address, apply settings, send an OSC message to that IP and input port, and confirm Linux Show Player receives it; repeat after restarting the application."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "FrancescoCeruti/linux-show-player",
+    "base": "develop",
+    "paths": [
+      "lisp/plugins/osc/osc.py",
+      "lisp/plugins/osc/osc_server.py",
+      "lisp/plugins/osc/osc_settings.py"
+    ],
+    "verificationOnlyPaths": ["tests/test_osc_bind_address.py"]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {"cwd": ".", "argv": ["git", "apply", "../../cases/linux-show-player-398/tests-only.patch"]}
+    ],
+    "build": [],
+    "testFiles": ["tests/test_osc_bind_address.py"],
+    "regression": {
+      "cwd": ".",
+      "argv": ["env", "PYTHONPATH=.", "python3", "-m", "unittest", "-v", "tests/test_osc_bind_address.py"]
+    },
+    "negative": {"exitCode": 1, "outputIncludes": "FAILED (errors=2)"},
+    "suite": {
+      "cwd": ".",
+      "argv": ["env", "PYTHONPATH=.", "python3", "-m", "unittest", "-v", "tests/test_osc_bind_address.py"]
+    },
+    "suiteOutputIncludes": "Ran 2 tests"
+  }
+}

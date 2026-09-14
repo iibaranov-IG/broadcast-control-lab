@@ -13,6 +13,11 @@ function validatePublication(c) {
   if (!c.sources.some(s => s.id === p.source) || !repoPattern.test(p.target || '') || typeof p.base !== 'string' || !/^[\w][\w./-]*$/.test(p.base) || p.base.includes('..')) throw new Error('Invalid publication source, target or base')
   if (!Array.isArray(p.paths) || !p.paths.length || p.paths.length > 100 || new Set(p.paths).size !== p.paths.length) throw new Error('Publication needs distinct explicit file paths (maximum 100)')
   p.paths.forEach(filePath)
+  if (p.verificationOnlyPaths !== undefined) {
+    if (!c.upstream || !Array.isArray(p.verificationOnlyPaths) || p.verificationOnlyPaths.length > 100 || new Set(p.verificationOnlyPaths).size !== p.verificationOnlyPaths.length) throw new Error('Verification-only paths require distinct upstream test files (maximum 100)')
+    p.verificationOnlyPaths.forEach(filePath)
+    if (p.verificationOnlyPaths.some(path => p.paths.includes(path) || !c.upstream.testFiles.includes(path))) throw new Error('Verification-only paths must be unpublished upstream test files')
+  }
 }
 function regular(root, relative) {
   filePath(relative)
@@ -34,13 +39,15 @@ function capture(root, c) {
   if (c.upstream) {
     if (c.upstream.source !== c.publish.source) throw new Error('Tested and published source differ')
     const changed = [...git(['diff', '--name-only', '-z', 'HEAD']).split('\0'), ...git(['ls-files', '--others', '--exclude-standard', '-z']).split('\0')].filter(Boolean)
-    if (changed.some(p => !c.publish.paths.includes(p))) throw new Error('Working tree has changes outside publication paths; include every source/test change or remove it')
+    const allowed = new Set([...c.publish.paths, ...(c.publish.verificationOnlyPaths || [])])
+    if (changed.some(p => !allowed.has(p))) throw new Error('Working tree has changes outside publication or verification-only paths; include every source/test change or remove it')
     const directory = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bcl-index-'))
     const env = { ...process.env, GIT_INDEX_FILE: path.join(directory, 'index') }
     const indexed = args => execFileSync('git', ['-C', sourceRoot, ...args], { encoding: 'utf8', env })
     try {
       indexed(['read-tree', s.commit])
-      if (changed.length) indexed(['add', '-A', '--', ...changed])
+      const publishedChanges = changed.filter(p => c.publish.paths.includes(p))
+      if (publishedChanges.length) indexed(['add', '-A', '--', ...publishedChanges])
       tree = indexed(['write-tree']).trim()
     } finally { fs.rmSync(directory, { recursive: true, force: true }) }
   }

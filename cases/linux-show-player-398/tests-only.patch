@@ -1,0 +1,258 @@
+diff --git a/tests/test_osc_bind_address.py b/tests/test_osc_bind_address.py
+new file mode 100644
+index 0000000..ebd8e79
+--- /dev/null
++++ b/tests/test_osc_bind_address.py
+@@ -0,0 +1,252 @@
++"""Tests for selecting the local OSC listening address."""
++
++import importlib.util
++import sys
++import types
++import unittest
++from enum import Enum
++from pathlib import Path
++from unittest.mock import MagicMock, patch
++
++
++class Widget:
++    def __init__(self, *args, **kwargs):
++        self._layout = None
++
++    def setLayout(self, layout):
++        self._layout = layout
++
++    def layout(self):
++        return self._layout
++
++
++class Layout:
++    def __init__(self, *args, **kwargs):
++        pass
++
++    def setAlignment(self, alignment):
++        pass
++
++    def addWidget(self, *args):
++        pass
++
++    def addLayout(self, *args):
++        pass
++
++
++class GroupBox(Widget):
++    def setTitle(self, title):
++        self.title = title
++
++
++class Font:
++    def pointSizeF(self):
++        return 10
++
++    def setPointSizeF(self, size):
++        pass
++
++
++class Label(Widget):
++    def setAlignment(self, alignment):
++        pass
++
++    def font(self):
++        return Font()
++
++    def setFont(self, font):
++        pass
++
++    def setText(self, text):
++        self.text = text
++
++
++class SpinBox(Widget):
++    def __init__(self, *args, **kwargs):
++        super().__init__()
++        self._value = 0
++
++    def setMinimum(self, value):
++        pass
++
++    def setMaximum(self, value):
++        pass
++
++    def setValue(self, value):
++        self._value = value
++
++    def value(self):
++        return self._value
++
++
++class LineEdit(Widget):
++    def __init__(self, *args, **kwargs):
++        super().__init__()
++        self._text = ""
++
++    def setText(self, text):
++        self._text = text
++
++    def text(self):
++        return self._text
++
++    def setMaximumWidth(self, value):
++        pass
++
++
++class ComboBox(Widget):
++    def __init__(self, *args, **kwargs):
++        super().__init__()
++        self.items = []
++        self.index = -1
++
++    def addItem(self, text, data=None):
++        self.items.append((text, data))
++        self.index = max(self.index, 0)
++
++    def itemData(self, index):
++        return self.items[index][1]
++
++    def findData(self, data):
++        return next((i for i, item in enumerate(self.items) if item[1] == data), -1)
++
++    def count(self):
++        return len(self.items)
++
++    def setCurrentIndex(self, index):
++        self.index = index
++
++    def currentData(self):
++        return self.itemData(self.index)
++
++
++class Signal:
++    def connect(self, callback):
++        self.callback = callback
++
++    def emit(self, *args):
++        if hasattr(self, "callback"):
++            self.callback(*args)
++
++
++class Dispatcher:
++    def set_default_handler(self, callback, needs_reply_address=False):
++        self.callback = callback
++
++
++class Address:
++    def __init__(self, value):
++        self.value = value
++
++    def protocol(self):
++        return 4
++
++    def toString(self):
++        return self.value
++
++
++def module(name, **members):
++    value = types.ModuleType(name)
++    value.__dict__.update(members)
++    sys.modules[name] = value
++    return value
++
++
++def load(name, filename):
++    spec = importlib.util.spec_from_file_location(name, filename)
++    value = importlib.util.module_from_spec(spec)
++    sys.modules[name] = value
++    spec.loader.exec_module(value)
++    return value
++
++
++ROOT = Path(__file__).parents[1]
++module("PyQt5")
++module(
++    "PyQt5.QtCore",
++    QT_TRANSLATE_NOOP=lambda context, text: text,
++    Qt=types.SimpleNamespace(AlignTop=1, AlignCenter=2),
++)
++qt_network = module(
++    "PyQt5.QtNetwork",
++    QAbstractSocket=types.SimpleNamespace(IPv4Protocol=4),
++    QNetworkInterface=type("QNetworkInterface", (), {"allInterfaces": staticmethod(list)}),
++)
++module(
++    "PyQt5.QtWidgets",
++    QVBoxLayout=Layout,
++    QGridLayout=Layout,
++    QGroupBox=GroupBox,
++    QLabel=Label,
++    QSpinBox=SpinBox,
++    QLineEdit=LineEdit,
++    QComboBox=ComboBox,
++)
++module("pythonosc")
++module("pythonosc.dispatcher", Dispatcher=Dispatcher)
++module("pythonosc.osc_server", ThreadingOSCUDPServer=MagicMock)
++module("pythonosc.udp_client", SimpleUDPClient=MagicMock)
++module("lisp.core.signal", Signal=Signal)
++module("lisp.core.util", EqEnum=Enum, get_lan_ip=lambda: "192.0.2.1")
++module("lisp.ui.ui_utils", translate=lambda context, text: text)
++module("lisp.ui.settings.pages", SettingsPage=Widget)
++
++osc_server = load("osc_server_under_test", ROOT / "lisp/plugins/osc/osc_server.py")
++osc_settings = load("osc_settings_under_test", ROOT / "lisp/plugins/osc/osc_settings.py")
++
++
++class OscBindAddressTest(unittest.TestCase):
++    def test_settings_list_interfaces_and_preserve_saved_address(self):
++        entry = MagicMock()
++        entry.ip.return_value = Address("192.0.2.10")
++        interface = MagicMock()
++        interface.humanReadableName.return_value = "Control"
++        interface.addressEntries.return_value = [entry]
++
++        with patch.object(
++            osc_settings.QNetworkInterface,
++            "allInterfaces",
++            return_value=[interface],
++        ):
++            settings = osc_settings.OscSettings()
++
++        self.assertEqual(settings.localaddrCombo.itemData(0), "0.0.0.0")
++        self.assertEqual(settings.localaddrCombo.itemData(1), "192.0.2.10")
++
++        values = {
++            "bindAddress": "198.51.100.4",
++            "inPort": 9000,
++            "outPort": 9001,
++            "hostname": "localhost",
++        }
++        settings.loadSettings(values)
++        self.assertEqual(settings.getSettings(), values)
++
++    def test_server_restarts_on_selected_address(self):
++        first_server = MagicMock()
++        second_server = MagicMock()
++        with (
++            patch.object(
++                osc_server,
++                "ThreadingOSCUDPServer",
++                side_effect=[first_server, second_server],
++            ) as server_type,
++            patch.object(osc_server, "Thread") as thread_type,
++        ):
++            server = osc_server.OscServer(
++                "localhost", 9000, 9001, "192.0.2.10"
++            )
++            server.start()
++            server.bind_address = "198.51.100.4"
++
++        self.assertEqual(
++            [call.args[0] for call in server_type.call_args_list],
++            [("192.0.2.10", 9000), ("198.51.100.4", 9000)],
++        )
++        first_server.shutdown.assert_called_once_with()
++        first_server.server_close.assert_called_once_with()
++        self.assertEqual(thread_type.call_count, 2)
++
++
++if __name__ == "__main__":
++    unittest.main()

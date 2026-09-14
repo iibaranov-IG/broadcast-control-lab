@@ -117,6 +117,22 @@ test('reviewed submodule revisions can resolve only the matching triage finding'
   assert.throws(() => triage.applyResolutions(report, { resolutions: { READ_INCOMPLETE: { reason: 'assumed', evidence: ['none'] } } }), /cannot be resolved/)
 })
 
+test('reviewed focused dependency plan can resolve a non-registry dependency', () => {
+  const report = {
+    findings: [{ code: 'NONREGISTRY_DEPENDENCIES', severity: 'question', detail: 'Review dependency' }],
+  }
+  triage.applyResolutions(report, {
+    resolutions: {
+      NONREGISTRY_DEPENDENCIES: {
+        reason: 'The focused test uses a separately pinned dependency set and never installs the unrelated Git dependency.',
+        evidence: ['audited dependency recipe', 'focused test import graph'],
+      },
+    },
+  })
+  assert.equal(report.decision, 'READY_TO_INVESTIGATE')
+  assert.equal(report.findings[0].severity, 'info')
+})
+
 test('reviewed active PR scope can be resolved with evidence', () => {
   const report = {
     findings: [{ code: 'ACTIVE_RELATED_PR', severity: 'question', detail: 'Review scope' }],

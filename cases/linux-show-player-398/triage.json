@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T08:29:21.635Z",
+  "issue": {
+    "repository": "FrancescoCeruti/linux-show-player",
+    "number": "398",
+    "url": "https://github.com/FrancescoCeruti/linux-show-player/issues/398",
+    "title": "OSC : Can't bind another interface",
+    "state": "open",
+    "updatedAt": "2026-09-12T19:19:09Z"
+  },
+  "source": {
+    "repository": "FrancescoCeruti/linux-show-player",
+    "requestedRef": "develop",
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "592ef069f3eb63aa4e47c67f4aab95c798000acd",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "i18n_update.py",
+      "lisp/__init__.py",
+      "lisp/application.py",
+      "lisp/backend/__init__.py",
+      "lisp/backend/audio_utils.py",
+      "lisp/backend/backend.py",
+      "lisp/backend/media.py",
+      "lisp/backend/media_element.py",
+      "lisp/backend/waveform.py",
+      "lisp/command/__init__.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "docs/user/Makefile",
+        "kind": "make",
+        "url": "https://github.com/FrancescoCeruti/linux-show-player/blob/592ef069f3eb63aa4e47c67f4aab95c798000acd/docs/user/Makefile"
+      },
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/FrancescoCeruti/linux-show-player/blob/592ef069f3eb63aa4e47c67f4aab95c798000acd/pyproject.toml"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: The tracked .gitmodules file is empty and git submodule status reports no entries at the pinned revision.",
+      "url": "https://github.com/FrancescoCeruti/linux-show-player/tree/592ef069f3eb63aa4e47c67f4aab95c798000acd",
+      "resolution": {
+        "reason": "The tracked .gitmodules file is empty and git submodule status reports no entries at the pinned revision.",
+        "evidence": [
+          "git show 592ef069:.gitmodules produced zero bytes",
+          "git submodule status produced no entries"
+        ]
+      }
+    },
+    {
+      "code": "NONREGISTRY_DEPENDENCIES",
+      "severity": "info",
+      "detail": "pyproject.toml references Git/local/workspace dependencies; resolve them before scheduling a build. Resolved for this revision: The Git-pinned pyalsa dependency belongs to unrelated ALSA runtime support; the focused OSC test uses only the Python standard library and injected Qt/OSC doubles, so no project dependency installer runs.",
+      "url": "https://github.com/FrancescoCeruti/linux-show-player/blob/592ef069f3eb63aa4e47c67f4aab95c798000acd/pyproject.toml",
+      "resolution": {
+        "reason": "The Git-pinned pyalsa dependency belongs to unrelated ALSA runtime support; the focused OSC test uses only the Python standard library and injected Qt/OSC doubles, so no project dependency installer runs.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/blob/592ef069f3eb63aa4e47c67f4aab95c798000acd/pyproject.toml",
+          "tests/test_osc_bind_address.py uses explicit in-process Qt and OSC doubles"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:FrancescoCeruti/linux-show-player": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 90,
+    "scoreRange": [
+      89,
+      90
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Two connected networks make OSC unusable on the required route.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/398"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "Issue was opened two days before selection.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/398"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "Reporter supplied current version, OS and exact reproduction, but has not yet validated a candidate.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/398"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Success is an explicit local-interface selector used by the OSC listener.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/398"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "A deterministic test injects two addresses and proves the exact bind tuple before and after repair.",
+        "evidence": [
+          "tests/test_osc_bind_address.py",
+          "baseline FAILED (errors=2)"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "Change is confined to OSC settings, construction and server restart wiring.",
+        "evidence": [
+          "lisp/plugins/osc/osc_settings.py",
+          "lisp/plugins/osc/osc_server.py",
+          "lisp/plugins/osc/osc.py"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "UI persistence and bind selection are testable offline; owner only needs a short live routing check.",
+        "evidence": [
+          "tests/test_osc_bind_address.py"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Legacy configs fall back to the previously auto-selected LAN address and stale saved addresses remain selectable.",
+        "evidence": [
+          "tests/test_osc_bind_address.py"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Develop was updated on the issue date and the repository has recent merged PRs.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/commits/develop"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Multi-homed show-control computers are common and OSC routing affects live operation.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/398"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "Selector enumerates every current IPv4 interface and preserves unavailable configured addresses.",
+        "evidence": [
+          "tests/test_osc_bind_address.py"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "Fix restores OSC reception for downstream controllers on the selected production network.",
+        "evidence": [
+          "https://github.com/FrancescoCeruti/linux-show-player/issues/398"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 88,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      88,
+      90
+    ],
+    "selectable": true
+  },
+  "durationMs": 4429
+}

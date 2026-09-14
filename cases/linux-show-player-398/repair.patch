@@ -1,0 +1,141 @@
+diff --git a/lisp/plugins/osc/osc.py b/lisp/plugins/osc/osc.py
+index f79639e..6a5d1c5 100644
+--- a/lisp/plugins/osc/osc.py
++++ b/lisp/plugins/osc/osc.py
+@@ -19,6 +19,7 @@
+ from PyQt5.QtCore import QT_TRANSLATE_NOOP
+ 
+ from lisp.core.plugin import Plugin
++from lisp.core.util import get_lan_ip
+ from lisp.plugins.osc.osc_cue import OscCue
+ from lisp.plugins.osc.osc_server import OscServer
+ from lisp.plugins.osc.osc_settings import OscSettings
+@@ -50,7 +51,10 @@ class Osc(Plugin):
+ 
+         # Create a server instance
+         self.__server = OscServer(
+-            Osc.Config["hostname"], Osc.Config["inPort"], Osc.Config["outPort"]
++            Osc.Config["hostname"],
++            Osc.Config["inPort"],
++            Osc.Config["outPort"],
++            Osc.Config.get("bindAddress", get_lan_ip()),
+         )
+         self.__server.start()
+ 
+@@ -65,7 +69,9 @@ class Osc(Plugin):
+         self.__server.stop()
+ 
+     def __config_change(self, key, value):
+-        if key == "hostname":
++        if key == "bindAddress":
++            self.__server.bind_address = value
++        elif key == "hostname":
+             self.__server.hostname = value
+         elif key == "inPort":
+             self.__server.in_port = value
+diff --git a/lisp/plugins/osc/osc_server.py b/lisp/plugins/osc/osc_server.py
+index cabb94a..1fc057a 100644
+--- a/lisp/plugins/osc/osc_server.py
++++ b/lisp/plugins/osc/osc_server.py
+@@ -38,8 +38,9 @@ class OscMessageType(EqEnum):
+ 
+ 
+ class OscServer:
+-    def __init__(self, hostname, in_port, out_port):
++    def __init__(self, hostname, in_port, out_port, bind_address=None):
+         self.__in_port = in_port
++        self.__bind_address = bind_address or get_lan_ip()
+         self.__hostname = hostname
+         self.__out_port = out_port
+ 
+@@ -78,6 +79,16 @@ class OscServer:
+         self.__hostname = hostname
+         self.__renew_client()
+ 
++    @property
++    def bind_address(self):
++        return self.__bind_address
++
++    @bind_address.setter
++    def bind_address(self, address):
++        self.__bind_address = address
++        self.stop()
++        self.start()
++
+     @property
+     def in_port(self):
+         return self.__in_port
+@@ -101,7 +112,7 @@ class OscServer:
+ 
+         try:
+             self.__srv = ThreadingOSCUDPServer(
+-                (get_lan_ip(), self.__in_port), self.__dispatcher
++                (self.__bind_address, self.__in_port), self.__dispatcher
+             )
+ 
+             self.__thread = Thread(target=self.__srv.serve_forever)
+diff --git a/lisp/plugins/osc/osc_settings.py b/lisp/plugins/osc/osc_settings.py
+index b3a149c..7cfb4be 100644
+--- a/lisp/plugins/osc/osc_settings.py
++++ b/lisp/plugins/osc/osc_settings.py
+@@ -17,13 +17,15 @@
+ # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ from PyQt5.QtCore import QT_TRANSLATE_NOOP, Qt
++from PyQt5.QtNetwork import QAbstractSocket, QNetworkInterface
+ from PyQt5.QtWidgets import (
+-    QVBoxLayout,
++    QComboBox,
+     QGridLayout,
+     QGroupBox,
+     QLabel,
+-    QSpinBox,
+     QLineEdit,
++    QSpinBox,
++    QVBoxLayout,
+ )
+ 
+ from lisp.core.util import get_lan_ip
+@@ -51,9 +53,20 @@ class OscSettings(SettingsPage):
+         self.inwardsGroupBox.layout().addWidget(self.inwardsLabel, 0, 0, 1, 2)
+ 
+         self.localaddrLabel = QLabel()
+-        self.localaddrValue = QLabel(get_lan_ip())
++        self.localaddrCombo = QComboBox()
++        self.localaddrCombo.addItem(
++            translate("OscSettings", "All interfaces"), "0.0.0.0"
++        )
++        for interface in QNetworkInterface.allInterfaces():
++            for entry in interface.addressEntries():
++                address = entry.ip()
++                if address.protocol() == QAbstractSocket.IPv4Protocol:
++                    self.localaddrCombo.addItem(
++                        f"{interface.humanReadableName()} ({address.toString()})",
++                        address.toString(),
++                    )
+         self.inwardsGroupBox.layout().addWidget(self.localaddrLabel, 1, 0)
+-        self.inwardsGroupBox.layout().addWidget(self.localaddrValue, 1, 1)
++        self.inwardsGroupBox.layout().addWidget(self.localaddrCombo, 1, 1)
+ 
+         self.inportLabel = QLabel()
+         self.inportBox = QSpinBox()
+@@ -113,12 +126,19 @@ class OscSettings(SettingsPage):
+ 
+     def getSettings(self):
+         return {
++            "bindAddress": self.localaddrCombo.currentData(),
+             "inPort": self.inportBox.value(),
+             "outPort": self.outportBox.value(),
+             "hostname": self.hostnameEdit.text(),
+         }
+ 
+     def loadSettings(self, settings):
++        bind_address = settings.get("bindAddress", get_lan_ip())
++        index = self.localaddrCombo.findData(bind_address)
++        if index < 0 and bind_address:
++            self.localaddrCombo.addItem(bind_address, bind_address)
++            index = self.localaddrCombo.count() - 1
++        self.localaddrCombo.setCurrentIndex(max(index, 0))
+         self.inportBox.setValue(settings["inPort"])
+         self.outportBox.setValue(settings["outPort"])
+         self.hostnameEdit.setText(settings["hostname"])

@@ -163,7 +163,12 @@ function markdown(r) {
   const clean = s => String(s || '').replace(/[\r\n]/g, ' ')
   return [`# BCL triage: ${clean(r.issue.title || r.issue.url)}`, '', `Decision: **${r.decision}**`, `Checked: ${r.checkedAt}`, `Issue: ${r.issue.url}`, `Source: ${r.source.repository}`, `Revision: ${r.source.commit || 'unresolved'}`, '', '## Findings', '', ...r.findings.map(f => `- **${f.code}** (${f.severity}): ${clean(f.detail)} [Source](${f.url})`), ...(r.findings.length ? [] : ['No metadata blocker found within the stated coverage.']), '', '## Related PRs', '', ...r.relatedPRs.map(p => `- [${clean(p.title)}](${p.url}) — ${p.merged ? 'merged' : p.state}${p.draft ? ', draft' : ''}; author: ${clean(p.author)}; ${p.relation}`), '', '## Next actions', '', ...r.nextActions.map(a => `- ${clean(a)}`), '', '## Read errors', '', ...r.errors.map(e => `- ${e.check}: ${clean(e.message)} — ${e.url}`), '', '## Limits', '', ...r.limitations.map(l => `- ${l}`), '', 'No clone, build, test execution, PR or owner message was performed.', ''].join('\n')
 }
-const resolvableFindings = new Set(['SUBMODULES', 'NO_BUILD_RECIPE', 'ACTIVE_RELATED_PR'])
+const resolvableFindings = new Set([
+  'SUBMODULES',
+  'NONREGISTRY_DEPENDENCIES',
+  'NO_BUILD_RECIPE',
+  'ACTIVE_RELATED_PR',
+])
 function applyResolutions(report, assessment = {}) {
   for (const [code, item] of Object.entries(assessment.resolutions || {})) {
     if (!resolvableFindings.has(code)) throw new Error(`Finding ${code} cannot be resolved by assessment`)

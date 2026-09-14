@@ -95,6 +95,19 @@ test('Capture retains additions, deletions and executable mode; rejects omitted 
   assert.match(f.p.body, /actions\/runs\/42/)
   assert.doesNotMatch(f.p.body, /Fixes #/)
 })
+test('Capture hashes verification-only tests but excludes them from the published tree', t => {
+  const f = fixture(t)
+  const verification = 'tests/verification.py'
+  fs.mkdirSync(path.join(f.src, 'tests'), { recursive: true })
+  fs.writeFileSync(path.join(f.src, verification), 'assert True\n')
+  f.c.upstream.testFiles = [verification]
+  f.c.publish.verificationOnlyPaths = [verification]
+  const candidate = JSON.parse(publication.capture(f.root, f.c))
+  assert.deepEqual(candidate.files.map(file => file.path), f.c.publish.paths)
+  assert.ok(!candidate.files.some(file => file.path === verification))
+  f.c.publish.verificationOnlyPaths = ['main.cpp']
+  assert.throws(() => publication.capture(f.root, f.c), /unpublished upstream test files/)
+})
 test('Publication rejects tampered candidate, stale passport and failed evidence', t => {
   const f = fixture(t)
   const candidate = path.join(f.directory, 'candidate.json'), original = fs.readFileSync(candidate)

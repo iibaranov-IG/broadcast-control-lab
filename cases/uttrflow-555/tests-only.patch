@@ -1,0 +1,100 @@
+diff --git a/Tests/UttrflowPermissionsTests/MicrophonePermissionGateTests.swift b/Tests/UttrflowPermissionsTests/MicrophonePermissionGateTests.swift
+index 7b8ae07..2327cad 100644
+--- a/Tests/UttrflowPermissionsTests/MicrophonePermissionGateTests.swift
++++ b/Tests/UttrflowPermissionsTests/MicrophonePermissionGateTests.swift
+@@ -12,7 +12,8 @@ struct MicrophonePermissionGateTests {
+     private func gate(
+         status: PermissionStatus,
+         grants: Bool = true,
+-        onRequest: (@Sendable () -> Void)? = nil
++        onRequest: (@Sendable () -> Void)? = nil,
++        onOpen: (@Sendable () -> Void)? = nil
+     ) -> MicrophonePermissionGate {
+         let current = Mutex(status)
+         return MicrophonePermissionGate(
+@@ -21,7 +22,8 @@ struct MicrophonePermissionGateTests {
+                 onRequest?()
+                 current.withLock { $0 = grants ? .granted : .denied }
+                 return grants
+-            }
++            },
++            openSettings: { onOpen?() }
+         )
+     }
+ 
+@@ -99,4 +101,44 @@ struct MicrophonePermissionGateTests {
+         _ = await gate.request()
+         #expect(await gate.status() == .granted)
+     }
++
++    @Test(
++        "opens System Settings after microphone access was refused",
++        arguments: [PermissionStatus.denied, .restricted]
++    )
++    func opensSettingsAfterRefusal(status: PermissionStatus) async {
++        let opened = Mutex(false)
++        let gate = gate(status: status, onOpen: { opened.withLock { $0 = true } })
++
++        #expect(await gate.requestOrOpenSettings() == status)
++        #expect(opened.withLock { $0 })
++    }
++
++    @Test("recovery does nothing when microphone access is already granted")
++    func recoveryDoesNothingWhenGranted() async {
++        let asked = Mutex(false)
++        let opened = Mutex(false)
++        let gate = gate(
++            status: .granted,
++            onRequest: { asked.withLock { $0 = true } },
++            onOpen: { opened.withLock { $0 = true } })
++
++        #expect(await gate.requestOrOpenSettings() == .granted)
++        #expect(asked.withLock { $0 } == false)
++        #expect(opened.withLock { $0 } == false)
++    }
++
++    @Test("still prompts when microphone access is undecided")
++    func recoveryPromptsWhenUndecided() async {
++        let asked = Mutex(false)
++        let opened = Mutex(false)
++        let gate = gate(
++            status: .notDetermined,
++            onRequest: { asked.withLock { $0 = true } },
++            onOpen: { opened.withLock { $0 = true } })
++
++        #expect(await gate.requestOrOpenSettings() == .granted)
++        #expect(asked.withLock { $0 })
++        #expect(opened.withLock { $0 } == false)
++    }
+ }
+diff --git a/Tests/UttrflowPermissionsTests/SystemSettingsOpenerTests.swift b/Tests/UttrflowPermissionsTests/SystemSettingsOpenerTests.swift
+new file mode 100644
+index 0000000..bf64868
+--- /dev/null
++++ b/Tests/UttrflowPermissionsTests/SystemSettingsOpenerTests.swift
+@@ -0,0 +1,25 @@
++import Foundation
++import Synchronization
++import Testing
++
++@testable import UttrflowCore
++@testable import UttrflowPermissions
++
++@Suite("SystemSettingsOpener")
++struct SystemSettingsOpenerTests {
++    @Test(
++        "opens the address belonging to each pane",
++        arguments: [
++            (SystemSettingsPane.microphone, "Privacy_Microphone"),
++            (.accessibility, "Privacy_Accessibility"),
++            (.appleIntelligence, "com.apple.Siri-Settings.extension"),
++        ])
++    func opensAddress(pane: SystemSettingsPane, suffix: String) {
++        let opened = Mutex<URL?>(nil)
++        let opener = SystemSettingsOpener(openURL: { url in opened.withLock { $0 = url } })
++
++        opener.open(pane)
++
++        #expect(opened.withLock { $0 }?.absoluteString.hasSuffix(suffix) == true)
++    }
++}

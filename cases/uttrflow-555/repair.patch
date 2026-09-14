@@ -1,0 +1,174 @@
+diff --git a/Sources/Uttrflow/AppDelegate.swift b/Sources/Uttrflow/AppDelegate.swift
+index 5bfd3cb..1bbfe84 100644
+--- a/Sources/Uttrflow/AppDelegate.swift
++++ b/Sources/Uttrflow/AppDelegate.swift
+@@ -1841,8 +1841,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
+             if outcome == .granted, settings.hotkey.heldModifier != nil {
+                 startWatchingForTheShortcut()
+             }
+-        case .microphone, .appleIntelligence:
+-            _ = await MicrophonePermissionGate().request()
++        case .microphone:
++            _ = await MicrophonePermissionGate().requestOrOpenSettings()
++        case .appleIntelligence:
++            SystemSettingsOpener().open(.appleIntelligence)
+         }
+     }
+ }
+diff --git a/Sources/Uttrflow/Onboarding/OnboardingWindowController.swift b/Sources/Uttrflow/Onboarding/OnboardingWindowController.swift
+index 67467a2..6f043b9 100644
+--- a/Sources/Uttrflow/Onboarding/OnboardingWindowController.swift
++++ b/Sources/Uttrflow/Onboarding/OnboardingWindowController.swift
+@@ -110,17 +110,7 @@ final class OnboardingWindowController: NSObject, NSWindowDelegate {
+ 
+     /// Where each permission is turned on by hand; the domain holds the pane as a symbol, not a URL.
+     private static func open(_ pane: SystemSettingsPane) {
+-        let address =
+-            switch pane {
+-            case .microphone:
+-                "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"
+-            case .accessibility:
+-                "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+-            case .appleIntelligence:
+-                "x-apple.systempreferences:com.apple.Siri-Settings.extension"
+-            }
+-        guard let url = URL(string: address) else { return }
+-        NSWorkspace.shared.open(url)
++        SystemSettingsOpener().open(pane)
+     }
+ }
+ 
+diff --git a/Sources/UttrflowPermissions/AccessibilityPermissionGate+System.swift b/Sources/UttrflowPermissions/AccessibilityPermissionGate+System.swift
+index c5d5b00..1fed715 100644
+--- a/Sources/UttrflowPermissions/AccessibilityPermissionGate+System.swift
++++ b/Sources/UttrflowPermissions/AccessibilityPermissionGate+System.swift
+@@ -1,22 +1,13 @@
+-import AppKit
+ import ApplicationServices
+-import Foundation
+ import UttrflowCore
+ 
+ /// Wires the gate to macOS; untestable, as it reads a process-wide trust flag and opens System Settings.
+ extension AccessibilityPermissionGate {
+-    /// The pane that controls this permission.
+-    static let settingsURL = URL(
+-        string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
+-
+     /// The gate as the app uses it.
+     public init() {
+         self.init(
+             readStatus: { AXIsProcessTrusted() ? .granted : .denied },
+-            openSettings: {
+-                guard let url = AccessibilityPermissionGate.settingsURL else { return }
+-                NSWorkspace.shared.open(url)
+-            }
++            openSettings: { SystemSettingsOpener().open(.accessibility) }
+         )
+     }
+ }
+diff --git a/Sources/UttrflowPermissions/MicrophonePermissionGate+System.swift b/Sources/UttrflowPermissions/MicrophonePermissionGate+System.swift
+index 678d088..f51a77c 100644
+--- a/Sources/UttrflowPermissions/MicrophonePermissionGate+System.swift
++++ b/Sources/UttrflowPermissions/MicrophonePermissionGate+System.swift
+@@ -11,7 +11,8 @@ extension MicrophonePermissionGate {
+                     for: AVCaptureDevice.authorizationStatus(for: .audio)
+                 )
+             },
+-            requestAccess: { await AVCaptureDevice.requestAccess(for: .audio) }
++            requestAccess: { await AVCaptureDevice.requestAccess(for: .audio) },
++            openSettings: { SystemSettingsOpener().open(.microphone) }
+         )
+     }
+ }
+diff --git a/Sources/UttrflowPermissions/MicrophonePermissionGate.swift b/Sources/UttrflowPermissions/MicrophonePermissionGate.swift
+index 7d89a7e..db5a9a8 100644
+--- a/Sources/UttrflowPermissions/MicrophonePermissionGate.swift
++++ b/Sources/UttrflowPermissions/MicrophonePermissionGate.swift
+@@ -7,6 +7,8 @@ public struct MicrophonePermissionGate: PermissionGate {
+     private let readStatus: @Sendable () -> PermissionStatus
+     /// Shows the system prompt and answers whether the user allowed it.
+     private let requestAccess: @Sendable () async -> Bool
++    /// Opens the pane where an existing refusal can be changed.
++    private let openSettings: @Sendable () -> Void
+ 
+     /// Names this gate as the microphone permission.
+     public let kind: PermissionKind = .microphone
+@@ -14,10 +16,12 @@ public struct MicrophonePermissionGate: PermissionGate {
+     /// Substitutes both system calls; the real wiring lives in `MicrophonePermissionGate+System.swift`.
+     init(
+         readStatus: @escaping @Sendable () -> PermissionStatus,
+-        requestAccess: @escaping @Sendable () async -> Bool
++        requestAccess: @escaping @Sendable () async -> Bool,
++        openSettings: @escaping @Sendable () -> Void = {}
+     ) {
+         self.readStatus = readStatus
+         self.requestAccess = requestAccess
++        self.openSettings = openSettings
+     }
+ 
+     /// The permission as it stands right now.
+@@ -33,6 +37,20 @@ public struct MicrophonePermissionGate: PermissionGate {
+         return await requestAccess() ? .granted : .denied
+     }
+ 
++    /// Prompts for an undecided permission or opens Settings after macOS has recorded a refusal.
++    public func requestOrOpenSettings() async -> PermissionStatus {
++        let current = readStatus()
++        switch current {
++        case .notDetermined:
++            return await request()
++        case .denied, .restricted:
++            openSettings()
++            return current
++        case .granted:
++            return .granted
++        }
++    }
++
+     /// Maps the system's authorisation states onto the product's.
+     static func permissionStatus(for status: AVAuthorizationStatus) -> PermissionStatus {
+         switch status {
+diff --git a/Sources/UttrflowPermissions/SystemSettingsOpener.swift b/Sources/UttrflowPermissions/SystemSettingsOpener.swift
+new file mode 100644
+index 0000000..97bc61b
+--- /dev/null
++++ b/Sources/UttrflowPermissions/SystemSettingsOpener.swift
+@@ -0,0 +1,38 @@
++import AppKit
++import Foundation
++public import UttrflowCore
++
++/// Owns the macOS addresses used when a recovery action sends the user to System Settings.
++public struct SystemSettingsOpener: Sendable {
++    private let openURL: @Sendable (URL) -> Void
++
++    /// Uses the workspace that owns system URLs on this Mac.
++    public init() {
++        self.init(openURL: { NSWorkspace.shared.open($0) })
++    }
++
++    /// Substitutes the workspace boundary for tests.
++    init(openURL: @escaping @Sendable (URL) -> Void) {
++        self.openURL = openURL
++    }
++
++    /// Opens the requested pane.
++    public func open(_ pane: SystemSettingsPane) {
++        guard let url = Self.url(for: pane) else { return }
++        openURL(url)
++    }
++
++    /// The stable system address for a recovery pane.
++    static func url(for pane: SystemSettingsPane) -> URL? {
++        let address =
++            switch pane {
++            case .microphone:
++                "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"
++            case .accessibility:
++                "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
++            case .appleIntelligence:
++                "x-apple.systempreferences:com.apple.Siri-Settings.extension"
++            }
++        return URL(string: address)
++    }
++}

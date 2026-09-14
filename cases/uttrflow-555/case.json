@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 2,
+  "id": "uttrflow-555",
+  "status": "ready",
+  "title": "Open System Settings after microphone access is denied",
+  "issue": "https://github.com/uttrflow/uttrflow-swift/issues/555",
+  "problem": "The recovery action calls the one-time microphone prompt after macOS has already recorded a refusal, so the button does nothing. Apple Intelligence recovery also reaches the microphone branch.",
+  "reproduce": "Drive the shared recovery route with denied microphone access. The pinned baseline contains no Settings-opening branch and groups Apple Intelligence with the microphone request.",
+  "acceptance": "Denied or restricted microphone access opens its Privacy pane, undecided access still prompts, Apple Intelligence opens its own pane, and onboarding and recovery share one owner for all pane addresses.",
+  "repair": "Add an injected microphone recovery operation, centralize the three System Settings addresses, and route each recovery action to the correct pane.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "uttrflow/uttrflow-swift",
+      "commit": "8d93f5b8574f3c7b8c30086d9c817bf7f5d4827d",
+      "directory": "sources/uttrflow-555"
+    }
+  ],
+  "runtime": {"node": "22.20.0", "python": "3.12.14"},
+  "watch": ["cases/uttrflow-555/"],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {"cwd": "sources/uttrflow-555", "argv": ["git", "apply", "../../cases/uttrflow-555/repair.patch"]}
+    ],
+    "test": [
+      {"cwd": ".", "argv": ["node", "cases/uttrflow-555/test.mjs", "sources/uttrflow-555"]}
+    ],
+    "build": []
+  },
+  "artifacts": {"report": "reports/uttrflow-555.json"},
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves a portable source-level red/green routing contract and preserves the exact upstream tests. Separately, 18 focused Swift tests passed locally against the real permission modules. The complete Swift 6.3 application build, coverage floor, offline audit, and live System Settings launch remain with upstream CI and owner review.",
+    "ownerCheck": "Approve and run the workflows on PR #800. With microphone access denied, press Open Settings and confirm Privacy & Security > Microphone opens. Reset the permission and confirm the undecided path shows the native prompt once. Confirm Apple Intelligence recovery opens its own pane."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "uttrflow/uttrflow-swift",
+    "base": "main",
+    "paths": [
+      "Sources/Uttrflow/AppDelegate.swift",
+      "Sources/Uttrflow/Onboarding/OnboardingWindowController.swift",
+      "Sources/UttrflowPermissions/AccessibilityPermissionGate+System.swift",
+      "Sources/UttrflowPermissions/MicrophonePermissionGate+System.swift",
+      "Sources/UttrflowPermissions/MicrophonePermissionGate.swift",
+      "Sources/UttrflowPermissions/SystemSettingsOpener.swift",
+      "Tests/UttrflowPermissionsTests/MicrophonePermissionGateTests.swift",
+      "Tests/UttrflowPermissionsTests/SystemSettingsOpenerTests.swift"
+    ]
+  },
+  "selection": {
+    "report": "cases/uttrflow-555/triage.json",
+    "sha256": "94a1828ba2829cb608c63098cfa64d411e73bb19c318ad30515f671c22fce738",
+    "purpose": "EXISTING_PR_VALIDATION",
+    "existingPR": "https://github.com/uttrflow/uttrflow-swift/pull/800",
+    "reason": "Validate our existing candidate and bind evidence to its exact head; do not create a competing pull request."
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {"cwd": ".", "argv": ["git", "apply", "../../cases/uttrflow-555/tests-only.patch"]}
+    ],
+    "build": [],
+    "testFiles": [
+      "Tests/UttrflowPermissionsTests/MicrophonePermissionGateTests.swift",
+      "Tests/UttrflowPermissionsTests/SystemSettingsOpenerTests.swift"
+    ],
+    "regression": {"cwd": ".", "argv": ["node", "../../cases/uttrflow-555/contract.test.mjs", "."]},
+    "negative": {"exitCode": 1, "outputIncludes": "MICROPHONE_RECOVERY_NOT_ROUTED"},
+    "suite": {"cwd": ".", "argv": ["node", "--test", "../../cases/uttrflow-555/contract.test.mjs", "."]},
+    "suiteOutputIncludes": "tests 5"
+  }
+}

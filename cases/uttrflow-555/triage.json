@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T23:34:15.845Z",
+  "issue": {
+    "repository": "uttrflow/uttrflow-swift",
+    "number": "555",
+    "url": "https://github.com/uttrflow/uttrflow-swift/issues/555",
+    "title": "\"Open Settings\" for a denied microphone opens nothing, so dictation has no way forward from the app",
+    "state": "open",
+    "updatedAt": "2026-09-14T23:27:25Z"
+  },
+  "source": {
+    "repository": "uttrflow/uttrflow-swift",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "8d93f5b8574f3c7b8c30086d9c817bf7f5d4827d",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": ".github/PULL_REQUEST_TEMPLATE.md",
+        "url": "https://github.com/uttrflow/uttrflow-swift/blob/8d93f5b8574f3c7b8c30086d9c817bf7f5d4827d/.github/PULL_REQUEST_TEMPLATE.md",
+        "content": "<!--\nThank you. A few things that make review quick — none of them are forms to fill in for\ntheir own sake, and if one does not apply to your change, delete it.\n-->\n\n## What this changes, and why\n\n<!-- The why matters more. If you tried an obvious approach first and it did not work,\nthat is the most useful sentence you can write here — it stops the reviewer proposing it. -->\n\n## How you know it works\n\n<!-- Which test covers it, or what you did by hand and what you saw. -->\n\n---\n\n- [ ] `make verify` passes locally (lint, PII audit, build, tests, coverage floor, offline audit)\n- [ ] New behaviour has a test, or there is a reason in the PR why it cannot\n- [ ] No real email address, postal address or personal data in fixtures — `example.com` and invented streets\n- [ ] Comments explain *why*, not what\n\n<!--\nIf this is a draft or an idea you want a view on before finishing, open it as a draft and\nsay so. That is welcome and is cheaper than building the wrong thing.\n-->\n",
+        "requirementHints": [
+          "<!-- Which test covers it, or what you did by hand and what you saw. -->",
+          "- [ ] `make verify` passes locally (lint, PII audit, build, tests, coverage floor, offline audit)",
+          "- [ ] New behaviour has a test, or there is a reason in the PR why it cannot",
+          "- [ ] Comments explain *why*, not what",
+          "If this is a draft or an idea you want a view on before finishing, open it as a draft and"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "AGENTS.md",
+        "url": "https://github.com/uttrflow/uttrflow-swift/blob/8d93f5b8574f3c7b8c30086d9c817bf7f5d4827d/AGENTS.md",
+        "content": "# Working in this repository\n\n<!-- release-policy:v3 -->\n## Branching & Release Policy — NON-NEGOTIABLE\n\n**Effective 2026-09-02. Supersedes release-policy:v2, which said agents never merge to\n`main`; rule 5 below now says they may, once a pull request is green. Everything else\nstands, including that this repository is the only home for the project and that the\n`beta` branch in any agent's memory belonged to the private one and does not exist here.**\n\n**One long-lived branch, `main`, always releasable. A release is a tag, not a branch.**\n\n```\nbranch / fork  ──PR──>  main  ──tag v2026.9.14-rc.1──>  prerelease  (soak)\n   (CI runs)          (CI runs)  ──tag v2026.9.14────>  release\n```\n\n1. **Cut every branch from `origin/main`.** Short-lived. A branch that lives for weeks is a\n   merge conflict being written slowly.\n2. **Every PR targets `main`** — `gh pr create --base main`. There is no second trunk to\n   choose between any more.\n3. **CI runs on every pull request and must be green.** `.github/workflows/ci.yml` runs\n   `make verify` and builds the app bundle; dependency review and the text checks run\n   beside it. CodeQL is weekly, not per-PR, and gates nothing.\n   Run `make verify` locally anyway — it is the same command, and finding out here is\n   faster than finding out in a queue.\n4. **Nobody pushes to `main` directly.** A ruleset blocks force-pushes and deletions,\n   and everything reaches `main` through a pull request. Never force-push `main`, and\n   never tag: tagging is the release, and the release is the operator's.\n5. **An agent may merge its own pull request once it is green** — every required check\n   passed, and the branch up to date with `main` so what merges is what was tested. This\n   reverses release-policy:v2, which said agents never merge. The gate was written for a\n   team with reviewers in it; on a one-person org the review requirement could never be\n   satisfied, so it was not a gate but a queue. What actually catches mistakes here is\n   CI, and CI runs before the merge either way.\n6. **Green means green, not nearly.** A check still running is not a passed check. If\n   you merge past a failing or unfinished check, you are doing it because the operator\n   said to, and you say so plainly when you report it — never silently with `--admin`.\n7. **Your task is done when the work is merged and your branch is cleaned up.** Do not\n   tag, and do not release.\n\n**Releases stay batched and infrequent.** That has not changed; only the mechanism has.\n`main` accumulates merged work, and the operator decides when a commit on it becomes\n`v2026.9.14`. See `RELEASING.md`.\n\n**Why there is no staging branch, since an agent reasoning from first principles will\npropose reinstating one.** The gate belongs on the pull request, not after it. A staging\nbranch tests code that has *already been merged* — the bad change is in a shared branch,\nblocking everything else waiting there, and somebody has to notice and back it out. CI on a\nPR tests the merge result *before* the merge is allowed, so it never lands. Same check,\nearlier. What a staging branch additionally gave — a build real people run before it is the\ndefault — is what `-rc` tags give, without a permanent branch to keep in sync.\n\nRead this before doing anything. Most of it exists because the obvious path was tried,\ncost something, and was abandoned — so an agent that reasons from first principles will\npropose things that have already been rejected here for reasons the code does not show.\n\n`PLAN.md` is the live phase tracker. Read it rather than reconstructing the state of the\nproject from `git log`.\n\n## Comments: one line, present tense — NON-NEGOTIABLE\n\n**A comment is one line. A doc comment is one line. Both say what the code does now.**\n\n```swift\n/// Refuses audio with no speech in it, so silence is not transcribed as words.\n```\n\nNot:\n\n```swift\n/// Refuses audio with no speech in it.\n///\n/// This used to return quietly to idle, which was indistinguishable from the app\n/// being broken — the user held the key, spoke, let go, and nothing happened. It was\n/// then changed to throw, but the error had no severity, so the menu bar showed it as\n/// a fault. Three attempts later it became what it is now...\n```\n\nBoth describe the same function. Only the first is still true in four months.\n\n### The rule\n\n1. **One line per comment block.** No `///` or `//` run longer than one line.\n2. **Present tense, about the present code.** What this function does, what this line\n   is for, what the value means. Not what it did before, not what somebody tried,\n   not how many times something has gone wrong.\n3. **A reason is allowed when it changes what a reader would do** — \"kept under the\n   lock because `deinit` can run on any thread\" earns its place. A reason that is only\n   a story does not.\n4. **The trailing comment on a line of code is exempt from the length rule** and still\n   bound by the rest.\n5. **Document a parameter only where one line covers it.** `swift-format` rejects a\n   singular `- Parameter` on a function that has more than one, and a plural\n   `- Parameters:` block is multi-line by construction — so a function with several\n   parameters documents all of them or none, and none is what this rule chooses. Say what\n   is surprising about an argument in the summary line instead. Swift labels arguments at\n   the call site, so the loss is smaller than it looks.\n\n### Where the rest goes\n\nSome of what these comments carry is genuinely worth keeping: a measured number, a\nplatform trap, an approach that was tried and does not work. That belongs in `Docs/`,\nunder a heading, where it can be read on purpose and revised as a piece —\n`Docs/silence.md` and `Docs/stuck-recording.md` are what this looks like. Link to it in\nthe one line:\n\n```swift\n/// Judges the audio before it is decoded. See `Docs/silence.md`.\n```\n\n**Deleting a hard-won measurement is not the point of this rule.** Moving it somewhere\nit stays true is.\n\n### Why\n\nThe comments in this repository were written as a running account of how each decision\nwas reached, and there are 17,000 lines of them against 36,000 lines of code. After a\nfew months that account is a liability rather than an asset: it describes code that has\nsince moved, it buries the one sentence a reader needs under six they do not, and the\nreader cannot tell which parts still hold. What a function *does* is checkable against\nthe code in front of you. What it *used to do* is not checkable at all.\n\n### How it is enforced\n\n`Scripts/comment_audit.py` counts multi-line comment blocks per file and fails when any\nfile gains one, against `Scripts/comment_baseline.json`. It runs in `make verify`.\n\nThe baseline only ever goes down — `--update` refuses to record a higher count for any\nfile, and shrinking one file does not pay for growing another. Bring a file you are\nalready editing down to the rule and re-record; do not rewrite the whole repository in\none pass.\n\n```bash\npython3 Scripts/comment_audit.py --report                 # what is left, worst first\npython3 Scripts/comment_audit.py --update                 # re-record after improving a file\npython3 Scripts/comment_audit.py --update --after-merge   # only when main moved under you\n```\n\n`--after-merge` is the one way a count may rise, and it exists because rebasing onto\n`main` brings in files this rule has not reached yet — blocking a branch on those would\npunish whoever rebased rather than whoever wrote them. It prints every rise and records\nit, so the increase appears in `comment_baseline.json`'s diff where a reviewer can see\nit. Do not reach for it to excuse your own comments.\n\n## What must never reach a tracked file — NON-NEGOTIABLE\n\nThis repository is public. Everything in it is read by strangers, indexed by search\nengines, and kept forever in git history. The conversation that produces the work is\nnot public, and the boundary between the two is one way.\n\nNever write any of the following into a tracked file, a commit message, a PR title or\nbody, an issue, or a code comment:\n\n- **Named competitors, or their products, docs, pricing, screenshots or behaviour.**\n  Not as a citation, not as a source list, not as \"how X does it\", not in a design\n  rationale. If a competitor's behaviour informed a decision, describe the behaviour\n  generically — \"some dictation tools rewrite for brevity\" — and never say whose.\n- **Growth, marketing, positioning or business strategy.** Treating stars as a target,\n  when to announce, how attention is acquired, what to post where, how to attract\n  contributors.\n- **Anything a user said in a working session** that is not a technical requirement:\n  frustrations, comparisons, commercial reasoning, personal context.\n- **Screenshots or transcripts from another product**, in any form, including as a\n  design reference committed \"temporarily\".\n\nReference material a user shares during development is for reading, not for keeping. Take\nthe requirement out of it, state the requirement in the product's own words, and let the\nreference go. A design may be *informed* by something seen elsewhere and must never\n*record* that it was.\n\nHistory counts. A reference removed from the working tree is still in the commits that\nintroduced it, and on a public repository that is still published. Say so plainly when it\nhappens rather than assuming a later edit undid it.\n\n**This file is tracked, and stays tracked.** The rule above binds anybody who opens a pull\nrequest here, not only the person who wrote it, so it is product rather than working\nmaterial — and a rule that lives only on one machine is invisible to a fresh clone, to a\nworktree, to a fork and to CI, which is every place the mistake actually gets made.\n\n### How it is enforced\n\nFive layers, because no single one holds. The hooks are skipped by `--no-verify`, the\nworkflow is skipped by an admin merge, and the settings hook binds only agents on this\nmachine — but the ways around each of them do not overlap.\n\n| Where | What it sees |\n|---|---|\n| `make verify` | the working tree, before the build, beside the PII audit |\n| `.githooks/pre-push` | every commit being pushed, to **any** branch |\n| `.githooks/commit-msg` | the message, before it is even recorded |\n| `.github/workflows/quality.yml` | the pull request's whole range, plus its title and body |\n| `.claude/settings.json` | the text of a command an agent is about to run |\n\nAll five run `Scripts/disclosure_audit.py`. It reads two kinds of pattern: names and\nstrategy phrases, which fail outright, and vocabulary that is usually innocent and\noccasionally the tell, which is counted against `Scripts/disclosure_baseline.json` and may\nfall but never rise. In text being written now — a message, a PR body, an added line —\nboth kinds fail, because new writing has no legacy to grandfather.\n\nThe terms are stored base64 for the same reason as the address constants in\n`Scripts/pii_audit.sh`, and it is not obfuscation: a plain-text list would publish, inside\nthe gate, exactly what the gate exists to keep out, and would match itself on every run.\n\n```bash\npython3 Scripts/disclosure_audit.py --show-terms     # see the lists decoded\npython3 Scripts/disclosure_audit.py --history        # every commit on every ref\nmake hooks                                           # install both git hooks\n```\n\nThe ratchet refuses a rise, and there is one sanctioned way past it. A document that\nstates the rule has to name the category it forbids — this file says \"competitor\" six\ntimes — so `--update-baseline --absorb` records a rise and prints every one of them,\nwhich puts it in the baseline's diff where a reviewer sees it. Reach for it when the word\nis the subject, never to make a paragraph fit.\n\n**Never weaken this gate to make a commit pass**, and never add a path exemption to get\npast it. There is exactly one exemption in the file — the evaluation corpus, from the\nphrase patterns only, because a corpus of dictated English legitimately contains \"churn\nrate\" — and it does not cover names. A failing gate is the gate working.\n\n`--history` is what a repository is judged on before it is made public: a tree can be\ncleaned in one commit, and history cannot be cleaned at all.\n\n## Where this sits\n\nFour pieces: this app, `uttrflow-backend` (Go on ECS, the only thing that touches the\nserver's database), `uttrflow-fe` (Next.js on ECS, the site), and `uttrflow-panel` (design\nsource). Infrastructure is shared with the open-llm AWS account; the data is not.\n\n**Two databases, and they hold different things.** The server's holds an account: who\nsomebody is, what they have paid for, which machines are signed in. This app's local store\n— under Application Support — holds the clipboard, the dictation history, the personal\ndictionary and the snippets, and **none of it is ever sent anywhere**. Transcriptions are\nlocal, full stop: the product's whole claim is that dictation happens on this Mac and stays\nhere. If that ever changes it is a product decision with a privacy page attached, not a\nrefactor.\n\n**This app talks to the backend's API and to nothing else on the network** — see\n`UttrflowAccount`, which is deliberately the only module that can reach a server. That is\nwhat makes \"the offline promise\" checkable rather than asserted: there is one place to look.\n\n## What dictation is for — NON-NEGOTIABLE\n\n**The goal is an accurate transcript of what the speaker said, cleaned of the noise of\nspeaking and laid out the way they would have typed it. It is not a rewrite.**\n\nThe tidier is a filter. It removes what was never meant as words — \"um\", \"hmm\", \"aah\",\nstammers, false starts, the discarded half of a spoken self-correction — and adds what\nspeech leaves implicit: punctuation, question marks where a question was asked,\ncapitalisation, numerals, line and paragraph breaks, a list when the speaker plainly\nspoke one. Every word the speaker meant survives, in their order and their register.\n\nIt never shortens, summarises, changes tone, swaps synonyms, reorders, answers, obeys,\nor finishes a thought. Those are rewrites; a user who wants one asks for it, and it is\na different feature. `Docs/cleanup.md` is the catalogue — three tiers, what is done,\nwhat is not yet, what is forbidden — and every change to the prompt or the rules is\nmeasured against the corpus before it lands (`make bakeoff`). An agent proposing \"make\nthe output more polished\" is proposing a rewrite; the answer is no.\n\n## Latin letters only — NON-NEGOTIABLE\n\n**Uttrflow writes English/Latin script only. Hindi and Hinglish speech is romanised the way\npeople type it, never written in Devanagari and never translated.**\n\n\"हाँ ठीक है\" is inserted as \"Haan thik hai\" — not in Devanagari, and not as \"Yes, okay\".\nUttrflow is not a translator. This binds every path that inserts dictated text: a model's\nrewrite, the rules, and the untidied fallback. The Languages setting steers what recognition\nlistens for; it never chooses the output script. `Docs/latin-output.md` is how it is enforced\nand measured: the romaniser the rules use, the guard that refuses a translation, and the last\ncheck before insertion. A change that lets Devanagari or a translation reach the screen is a\nbug, whatever it improves.\n\n## Rules that are not preferences\n\n**Never put a real email address or a real postal address in a fixture.** Use\n`example.com` and an invented street; `Scripts/pii_audit.sh` fails the build on anything\nelse, and it runs first in `make verify` so you find out in two seconds rather than after\na build.\n\nThis is a rule because it has already happened twice. A stranger's real address — real\ncomplex, real road, real pincode — was the sample expansion for the \"my address\" snippet\nand had reached eleven files before anyone noticed; the owner's personal email was the\naccount fixture. Both looked exactly like the sample data around them, which is the whole\nproblem: fixture data has to look real to be useful, and the most available realistic\nvalue is the one you can see from where you are sitting. **This repository is being\nopen-sourced, and a published address cannot be taken back by a later commit.**\n\n**Never decide that two spellings are the same word by their shape.** Not a prefix of\n*n* characters, not \"is one of them a substring of the other\". Ask\n`MeaningPreservationGuard.sameForm` whether two spellings are one word, `spelledInto` or\n`isWritten` whether a word is written out at its own boundaries, and\n`WordErrorRate.measure` whether it is still there *in the order it was said*. Those are\nthe single home for each of those questions, and a local reimplementation is how this\ngoes wrong.\n\nA shape match can only fail in one direction: it says \"same\" too easily, every one of\nthese sits on a path whose failure is *acceptance*, and an acceptance leaves no trace —\nso the bug ships silently and no test that was written goes red. A three-character stem\nlet \"confirm\" become \"confuse\" and \"Aarav\" become \"Aaron\" past the guard whose entire job\nis to refuse that; a two-character one decided whether a model had echoed the line.\n`Scripts/loose_match_audit.py` counts these per file against\n`Scripts/loose_match_baseline.json` and runs in `make verify`. It ratchets like the\ncomment and disclosure baselines: a count may fall and may never rise.\n\n```bash\nmake match-report                                            # what is left, with the line\npython3 Scripts/loose_match_audit.py --update                # re-record after tightening one\npython3 Scripts/loose_match_audit.py --update --after-merge  # only when main moved under you\n```\n\nOne match is baselined today, and it is the shape with a legitimate answer:\n`CaretEchoPass` asks which completion targets begin with what the user has typed, where\na prefix is the question rather than a stand-in for one. That is what the baseline is\nfor — the audit reports the shape, and you say why this one is right.\n\n**Do not do a `good first issue` yourself, and never take an issue somebody has claimed.**\nThose labels are inventory for somebody else, not a task queue. Before opening a branch for\nany issue, read its thread: if anyone outside has asked for it or said they are on it, it is\ntheirs — add the `claimed` label, reply, and find other work. If it carries `good first\nissue` and nobody has claimed it, still leave it alone. `CONTRIBUTING.md` sets out what a\nclaim guarantees a contributor, and that is a promise this side has to keep. If a branch is\nalready open against one, take the label off the issue rather than leaving free work\nadvertised that is about to be closed underneath whoever picks it up.\n\nThis is a rule because the project has already broken it. #51 was labelled *good first\nissue*; a first-time contributor asked for it on the thread and got no reply; a maintainer\nbranch opened shortly afterwards, did the same work as part of something larger, and closed\nthe issue on merge while their pull request (#62) sat unreviewed. A README section left\nalone for a week costs nothing next to that.\n\n**CI exists now, and it is `.github/workflows/`.** This reverses a rule that was absolute\nin the private repository, so it is worth saying why rather than leaving two agents to\nargue about it. The old rule was: never add a workflow, because macOS runners bill at ten\ntimes Linux, this project cannot use Linux (it builds against macOS 26 frameworks and\ndrives the real Accessibility, clipboard and speech APIs), and fifty-one runs over two days\nate 97% of a month's included minutes — after which jobs stopped starting silently, for\ndays, while the repository went on looking green.\n\nEvery part of that is still true except the part that mattered: **a public repository does\nnot pay for standard runners.** The constraint was cost, the cost is gone, and the local\ngate — `.githooks/pre-push`, installed with `make hooks` — is still worth having because it\nis still the fastest answer.\n\nThere are five workflows and each earns its keep: CI, release, CodeQL, dependency review,\nScorecard. Do not add a sixth without asking.\n\n**Never run `git add -A`, `git add .`, or `git commit -a`.** More than one agent works in\nthis repository at once, and a blanket add sweeps another session's half-finished work\ninto your commit under your message. This has happened four times. Stage the paths you\ntouched, by name.\n\n**Never rewrite pushed history, and never rebase while another session is committing.**\nCheck first: `ps aux | grep -c '[c]laude.*--add-dir'`.\n\n**Every feature is built in a worktree cut from `origin/main`, then merged into `main` by\nPR.** The feature branch exists only for the length of the work, and nothing reaches `main`\nexcept through a reviewed pull request — see the release policy at the top of this file.\n\n```bash\ngit fetch origin\ngit worktree add .claude/worktrees/<name> -b <name> origin/main   # from main, not from HEAD\ncd .claude/worktrees/<name>                                       # and stay there\nexport DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer\n… work, commit by name, `make verify` before every push …\n# the pre-push hook runs `make verify` for main; CI runs it once more on the PR\ngit push -u origin <name> && gh pr create --base main\ncd -                                                              # back to the main checkout\ngit worktree remove .claude/worktrees/<name> && git branch -d <name>\ngit push origin --delete <name>\n```\n\nThe isolation is the point, and it is not bureaucracy: more than one agent works in this\nrepository at once and a shared `.build` corrupts under two concurrent builds, which is\nwhy `swift build` in the main checkout while anyone else is working is separately\nforbidden below. A worktree gives the work its own `.build`, its own index, and a `git\nstatus` that shows only what this task changed — which is what makes staging paths by\nname possible at all.\n\n**Rebase onto `origin/main` before opening the pull request.** `main` moves under you while\nyou work — it is where everything lands — so a branch cut this morning is behind by\nlunchtime, and rebasing is what keeps the diff in the pull request the change you actually\nmade. Rebasing an unpushed branch is not rewriting pushed history,\nso the rule above does not conflict with this one.\n\n**Nothing an agent does touches `main` except through a pull request.** Not a direct\npush, not a rebase onto it, not a tag, not a docs commit that seems too small to matter.\nA ruleset blocks it at the server, so this is a description of what will happen rather\nthan a request. If you find yourself with a commit on `main`, stop and say so rather\nthan tidying it away.\n\n**Commit messages carry no `Co-Authored-By` trailer.** Not for an agent, not for a tool.\nThe message says what the change does; who typed it is what `git log` already records.\n\n**Merging is not reviewing.** Nobody else read the change, so the pull request is where\nyou write down what you would have wanted a reviewer to know: what was measured, what\nwas assumed, and what you are least sure of. A merge that ends the conversation is worse\nthan no merge at all.\n\n**Clear the worktree the moment the work is merged.** `git worktree remove` and delete the\nbranch. Four stale worktrees once sat holding pre-rename copies of the whole tree, and an\nabandoned one is indistinguishable from work in progress to the next session that finds\nit. `.claude/worktrees/` is gitignored, so nothing warns you.\n\n`sasta-trader` is a different project and does not follow any of this.\n\n**Never run `swift build` or `swift test` in the main checkout while subagents are\nworking.** They share `.build` and corrupt each other. Give parallel agents\n`isolation: \"worktree\"` — or, when the session's working directory is not itself a git\nrepository and that fails, cut the worktrees by hand with the recipe above and point each\nagent at one by absolute path.\n\n**`export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`** before any swift\ncommand, in every shell and in every agent prompt. A hook or a subagent does not inherit\nit from an interactive profile.\n\n## Building and releasing\n\n`Docs/releasing.md` is the only correct description. In short:\n\n```bash\nmake verify        # lint, build, 5,000+ tests, coverage floor — what the gate runs\nmake hooks         # once per clone; hooks are not cloned\nmake app-hardened  # a build fit to test on another Mac\nmake dmg           # the disk image\nmake publish       # to the public downloads repository, using this Mac's gh login\n```\n\nVersioning is **calendar**, `YEAR.MONTH.DAY` with no leading zeros (`2026.9.14`), hand-edited\nin `Resources/Uttrflow-Info.plist`; a second release that day is `2026.9.14.1`. Releases up to\n0.5.0 were semver. `CFBundleVersion` is what the updater compares, so it goes up by one every\nrelease. The five-part `YEAR.MONTH.DAY.HOUR.PATCH` scheme stays rejected, as `Docs/releasing.md` says.\n\nDownloads go to the public **uttrflow/releases** repository. Source repositories stay\nprivate. The published asset is `Uttrflow.dmg` with **no version in the name** — that is\nwhat makes the `/releases/latest/download/` URL permanent.\n\n**The tag names the release, and notarisation has nothing to do with it.** A run\ntriggered by a pushed tag publishes under exactly that tag — `release.yml` has already\nchecked it against the plist — and a hand-run publish uses `v<version>` from the plist.\nSigned or not, the release is a full release, so `/releases/latest/download/` resolves to\nthe newest build and the download button never has to change.\n\n**A tag with anything after the version is a prerelease**: `v2026.9.14-rc.1` publishes as one,\nGitHub keeps it out of `/latest/`, and `publish.sh` leaves `latest.json` and `appcast.xml`\nuntouched so neither the site nor the updater offers it. That is the soak. `v2026.9.14`\nreleases it.\n\n`latest.json` records `gatekeeper`, and the site shows or hides the `xattr` instruction\nfrom that field — publishing a notarised image is the whole migration.\n\n## Tooling traps, each of which cost real time\n\n- **`swift-format` is not on `PATH`** — it is `xcrun swift-format`, via `make lint` /\n  `make format`. Capture its exit code explicitly; reading the output through a pipe\n  swallows the failure. zsh has `$pipestatus` (lowercase, 1-indexed), not `$PIPESTATUS`.\n- **zsh does not word-split unquoted variables.** `kill -9 $PIDS` passes one newline-joined\n  blob and fails with \"illegal pid\". Pipe to `xargs -n1`, or use `${=PIDS}`.\n- **MLX targets cannot be built by `swift build`** — they need `xcodebuild` plus the Metal\n  Toolchain (~690 MB). MLX is quarantined in `UttrflowLocalModel` and `uttrflow-bakeoff` so\n  that nothing else ever needs it.\n- **The app is built with `xcodebuild`, not `swift build`.** SwiftPM bakes an absolute path\n  into the generated resource-bundle accessor and puts the bundles where a signed app\n  cannot carry them. `Docs/packaging.md` has the measurements.\n- **`git ls-files` and `git grep` only see tracked files.** A repo-wide rename using them\n  silently skipped four new files and then reported \"clean\". Use `find` when the change\n  must cover work in progress.\n- **`secrets` is not available in a workflow step's `if:`** — the condition evaluates to\n  nothing and every guarded step runs. (Kept here in case a workflow is ever written\n  elsewhere; see the first rule.)\n\n## The method that has repeatedly paid off\n\n**Probe the real API before coding, and distrust an implausible number.** That is what\ncaught `AVAudioConverter` silently truncating 51% of audio, Apple's undocumented Hindi\nability, train-on-test contamination in the prompt examples, and the local models scoring\n13% only because nobody was stripping their `Cleaned: \"…\"` wrapper.\n\n**A CLI is not a representative test bed for the Accessibility API**, and a well-behaved\ntarget never exercises the broken path. `Docs/` and the comments in\n`Sources/UttrflowInput/` carry the specific traps.\n\n## Quality bar\n\n- 95% line coverage per module, enforced by `Scripts/coverage.sh`. Exclusions live in\n  `Scripts/coverage_report.py` **with a stated reason each, printed on every run** — an\n  exclusion is never silent.\n- Swift 6 language mode, strict concurrency, warnings as errors.\n- No force unwraps, no force try, no implicitly unwrapped optionals (lint-enforced).\n- Nothing about the evaluation corpus may reach a shipped app; `Scripts/bundle.sh` checks\n  the built artefact for it and refuses.\n",
+        "requirementHints": [
+          "`main`; rule 5 below now says they may, once a pull request is green. Everything else",
+          "3. **CI runs on every pull request and must be green.** `.github/workflows/ci.yml` runs",
+          "   and everything reaches `main` through a pull request. Never force-push `main`, and",
+          "5. **An agent may merge its own pull request once it is green** — every required check",
+          "   passed, and the branch up to date with `main` so what merges is what was tested. This",
+          "   CI, and CI runs before the merge either way.",
+          "`main` accumulates merged work, and the operator decides when a commit on it becomes",
+          "propose reinstating one.** The gate belongs on the pull request, not after it. A staging",
+          "branch tests code that has *already been merged* — the bad change is in a shared branch,",
+          "PR tests the merge result *before* the merge is allowed, so it never lands. Same check,",
+          "earlier. What a staging branch additionally gave — a build real people run before it is the",
+          "Read this before doing anything. Most of it exists because the obvious path was tried,",
+          "## Comments: one line, present tense — NON-NEGOTIABLE",
+          "**A comment is one line. A doc comment is one line. Both say what the code does now.**",
+          "1. **One line per comment block.** No `///` or `//` run longer than one line.",
+          "   is for, what the value means. Not what it did before, not what somebody tried,",
+          "4. **The trailing comment on a line of code is exempt from the length rule** and still",
+          "Some of what these comments carry is genuinely worth keeping: a measured number, a",
+          "/// Judges the audio before it is decoded. See `Docs/silence.md`.",
+          "The comments in this repository were written as a running account of how each decision",
+          "`Scripts/comment_audit.py` counts multi-line comment blocks per file and fails when any",
+          "file gains one, against `Scripts/comment_baseline.json`. It runs in `make verify`.",
+          "python3 Scripts/comment_audit.py --report                 # what is left, worst first",
+          "python3 Scripts/comment_audit.py --update                 # re-record after improving a file",
+          "python3 Scripts/comment_audit.py --update --after-merge   # only when main moved under you",
+          "it, so the increase appears in `comment_baseline.json`'s diff where a reviewer can see",
+          "it. Do not reach for it to excuse your own comments.",
+          "## What must never reach a tracked file — NON-NEGOTIABLE",
+          "Never write any of the following into a tracked file, a commit message, a PR title or",
+          "body, an issue, or a code comment:",
+          "  design reference committed \"temporarily\".",
+          "reference go. A design may be *informed* by something seen elsewhere and must never",
+          "History counts. A reference removed from the working tree is still in the commits that",
+          "| `make verify` | the working tree, before the build, beside the PII audit |",
+          "| `.githooks/pre-push` | every commit being pushed, to **any** branch |",
+          "| `.githooks/commit-msg` | the message, before it is even recorded |",
+          "| `.github/workflows/quality.yml` | the pull request's whole range, plus its title and body |",
+          "python3 Scripts/disclosure_audit.py --history        # every commit on every ref",
+          "**Never weaken this gate to make a commit pass**, and never add a path exemption to get",
+          "`--history` is what a repository is judged on before it is made public: a tree can be",
+          "cleaned in one commit, and history cannot be cleaned at all.",
+          "measured against the corpus before it lands (`make bakeoff`). An agent proposing \"make",
+          "check before insertion. A change that lets Devanagari or a translation reach the screen is a",
+          "and had reached eleven files before anyone noticed; the owner's personal email was the",
+          "open-sourced, and a published address cannot be taken back by a later commit.**",
+          "so the bug ships silently and no test that was written goes red. A three-character stem",
+          "comment and disclosure baselines: a count may fall and may never rise.",
+          "Those labels are inventory for somebody else, not a task queue. Before opening a branch for",
+          "the issue on merge while their pull request (#62) sat unreviewed. A README section left",
+          "is still the fastest answer."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/uttrflow/uttrflow-swift/blob/8d93f5b8574f3c7b8c30086d9c817bf7f5d4827d/CONTRIBUTING.md",
+        "content": "# Contributing to Uttrflow\n\nThank you for looking. This is a small project with one maintainer, so the process is\ndeliberately short.\n\n## You do not need anything of ours to work on this\n\n**No account, no API key, no access to any server of ours.** The app runs entirely on your\nMac: dictation is on-device, and the clipboard, history, dictionary and snippets are in\nApplication Support and are never sent anywhere.\n\nThe one screen that would need a network — sign-in — offers **\"continue on this Mac\"**\nbeside the providers, which uses the name macOS already knows you by and needs nothing.\nThat is not a degraded mode built for contributors; it is a real product path for people\non a captive portal or a locked-down Mac, and it is on the same page as the providers\nrather than appearing only after something fails.\n\nSo: clone, build, run. Everything works.\n\n```bash\ngit clone https://github.com/uttrflow/uttrflow-swift.git\ncd uttrflow-swift\nmake verify        # lint, PII audit, build, 5,000+ tests, coverage floor, offline audit\nmake app           # builds and ad-hoc signs dist/Uttrflow.app\nopen dist/Uttrflow.app\n```\n\nRequirements: an Apple Silicon Mac, macOS 26 or later, and Xcode 26.6 or later.\n`export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` before any Swift command.\n\nFour test suites are skipped for you, and say so when they are. They check this app\nagainst fixtures emitted by the backend service, which is not open source. They are the\nonly part of the suite you cannot run, they are not required for any change, and their\nabsence is reported rather than silently passing.\n\n## How a change gets in\n\n1. **Fork, and branch from `main`.** Short-lived branches, please — a branch that lives for\n   weeks is a merge conflict being written slowly.\n2. **Run `make verify` before you push.** It is the same command CI runs, so there is no\n   class of failure that only CI can find. `make hooks` installs a pre-push hook that runs\n   it for you.\n3. **Open a pull request against `main`.** CI runs on it. It must be green.\n4. **A maintainer reviews and merges.** Nobody can push to `main` directly, including the\n   maintainer.\n\nSmall PRs get reviewed. Large ones get reviewed eventually. If you are planning something\nsubstantial, open an issue first so you do not build something that then gets declined for\na reason that could have been said in a paragraph.\n\n## Claiming an issue, and what claiming it guarantees you\n\n**Say on the issue that you are taking it, and it is yours.** One comment is enough — no\nform, and you do not need to wait for an answer before you start.\n\nWhat the claim buys you is specific, because a vaguer promise would be worth nothing:\n\n- The issue gets the `claimed` label, and an assignee if GitHub will let us set one.\n- **No maintainer works on it while it is claimed.** Not a smaller version of it, not \"just\n  the doc part\", not as a side effect of a larger branch that happens to cross it.\n- If a maintainer branch has to touch the same lines for an unrelated reason, we say so on\n  the issue before pushing, not after.\n- A claim lapses after two weeks of silence, and we ask on the issue before releasing it.\n\nIf we take a claimed issue anyway, that is a bug in how this project is run — please say so\non the issue, and it will be treated as one.\n\n**This exists because it has already gone wrong.** An early contributor asked on an issue\nwhether they could take it, got no reply, and a maintainer branch finished the same work\nbefore they could — closing the issue while their pull request sat open and unreviewed.\nThey had done exactly what this file asks for. A *good first issue* that a maintainer\nfinishes underneath a newcomer is worse than never having labelled one.\n\n## What the code review is looking for\n\nThis codebase has a particular style, and matching it will save a round trip:\n\n- **Comments explain why, not what.** The rule of thumb: if the code was tried a different\n  way first and that way cost something, that is what the comment should say. A comment\n  restating the line below it is noise.\n- **Tests assert behaviour somebody cares about**, and their names are sentences. Look at\n  any existing suite.\n- **Coverage floor is 95% per module** and `make verify` enforces it. Exclusions live in\n  `Scripts/coverage_report.py`, each with a written reason.\n- **No personal data in fixtures.** `Scripts/pii_audit.sh` fails the build on a real email\n  address or postal address. Use `example.com` and an invented street; this exists because\n  a stranger's real address was once sample data here and reached eleven files.\n- **No other product is named, anywhere.** `Scripts/disclosure_audit.py` fails the build,\n  the push and the pull request on a competitor's name, on growth or business strategy,\n  and on the vocabulary of a private working session. If another tool's behaviour is\n  relevant, describe the behaviour — \"some dictation tools rewrite for brevity\" — and not\n  whose it is. This applies to commit messages and pull request bodies as much as to code.\n- **The offline promise is structural, not a claim.** `Scripts/offline_audit.sh` asserts\n  that no module on the dictation path can open a connection. If your change needs the\n  network, it almost certainly belongs somewhere else.\n\n## Releases, and how quality is kept without a staging branch\n\nThere is one long-lived branch: `main`. A release is a **tag**, not a branch.\n\nThe gate is on the pull request, not after it. CI builds and runs the full suite against\nthe merge result **before** the merge is allowed, so a change that breaks anything never\nreaches `main`. A staging branch tests code that has already been merged — the bad change\nis in a shared branch, blocking everyone, and somebody has to notice and back it out.\nTesting earlier is strictly better, and a branch was only ever a proxy for \"has this been\ntested?\"\n\nWhen enough has accumulated, the maintainer tags a **release candidate** — `v2026.9.14-rc.1` —\nwhich publishes as a prerelease. GitHub's `/releases/latest/download/` skips prereleases,\nso a candidate can be soaked by anyone who wants it without becoming what the download\nbutton serves. When it holds up, `v2026.9.14` ships it.\n\nFull detail in [`RELEASING.md`](RELEASING.md).\n\n## Reporting a bug\n\nUse the issue templates. The one thing that helps most is what you expected versus what\nhappened — a transcript of the steps beats a description of the conclusion.\n\n**Do not open an issue for a security problem.** See [`SECURITY.md`](SECURITY.md).\n\n## Licence\n\nBy contributing you agree that your contributions are licensed under the MIT Licence, as\nin [`LICENSE`](LICENSE). See [`TRADEMARK.md`](TRADEMARK.md) for the one thing the licence\ndoes not cover: the name and the mark.\n",
+        "requirementHints": [
+          "make verify        # lint, PII audit, build, 5,000+ tests, coverage floor, offline audit",
+          "`export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` before any Swift command.",
+          "Four test suites are skipped for you, and say so when they are. They check this app",
+          "only part of the suite you cannot run, they are not required for any change, and their",
+          "2. **Run `make verify` before you push.** It is the same command CI runs, so there is no",
+          "3. **Open a pull request against `main`.** CI runs on it. It must be green.",
+          "**Say on the issue that you are taking it, and it is yours.** One comment is enough — no",
+          "form, and you do not need to wait for an answer before you start.",
+          "  the issue before pushing, not after.",
+          "- A claim lapses after two weeks of silence, and we ask on the issue before releasing it.",
+          "before they could — closing the issue while their pull request sat open and unreviewed.",
+          "- **Comments explain why, not what.** The rule of thumb: if the code was tried a different",
+          "  way first and that way cost something, that is what the comment should say. A comment",
+          "- **Tests assert behaviour somebody cares about**, and their names are sentences. Look at",
+          "  the push and the pull request on a competitor's name, on growth or business strategy,",
+          "  whose it is. This applies to commit messages and pull request bodies as much as to code.",
+          "The gate is on the pull request, not after it. CI builds and runs the full suite against",
+          "the merge result **before** the merge is allowed, so a change that breaks anything never",
+          "reaches `main`. A staging branch tests code that has already been merged — the bad change",
+          "Testing earlier is strictly better, and a branch was only ever a proxy for \"has this been",
+          "tested?\"",
+          "which publishes as a prerelease. GitHub's `/releases/latest/download/` skips prereleases,"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "Design/_gen_app.py",
+      "Design/_gen_canvas.py",
+      "Design/_gen_common.py",
+      "Design/_gen_dock.py",
+      "Design/_gen_errors.py",
+      "Design/_gen_identity.py",
+      "Design/_gen_main.py",
+      "Design/_gen_menubar.py",
+      "Design/_gen_onboarding.py",
+      "Design/_gen_placement.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/uttrflow/uttrflow-swift/blob/8d93f5b8574f3c7b8c30086d9c817bf7f5d4827d/Makefile"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "ACTIVE_RELATED_PR",
+      "severity": "question",
+      "detail": "A related PR is active. Review its scope: help validate it or identify a distinct repair; do not assume it already solves this issue.",
+      "url": "https://github.com/uttrflow/uttrflow-swift/issues/555"
+    }
+  ],
+  "relatedPRs": [
+    {
+      "url": "https://github.com/uttrflow/uttrflow-swift/pull/800",
+      "relation": "open PR explicitly mentions issue",
+      "title": "Open the right System Settings pane for blocked recovery",
+      "author": "iibaranov-IG",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "headSha": "964dc58ee16a030dfb35d524ddeb1e351d2df6e0",
+      "updatedAt": "2026-09-14T23:33:52Z"
+    }
+  ],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:uttrflow/uttrflow-swift": "complete"
+  },
+  "decision": "REJECT",
+  "nextActions": [
+    "A related PR is active. Review its scope: help validate it or identify a distinct repair; do not assume it already solves this issue."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [
+      "An active related PR already occupies this issue; competition must be resolved before selection"
+    ],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": false,
+    "score": 96,
+    "scoreRange": [
+      95,
+      96
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "A user who refused microphone access has no path forward from the blocked dictation screen.",
+        "evidence": [
+          "Issue #555"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The owner opened this P1 report today.",
+        "evidence": [
+          "Issue created 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter is the project owner and supplied exact code locations and acceptance conditions.",
+        "evidence": [
+          "Issue #555 by naveen-bhatt"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Denied microphone and Apple Intelligence recovery must open their named panes while an undecided microphone still prompts.",
+        "evidence": [
+          "Issue #555 acceptance criteria"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The failing branch is deterministic from an injected denied status and contains no hardware dependency.",
+        "evidence": [
+          "MicrophonePermissionGate tests"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "The repair adds one small settings helper and routes the existing recovery paths through it.",
+        "evidence": [
+          "Candidate diff at 964dc58"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Focused permission tests run without UI or hardware; the complete project requires its documented Xcode 26.6 toolchain.",
+        "evidence": [
+          "18 focused Swift tests",
+          "CONTRIBUTING.md requirements"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "Tests cover denied, restricted, undecided and granted states plus every settings pane address.",
+        "evidence": [
+          "MicrophonePermissionGateTests",
+          "SystemSettingsOpenerTests"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The project merged work immediately before this report and runs pull-request CI.",
+        "evidence": [
+          "main at 8d93f5b",
+          "Pull request workflow"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fix restores permission recovery for every user who previously denied microphone access.",
+        "evidence": [
+          "Shared AppDelegate recovery route"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "The helper supplies one address source for onboarding, accessibility, microphone and Apple Intelligence recovery.",
+        "evidence": [
+          "SystemSettingsOpener"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 5,
+        "reason": "Restoring microphone permission unblocks recording and the entire downstream dictation pipeline.",
+        "evidence": [
+          "Issue #555 P1 impact"
+        ]
+      }
+    ],
+    "class": "REJECT",
+    "deliveryReadiness": 95,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": null,
+    "selectable": false
+  },
+  "durationMs": 4521
+}

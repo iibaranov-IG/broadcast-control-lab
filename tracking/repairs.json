@@ -1355,6 +1355,46 @@
       "lastSync": "2026-09-14T07:15:09.560Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "thingino-firmware-1655",
+      "title": "Advertise FOV-relative PTZ when camera geometry is configured",
+      "issue": "https://github.com/themactep/thingino-firmware/issues/1655",
+      "pr": "https://github.com/themactep/thingino-onvif/pull/9",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "issue-comment:5660700984",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/themactep/thingino-firmware/issues/1655#issuecomment-5660700984",
+          "updatedAt": "2026-09-14T07:45:49Z",
+          "state": null,
+          "body": "Thanks for the unusually precise report. I reproduced the missing advertisement on the current pinned `thingino-onvif` revision and opened the root fix as themactep/thingino-onvif#9.\n\nIt changes all Media, Media2 and PTZ configuration responses to advertise `TranslationSpaceFov` only when both `fov_pan` and `fov_tilt` are positive; cameras without complete geometry keep `TranslationGenericSpace`. The focused test is red on the pinned baseline and green after the change, and the real `onvif_simple_server` compiles and links in Linux.\n\nWhen convenient, could you build that branch on the Jooan A2R-U and confirm that Frigate 0.18 exposes `pt-r-fov`, keeps autotracking enabled, and completes a real FOV-relative pan/tilt sequence? Once the root PR merges, the firmware package revision will need its normal pin bump.\n",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "clean",
+      "headSha": "bd0a4bac7a21d7e39ac9eab4810b01a85fb22d9c",
+      "reporter": "WLTB-Gino",
+      "issueCreatedAt": "2026-09-13T22:18:11Z",
+      "prCreatedAt": "2026-09-14T07:45:29Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T07:46:11.126Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

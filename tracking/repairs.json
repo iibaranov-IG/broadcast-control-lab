@@ -1953,6 +1953,34 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "transcripted-1734",
+      "title": "Allow asynchronous USB microphone binding to settle",
+      "issue": "https://github.com/r3dbars/transcripted/issues/1734",
+      "pr": "https://github.com/r3dbars/transcripted/pull/1735",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0,
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "4274c81f5b910d993c7fecbaf85704e5697581b5",
+      "reporter": "aquarius-noble",
+      "issueCreatedAt": "2026-09-14T08:35:09Z",
+      "prCreatedAt": "2026-09-14T14:05:11Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T14:11:38.032Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

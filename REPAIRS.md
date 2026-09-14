@@ -57,6 +57,7 @@ Updated 2026-09-11.
 | open-apollo-20 | [Issue](https://github.com/rolotrealanis98/open-apollo/issues/20) | [PR](https://github.com/rolotrealanis98/open-apollo/pull/83) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | amical-165 | [Issue](https://github.com/amicalhq/amical/issues/165) | [PR](https://github.com/amicalhq/amical/pull/184) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | openmixercontrol-80 | [Issue](https://github.com/OpenMixerProject/OpenMixerControl/issues/80) | [PR](https://github.com/OpenMixerProject/OpenMixerControl/pull/93) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
+| transcripted-1734 | [Issue](https://github.com/r3dbars/transcripted/issues/1734) | [PR](https://github.com/r3dbars/transcripted/pull/1735) | open | none | NOT_BOUND | 0 | NOT_REVIEWED | 2026-09-14T14:11:38.032Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

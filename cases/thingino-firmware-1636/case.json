@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 2,
+  "id": "thingino-firmware-1636",
+  "status": "ready",
+  "title": "Ship the prudynt fMP4 preview memory-leak fix",
+  "issue": "https://github.com/themactep/thingino-firmware/issues/1636",
+  "problem": "The 2026-09-10 Thingino image enables the new prudynt fMP4 live preview, but a disconnected preview leaves the video pipeline producing and retaining frame buffers until low-memory T23N and T31L cameras kill prudynt or reboot.",
+  "reproduce": "Install the 2026-09-10 image on an affected Sonoff Cam Slim gen2, Cinnado D1 or T31L camera, open live preview repeatedly without an RTSP client draining the main channel, and sample prudynt VmRSS; reported usage rises from about 6 MB to about 20 MB before OOM.",
+  "acceptance": "Thingino pins a prudynt-t revision that releases the last fMP4 client's worker claim, skips undrained main-channel writes, moves and recycles queued frames, and bounds retained NAL capacity; repeated preview sessions keep memory stable.",
+  "repair": "Advance the shared prudynt-t package pin to upstream commit 354b1b4, which contains the measured fMP4 pipeline cleanup.",
+  "sources": [
+    {
+      "id": "firmware",
+      "repository": "themactep/thingino-firmware",
+      "commit": "510a5f9f33d3cde96221c93c483506b31edfe124",
+      "directory": "sources/thingino-firmware-1636"
+    },
+    {
+      "id": "prudynt",
+      "repository": "themactep/prudynt-t",
+      "commit": "354b1b4bde4aa67860021531b85549d88ee1717c",
+      "directory": "sources/prudynt-t-1636"
+    }
+  ],
+  "runtime": { "node": "22.20.0", "python": "3.12.14" },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      { "cwd": "sources/thingino-firmware-1636", "argv": ["git", "apply", "../../cases/thingino-firmware-1636/repair.patch"] }
+    ],
+    "test": [
+      { "cwd": ".", "argv": ["node", "cases/thingino-firmware-1636/test.mjs", "sources/thingino-firmware-1636", "sources/prudynt-t-1636"] }
+    ],
+    "build": []
+  },
+  "artifacts": { "report": "reports/thingino-firmware-1636.json" },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "The upstream repair commit records a physical T31L measurement: heap stayed around 6 MB across ten back-to-back fMP4 sessions with no OOM over 50 minutes. This is source-repair evidence, not a hardware verification of the firmware candidate. BCL independently verifies that Thingino ships that exact immutable revision and that its four cleanup mechanisms remain present. BCL has not built and flashed the resulting firmware image.",
+    "ownerCheck": "Build a Thingino image from the candidate branch for the reported camera, flash it using the normal recovery-safe procedure, open and close Live View ten times with no RTSP client connected, and sample /proc/$(pidof prudynt)/status every five seconds. Confirm VmRSS returns to a stable plateau near the initial value and that no OOM kill or reboot occurs for at least 50 minutes. Also confirm RTSP and fMP4 video still play."
+  },
+  "selection": {
+    "report": "cases/thingino-firmware-1636/triage.json",
+    "sha256": "2a7570c408180bae481b75ca8f12fdf93e7d8a17f51188445e34f285a786bb23",
+    "reason": "Three owners reported a fresh preview-triggered OOM regression on T23N and T31L cameras. The streamer maintainer reproduced and measured the root cause on hardware, committed a focused fix, and the firmware still pins the preceding revision."
+  },
+  "publish": {
+    "source": "firmware",
+    "target": "themactep/thingino-firmware",
+    "base": "master",
+    "commitMessage": "package/prudynt-t: update to 354b1b4",
+    "paths": ["package/prudynt-t/prudynt-t.mk"],
+    "verificationOnlyPaths": ["tests/test_prudynt_fmp4_leak_pin_bcl.mjs"]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "firmware",
+    "timeoutMs": 60000,
+    "setup": [
+      { "cwd": ".", "argv": ["git", "apply", "../../cases/thingino-firmware-1636/tests-only.patch"] }
+    ],
+    "build": [],
+    "testFiles": ["tests/test_prudynt_fmp4_leak_pin_bcl.mjs"],
+    "regression": { "cwd": ".", "argv": ["node", "--test", "tests/test_prudynt_fmp4_leak_pin_bcl.mjs"] },
+    "negative": { "exitCode": 1, "outputIncludes": "ships the fMP4 cleanup revision" },
+    "suite": { "cwd": ".", "argv": ["node", "--test", "tests/test_prudynt_fmp4_leak_pin_bcl.mjs"] },
+    "suiteOutputIncludes": "# tests 1"
+  }
+}

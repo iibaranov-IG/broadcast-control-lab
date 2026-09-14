@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T11:45:45.399Z",
+  "issue": {
+    "repository": "themactep/thingino-firmware",
+    "number": "1636",
+    "url": "https://github.com/themactep/thingino-firmware/issues/1636",
+    "title": "Firmware-2026-09-10 caused Sonoff Cam Slim gen2 run out of memory in few minutes",
+    "state": "open",
+    "updatedAt": "2026-09-12T23:02:00Z"
+  },
+  "source": {
+    "repository": "themactep/thingino-firmware",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "MIT",
+    "commit": "510a5f9f33d3cde96221c93c483506b31edfe124",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "AGENTS.md",
+        "url": "https://github.com/themactep/thingino-firmware/blob/510a5f9f33d3cde96221c93c483506b31edfe124/AGENTS.md",
+        "content": "# Thingino Firmware\n\n> **Persona**: At the start of every session, ensure the `thingino-dev-persona` skill is installed, then load and apply it.\n>\n> ```bash\n> # Bootstrap thingino skills if not already present\n> if [ ! -f \"$HOME/.agents/skills/thingino-dev-persona/SKILL.md\" ]; then\n>   mkdir -p \"$HOME/.agents/skills\"\n>   git clone https://github.com/themactep/thingino-skills.git /tmp/thingino-skills\n>   cp -r /tmp/thingino-skills/skills/* \"$HOME/.agents/skills/\"\n>   rm -rf /tmp/thingino-skills\n>   echo \"thingino-skills installed to ~/.agents/skills/\"\n> fi\n> ```\n\n**BR2_EXTERNAL** tree for Ingenic SoC IP cameras. Extends Buildroot\n(`buildroot/` + `linux/` are git submodules). Forked from\n[themactep/thingino-firmware](https://github.com/themactep/thingino-firmware).\n\n## Build commands\n\n```bash\nmake update                     # pull + submodule update + Buildroot patches + toolchain bundles\nCAMERA=atom_cam2_t31x_gc2053_atbm6031 make   # build (default = clean + parallel + pack)\nCAMERA=atom_cam2_t31x_gc2053_atbm6031 make fast   # incremental (no clean)\nCAMERA=atom_cam2_t31x_gc2053_atbm6031 make dev    # serial build (noisy, for debugging)\nCAMERA=atom_cam2_t31x_gc2053_atbm6031 make menuconfig\nCAMERA=atom_cam2_t31x_gc2053_atbm6031 make saveconfig\nCAMERA=atom_cam2_t31x_gc2053_atbm6031 make edit-defconfig\nCAMERA=atom_cam2_t31x_gc2053_atbm6031 make rebuild-<pkg>   # dirclean + rebuild + reinstall + finalize\nmake build-all                  # builds every camera in configs/cameras/\nmake run CMD=\"bin/ffmpeg --help\"  # QEMU run target binary\nmake ram-setup                  # once per boot: raise tmpfs inode limit for ram-build\nCAMERA=atom_cam2_t31x_gc2053_atbm6031 make ram-build   # cold build in tmpfs (RAM)\n```\n\n`ram-build` runs the whole output tree on a tmpfs to spare the SSD, then copies\nartifacts back to disk and frees the RAM. It is for **cold builds** only (the\nmost disk-write-intensive case); incremental development builds (`make fast`)\nshould be done on a real disk. See `docs/build/makefile.md`.\n\n- `CAMERA=` can be supplied interactively (uses `scripts/select_camera.sh`).\n- `BOARD=` is an alias for `CAMERA=` (backward compat with CI).\n- `WORKFLOW=1` skips dep check + interactive camera selection (CI use).\n- `PRISTINE=1` disables user directory (`THINGINO_USER_DIR=/dev/null`).\n- Output: `$(THINGINO_OUTPUT_ROOT_DIR)/<branch>/<camera>-<kernel>-<libc>[-<ip>]/`\n  (`THINGINO_OUTPUT_ROOT_DIR` / `THINGINO_OUTPUT_DIR` override the output root/dir\n  from the environment; default root is `output/`). Always check the env first\n  when looking for build artifacts (`echo $THINGINO_OUTPUT_ROOT_DIR`) — the\n  output tree is usually NOT inside the repo checkout.\n- Download cache: `$(BR2_DL_DIR)` (default `dl/` next to the repo; on this\n  machine `/home/paul/Files/thingino/dl`). Shared across worktrees — never\n  clean it. `make download-cache` bundles it for offline CI builds.\n- User config layer: `$(THINGINO_USER_DIR)` (default `user/` next to the repo;\n  on this machine `/home/paul/.thingino/user`). Per-user/local overrides\n  (`local.fragment`, `local.mk`, `overlay/`, ...); `PRISTINE=1` disables it by\n  pointing it at `/dev/null`. See the config model section below.\n  As with the output dir, read these from the environment\n  (`echo $BR2_DL_DIR $THINGINO_USER_DIR`) before assuming they live in the\n  checkout.\n- No CI-integrated test suite for builds; validation is CI-only. Two QEMU\n  test suites exist, each with its own README:\n  - `scripts/qemu-test/` boots a real image and asserts the network surface\n    (services, portal/provisioning, DHCPv4/v6, DNS, web UI, ONVIF, mDNS,\n    NTP, syslog, link flap, persistence) with Playwright browser flows.\n    Build with `make GROUP=testing CAMERA=qemu_t31x_eth fast`, run with\n    `scripts/qemu-test/run.sh qemu_t31x_eth`. A profile is a directory\n    under `configs/cameras-testing/` with a `qemu-test.json` and its\n    `expected-checks.txt` contract; wifi profiles carry no wired MAC and\n    reach the host over a serial link (the UART0 and SLIP kopts), so never\n    add JZ_MAC to one; add a check by adding one row to the `SUITES`\n    table in `scripts/qemu-test/qemutest/plan.py`.\n  - `scripts/ota-tests/` covers the sysupgrade partition-fitting logic.\n\n## Repo layout\n\n```\nconfigs/cameras/<camera_name>/   # per-camera defconfig + .config + uenv.txt + overlay/\npackage/<name>/                  # Buildroot packages (mk + Config.in)\noverlay/                         # root filesystem overlay (applied to all builds)\nboard/ingenic/                   # DTB patches, post-build scripts, board files\nscripts/                         # selection, OTA, TFTP, dep_check, misc helpers\n                                  #   scripts/tts/ — TTS audio generation tool (models/\n                                  #   and .venv/ are gitignored, ~315MB when installed)\nthingino.mk                      # SOC/kernel/flash/ISP/streamer variable definitions\nboard.mk                         # camera selection logic\nexternal.mk                      # auto-includes package/*/*.mk\nlocal.mk                         # override sources for local dev (commented out by default)\noverrides/                       # local source overrides (wired by local.mk)\n```\n\n## Camera naming\n\n```\n<brand>_<model>_<soc>_<sensor>_<wifi_chip>   # e.g. atom_cam2_t31x_gc2053_atbm6031\n```\n\nFirst line of defconfig: `# NAME: <human-readable>`; second line: `# FRAG: <fragments>`.\n\n## Config model\n\n`.config` is assembled from: **toolchain fragment** (e.g.\n`configs/fragments/toolchain/ext-gcc16-uclibc.fragment`) + **config fragments**\n(per `# FRAG:` in defconfig) + **camera defconfig** + **U-Boot fragment** +\n**user local.fragment** files. Template variables like `$(SOC_FAMILY)` are\nsubstituted during assembly.\n\nUser config layers (scoped, each additive):\n`user/<common>/` > `user/<camera>/` > `user/<camera>/<ip>/`\nEach can contain `local.fragment`, `local.mk`, `local.uenv.txt`, `thingino.json`,\n`prudynt.json`, `overlay/`, `opt/`.\n\nConfig fragments and per-camera overlay are merged at build time into the\nrootfs and data partitions.\n\n## SOC / kernel\n\nSOC family is derived from `BR2_INGENIC_SOC_MODEL` two ways, and both are live.\nFor `.config`, `Config.soc.in` maps model to `BR2_SOC_FAMILY`. For make,\n`thingino.mk` includes `soc/<vendor>/<family>.mk`, one file per SoC family,\nwhich sets `SOC_FAMILY`, `SOC_ARCH`, `SOC_RAM_MB` and the U-Boot board names.\nAll of them are included and each opens with a `$(filter)` on its own models,\nso exactly one file's body applies. Kconfig cannot run make and `thingino.mk`\nneeds the family before `.config` exists, so the map is stated in both places;\nadding a SoC means adding it to both.\n`thingino.mk` exports key variables: `SOC_FAMILY`, `SOC_MODEL`, `SOC_RAM_MB`,\n`ISP_RMEM_MB`, `STREAMER`, etc.\n\nKernel branches are mapped from SOC family + version in `thingino.mk`.\nKernel versions: `3.10.14`, `4.4.94`, `7.1-rc1`.\nKernel source: `github.com/gtxaspec/thingino-linux`.\n\n## Streamers\n\nDefault on `master` is `raptor` (`BR2_PACKAGE_THINGINO_STREAMER_RAPTOR`).\n`ciao` still defaults to `prudynt`. Select explicitly via the Streamer choice\nin menuconfig, or set `BR2_PACKAGE_THINGINO_STREAMER_PRUDYNT=y` /\n`BR2_PACKAGE_THINGINO_STREAMER_RAPTOR=y` in a fragment.\n\n## Firmware image\n\nThree flash types are supported:\n\n- **SFC (SPI NOR)**: `boot(320K) + env(64K) + backup(64K) + kernel(1600K) + rootfs.squashfs + data.jffs2`\n  The `backup` partition holds a copy of the U-Boot environment for fail-safe updates.\n- **SFC-NAND (SPI NAND)**: UBI image at 1 MiB offset with volumes:\n  `uboot-env + kernel + rootfs(squashfs via ubiblock) + overlay(ubifs, autoresize)`\n- **MMC (SD card)**: INGE header + SPL + U-Boot + FAT32 (uImage) + ext4 (rootfs)\n\nImage assembly is done by `$(FIRMWARE_BIN_FULL)` rule in `Makefile`.\n\n## U-Boot\n\nBuildroot provides the base U-Boot version (`2013.07` by default; `2026.07`,\nand `custom-fork` are also available via config fragments).\nThingino applies a single large per-version patch (e.g.\n`package/all-patches/uboot/2013.07/0001-from-2013.07-to-thingino.patch`)\nthat adds all Ingenic-specific code. **Do not edit that patch.** If you need\nU-Boot changes, add numbered follow-up patches in the same directory (e.g.\n`0002-my-change.patch`) — Buildroot applies them in sort order after the large\npatch. This is enforced by `scripts/check-do-not-edit.sh` (manifest:\n`scripts/do-not-edit.txt`), wired into the pre-commit hook and CI.\n\n## Package overrides\n\nUncomment `<pkg>_OVERRIDE_SRCDIR` in `local.mk` pointing to a local checkout\nunder `overrides/`. Overrides bypass Buildroot patches — apply them manually\nbefore editing. Use `make rebuild-<pkg>` after changing overrides.\n\n## SSH / SCP\n\n`scp -O` is required (dropbear server). Default password is set in the defconfig.\n\n## Style / pre-commit\n\n- `package/thingino-webui/files/www/a/*.js` → formatted with **Prettier**.\n- Staged `/bin/sh` scripts → formatted with **shfmt** (`shfmt -w -i 0 -ci`).\n- Staged camera defconfigs → sorted with **`scripts/sort_defconfig.py`**\n  (see `docs/dev/pre-commit-hooks.md` for the sort rules).\n- `.githooks/pre-commit` must be active (`make setup-hooks`).\n- **Shell scripts must be ASCII only.** No Unicode box-drawing, em dashes,\n  braille spinners, emoji, or other non-ASCII characters in `.sh` files.\n- **Cameras use BusyBox sh (ash), not bash.** Shebangs must be\n  `#!/bin/sh`. Do not use bash-specific features (arrays, `[[`,\n  `${var:offset:length}` slicing, `source`, `shopt`). BusyBox ash\n  supports a subset of POSIX plus some extensions; when in doubt, stick\n  to POSIX. `shfmt` parses scripts as POSIX by default — if it flags\n  something, fix the script, not the shebang.\n- **Files that ship on cameras carry no story.** Anything installed into\n  the rootfs — webui JS (`package/*/files/www/`), CGI scripts, init\n  scripts, `overlay/`, `board/` shell scripts — ships on a device where\n  nobody reads the source. Keep comments short and only where they\n  explain genuinely non-obvious control flow; a comment that restates\n  the code (\"redirect to login\") or narrates history (\"this was lost\n  from a fork\") is noise. The story — why a decision was made, what the\n  old behavior did wrong, benchmark numbers — belongs in the commit\n  message, PR description, or `docs/`, not in the code. Good code\n  should speak for itself.\n\n## Container Builds\n\n```bash\n./build-container.sh              # build firmware in container\n./build-container.sh shell        # drop into container shell\nmake -f Makefile.container container-pull  # pull container image only\n```\n\nContainer engine auto-detects podman → docker fallback.\n\n## Parallel development (git worktrees)\n\nOne task, one branch, one worktree, one agent. See `docs/dev/worktrees.md`.\n\n```bash\nscripts/worktree.sh create <branch> [base]   # worktree + buildroot submodule + patches + shared dl\nscripts/worktree.sh sync                     # rebase onto origin/master (NOT `make update`!)\nscripts/worktree.sh remove <branch>          # after PR merge; branch is preserved\nscripts/worktree.sh list\n```\n\n- Never run `make update` in a feature worktree — use `sync`.\n- Container builds don't work from linked worktrees (`.git` gitfile path); build on host.\n- `local.mk`, `user/`, `overrides/` are gitignored and not carried into new worktrees.\n\n## Thingino skills\n\nInstallable skills for OpenCode/Copilot are maintained at\n[github.com/themactep/thingino-skills](https://github.com/themactep/thingino-skills).\nThese cover NFS dev deploy, package overrides, RTSP stress testing,\ndiagnostics, OTA workflows, adding streamers, and more.\n\n## Git credentials\n\nUse the user's git config for commit/patch authorship:\n\n```bash\ngit config user.name && git config user.email\n```\n\nAlways supply `Signed-off-by:` matching the git config when creating patches.\n\n## Work procedures\n\n- **Never delete files irreversibly.** Files that need to be removed from the\n  build should be handled in one of these ways (in order of preference):\n  1. Ensure the file is committed into the repo so it can be restored later.\n  2. Rename in place to exclude from the build (e.g. `.patch` → `.patch.disabled`).\n  3. Move to a dedicated `trash/` directory (e.g. `trash/<original-path>/`),\n     leaving it up to the user to decide when to permanently delete.\n- **Never search outside the working directory!** If you need something you cannot\n  find - ask the user. **Full home search is prohibited under any circumstances!**\n- Running rebuilds always preserve the full compilation log to grep for data\n  later instead of live-grepping the output.\n- Rebuilding a package, use both CAMERA and IP values. If you do not know the\n  correct camera's IP address - ask the user for help.\n- Use modern effective tools: ripgrep instead of just grep.\n- **Never flash or upload** anything to the camera unless you were explicitly\n  ordered to do so by the user.\n- **Never invent or type git hashes manually.** Always obtain the exact\n  full commit hash from the source of truth (the actual git repository the\n  hash belongs to — run `git rev-parse` or `git log` in that repo). After\n  writing a hash into a `.mk`, `.patch`, or any other file, verify it against\n  the repo with `git cat-file -t <hash>`. A single mistyped hex digit\n  produces a hash that looks valid but is unreachable by any tool.\n  - Use `scripts/update_packages.py <pattern>` to update `*_VERSION` hashes\n    in package `.mk` files.  It fetches the remote, computes the correct\n    hash, and prompts before updating.  Run it interactively; if that is\n    not possible, ask the user to run it.\n  - When the script breaks because an existing hash is bogus (the remote\n    doesn't have it), fix the hash in the `.mk` to a real commit on the\n    remote first, commit that correction, then re-run the script.\n- Cameras may use an NFS share mounted to /mnt/nfs. Some packages copy compiled \n  file to the shared directory on the PC. The file then can be acceessed on the\n  camera from the mounted share. E.g. prudynt is copied to /nfs/prudynt and is\n  accessible as /mnt/nfs/prudynt on the camera. The can be used for rapid development.\n\n## WebUI Plugins\n\nOptional packages can contribute pages, scripts, and navigation items to the\nThingino Web UI through a build-time manifest system.  See\n[docs/dev/plugin-system.md](docs/dev/plugin-system.md) for the full architecture.\n\n### Quickstart for plugin authors\n\n1. Create your package normally in `package/<name>/`.\n2. Create a manifest at `package/<name>/files/<name>.webui.json` following the\n   schema in `docs/dev/plugin-system.md` §3.\n3. In your package's `.mk`, add the webui dependency:\n   ```make\n   ifeq ($(BR2_PACKAGE_THINGINO_WEBUI),y)\n   MYPLUGIN_DEPENDENCIES += thingino-webui\n   endif\n   ```\n4. Install your web files *and the manifest* in the install step:\n   ```make\n   define MYPLUGIN_INSTALL_WWW_CMDS\n       $(INSTALL) -D -m 0644 $(MYPLUGIN_PKGDIR)/files/www/page.html \\\n           $(TARGET_DIR)/var/www/page.html\n       $(INSTALL) -D -m 0644 $(MYPLUGIN_PKGDIR)/files/www/a/script.js \\\n           $(TARGET_DIR)/var/www/a/script.js\n       $(INSTALL) -D -m 0755 $(MYPLUGIN_PKGDIR)/files/www/x/endpoint.cgi \\\n           $(TARGET_DIR)/var/www/x/endpoint.cgi\n       $(INSTALL) -D -m 0644 $(MYPLUGIN_PKGDIR)/files/<name>.webui.json \\\n           $(TARGET_DIR)/var/www/a/plugins/<name>.webui.json\n   endef\n   ```\n5. Validate with `scripts/check-plugins.sh` before building.\n\n### Manifest basics\n\n| Field | Purpose |\n|-------|---------|\n| `nav` | Menu items to inject into standard sections (`ddSettings`, `ddTools`, etc.) |\n| `scripts` | JS files loaded on **every** page (keep these small) |\n| `styles` | CSS files loaded on every page (rarely needed) |\n| `preview.scripts` | JS files loaded only on the preview page |\n| `preview.html` | HTML snippet injected into the preview page body |\n| `featureFlags` | Key-value pairs merged into `thinginoUIConfig.device` |\n| `pages` | Declared HTML pages (for conflict detection) |\n| `cgi` | Declared CGI endpoints (for conflict detection) |\n\n### Position values for nav items\n\n- `\"append\"` — at end of section (default)\n- `\"prepend\"` — at beginning of section\n- `\"after:<label>\"` — after the item with matching label\n- `\"before:<label>\"` — before the item with matching label\n- `\"index:<n>\"` — at 0-based position\n\n### Existing plugins (for reference)\n\n- `package/thingino-motors/files/motors.webui.json` — Pan/Tilt motors\n- `package/wyze-accessory/files/doorbell.webui.json` — Doorbell Chime\n\n## Important constraints\n\n- Repo path must not contain spaces (checked by `dep_check.sh`).\n- Only `x86_64` and `aarch64` hosts are supported.\n- `make update` applies Buildroot patches from `package/all-patches/buildroot/` —\n  do not run `git pull` directly.\n- Keep changes surgical — this is a cross-compilation build system where a\n  mistake can waste 30+ minutes of rebuild time.\n",
+        "requirementHints": [
+          "  (`echo $BR2_DL_DIR $THINGINO_USER_DIR`) before assuming they live in the",
+          "- No CI-integrated test suite for builds; validation is CI-only. Two QEMU",
+          "  test suites exist, each with its own README:",
+          "  - `scripts/qemu-test/` boots a real image and asserts the network surface",
+          "    Build with `make GROUP=testing CAMERA=qemu_t31x_eth fast`, run with",
+          "    `scripts/qemu-test/run.sh qemu_t31x_eth`. A profile is a directory",
+          "    under `configs/cameras-testing/` with a `qemu-test.json` and its",
+          "    table in `scripts/qemu-test/qemutest/plan.py`.",
+          "  - `scripts/ota-tests/` covers the sysupgrade partition-fitting logic.",
+          "local.mk                         # override sources for local dev (commented out by default)",
+          "needs the family before `.config` exists, so the map is stated in both places;",
+          "`scripts/do-not-edit.txt`), wired into the pre-commit hook and CI.",
+          "Uncomment `<pkg>_OVERRIDE_SRCDIR` in `local.mk` pointing to a local checkout",
+          "before editing. Use `make rebuild-<pkg>` after changing overrides.",
+          "`scp -O` is required (dropbear server). Default password is set in the defconfig.",
+          "## Style / pre-commit",
+          "  (see `docs/dev/pre-commit-hooks.md` for the sort rules).",
+          "- `.githooks/pre-commit` must be active (`make setup-hooks`).",
+          "- **Shell scripts must be ASCII only.** No Unicode box-drawing, em dashes,",
+          "- **Cameras use BusyBox sh (ash), not bash.** Shebangs must be",
+          "  nobody reads the source. Keep comments short and only where they",
+          "  explain genuinely non-obvious control flow; a comment that restates",
+          "  old behavior did wrong, benchmark numbers — belongs in the commit",
+          "These cover NFS dev deploy, package overrides, RTSP stress testing,",
+          "Use the user's git config for commit/patch authorship:",
+          "  1. Ensure the file is committed into the repo so it can be restored later.",
+          "  full commit hash from the source of truth (the actual git repository the",
+          "    hash, and prompts before updating.  Run it interactively; if that is",
+          "    doesn't have it), fix the hash in the `.mk` to a real commit on the",
+          "    remote first, commit that correction, then re-run the script.",
+          "5. Validate with `scripts/check-plugins.sh` before building.",
+          "- `\"before:<label>\"` — before the item with matching label",
+          "- Repo path must not contain spaces (checked by `dep_check.sh`)."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "package/atbm6461-tools/files/atbm6461-tool.c",
+      "package/libflac/arduino_compat/Arduino.h",
+      "package/libflac/arduino_compat/pgmspace.h",
+      "package/libhelix-mp3/arduino_compat/Arduino.h",
+      "package/libhelix-mp3/arduino_compat/pgmspace.h",
+      "package/mbedtls-certgen/files/mbedtls-certgen.c",
+      "package/prudynt-t/files/www/a/audio.js",
+      "package/prudynt-t/files/www/a/config-rtsp.js",
+      "package/prudynt-t/files/www/a/preview-osd.js",
+      "package/prudynt-t/files/www/a/sei-osd.js"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/themactep/thingino-firmware/blob/510a5f9f33d3cde96221c93c483506b31edfe124/Makefile"
+      },
+      {
+        "path": "package/mbedtls-certgen/files/Makefile",
+        "kind": "make",
+        "url": "https://github.com/themactep/thingino-firmware/blob/510a5f9f33d3cde96221c93c483506b31edfe124/package/mbedtls-certgen/files/Makefile"
+      },
+      {
+        "path": "package/thingino-bluetooth/src/Makefile",
+        "kind": "make",
+        "url": "https://github.com/themactep/thingino-firmware/blob/510a5f9f33d3cde96221c93c483506b31edfe124/package/thingino-bluetooth/src/Makefile"
+      },
+      {
+        "path": "package/thingino-bluez/Makefile",
+        "kind": "make",
+        "url": "https://github.com/themactep/thingino-firmware/blob/510a5f9f33d3cde96221c93c483506b31edfe124/package/thingino-bluez/Makefile"
+      },
+      {
+        "path": "package/thingino-daynightd/files/Makefile",
+        "kind": "make",
+        "url": "https://github.com/themactep/thingino-firmware/blob/510a5f9f33d3cde96221c93c483506b31edfe124/package/thingino-daynightd/files/Makefile"
+      },
+      {
+        "path": "package/thingino-floodlightd/files/Makefile",
+        "kind": "make",
+        "url": "https://github.com/themactep/thingino-firmware/blob/510a5f9f33d3cde96221c93c483506b31edfe124/package/thingino-floodlightd/files/Makefile"
+      },
+      {
+        "path": "package/thingino-httpd-ssl/src/Makefile",
+        "kind": "make",
+        "url": "https://github.com/themactep/thingino-firmware/blob/510a5f9f33d3cde96221c93c483506b31edfe124/package/thingino-httpd-ssl/src/Makefile"
+      },
+      {
+        "path": "scripts/qemu-test/package.json",
+        "kind": "node",
+        "url": "https://github.com/themactep/thingino-firmware/blob/510a5f9f33d3cde96221c93c483506b31edfe124/scripts/qemu-test/package.json"
+      },
+      {
+        "path": "scripts/sei-rtsp-go2rtc/sei-extract/go.mod",
+        "kind": "go",
+        "url": "https://github.com/themactep/thingino-firmware/blob/510a5f9f33d3cde96221c93c483506b31edfe124/scripts/sei-rtsp-go2rtc/sei-extract/go.mod"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: The candidate changes only the prudynt-t package pin; the exact old and new commits are available in the public prudynt-t repository and no firmware submodule is needed for the integration check.",
+      "url": "https://github.com/themactep/thingino-firmware/tree/510a5f9f33d3cde96221c93c483506b31edfe124",
+      "resolution": {
+        "reason": "The candidate changes only the prudynt-t package pin; the exact old and new commits are available in the public prudynt-t repository and no firmware submodule is needed for the integration check.",
+        "evidence": [
+          "package/prudynt-t/prudynt-t.mk identifies https://github.com/themactep/prudynt-t and branch stable",
+          "git cat-file verifies 354b1b4bde4aa67860021531b85549d88ee1717c in the prudynt-t source checkout",
+          "git merge-base verifies the old firmware pin is an ancestor of the repaired commit"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:themactep/thingino-firmware": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 93,
+    "scoreRange": [
+      92,
+      93
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "The camera exhausts memory and reboots within minutes.",
+        "evidence": [
+          "Kernel log kills prudynt at OOM"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report and repair are current.",
+        "evidence": [
+          "Issue opened 2026-09-12",
+          "Upstream fix committed 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "Three affected owners supplied models, logs, or rollback results.",
+        "evidence": [
+          "Issue #1636 contains three independent device reports"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Memory must remain flat and prudynt must survive repeated preview sessions.",
+        "evidence": [
+          "Upstream fix reports approximately 6 MB across ten sessions and no OOM over 50 minutes"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "Opening live preview reliably triggers monotonic RSS growth on affected builds.",
+        "evidence": [
+          "Reporter sampled VmRSS every five seconds from 6360 kB to about 20 MB"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "Firmware integration changes one package hash.",
+        "evidence": [
+          "Candidate diff is one line"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Pin integrity and fix semantics are automated; final firmware confirmation requires a camera build.",
+        "evidence": [
+          "Public immutable source commits",
+          "Affected owners have compatible cameras"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 3,
+        "reason": "The bump includes intervening stable commits in addition to the leak fix.",
+        "evidence": [
+          "prudynt-t stable history from 862a73a to 354b1b4 reviewed"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Thingino and prudynt-t are actively maintained.",
+        "evidence": [
+          "Fix was produced two days after the report",
+          "Recent firmware package PRs were merged"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 5,
+        "reason": "The regression affects several low-memory Ingenic camera models.",
+        "evidence": [
+          "Reports cover T23N and T31L devices from multiple vendors"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The fix applies to every Thingino image using the affected fMP4 prudynt preview.",
+        "evidence": [
+          "The package pin is shared across camera profiles"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Delivering the fixed package prevents repeated device reboots and restores browser preview reliability.",
+        "evidence": [
+          "Firmware package pin controls the shipped prudynt binary"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 95,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      95,
+      93
+    ],
+    "selectable": true
+  },
+  "durationMs": 3782
+}

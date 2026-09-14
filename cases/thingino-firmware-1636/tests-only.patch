@@ -1,0 +1,14 @@
+diff --git a/tests/test_prudynt_fmp4_leak_pin_bcl.mjs b/tests/test_prudynt_fmp4_leak_pin_bcl.mjs
+new file mode 100644
+index 0000000..36f7c0a
+--- /dev/null
++++ b/tests/test_prudynt_fmp4_leak_pin_bcl.mjs
+@@ -0,0 +1,8 @@
++import assert from 'node:assert/strict'
++import fs from 'node:fs'
++import test from 'node:test'
++
++test('firmware ships the fMP4 cleanup revision', () => {
++  const source = fs.readFileSync('package/prudynt-t/prudynt-t.mk', 'utf8')
++  assert.match(source, /^PRUDYNT_T_VERSION = 354b1b4bde4aa67860021531b85549d88ee1717c$/m)
++})

@@ -58,6 +58,7 @@ Updated 2026-09-11.
 | amical-165 | [Issue](https://github.com/amicalhq/amical/issues/165) | [PR](https://github.com/amicalhq/amical/pull/184) | open | success | BOUND_CANDIDATE | 4 | NOT_REVIEWED | 2026-09-14T14:16:36.172Z |
 | openmixercontrol-80 | [Issue](https://github.com/OpenMixerProject/OpenMixerControl/issues/80) | [PR](https://github.com/OpenMixerProject/OpenMixerControl/pull/93) | open | none | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-14T14:16:38.972Z |
 | transcripted-1734 | [Issue](https://github.com/r3dbars/transcripted/issues/1734) | [PR](https://github.com/r3dbars/transcripted/pull/1735) | draft | none | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-14T14:16:41.615Z |
+| camera-gallery-card-237 | [Issue](https://github.com/TheScubaDiver/camera-gallery-card/issues/237) | [PR](https://github.com/TheScubaDiver/camera-gallery-card/pull/238) | open | success | NOT_BOUND | 0 | NOT_REVIEWED | 2026-09-14T15:00:42.840Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T17:32:31.737Z",
+  "issue": {
+    "repository": "256dpi/esp-osc",
+    "number": "2",
+    "url": "https://github.com/256dpi/esp-osc/issues/2",
+    "title": "dereferncing type-punned pointer will break strict-aliasing rules",
+    "state": "open",
+    "updatedAt": "2026-09-14T13:48:39Z"
+  },
+  "source": {
+    "repository": "256dpi/esp-osc",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "e8aa93aa1b27d06d8b1e6a7c20c7e3bec9291c2c",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "esp_osc.c",
+      "esp_osc.h",
+      "test/main/main.c",
+      "tinyosc.c",
+      "tinyosc.h"
+    ],
+    "buildFiles": [
+      {
+        "path": "CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/256dpi/esp-osc/blob/e8aa93aa1b27d06d8b1e6a7c20c7e3bec9291c2c/CMakeLists.txt"
+      },
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/256dpi/esp-osc/blob/e8aa93aa1b27d06d8b1e6a7c20c7e3bec9291c2c/Makefile"
+      },
+      {
+        "path": "test/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/256dpi/esp-osc/blob/e8aa93aa1b27d06d8b1e6a7c20c7e3bec9291c2c/test/CMakeLists.txt"
+      },
+      {
+        "path": "test/main/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/256dpi/esp-osc/blob/e8aa93aa1b27d06d8b1e6a7c20c7e3bec9291c2c/test/main/CMakeLists.txt"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:256dpi/esp-osc": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 94,
+    "scoreRange": [
+      93,
+      94
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Current compiler treats the warning as an error and blocks the user's build.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/issues/2"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report was opened today.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/issues/2"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The external reporter supplied version, toolchain, diagnostics and exact lines.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/issues/2"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Success is an error-free strict-aliasing compile with unchanged OSC wire bytes.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/issues/2"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "GCC 14 emits the two reported diagnostics with strict aliasing enabled.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/issues/2"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "Two unsafe bit reinterpretations have a small localized repair.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/blob/e8aa93aa1b27d06d8b1e6a7c20c7e3bec9291c2c/tinyosc.c#L189-L202"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "A containerized host compiler and deterministic byte assertions verify it cheaply.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/issues/2"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "The change preserves bit representation and wire order while removing undefined aliasing.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/blob/e8aa93aa1b27d06d8b1e6a7c20c7e3bec9291c2c/tinyosc.c#L189-L202"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 4,
+        "reason": "The repository was updated recently and CI builds ESP-IDF.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/actions"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fix restores newer ESP-IDF compiler compatibility for OSC users.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/issues/2"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The portable memcpy technique applies across GCC targets and optimization levels.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc/issues/2"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "The bundled tinyosc implementation is consumed by ESP-IDF projects using this component.",
+        "evidence": [
+          "https://github.com/256dpi/esp-osc"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      94
+    ],
+    "selectable": true
+  },
+  "durationMs": 2575
+}

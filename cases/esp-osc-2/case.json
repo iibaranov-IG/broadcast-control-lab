@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 2,
+  "id": "esp-osc-2",
+  "status": "ready",
+  "title": "Build tinyosc cleanly with strict aliasing enabled",
+  "issue": "https://github.com/256dpi/esp-osc/issues/2",
+  "problem": "ESP-IDF 6.1 rejects tinyosc's float and double serialization because it reads floating-point objects through integer pointers, violating C strict-aliasing rules.",
+  "reproduce": "Compile tinyosc.c with GCC, optimization, -Wstrict-aliasing=2 and -Werror=strict-aliasing; the pinned baseline fails at the float and double casts in tosc_vwrite.",
+  "acceptance": "The unchanged regression fails twice on the baseline and compiles on the candidate; the candidate emits the exact expected OSC bytes for 3.25f and -9.5 and parses both values back correctly.",
+  "repair": "Copy each floating-point bit representation into a same-sized integer with memcpy before converting it to network byte order.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "256dpi/esp-osc",
+      "commit": "e8aa93aa1b27d06d8b1e6a7c20c7e3bec9291c2c",
+      "directory": "sources/esp-osc-2"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/esp-osc-2",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/esp-osc-2/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/esp-osc-2/test.mjs",
+          "sources/esp-osc-2"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/esp-osc-2.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": true,
+    "limitations": "BCL reproduces the reported GCC diagnostic and verifies exact OSC float/double serialization on Linux. It does not run the complete ESP-IDF 6.1 firmware build or flash an ESP device.",
+    "ownerCheck": "Update the component in the ESP-IDF 6.1 project, rebuild with the existing warning-as-error settings, then send one OSC float and double message to the normal receiver and confirm both values arrive unchanged."
+  },
+  "selection": {
+    "report": "cases/esp-osc-2/triage.json",
+    "sha256": "a12af8e90e77f8c90acee01b764fada1aac4aa25e3fc77ceda9456f2463c29c8"
+  },
+  "upstream": {
+    "kind": "cpp-autotools",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/esp-osc-2/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "test/bcl_strict_aliasing.c",
+      "test/bcl_strict_aliasing.sh"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "sh",
+        "test/bcl_strict_aliasing.sh"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "dereferencing type-punned pointer will break strict-aliasing rules"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "sh",
+        "test/bcl_strict_aliasing.sh"
+      ]
+    },
+    "suiteOutputIncludes": "PASS: strict-aliasing compile and OSC float/double wire bytes"
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "256dpi/esp-osc",
+    "base": "main",
+    "commitMessage": "fix: avoid strict-aliasing violations in OSC serialization",
+    "paths": [
+      "tinyosc.c"
+    ],
+    "verificationOnlyPaths": [
+      "test/bcl_strict_aliasing.c",
+      "test/bcl_strict_aliasing.sh"
+    ]
+  }
+}

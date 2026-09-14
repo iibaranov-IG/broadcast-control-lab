@@ -1,0 +1,49 @@
+diff --git a/test/bcl_strict_aliasing.c b/test/bcl_strict_aliasing.c
+new file mode 100644
+index 0000000..45f95fc
+--- /dev/null
++++ b/test/bcl_strict_aliasing.c
+@@ -0,0 +1,26 @@
++#include <assert.h>
++#include <stdarg.h>
++#include <stdint.h>
++#include <string.h>
++
++#include "tinyosc.h"
++
++int main(void) {
++  char buffer[128];
++  const unsigned char expected[] = {
++      '/', 'v', 'a', 'l', 'u', 'e', 's', 0,
++      ',', 'f', 'd', 0,
++      0x40, 0x50, 0x00, 0x00,
++      0xc0, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++  };
++
++  const uint32_t len = tosc_writeMessage(buffer, sizeof(buffer), "/values", "fd", 3.25, -9.5);
++  assert(len == sizeof(expected));
++  assert(memcmp(buffer, expected, sizeof(expected)) == 0);
++
++  tosc_message message;
++  assert(tosc_parseMessage(&message, buffer, (int)len) == 0);
++  assert(tosc_getNextFloat(&message) == 3.25f);
++  assert(tosc_getNextDouble(&message) == -9.5);
++  return 0;
++}
+diff --git a/test/bcl_strict_aliasing.sh b/test/bcl_strict_aliasing.sh
+new file mode 100644
+index 0000000..673b928
+--- /dev/null
++++ b/test/bcl_strict_aliasing.sh
+@@ -0,0 +1,11 @@
++#!/bin/sh
++set -eu
++output="$(mktemp)"
++trap 'rm -f "$output"' EXIT
++${CC:-cc} -D_DEFAULT_SOURCE -std=c11 -O2 -Wall -Wstrict-aliasing=2 \
++  -Werror=strict-aliasing -Wno-sign-compare -Wno-format \
++  tinyosc.c test/bcl_strict_aliasing.c -I. -o "$output"
++"$output"
++echo "PASS: strict-aliasing compile and OSC float/double wire bytes"
++echo "# TOTAL: 1"
++echo "# SKIP: 0"

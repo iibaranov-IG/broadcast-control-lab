@@ -1,17 +1,80 @@
 # Broadcast Control Lab
 
-**Reproduce the problem. Test the repair. Keep the evidence.**
+**Software repair and interoperability testing for broadcast, live sound and equipment control.**
 
-Broadcast Control Lab (BCL) is an independent engineering lab for broadcast,
-audio, video and equipment-control software. We turn concrete user problems into
-repeatable checks, focused repairs and test builds where a case supports packaging.
-Each investigation adds reusable tools for the next one.
+MIDI controllers that do not reconnect. PTZ cameras that speak a different VISCA
+dialect. Audio-over-IP software that reports synchronization without valid evidence.
+BCL investigates reproducible failures, develops focused fixes and keeps the checks
+that demonstrate what changed.
 
-[Report a problem](https://github.com/iibaranov-IG/broadcast-control-lab/issues/new?template=repair-request.yml) ·
-[Browse repairs](REPAIRS.md) ·
-[Get builds and reports](https://github.com/iibaranov-IG/broadcast-control-lab/actions)
+Led by [Igor Baranov](https://github.com/iibaranov-IG), a broadcast audio and AoIP
+engineer, BCL combines practical broadcast experience with open-source software repair.
 
-## What you can do with BCL
+[Bring us a problem](https://github.com/iibaranov-IG/broadcast-control-lab/issues/new?template=repair-request.yml) ·
+[Discuss engineering work](mailto:iibaranov@gmail.com) ·
+[See accepted repairs](#repairs-accepted-by-upstream-maintainers) ·
+[Support the lab](https://github.com/iibaranov-IG#support-open-source-work)
+
+## Problems we investigate
+
+| What you are dealing with | Relevant BCL work |
+| --- | --- |
+| A MIDI controller disappears after reconnecting | ALSA device/port lifecycle and reconnection checks; an accepted PiPedal repair |
+| A PTZ camera ignores commands or times out | VISCA over TCP/UDP, framing, acknowledgements, fragmented and missing replies; AutoPTZ and OBS PTZ cases |
+| OSC mixer feedback reaches the wrong client | Client addresses, source ports and exact UDP messages; Zynthian and MIDIMonster cases |
+| AES67/PTP startup reports a misleading sync state | Management-reply parsing and lock-state validation; an accepted FPP repair |
+| Audio software will not build or integrate on a target platform | Dependency and build-metadata investigation; an accepted RtAudio repair |
+| A broadcast automation integration stops working | Focused application fixes and regression checks; an accepted Liquidsoap repair |
+
+Our existing work spans MIDI/ALSA, VISCA, OSC, AES67/PTP, Sennheiser SSC,
+Livewire LWRP and TCP/UDP equipment protocols. Coverage is case-specific.
+A protocol name here does not mean every device or feature is supported.
+
+## Repairs accepted by upstream maintainers
+
+These four contributions were verified as merged on **14 September 2026**.
+Each link leads to the upstream change and its review history.
+
+| Project and problem | What changed | Evidence and limits |
+| --- | --- | --- |
+| **PiPedal — Bluetooth MIDI fails to reconnect** | Refresh saved device bindings when the ALSA port appears, even if the client appeared earlier. | [Merged PR #587](https://github.com/rerdavies/pipedal/pull/587) · [BCL case](cases/pipedal-472/). Deterministic event regression and production wiring checks; physical controller power-cycle confirmation was still requested in the PR. |
+| **RtAudio — Unix pthread flags break MSVC consumers** | Generate platform-appropriate pkg-config flags while retaining Unix behavior. | [Merged PR #487](https://github.com/thestk/rtaudio/pull/487). The PR records generated-metadata checks, a macOS/CoreAudio build and a Debian/ALSA Autotools build with `make check`. It does not claim a native MSVC runtime test. |
+| **Liquidsoap — Last.fm rejects the default endpoint** | Use HTTPS for Audioscrobbler requests while preserving the endpoint override. | [Merged PR #5404](https://github.com/savonet/liquidsoap/pull/5404) · [BCL case](cases/liquidsoap-5398/). Focused default-endpoint regression; the full OCaml suite was not built locally. |
+| **FPP — missing PTP data can look like successful synchronization** | Require valid offset and grandmaster evidence before accepting follower lock. | [Merged PR #2942](https://github.com/FalconChristmas/fpp/pull/2942) · [BCL case](cases/fpp-2848-ptp-lock/). 25 checks of extracted production methods under UBSan. This does **not** resolve the separate Pi 4/no-PHC date or distorted-audio reports. |
+
+**Merged means the maintainer accepted the change.** Release availability,
+full-application testing and owner hardware confirmation are separate milestones.
+We do not present a simulated device or an automated green check as hardware certification.
+
+[Browse the repair board](REPAIRS.md) for more contributions and their recorded
+status. Open proposals and diagnostics are not counted as accepted repairs.
+
+## Work with BCL
+
+**Equipment owners and broadcast engineers:** send the model, firmware/software
+version, what fails, how to reproduce it, and whether you can test a candidate on
+the real equipment. A specific failure is a useful starting point.
+
+**Integrators and software maintainers:** bring a reproducible interoperability
+problem or regression. We first check the source, project rules and existing work
+to avoid duplicating an active fix. Scope and validation are agreed for each task.
+
+**Organizations supporting open source:** support reusable regression tests,
+protocol investigations, documentation and owner-assisted validation.
+[Voluntary support options](https://github.com/iibaranov-IG#support-open-source-work)
+are available on Igor's profile. Scoped commercial work is discussed separately;
+a donation does not promise a fix or a delivery date.
+
+- [Submit a public repair request](https://github.com/iibaranov-IG/broadcast-control-lab/issues/new?template=repair-request.yml).
+- [Email Igor about engineering work](mailto:iibaranov@gmail.com).
+- [Run the lab yourself](#run-the-lab-yourself) or inspect the technical capabilities below.
+
+For an accepted investigation, the public record should explain the original
+failure, the change, the exact checks performed, upstream status and remaining
+owner checks. Reports and packages depend on the case; this is not a universal
+device-certification service.
+
+## Engineering tools and existing checks
 
 Read the [batch and evidence guide](docs/batch-and-evidence.md),
 [candidate ranking policy](docs/candidate-ranking.md), and
@@ -90,10 +153,13 @@ cd broadcast-control-lab
 
 npm link
 bcl list
-bcl run autoptz-155
-bcl run aten-2029
+bcl run autoptz-155 --legacy-contracts
+bcl run aten-2029 --legacy-contracts
 bcl harness
 ```
+
+These two examples run explicitly labeled diagnostics. Configured upstream cases use
+`bcl test <id>` and must satisfy the upstream red → green gate.
 
 Without linking, use `node scripts/bcl.cjs run <id>`. Results appear in
 `reports/<id>/`. Fresh source checkouts are staged automatically and removed

@@ -142,6 +142,14 @@ async function main() {
     const { publish, parseOptions } = require('./publish.cjs')
     return console.log(JSON.stringify(publish(root, load(arg), parseOptions(options)), null, 2))
   }
+  if (mode === 'dependency-scan') {
+    if (!arg || options.length) throw new Error('Use bcl dependency-scan <local-checkout>')
+    return console.log(JSON.stringify(require('./integration.cjs').scan(arg), null, 2))
+  }
+  if (mode === 'integration-check') {
+    if (!arg || options.length) throw new Error('Use bcl integration-check <manifest.json>')
+    return console.log(JSON.stringify(require('./integration.cjs').assess(JSON.parse(fs.readFileSync(arg))), null, 2))
+  }
   if (mode === 'track') {
     if (options.length !== 1) throw new Error('Use bcl track <case-id> <PR-url>')
     return console.log(JSON.stringify(require('./tracking.cjs').attach(root, load(arg), options[0], require('./publish.cjs').api), null, 2))
@@ -190,7 +198,7 @@ async function main() {
     require('./publication.cjs').hardwareKit(directory, c)
     return console.log(path.join(directory, 'HARDWARE-CHECK.md'))
   }
-  throw new Error('Usage: bcl triage <issue-url> [--assessment file.json] | new <issue-url> | campaign <name> --file issues.txt [--concurrency 1..8] [--limit 1..100] [--retry-failed] | batch <id> <id> ... | list | validate <id> | test <id> [--legacy-contracts] | publish <id> --fork owner/repo --run <url> [--batch] [--dry-run] | track <id> <PR-url> | upstream-import <id> --file <manifest.json> | hardware-kit <id> | sync | metrics | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
+  throw new Error('Usage: bcl dependency-scan <local-checkout> | integration-check <manifest.json> | triage <issue-url> [--assessment file.json] | new <issue-url> | campaign <name> --file issues.txt [--concurrency 1..8] [--limit 1..100] [--retry-failed] | batch <id> <id> ... | list | validate <id> | test <id> [--legacy-contracts] | publish <id> --fork owner/repo --run <url> [--batch] [--dry-run] | track <id> <PR-url> | upstream-import <id> --file <manifest.json> | hardware-kit <id> | sync | metrics | inbox [id] | ack <id> | hardware-result <id> --file <path> | harness')
 }
 if (require.main === module) main().catch(e => { console.error(e.message); process.exitCode = 1 })
 module.exports = { scaffold }

@@ -1315,6 +1315,46 @@
       "lastSync": "2026-09-14T07:06:05.153Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "majestic-webui-477",
+      "title": "Render text diagnostics from the firmware upgrade socket",
+      "issue": "https://github.com/OpenIPC/majestic-webui/issues/477",
+      "pr": "https://github.com/OpenIPC/majestic-webui/pull/481",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "pr-comment:5660383828",
+          "kind": "pr-comment",
+          "author": "qodo-free-for-open-source-projects[bot]",
+          "reporter": false,
+          "url": "https://github.com/OpenIPC/majestic-webui/pull/481#issuecomment-5660383828",
+          "updatedAt": "2026-09-14T07:14:56Z",
+          "state": null,
+          "body": "\n<h3>Qodo is busy working</h3>\n\nCheck back in a few minutes. Qodo's code review agents are on it.\n\n\n\n<img src=\"https://www.qodo.ai/wp-content/uploads/2025/11/light-grey-line.svg\" height=\"10%\" alt=\"Grey Divider\">\n\n\n\n\n<img src=\"https://www.qodo.ai/wp-content/uploads/2026/01/anteater-looking-at-ants-01-transparent-bg-croped-ezgif.com-optimize-1.gif\" width=\"30%\">\n",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "a824310fe5eb06131221eb0d23e16ecafcc4ce3a",
+      "reporter": "openipc-ai",
+      "issueCreatedAt": "2026-09-14T04:03:28Z",
+      "prCreatedAt": "2026-09-14T07:14:46Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T07:15:09.560Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

@@ -43,6 +43,7 @@ Updated 2026-09-11.
 | thingino-firmware-1655 | [Issue](https://github.com/themactep/thingino-firmware/issues/1655) | [PR](https://github.com/themactep/thingino-onvif/pull/9) | open | none | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T07:46:11.126Z |
 | open-nvr-468 | [Issue](https://github.com/open-nvr/open-nvr/issues/468) | [PR](https://github.com/open-nvr/open-nvr/pull/470) | open | none | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T07:46:32.274Z |
 | reolink-aio-204 | [Issue](https://github.com/starkillerOG/reolink_aio/issues/204) | [PR](https://github.com/starkillerOG/reolink_aio/pull/206) | open | none | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T08:14:12.119Z |
+| linux-show-player-398 | [Issue](https://github.com/FrancescoCeruti/linux-show-player/issues/398) | [PR](https://github.com/FrancescoCeruti/linux-show-player/pull/400) | draft | none | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-14T08:34:15.646Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

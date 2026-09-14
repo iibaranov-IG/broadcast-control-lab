@@ -1475,6 +1475,46 @@
       "lastSync": "2026-09-14T08:14:12.119Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "linux-show-player-398",
+      "title": "Select the local OSC listening interface",
+      "issue": "https://github.com/FrancescoCeruti/linux-show-player/issues/398",
+      "pr": "https://github.com/FrancescoCeruti/linux-show-player/pull/400",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "draft",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "issue-comment:5661236584",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/FrancescoCeruti/linux-show-player/issues/398#issuecomment-5661236584",
+          "updatedAt": "2026-09-14T08:34:04Z",
+          "state": null,
+          "body": "I prepared a focused fix in #400.\n\nIt replaces the read-only OSC input address with a selector for each current IPv4 interface plus an `All interfaces` option. The selected address is persisted independently from the OSC output destination, and the listener restarts when it changes. Existing configurations retain the previous automatically selected address.\n\nCould you test the draft on your Debian machine with both networks connected?\n\n1. Open OSC settings and select the interface that should receive OSC.\n2. Apply the settings and send a message to that address and the configured input port.\n3. Restart Linux Show Player and confirm both the selection and reception still work.\n4. If useful, also try `All interfaces`.\n\nThe baseline/candidate regression is red → green in BCL; the remaining check is the real multi-network route on your host.\n",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "clean",
+      "headSha": "3d527a758ca14ff89a63f08e0c3ef8b6ff5ea32d",
+      "reporter": "wargreen",
+      "issueCreatedAt": "2026-09-12T15:45:35Z",
+      "prCreatedAt": "2026-09-14T08:33:53Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T08:34:15.646Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

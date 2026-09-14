@@ -1,0 +1,33 @@
+diff --git a/bcl_apk_content_type.test.mjs b/bcl_apk_content_type.test.mjs
+new file mode 100644
+index 0000000..00fe1c1
+--- /dev/null
++++ b/bcl_apk_content_type.test.mjs
+@@ -0,0 +1,27 @@
++import test from 'node:test'
++import assert from 'node:assert/strict'
++import { readFileSync } from 'node:fs'
++
++const source = readFileSync('nora-registry/src/registry/raw.rs', 'utf8')
++const start = source.indexOf('fn guess_content_type')
++const end = source.indexOf('\n}\n\n#[cfg(test)]', start)
++assert.notEqual(start, -1, 'guess_content_type function is missing')
++assert.notEqual(end, -1, 'guess_content_type function boundary is missing')
++const implementation = source.slice(start, end)
++
++test('APK files use the Android package MIME type', () => {
++  assert.match(
++    implementation,
++    /"apk"\s*=>\s*"application\/vnd\.android\.package-archive"/,
++    'APK_MIME_MISSING: .apk still falls through to application/octet-stream',
++  )
++})
++
++test('Android app bundles retain the unknown-file fallback', () => {
++  assert.doesNotMatch(
++    implementation,
++    /"aab"\s*=>/,
++    'AAB_MIME_CHANGED: .aab must remain application/octet-stream',
++  )
++  assert.match(implementation, /_\s*=>\s*"application\/octet-stream"/)
++})

@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 2,
+  "id": "nora-997",
+  "status": "ready",
+  "title": "Serve raw APK downloads with Android's package MIME type",
+  "issue": "https://github.com/getnora-io/nora/issues/997",
+  "problem": "Nora's raw registry classifies .apk paths as application/octet-stream, so Android browsers cannot hand downloads directly to the package installer.",
+  "reproduce": "Apply the unchanged source-contract test to the pinned baseline; the APK assertion fails because guess_content_type has no apk match arm.",
+  "acceptance": "The baseline fails with APK_MIME_MISSING; the candidate maps .apk paths to application/vnd.android.package-archive while .aab and unknown extensions retain the octet-stream fallback.",
+  "repair": "Add the registered Android package MIME type to the raw registry extension map, cover APK and AAB behavior in the production Rust unit test, and add the required changelog fragment.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "getnora-io/nora",
+      "commit": "ad66f6138ece23881c0f58998216eb9bd144b54d",
+      "directory": "sources/nora-997"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [
+    "cases/nora-997/"
+  ],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/nora-997",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/nora-997/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/nora-997/test.mjs",
+          "sources/nora-997"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/nora-997.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the exact production source mapping with an immutable red/green test. The candidate's real Rust test, clippy and all 1,885 non-ignored project tests were also run locally; two permission tests require a non-root runner and passed separately there. One upstream GPG integration test remains ignored because gpg and gpgv are unavailable. Upstream CI remains the authoritative cross-platform build.",
+    "ownerCheck": "Upload an APK to the raw registry, download it from an Android browser, confirm the response Content-Type is application/vnd.android.package-archive and that Android offers the package installer."
+  },
+  "selection": {
+    "report": "cases/nora-997/triage.json",
+    "sha256": "bdc7e62aed3ff156b16db0af59d28da9560460fc533e882708e22c1348b9c633"
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/nora-997/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "bcl_apk_content_type.test.mjs"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "--test",
+        "bcl_apk_content_type.test.mjs"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "APK_MIME_MISSING"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "--test",
+        "bcl_apk_content_type.test.mjs"
+      ]
+    },
+    "suiteOutputIncludes": "# tests 2"
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "getnora-io/nora",
+    "base": "main",
+    "commitMessage": "fix(raw): serve APK files with Android MIME type",
+    "paths": [
+      "nora-registry/src/registry/raw.rs",
+      "changelog.d/997.fixed.md"
+    ],
+    "verificationOnlyPaths": [
+      "bcl_apk_content_type.test.mjs"
+    ]
+  }
+}

@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T20:38:28.007Z",
+  "issue": {
+    "repository": "getnora-io/nora",
+    "number": "997",
+    "url": "https://github.com/getnora-io/nora/issues/997",
+    "title": "raw: Content-Type for `.apk`",
+    "state": "open",
+    "updatedAt": "2026-09-14T19:37:59Z"
+  },
+  "source": {
+    "repository": "getnora-io/nora",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "ad66f6138ece23881c0f58998216eb9bd144b54d",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": ".github/PULL_REQUEST_TEMPLATE.md",
+        "url": "https://github.com/getnora-io/nora/blob/ad66f6138ece23881c0f58998216eb9bd144b54d/.github/PULL_REQUEST_TEMPLATE.md",
+        "content": "## What\n\n<!-- Brief description of changes -->\n\n## Why\n\n<!-- Motivation / issue reference -->\n\n## Checklist\n\n- [ ] Tests pass (`cargo test`)\n- [ ] No new clippy warnings (`cargo clippy -- -D warnings`)\n- [ ] Updated CHANGELOG.md (if user-facing change)\n- [ ] New registry? See CONTRIBUTING.md checklist\n",
+        "requirementHints": [
+          "- [ ] Tests pass (`cargo test`)"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/getnora-io/nora/blob/ad66f6138ece23881c0f58998216eb9bd144b54d/CONTRIBUTING.md",
+        "content": "# Contributing to NORA\n\nThank you for your interest in contributing to NORA!\n\n## Developer Certificate of Origin (DCO)\n\nBy submitting a pull request, you agree to the [Developer Certificate of Origin](https://developercertificate.org/).\nYour contribution will be licensed under the [MIT License](LICENSE).\n\nYou confirm that you have the right to submit the code and that it does not violate any third-party rights.\n\n## Project Governance\n\nNORA uses a **Benevolent Dictator** governance model:\n\n- **Maintainer:** [@devitway](https://github.com/devitway) — final decisions on features, releases, and architecture\n- **Contributors:** anyone who submits issues, PRs, or docs improvements\n- **Decision process:** proposals via GitHub Issues → discussion → maintainer decision\n- **Release authority:** maintainer only\n\n### Roles and Responsibilities\n\n| Role | Person | Responsibilities |\n|------|--------|-----------------|\n| Maintainer | @devitway | Code review, releases, roadmap, security response |\n| Contributor | anyone | Issues, PRs, documentation, testing |\n| Dependabot | automated | Dependency updates |\n\n### Continuity\n\nThe GitHub organization [getnora-io](https://github.com/getnora-io) has multiple admin accounts to ensure project continuity. Source code is MIT-licensed, enabling anyone to fork and continue the project.\n\n## Getting Started\n\n1. Fork the repository\n2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/nora.git`\n3. Create a branch: `git checkout -b feature/your-feature`\n\n## Development Setup\n\n### Prerequisites\n\n- **Rust** stable (1.85+) — install via [rustup](https://rustup.rs/)\n- **Docker** (optional) — for integration tests (docker push/pull)\n- **Node.js** 18+ (optional) — for npm integration tests\n\n### Build and Test\n\n```bash\n# Build\ncargo build --package nora-registry\n\n# Run unit tests (important: use --lib --bin to skip fuzz targets)\ncargo test --lib --bin nora\n\n# Run clippy (must pass with zero warnings)\ncargo clippy --package nora-registry -- -D warnings\n\n# Format check\ncargo fmt --check\n```\n\n### Run Locally\n\n```bash\n# Start with defaults (port 4000, local storage in ./data/)\ncargo run --bin nora -- serve\n\n# Custom port and storage\nNORA_PORT=5000 NORA_STORAGE_PATH=/tmp/nora-data cargo run --bin nora -- serve\n\n# Test health\ncurl http://localhost:4000/health\n```\n\n### Integration / Smoke Tests\n\n```bash\n# Build release binary first\ncargo build --release\n\n# Run full smoke suite (starts NORA, tests all 15 protocols, stops)\nbash tests/smoke.sh\n```\n\n### Fuzz Testing\n\n```bash\n# Install cargo-fuzz (one-time)\ncargo install cargo-fuzz\n\n# Run fuzz target (Ctrl+C to stop)\ncargo +nightly fuzz run fuzz_validation -- -max_total_time=60\n```\n\n## Changelog entries\n\nDo not edit `## [Unreleased]` in `CHANGELOG.md` directly. Add a fragment instead:\n\n```bash\ncat > changelog.d/<issue-or-pr-number>.<category>.md <<'EOF'\n**Short title (#N)** — what changed, what it was before, and why it matters.\nEOF\n```\n\n`<category>` is one of `added`, `changed`, `deprecated`, `removed`, `fixed`,\n`security`. One file per change means two pull requests never edit the same lines, so\nthey cannot conflict on the changelog — which they did three times in a row during\n1.3.1. `scripts/changelog-fragments.sh --check` validates the fragments and\n`--render` shows the assembled section; the maintainer runs `--release <version>` at\nrelease time. See `changelog.d/README.md`.\n\n## Before Submitting a PR\n\n```bash\ncargo fmt --check\ncargo clippy --package nora-registry -- -D warnings\ncargo test --lib --bin nora\n```\n\nAll three must pass. CI will enforce this.\n\n**Sign your commits.** `main` requires **verified GPG-signed commits** — an unsigned commit cannot be merged and a maintainer has to re-sign (reland) it by hand, which delays your PR. Configure signing once:\n\n```bash\ngit config commit.gpgsign true   # or per-commit: git commit -S\n```\n\nSee [GitHub's guide to signing commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits). The commit email must match a verified key on your GitHub account, or the commit shows as *Unverified*.\n\n## Code Style\n\n- Run `cargo fmt` before committing\n- Fix all `cargo clippy` warnings\n- No `unwrap()` in production code (use proper error handling)\n- Follow Rust naming conventions\n- Keep functions short and focused\n- Add tests for new functionality\n- Environment variable names follow `NORA_{SECTION}_{FIELD}` pattern. Use short abbreviations for long compound words (e.g. `NORA_CB_*` instead of `NORA_CIRCUIT_BREAKER_*`). Aim for under 30 characters total.\n\n## Pull Request Process\n\n1. Branch from `main`, use descriptive branch names (`feat/`, `fix/`, `chore/`)\n2. Update CHANGELOG.md if the change is user-facing\n3. Add tests for new features or bug fixes\n4. Ensure CI passes (fmt, clippy, test, security checks)\n5. Keep PRs focused — one feature or fix per PR\n6. PRs are squash-merged to keep a clean history\n\n## Commit Messages\n\nUse conventional commits:\n\n- `feat:` new feature\n- `fix:` bug fix\n- `docs:` documentation\n- `test:` adding or updating tests\n- `security:` security improvements\n- `chore:` maintenance\n\nExample: `feat: add npm scoped package support`\n\n## New Registry Checklist\n\nWhen adding a new registry type (Docker, npm, Maven, etc.), ensure all of the following:\n\n- [ ] Handler in `nora-registry/src/registry/`\n- [ ] Health check endpoint\n- [ ] Metrics (Prometheus)\n- [ ] OpenAPI spec update\n- [ ] Startup log line\n- [ ] Dashboard UI tile\n- [ ] Playwright e2e test\n- [ ] CHANGELOG entry\n- [ ] COMPAT.md update\n\n## Reporting Issues\n\n- Use GitHub Issues with the provided templates\n- Include steps to reproduce\n- Include NORA version (`nora --version`) and OS\n\n## License\n\nBy contributing, you agree that your contributions will be licensed under the MIT License.\n\n## Community\n\n- Telegram: [@getnora](https://t.me/getnora)\n- GitHub Issues: [getnora-io/nora](https://github.com/getnora-io/nora/issues)\n",
+        "requirementHints": [
+          "## Developer Certificate of Origin (DCO)",
+          "By submitting a pull request, you agree to the [Developer Certificate of Origin](https://developercertificate.org/).",
+          "| Contributor | anyone | Issues, PRs, documentation, testing |",
+          "- **Docker** (optional) — for integration tests (docker push/pull)",
+          "- **Node.js** 18+ (optional) — for npm integration tests",
+          "### Build and Test",
+          "# Run unit tests (important: use --lib --bin to skip fuzz targets)",
+          "cargo test --lib --bin nora",
+          "# Run clippy (must pass with zero warnings)",
+          "# Test health",
+          "### Integration / Smoke Tests",
+          "# Run full smoke suite (starts NORA, tests all 15 protocols, stops)",
+          "bash tests/smoke.sh",
+          "### Fuzz Testing",
+          "**Short title (#N)** — what changed, what it was before, and why it matters.",
+          "`security`. One file per change means two pull requests never edit the same lines, so",
+          "## Before Submitting a PR",
+          "cargo test --lib --bin nora",
+          "All three must pass. CI will enforce this.",
+          "**Sign your commits.** `main` requires **verified GPG-signed commits** — an unsigned commit cannot be merged and a maintainer has to re-sign (reland) it by hand, which delays your PR. Configure signing once:",
+          "git config commit.gpgsign true   # or per-commit: git commit -S",
+          "See [GitHub's guide to signing commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits). The commit email must match a verified key on your GitHub account, or the commit shows as *Unverified*.",
+          "- Run `cargo fmt` before committing",
+          "- Add tests for new functionality",
+          "## Pull Request Process",
+          "3. Add tests for new features or bug fixes",
+          "4. Ensure CI passes (fmt, clippy, test, security checks)",
+          "## Commit Messages",
+          "Use conventional commits:",
+          "- `test:` adding or updating tests",
+          "- [ ] Playwright e2e test"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "fuzz/fuzz_targets/fuzz_config_toml.rs",
+      "fuzz/fuzz_targets/fuzz_docker_manifest.rs",
+      "fuzz/fuzz_targets/fuzz_maven_path.rs",
+      "fuzz/fuzz_targets/fuzz_npm_metadata.rs",
+      "fuzz/fuzz_targets/fuzz_pypi_parse.rs",
+      "fuzz/fuzz_targets/fuzz_rewrite_ansible.rs",
+      "fuzz/fuzz_targets/fuzz_url_leak.rs",
+      "fuzz/fuzz_targets/fuzz_validation.rs",
+      "nora-registry/benches/parsing.rs",
+      "nora-registry/src/activity_log.rs"
+    ],
+    "buildFiles": [
+      {
+        "path": "Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/getnora-io/nora/blob/ad66f6138ece23881c0f58998216eb9bd144b54d/Cargo.toml"
+      },
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/getnora-io/nora/blob/ad66f6138ece23881c0f58998216eb9bd144b54d/Makefile"
+      },
+      {
+        "path": "fuzz/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/getnora-io/nora/blob/ad66f6138ece23881c0f58998216eb9bd144b54d/fuzz/Cargo.toml"
+      },
+      {
+        "path": "nora-registry/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/getnora-io/nora/blob/ad66f6138ece23881c0f58998216eb9bd144b54d/nora-registry/Cargo.toml"
+      },
+      {
+        "path": "tests/e2e/package.json",
+        "kind": "node",
+        "url": "https://github.com/getnora-io/nora/blob/ad66f6138ece23881c0f58998216eb9bd144b54d/tests/e2e/package.json"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:getnora-io/nora": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 86,
+    "scoreRange": [
+      86,
+      87
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 3,
+        "reason": "APKs download but Android browsers cannot hand them directly to the package installer.",
+        "evidence": [
+          "Issue #997 expected behavior"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "Filed today against v1.3.1/current main.",
+        "evidence": [
+          "Issue created 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter is the repository maintainer and supplied the exact function, MIME value and acceptance test.",
+        "evidence": [
+          "Issue #997",
+          "CONTRIBUTING governance"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "An .apk path must return application/vnd.android.package-archive while .aab stays octet-stream.",
+        "evidence": [
+          "Regression assertions"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "A deterministic unit test fails on the selected baseline and passes with the candidate.",
+        "evidence": [
+          "Rust test output"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "One mapping, one focused regression test and the required changelog fragment.",
+        "evidence": [
+          "Candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "The focused test is immediate after compilation; full Rust checks are available.",
+        "evidence": [
+          "cargo test and clippy runs"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "Only the response metadata for .apk paths changes; bytes and all unknown extensions are untouched.",
+        "evidence": [
+          "release.aab fallback assertion"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Repository main and issue were updated in the last day.",
+        "evidence": [
+          "GitHub repository and issue timestamps"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Benefits Android package distribution through every Nora raw registry.",
+        "evidence": [
+          "Shared raw handler paths"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 3,
+        "reason": "The MIME map covers both raw GET response paths.",
+        "evidence": [
+          "guess_content_type call sites"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 2,
+        "reason": "The correction is intentionally limited to APK delivery.",
+        "evidence": [
+          "Candidate diff"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      86
+    ],
+    "selectable": true
+  },
+  "durationMs": 3384
+}

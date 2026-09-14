@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T07:12:31.461Z",
+  "issue": {
+    "repository": "OpenIPC/majestic-webui",
+    "number": "477",
+    "url": "https://github.com/OpenIPC/majestic-webui/issues/477",
+    "title": "Upgrade page discards every diagnostic the camera sends about a failed upgrade",
+    "state": "open",
+    "updatedAt": "2026-09-14T04:04:13Z"
+  },
+  "source": {
+    "repository": "OpenIPC/majestic-webui",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "MIT",
+    "commit": "a68bae7f900556673cd5a7690ea9959d6719ff5d",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "tests/assert.js",
+      "tests/audio-check.test.js",
+      "tests/auto-source.test.js",
+      "tests/boot-blob.test.js",
+      "tests/charts.test.js",
+      "tests/delivery.test.js",
+      "tests/fps-caps.test.js",
+      "tests/gpio-table.test.js",
+      "tests/ircut-check.test.js",
+      "tests/ircut-scan.test.js"
+    ],
+    "buildFiles": [
+      {
+        "path": "package.json",
+        "kind": "node",
+        "url": "https://github.com/OpenIPC/majestic-webui/blob/a68bae7f900556673cd5a7690ea9959d6719ff5d/package.json"
+      }
+    ],
+    "nodeScripts": [
+      "build:dist",
+      "test",
+      "check:layout"
+    ],
+    "nodeDependencyCount": 4
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:OpenIPC/majestic-webui": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 96,
+    "scoreRange": [
+      96,
+      97
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Operators lose the only explanation for a refused firmware update and wait for a reboot that will not occur.",
+        "evidence": [
+          "The issue lists six discarded failure/end messages."
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The issue was filed today from current camera observations.",
+        "evidence": [
+          "Created 2026-09-14 and baseline still assumes binary frames."
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The project team supplied packet-level evidence and exact desired behavior.",
+        "evidence": [
+          "Issue author is OpenIPC AI team and links the originating investigation."
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Text frames must reach the terminal unchanged; binary frames remain decoded.",
+        "evidence": [
+          "Frame type is directly visible as typeof e.data."
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The existing VM harness reproduces the empty text conversion.",
+        "evidence": [
+          "Baseline loses the refusal and candidate retains it."
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "One onmessage branch and one focused assertion.",
+        "evidence": [
+          "No protocol or server change is required."
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "The focused Node test has no package installation or camera requirement.",
+        "evidence": [
+          "node tests/update-reattach.test.js completes immediately."
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "The existing binary decode path is unchanged.",
+        "evidence": [
+          "The prior encoded banner assertion still passes."
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository and issue are active today.",
+        "evidence": [
+          "GitHub reports updates on 2026-09-14."
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Every OpenIPC camera firmware upgrade refusal becomes visible.",
+        "evidence": [
+          "All upgrade sockets use connectUpgrade."
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "Starting and reattaching share the corrected WebSocket handler.",
+        "evidence": [
+          "connectUpgrade wires both flows."
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "All text diagnostics sent on the upgrade socket are restored.",
+        "evidence": [
+          "The branch applies to every onmessage frame."
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      96
+    ],
+    "selectable": true
+  },
+  "durationMs": 3025
+}

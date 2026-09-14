@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "id": "majestic-webui-477",
+  "status": "ready",
+  "title": "Render text diagnostics from the firmware upgrade socket",
+  "issue": "https://github.com/OpenIPC/majestic-webui/issues/477",
+  "problem": "Firmware upgrade refusals arrive as WebSocket text frames, but the page converts every payload to Uint8Array and silently renders those strings as empty output.",
+  "reproduce": "Deliver ERROR: invalid upgrade parameters as a string to the upgrade socket handler; the baseline terminal receives no diagnostic.",
+  "acceptance": "Text frames reach the terminal unchanged and binary frames continue through the streaming UTF-8 decoder.",
+  "repair": "Append string payloads directly and retain the existing TextDecoder path for binary payloads, with a focused browser-VM regression.",
+  "sources": [{"id":"upstream","repository":"OpenIPC/majestic-webui","commit":"a68bae7f900556673cd5a7690ea9959d6719ff5d","directory":"sources/majestic-webui-477"}],
+  "runtime": {"node":"22.20.0","python":"3.12.14"},
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{"cwd":"sources/majestic-webui-477","argv":["git","apply","../../cases/majestic-webui-477/repair.patch"]}],
+    "test": [{"cwd":".","argv":["node","cases/majestic-webui-477/test.mjs","sources/majestic-webui-477"]}],
+    "build": [{"cwd":"sources/majestic-webui-477","argv":["node","--check","www/a/update.js"]},{"cwd":"sources/majestic-webui-477","argv":["node","--check","tests/update-reattach.test.js"]}]
+  },
+  "artifacts": {"report":"reports/majestic-webui-477.json"},
+  "selection": {"report":"cases/majestic-webui-477/triage.json","sha256":"faf17c168933da7eed295a68daba30e08296b8f17e3c8983f195ff61ca1f38b0","reason":"A same-day camera-team report includes captured frame opcodes, exact lost diagnostics, no competing PR, and a deterministic existing WebSocket harness."},
+  "verification": {"hardwareVerified":false,"applicationVerified":false,"limitations":"BCL exercises the real upgrade page in the repository's VM harness and preserves the binary path. The full npm suite has unrelated environment-dependent Telegram/ntfy still-capture failures. No firmware was flashed and no physical camera was used.","ownerCheck":"Trigger a refused upgrade on a camera and confirm its ERROR text appears in the firmware progress pane; also run an aborting upgrade and confirm the final unchanged-camera sentence remains visible."},
+  "publish": {"source":"upstream","target":"OpenIPC/majestic-webui","base":"master","paths":["www/a/update.js","tests/update-reattach.test.js"]},
+  "upstream": {
+    "kind":"node","source":"upstream","timeoutMs":60000,
+    "setup":[{"cwd":".","argv":["git","apply","../../cases/majestic-webui-477/tests-only.patch"]}],
+    "build": [],
+    "testFiles":["tests/update-reattach.test.js"],
+    "regression":{"cwd":".","argv":["node","../../cases/majestic-webui-477/upstream.mjs"]},
+    "negative":{"exitCode":1,"outputIncludes":"FAIL a text-frame refusal reaches the transcript unchanged"},
+    "suite":{"cwd":".","argv":["node","../../cases/majestic-webui-477/upstream.mjs"]},
+    "suiteOutputIncludes":"# tests 10"
+  }
+}

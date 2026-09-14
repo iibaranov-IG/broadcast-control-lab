@@ -33,7 +33,7 @@
       "headSha": "1455b64bb57c44d501dc18cb7655a06c5f290e25",
       "id": "openmixercontrol-8",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/8",
-      "lastSync": "2026-09-14T14:15:07.095Z",
+      "lastSync": "2026-09-14T19:29:34.170Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/91",
       "reporter": "schulz-alexander",
       "run": null,
@@ -70,7 +70,7 @@
       "headSha": "bfb749b74f3b46ffb3751f6d8cfaaeff7ebfdecb",
       "id": "openmixercontrol-54",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/54",
-      "lastSync": "2026-09-14T14:15:10.138Z",
+      "lastSync": "2026-09-14T19:29:37.207Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/92",
       "reporter": "flipfi",
       "run": null,
@@ -118,7 +118,7 @@
       "headSha": "de3cd33a82c55c59a8d2189a8ced0d0b60a298ec",
       "id": "wirelessboard-93",
       "issue": "https://github.com/willcgage/wirelessboard/issues/93",
-      "lastSync": "2026-09-14T14:15:13.214Z",
+      "lastSync": "2026-09-14T19:29:40.170Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/103",
       "reporter": "willcgage",
       "run": null,
@@ -155,7 +155,7 @@
       "headSha": "d62d1cdacbb78398be452718e55c95a0b1929bc2",
       "id": "network-audio-controller-55",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/55",
-      "lastSync": "2026-09-14T14:15:15.992Z",
+      "lastSync": "2026-09-14T19:29:42.945Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/58",
       "reporter": "coaxk",
       "run": null,
@@ -225,7 +225,7 @@
       "headSha": "439962cba7a03b409b68e40ebb0b66f9f5d129c8",
       "id": "network-audio-controller-47",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/47",
-      "lastSync": "2026-09-14T14:15:18.652Z",
+      "lastSync": "2026-09-14T19:29:45.997Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/57",
       "reporter": "stanelie",
       "run": null,
@@ -702,7 +702,7 @@
       "headSha": "22d6db8b9c768233f8b1d0e39cab40bf3bacb09b",
       "id": "jammernetz-35",
       "issue": "https://github.com/christofmuc/JammerNetz/issues/35",
-      "lastSync": "2026-09-14T14:15:21.185Z",
+      "lastSync": "2026-09-14T19:29:48.759Z",
       "pr": "https://github.com/christofmuc/JammerNetz/pull/108",
       "reporter": "iamthechrisb",
       "run": null,
@@ -739,7 +739,7 @@
       "headSha": "f1536c3d1a395620edc73815deca2b5173f7c7de",
       "id": "low-latency-audio-32",
       "issue": "https://github.com/microsoft/low-latency-audio/issues/32",
-      "lastSync": "2026-09-14T14:15:23.935Z",
+      "lastSync": "2026-09-14T19:29:51.704Z",
       "pr": "https://github.com/microsoft/low-latency-audio/pull/35",
       "reporter": "tankoha",
       "run": null,
@@ -897,7 +897,7 @@
       "headSha": "37f1ad4f80ddc7ab42b52f8687b1175db53c6faa",
       "id": "dometools-47",
       "issue": "https://github.com/prefrontalcortex/DomeTools/issues/47",
-      "lastSync": "2026-09-14T14:15:27.058Z",
+      "lastSync": "2026-09-14T19:29:54.888Z",
       "pr": "https://github.com/prefrontalcortex/DomeTools/pull/49",
       "reporter": "Hanesto",
       "run": null,
@@ -978,7 +978,7 @@
       "headSha": "6e3694bbbf98930016c8e5e9ab0db4fec9c79d8c",
       "id": "wirelessboard-92",
       "issue": "https://github.com/willcgage/wirelessboard/issues/92",
-      "lastSync": "2026-09-14T14:15:29.714Z",
+      "lastSync": "2026-09-14T19:29:57.872Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/101",
       "reporter": "willcgage",
       "run": null,
@@ -1070,7 +1070,7 @@
       "headSha": "3b62b36abd58c780aaac7328c4c32e4c6a6630bd",
       "id": "ipcamlapse-33",
       "issue": "https://github.com/KalyteraSystems/IPCamLapse/issues/33",
-      "lastSync": "2026-09-14T14:15:32.322Z",
+      "lastSync": "2026-09-14T19:30:00.592Z",
       "pr": "https://github.com/KalyteraSystems/IPCamLapse/pull/50",
       "reporter": "elkampu",
       "run": null,
@@ -1095,7 +1095,7 @@
       "headSha": "a2f96d5143b5e87a45d68b9086d1fd80ae2afe27",
       "id": "midimonster-150",
       "issue": "https://github.com/cbdevnet/midimonster/issues/150",
-      "lastSync": "2026-09-14T14:15:35.621Z",
+      "lastSync": "2026-09-14T19:30:04.442Z",
       "pr": "https://github.com/cbdevnet/midimonster/pull/151",
       "reporter": "jetryco",
       "run": null,
@@ -1165,7 +1165,7 @@
       "headSha": "e0b946103373552baca68fb8d18446ea87f9b277",
       "id": "fader-x-5",
       "issue": "https://github.com/stagehacks/FADER_X/issues/5",
-      "lastSync": "2026-09-14T14:15:38.367Z",
+      "lastSync": "2026-09-14T19:30:07.561Z",
       "pr": "https://github.com/stagehacks/FADER_X/pull/8",
       "reporter": "istnv",
       "run": null,
@@ -1216,7 +1216,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2025-02-24T22:58:56Z",
       "ci": "none",
-      "lastSync": "2026-09-14T14:15:40.997Z",
+      "lastSync": "2026-09-14T19:30:10.623Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1244,7 +1244,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T14:15:43.925Z",
+      "lastSync": "2026-09-14T19:30:13.878Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1284,7 +1284,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T14:15:46.303Z",
+      "lastSync": "2026-09-14T19:30:16.564Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1312,7 +1312,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T14:15:49.019Z",
+      "lastSync": "2026-09-14T19:30:19.694Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1409,7 +1409,7 @@
       "mergedAt": "2026-09-14T08:02:35Z",
       "reporterResponseAt": "2026-09-14T08:02:08Z",
       "ci": "success",
-      "lastSync": "2026-09-14T14:15:51.472Z",
+      "lastSync": "2026-09-14T19:30:22.635Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-14T10:47:47.991Z"
@@ -1450,7 +1450,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T14:15:54.302Z",
+      "lastSync": "2026-09-14T19:30:25.587Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1463,7 +1463,7 @@
       "testedHeadSha": null,
       "evidenceStatus": "NOT_BOUND",
       "run": null,
-      "state": "open",
+      "state": "merged",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
@@ -1478,19 +1478,63 @@
           "state": null,
           "body": "Thank you for the detailed report and prototype — I reproduced the missing fallback on the current `main` revision and opened #470 with a focused implementation and regression tests.\n\nThe PR keeps HTTP Digest first and retries once with WS-Security only for a matching ONVIF SOAP authentication fault. It deliberately does not retry generic connection closures. The pinned baseline fails the new regression; the candidate passes it, plus 102 adjacent ONVIF/camera-settings tests.\n\nWhen convenient, could you test that branch on the same C520WS V2 / firmware 1.2.7 and confirm camera addition, profile discovery, stream URI, and PTZ? A second Digest-compatible camera check would also confirm the unchanged primary path.\n",
           "read": false
+        },
+        {
+          "key": "issue-comment:5667628379",
+          "kind": "issue-comment",
+          "author": "xpertvoip",
+          "reporter": false,
+          "url": "https://github.com/open-nvr/open-nvr/issues/468#issuecomment-5667628379",
+          "updatedAt": "2026-09-14T16:59:04Z",
+          "state": null,
+          "body": "Thanks @Emily-35 for reporting this and @iibaranov-IG for contributing the fix. \n@Emily-35 you can test now the main and let us know. ",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5667935775",
+          "kind": "issue-comment",
+          "author": "xpertvoip",
+          "reporter": false,
+          "url": "https://github.com/open-nvr/open-nvr/issues/468#issuecomment-5667935775",
+          "updatedAt": "2026-09-14T17:23:46Z",
+          "state": null,
+          "body": "But @iibaranov-IG and @Emily-35 I also added a follow back PR on your merged PR https://github.com/open-nvr/open-nvr/pull/473 can you help me by testing this PR and let me know if it works. This PR contains changes done by @iibaranov-IG merged to main and these some improvements. ",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5667947592",
+          "kind": "issue-comment",
+          "author": "xpertvoip",
+          "reporter": false,
+          "url": "https://github.com/open-nvr/open-nvr/issues/468#issuecomment-5667947592",
+          "updatedAt": "2026-09-14T17:24:45Z",
+          "state": null,
+          "body": "Until the PR mentioned above is tested on device by @Emily-35 and @iibaranov-IG \nthanks",
+          "read": false
+        },
+        {
+          "key": "review:5200324380",
+          "kind": "review",
+          "author": "xpertvoip",
+          "reporter": false,
+          "url": "https://github.com/open-nvr/open-nvr/pull/470#pullrequestreview-5200324380",
+          "updatedAt": "2026-09-14T16:36:25Z",
+          "state": "APPROVED",
+          "body": "LGTM @iibaranov-IG great work thanks",
+          "read": false
         }
       ],
-      "unread": 1,
-      "mergeable": true,
-      "mergeableState": "blocked",
+      "unread": 5,
+      "mergeable": null,
+      "mergeableState": "unknown",
       "headSha": "55558ea314ae39f001190cb6719eb8fc85a312c2",
       "reporter": "Emily-35",
       "issueCreatedAt": "2026-09-12T08:36:14Z",
       "prCreatedAt": "2026-09-14T07:30:01Z",
-      "mergedAt": null,
+      "mergedAt": "2026-09-14T16:58:12Z",
       "reporterResponseAt": null,
-      "ci": "none",
-      "lastSync": "2026-09-14T14:15:56.820Z",
+      "ci": "success",
+      "lastSync": "2026-09-14T19:30:28.411Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1530,7 +1574,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T14:15:59.496Z",
+      "lastSync": "2026-09-14T19:30:31.172Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1570,7 +1614,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T14:16:02.166Z",
+      "lastSync": "2026-09-14T19:30:33.995Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1632,7 +1676,7 @@
       "mergedAt": "2026-09-14T11:43:45Z",
       "reporterResponseAt": "2026-09-14T09:51:57Z",
       "ci": "success",
-      "lastSync": "2026-09-14T14:16:04.956Z",
+      "lastSync": "2026-09-14T19:30:37.317Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1645,7 +1689,7 @@
       "testedHeadSha": null,
       "evidenceStatus": "NOT_BOUND",
       "run": null,
-      "state": "open",
+      "state": "merged",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
@@ -1713,10 +1757,10 @@
       "reporter": "Alkly47",
       "issueCreatedAt": "2026-09-14T02:56:42Z",
       "prCreatedAt": "2026-09-14T09:20:58Z",
-      "mergedAt": null,
+      "mergedAt": "2026-09-14T14:52:37Z",
       "reporterResponseAt": "2026-09-14T12:57:21Z",
       "ci": "none",
-      "lastSync": "2026-09-14T14:16:07.797Z",
+      "lastSync": "2026-09-14T19:30:40.305Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1744,9 +1788,53 @@
           "state": null,
           "body": "I reproduced the lifecycle race in the driver and opened draft PR #6 with a focused fix.\n\nA rapid STOP → START can collapse into one `stream_work` run. At that point `stream_users` is positive again while `streaming` is still true, so the old worker performs no USB action even though the device session crossed through zero. The patch preserves that zero crossing and forces the existing full kill/cold-init/start path.\n\nThe exact baseline fails the BCL negative control; the candidate passes the coalesced restart plus the ordinary start/stop transition matrix. I also built the resulting kernel module successfully against Ubuntu Linux 7.0 headers.\n\nCould you please test the draft on the reported Babyface Pro FS: start full-duplex playback/capture through PipeWire, change Bitwig 1024 → 2048 → 512, and confirm whether audio resumes in both directions after every change without reloading the module or replugging? If it still becomes silent, the dynamic-debug lines around each stop/start would let me refine the patch against the real timing.\n",
           "read": false
+        },
+        {
+          "key": "issue-comment:5666888472",
+          "kind": "issue-comment",
+          "author": "L-Be",
+          "reporter": true,
+          "url": "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5#issuecomment-5666888472",
+          "updatedAt": "2026-09-14T16:02:33Z",
+          "state": null,
+          "body": "## Update: the driver appears not to be at fault\n\nI tested the PR #6 build (patched module confirmed loaded — `srcversion` on the\nrunning module matches the built `.ko`). The symptom is unchanged.\n\nWhile investigating I found that the ALSA device is fully functional in the\nbroken state, which I think redirects this away from the driver.\n\n### Raw ALSA works while PipeWire is silent\n\nReproduced the break as before (PipeWire sink `RUNNING`, graph cycling,\nno `ERR` in `pw-top`, no audio). Without reloading or replugging, with\nPipeWire stopped:\n\n- `aplay -D hw:2,0 -f S32_LE -c 2 -r 48000` — audible\n- `aplay -D hw:2,0 -f S32_LE -c 12 -r 48000` — audible\n  (12ch S32_LE/48k is PipeWire's exact node format on the `pro-audio` profile)\n- `arecord -D hw:2,0 -f S32_LE -c 2 -r 48000` — captures real signal\n  (max amplitude 0.064 with a live mic)\n\nBoth directions, both channel counts, full duplex, all working — on the same\ndevice, in the same broken state, with no reload in between.\n\n### The hardware mixer is also fine\n\n- `amixer` writes land and are reflected in the dB readout (e.g. `'AN1/2',0`\n  0 → 11469, `'PB1',8` 0 → 8110), so these are not cached no-ops\n- opening all six playback crosspoints into the line-out master changes nothing\n  for the PipeWire stream\n- routing mic → main outs from the device's own front panel works\n\n### PCM is clocking correctly\n\nFrom `/proc/asound/card2/pcm0p/sub0/status` after a restart:\n`tstamp - trigger_time` = 4.514 s, `hw_ptr` = 216576 frames = 4.512 s @ 48 kHz.\nThe pointer advances at real time and `appl_ptr` leads `hw_ptr`.\n\n### Note on PR #6\n\n`stream started` (babyfacepro.c:948) is logged inside the\n`users > 0 && !chip->streaming` branch after the full cold-init, and\n`stream stopped` (:952) inside `users == 0 && chip->streaming` after the kill.\nA coalesced STOP/START where the worker skips both branches would therefore log\n*neither* line. My baseline trace shows both, alternating, on every buffer\nchange:\n\nusb 1-8: stream stopped\nusb 1-8: stream started (256 frames/URB, 8 URBs)\nusb 1-8: stream stopped\nusb 1-8: stream started (256 frames/URB, 8 URBs)\n\n\nSo the worker was already completing the full kill and the full\ncold-init/session-start, with no `goto err`, and the session still ended up\nsilent. That may explain why the patch doesn't change the behaviour here.\n\n### Revised conclusion\n\nThe PCM stream, channel count, format, mixer and both directions all work after\na runtime buffer change. Only the PipeWire path is silent. I no longer think\nthis is a driver bug, and I'll pursue it upstream with PipeWire (1.6.8,\n`pro-audio` profile, 12ch node). Apologies for the misattribution in the\noriginal report.\n\nEnvironment unchanged: Fedora 44, kernel `7.2.3-cachyos2.fc44.x86_64` (GCC),\nPipeWire 1.6.8, Babyface Pro FS, tested on `ecd77c6` and on PR #6.",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5667757371",
+          "kind": "issue-comment",
+          "author": "ismail-bahloul",
+          "reporter": false,
+          "url": "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5#issuecomment-5667757371",
+          "updatedAt": "2026-09-14T17:09:11Z",
+          "state": null,
+          "body": "Spent some time today trying to reproduce this on my own FS unit before doing anything else with it. Three clean attempts:\n\n- Bitwig, buffer size changed repeatedly through the UI, several changes landing within the same second\n- Forcing PipeWire's `clock.force-quantum` by hand through `pw-metadata`, matching your exact sequence (1024 → 2048 → 512)\n- A rapid burst of 8 quantum changes with no delay between them at all, to push as hard as I could on the exact timing window a patch on the tracker (#6) is meant to fix\n\nAll three: clean paired `stream stopped` / `stream started` in the log every time, audio recovered every time, no reload needed. I couldn't get it to stick silent.\n\nThat doesn't mean your report is wrong — you're on a different kernel and USB host controller than mine (7.2.3-cachyos2.fc44 vs my 7.2.4-cachyos, and probably different xhci hardware), and this kind of race is exactly the sort of thing that can be timing-sensitive enough to show up on one machine and not another. But it does mean I can't confirm or fix this blind. There's a PR up (#6) with a theory and a patch for a stream_users coalescing race — worth a look, though I flagged there that its explanation (a single silent worker run) doesn't obviously match your own log, which shows three clean logged transitions rather than a missing one.\n\nIf you're willing, the most useful next step would be testing that branch against your actual repro. If it fixes it for you, that's real confirmation on hardware where the bug reproduces, which is worth a lot more than anything I can do without seeing it happen myself.\n",
+          "read": false
+        },
+        {
+          "key": "issue-comment:5668151606",
+          "kind": "issue-comment",
+          "author": "L-Be",
+          "reporter": true,
+          "url": "https://github.com/ismail-bahloul/babyface-pro-linux/issues/5#issuecomment-5668151606",
+          "updatedAt": "2026-09-14T17:41:02Z",
+          "state": null,
+          "body": "Thanks for putting the time into the repro attempts, the non-repro on your unit\nis useful in itself.\n\nFlagging in case it got missed: I posted an update an hour before your comment\nthat covers the PR #6 test. Short version: patched module confirmed loaded\n(`srcversion` match), symptom unchanged, and while in the broken state raw ALSA\non the same device works in both directions and at both 2ch and 12ch S32_LE/48k\n(PipeWire's exact node format), with the hardware mixer responding normally and\nthe PCM pointer advancing at real time. Only the PipeWire path is silent.\n\nGiven that plus your clean repro attempts, I don't think this is a driver bug\nany more, and I suspect the difference between our machines is config rather\nthan kernel/xhci. One thing worth comparing: on the `pro-audio` profile my card\nonly ever exposes `pro-output-0`, no corresponding input source node, even\nthough `arecord` on `hw:2,0` captures fine. If your unit shows both nodes on\nthat profile, that asymmetry may be the relevant difference. I'll test the\nstereo-duplex profile next and report back.",
+          "read": false
+        },
+        {
+          "key": "pr-comment:5667757094",
+          "kind": "pr-comment",
+          "author": "ismail-bahloul",
+          "reporter": false,
+          "url": "https://github.com/ismail-bahloul/babyface-pro-linux/pull/6#issuecomment-5667757094",
+          "updatedAt": "2026-09-14T17:09:10Z",
+          "state": null,
+          "body": "Thanks for the careful writeup, the BCL evidence, and for being upfront that it's hardware-verified: false — that's exactly the right way to flag it.\n\nI spent a while today trying to actually trigger the race this fixes, on real hardware, before merging. Four attempts:\n\n- Bitwig, changing buffer size through the UI a bunch of times, including several transitions landing in the same logged second\n- Forcing PipeWire's `clock.force-quantum` directly through `pw-metadata`, matching the exact sequence from #5 (1024 → 2048 → 512)\n- A burst of 8 quantum changes back to back with zero delay between them, specifically to try to land in the tightest possible coalescing window\n- Reaper connected via JACK (this one turned out to be confounded by an unrelated Reaper/pipewire-jack instability, so I'm not counting it either way)\n\nEvery one of those gave clean, paired `stream stopped` / `stream started` transitions, dozens of them, several in the same second — audio came back every single time, no reload needed.\n\nSo I can't confirm the underlying bug on this hardware, even stress-testing the exact interleaving. That doesn't mean it's wrong — #5's reporter is on a different kernel and host controller than mine, and the race window's width depends on scheduler/workqueue timing that can vary a fair bit between machines. But there's something in #5's own log I can't square with the theory this patch fixes: it shows three clean, logged transitions (`started` / `stopped` / `started`), not a silent run where the worker does nothing. If `stream_work` really ran once and fell through both branches the way this patch describes, I'd expect a *missing* log line, not three well-formed ones.\n\nI don't want to merge a fix to the core stream lifecycle on theory alone, especially when I tried and failed to reproduce what it's fixing. Would you be up for testing this branch against the actual repro in #5 (or pointing #5's reporter at it)? If it resolves it on hardware where the bug is real, that's the confirmation I need to merge with confidence.\n",
+          "read": false
         }
       ],
-      "unread": 1,
+      "unread": 5,
       "mergeable": true,
       "mergeableState": "clean",
       "headSha": "b34757c29fa5183726415ba601199a1ec07acd59",
@@ -1754,9 +1842,9 @@
       "issueCreatedAt": "2026-09-13T22:00:44Z",
       "prCreatedAt": "2026-09-14T09:52:54Z",
       "mergedAt": null,
-      "reporterResponseAt": null,
+      "reporterResponseAt": "2026-09-14T16:02:33Z",
       "ci": "none",
-      "lastSync": "2026-09-14T14:16:10.724Z",
+      "lastSync": "2026-09-14T19:30:43.033Z",
       "syncError": null
     },
     {
@@ -1805,9 +1893,20 @@
           "state": null,
           "body": "You can test the PR directly from a separate checkout:\n\n```bash\ngit fetch https://github.com/iibaranov-IG/linux-show-player.git bcl/linux-show-player-399-7f02b93bef598264\ngit switch --detach FETCH_HEAD\n```\n\nThen repeat the issue sequence: create a JACK cue routed to the external client, remove that client, play and save/reopen the session, reconnect the client, and play again. While the client is absent, the current working route should remain and the log should contain one concise warning. After it returns, the saved route should be restored.\n\nThis does not add latency to the audio path. The new code runs only when Linux Show Player reconciles JACK connections: it takes one snapshot of the currently available input ports and then performs the same connect/disconnect operations as before. It does not run per audio buffer or add a GStreamer/JACK processing stage.\n",
           "read": false
+        },
+        {
+          "key": "pr-comment:5668806432",
+          "kind": "pr-comment",
+          "author": "wargreen",
+          "reporter": true,
+          "url": "https://github.com/FrancescoCeruti/linux-show-player/pull/401#issuecomment-5668806432",
+          "updatedAt": "2026-09-14T18:37:12Z",
+          "state": null,
+          "body": "Sorry for the delay, the days in the theater are longs...\r\n\r\n```\r\ngit fetch https://github.com/iibaranov-IG/linux-show-player.git bcl/linux-show-player-399-7f02b93bef598264\r\nfatal: couldn't find remote ref bcl/linux-show-player-399-7f02b93bef598264\r\n```\r\n\r\nSure, no mode latency in the audio path, but at the connection logic.\r\nNo more latency between the launch of the cue /  the connection to the outputs / the audio playing ?",
+          "read": false
         }
       ],
-      "unread": 3,
+      "unread": 4,
       "mergeable": true,
       "mergeableState": "clean",
       "headSha": "5b2b73238aadcef6d05f0d15d4522bd69da5c993",
@@ -1817,7 +1916,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T10:33:28Z",
       "ci": "success",
-      "lastSync": "2026-09-14T14:16:13.367Z",
+      "lastSync": "2026-09-14T19:30:45.783Z",
       "syncError": null
     },
     {
@@ -1878,7 +1977,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T14:16:16.408Z",
+      "lastSync": "2026-09-14T19:30:48.871Z",
       "syncError": null
     },
     {
@@ -1893,7 +1992,8 @@
       "state": "draft",
       "hardware": {
         "status": "NOT_REVIEWED",
-        "priorStatus": "NOT_REVIEWED"
+        "priorStatus": "NOT_REVIEWED",
+        "testedHeadSha": "70305c895e8a5ea6c18fe02053f346c953ae960e"
       },
       "events": [
         {
@@ -1963,29 +2063,40 @@
           "read": false
         },
         {
+          "key": "issue-comment:5666039505",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/jeffvli/feishin/issues/2451#issuecomment-5666039505",
+          "updatedAt": "2026-09-14T15:01:23Z",
+          "state": null,
+          "body": "The Vercel failure is limited to the web preview. The repository's own PR packaging workflow completed successfully for Windows, macOS, and Linux.\n\nFor your Windows test, please open the successful [PR build run](https://github.com/jeffvli/feishin/actions/runs/34837256097), scroll to **Artifacts**, download **windows-binaries**, extract it, and run the packaged Feishin build. The Windows packaging job completed successfully and is tied to draft commit `70305c895e8a5ea6c18fe02053f346c953ae960e`.\n\nPlease repeat the same playback attempt and report:\n1. whether the `getTranscodeDecision` CORS error still appears;\n2. whether Feishin then requests `stream.view`;\n3. whether playback starts.\n\nI verified that the build-run page is reachable before sending this route.\n",
+          "read": false
+        },
+        {
           "key": "pr-comment:5662886108",
           "kind": "pr-comment",
           "author": "vercel[bot]",
           "reporter": false,
           "url": "https://github.com/jeffvli/feishin/pull/2464#issuecomment-5662886108",
-          "updatedAt": "2026-09-14T11:17:21Z",
+          "updatedAt": "2026-09-14T15:23:21Z",
           "state": null,
-          "body": "[vc]: #xSdf8Lu6naZdaaTuMitkUeCUEZrrg7eI+5QLYte4srI=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJmZWlzaGluIiwicHJvamVjdElkIjoicHJqX3FHcWNTRmFUc3l3Y0NwMmN2cHhOMnRXYVY3Um0iLCJyb290RGlyZWN0b3J5IjpudWxsLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vamVmZnZsaXMtcHJvamVjdHMvZmVpc2hpbi80WUVKcVVmYzdUUnEzdll3V0tZUXVRN1BHZE1rIiwicHJldmlld1VybCI6IiIsIm5leHRDb21taXRTdGF0dXMiOiJGQUlMRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoiIn19XX0=\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated |\n| :--- | :----- | :------ | :------ |\n| <a href=\"https://vercel.com/jeffvlis-projects/feishin\"><sup><img src=\"https://vercel.com/api/www/avatar?projectId=prj_qGqcSFaTsywcCp2cvpxN2tWaV7Rm&teamId=team_Hug1sS6XsM6zVAdg4475Z5jB&s=32\" width=\"16\" height=\"16\" align=\"middle\" alt=\"\" /></sup></a> [feishin](https://vercel.com/jeffvlis-projects/feishin) | ![Error](https://vercel.com/static/status/error.svg) [Error](https://vercel.com/jeffvlis-projects/feishin/4YEJqUfc7TRq3vYwWKYQuQ7PGdMk) |  | <relative-time datetime=\"2026-09-14T11:17:21.286Z\">Sep 14, 2026 11:17am UTC</relative-time> |\n\n",
+          "body": "[vc]: #oq0wkdS/UMm+nV9F5OiE41NeTN87SOJv1j07ROLmI4k=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJmZWlzaGluIiwicHJvamVjdElkIjoicHJqX3FHcWNTRmFUc3l3Y0NwMmN2cHhOMnRXYVY3Um0iLCJyb290RGlyZWN0b3J5IjpudWxsLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vamVmZnZsaXMtcHJvamVjdHMvZmVpc2hpbi9EWHhHUlhvNkZSUWV0YUNVNFNMZEg4ZlVwZ0VGIiwicHJldmlld1VybCI6ImZlaXNoaW4tZ2l0LWZvcmstaWliYXJhbm92LWlnLWJjbC1mZWlzLWY4OGIxOS1qZWZmdmxpcy1wcm9qZWN0cy52ZXJjZWwuYXBwIiwibmV4dENvbW1pdFN0YXR1cyI6IkRFUExPWUVEIiwibGl2ZUZlZWRiYWNrIjp7InJlc29sdmVkIjowLCJ1bnJlc29sdmVkIjowLCJ0b3RhbCI6MCwibGluayI6ImZlaXNoaW4tZ2l0LWZvcmstaWliYXJhbm92LWlnLWJjbC1mZWlzLWY4OGIxOS1qZWZmdmxpcy1wcm9qZWN0cy52ZXJjZWwuYXBwIn0sInYwIjpmYWxzZX1dfQ==\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated |\n| :--- | :----- | :------ | :------ |\n| <a href=\"https://vercel.com/jeffvlis-projects/feishin\"><sup><img src=\"https://vercel.com/api/www/avatar?projectId=prj_qGqcSFaTsywcCp2cvpxN2tWaV7Rm&teamId=team_Hug1sS6XsM6zVAdg4475Z5jB&s=32\" width=\"16\" height=\"16\" align=\"middle\" alt=\"\" /></sup></a> [feishin](https://vercel.com/jeffvlis-projects/feishin) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/jeffvlis-projects/feishin/DXxGRXo6FRQetaCU4SLdH8fUpgEF) | [Preview](https://feishin-git-fork-iibaranov-ig-bcl-feis-f88b19-jeffvlis-projects.vercel.app) | <relative-time datetime=\"2026-09-14T15:23:20.863Z\">Sep 14, 2026 3:23pm UTC</relative-time> |\n\n",
           "read": false
         }
       ],
-      "unread": 7,
-      "evidenceStaleSince": "2026-09-14T14:16:19.422Z",
-      "mergeable": true,
-      "mergeableState": "unstable",
-      "headSha": "70305c895e8a5ea6c18fe02053f346c953ae960e",
+      "unread": 8,
+      "evidenceStaleSince": "2026-09-14T19:30:52.149Z",
+      "mergeable": null,
+      "mergeableState": "unknown",
+      "headSha": "158d24bd1ac7b9fd7e02ae9cc3027a1c0c83e6da",
       "reporter": "andrewk-prog",
       "issueCreatedAt": "2026-09-13T14:08:01Z",
       "prCreatedAt": "2026-09-14T10:58:11Z",
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T08:45:51Z",
-      "ci": "failure",
-      "lastSync": "2026-09-14T14:16:19.422Z",
+      "ci": "success",
+      "lastSync": "2026-09-14T19:30:52.149Z",
       "syncError": null
     },
     {
@@ -2024,7 +2135,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T14:16:21.973Z",
+      "lastSync": "2026-09-14T19:30:54.901Z",
       "syncError": null
     },
     {
@@ -2074,7 +2185,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T13:43:10Z",
       "ci": "none",
-      "lastSync": "2026-09-14T14:16:24.677Z",
+      "lastSync": "2026-09-14T19:30:58.734Z",
       "syncError": null
     },
     {
@@ -2123,9 +2234,20 @@
           "state": null,
           "body": "I opened draft PR #1656 to ship the upstream prudynt-t fMP4 cleanup in Thingino.\n\nThe underlying prudynt fix is maintainer commit `354b1b4`: it releases the fMP4 worker claim after the last preview disconnects, avoids writing to an undrained main channel, recycles queued frames, and bounds retained NAL capacity. BCL independently verified the old firmware pin fails the regression check and the proposed pin passes all six source-level checks: https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34840592749\n\n@alump @Goldstrike75 @bigskookum, if a maintainer can provide a candidate image, your hardware results would close the remaining gap. Please open and close Live View ten times with no RTSP client, sample `VmRSS` every five seconds, then leave it running for 50 minutes and confirm there is no OOM/reboot and that RTSP plus fMP4 still play. The PR includes the exact procedure and does not claim firmware hardware verification yet.\n",
           "read": false
+        },
+        {
+          "key": "issue-comment:5666108516",
+          "kind": "issue-comment",
+          "author": "alump",
+          "reporter": true,
+          "url": "https://github.com/themactep/thingino-firmware/issues/1636#issuecomment-5666108516",
+          "updatedAt": "2026-09-14T15:54:33Z",
+          "state": null,
+          "body": "@iibaranov-IG I still have my device on that broken firmware, so I can test firmware when available. Or if there is easy way to build it by myself, I can try to build it (but not right away, I'm too busy).",
+          "read": false
         }
       ],
-      "unread": 3,
+      "unread": 4,
       "mergeable": true,
       "mergeableState": "unstable",
       "headSha": "b1e94bf750930ee0d09ac0b95e8f02a57807aee5",
@@ -2133,9 +2255,9 @@
       "issueCreatedAt": "2026-09-12T11:47:59Z",
       "prCreatedAt": "2026-09-14T11:56:33Z",
       "mergedAt": null,
-      "reporterResponseAt": null,
+      "reporterResponseAt": "2026-09-14T15:54:33Z",
       "ci": "success",
-      "lastSync": "2026-09-14T14:16:27.475Z",
+      "lastSync": "2026-09-14T19:31:01.590Z",
       "syncError": null
     },
     {
@@ -2169,9 +2291,9 @@
           "author": "mkruselj",
           "reporter": true,
           "url": "https://github.com/surge-synthesizer/surge/issues/8569#issuecomment-5664351548",
-          "updatedAt": "2026-09-14T13:00:42Z",
+          "updatedAt": "2026-09-14T14:17:47Z",
           "state": null,
-          "body": "I have opened [a PR](#8574) which fixes this and another semi-related issue (#8570), however I have folded the test from your draft PR because it seemed very useful to have. Thanks for the contrib!",
+          "body": "I have opened a PR (see above) which fixes this and another semi-related issue (#8570), however I have folded the test from your draft PR because it seemed very useful to have. Thanks for the contrib!",
           "read": false
         },
         {
@@ -2206,9 +2328,31 @@
           "state": null,
           "body": "this fix is I think not appropriate\r\n\r\nMTS-ESP has per channel tuning. Surge should consume those and ignore per channel octave shift if it is an MTS client\r\n\r\nIf you would like surge as an MTS source to provide this, we can do that as a separate project",
           "read": false
+        },
+        {
+          "key": "pr-comment:5665418706",
+          "kind": "pr-comment",
+          "author": "Andreya-Autumn",
+          "reporter": false,
+          "url": "https://github.com/surge-synthesizer/surge/pull/8572#issuecomment-5665418706",
+          "updatedAt": "2026-09-14T14:16:53Z",
+          "state": null,
+          "body": "That's not quite right. Almost no MTS-ESP sources populate the per-channel tables, in fact only Oddsund Mini does. Channel/octave (or more correctly per period) working with MTS-ESP makes Surge more useful for Lumatone users who want to use a source other than Mini. I discussed this with out Lumatone friends and we agreed the correct choice is choct should be a choice and if you want to use mts-esp multichannel you turn it off. \n\nLemme take a closer look later and see which of these changes, if any, do make sense. ",
+          "read": false
+        },
+        {
+          "key": "pr-comment:5665523217",
+          "kind": "pr-comment",
+          "author": "mkruselj",
+          "reporter": true,
+          "url": "https://github.com/surge-synthesizer/surge/pull/8572#issuecomment-5665523217",
+          "updatedAt": "2026-09-14T14:24:17Z",
+          "state": null,
+          "body": "@Andreya-Autumn Can you copy that response to the actually opened PR #8574 ?",
+          "read": false
         }
       ],
-      "unread": 5,
+      "unread": 7,
       "mergeable": true,
       "mergeableState": "clean",
       "headSha": "88755e0d44342937d8197aca6bba90ec7db177aa",
@@ -2218,7 +2362,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T12:47:41Z",
       "ci": "none",
-      "lastSync": "2026-09-14T14:16:31.020Z",
+      "lastSync": "2026-09-14T19:31:04.322Z",
       "syncError": null
     },
     {
@@ -2233,7 +2377,8 @@
       "state": "open",
       "hardware": {
         "status": "NOT_REVIEWED",
-        "priorStatus": "NOT_REVIEWED"
+        "priorStatus": "NOT_REVIEWED",
+        "testedHeadSha": "926c4bb6ff5d2ee95f3c35eab1d378fef10983b8"
       },
       "events": [
         {
@@ -2271,7 +2416,7 @@
         }
       ],
       "unread": 3,
-      "evidenceStaleSince": "2026-09-14T14:16:33.495Z",
+      "evidenceStaleSince": "2026-09-14T19:31:07.178Z",
       "mergeable": true,
       "mergeableState": "blocked",
       "headSha": "926c4bb6ff5d2ee95f3c35eab1d378fef10983b8",
@@ -2281,7 +2426,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T14:16:33.495Z",
+      "lastSync": "2026-09-14T19:31:07.178Z",
       "syncError": null
     },
     {
@@ -2353,7 +2498,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-07-15T14:15:08Z",
       "ci": "success",
-      "lastSync": "2026-09-14T14:16:36.172Z",
+      "lastSync": "2026-09-14T19:31:10.344Z",
       "syncError": null
     },
     {
@@ -2392,7 +2537,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T14:16:38.972Z",
+      "lastSync": "2026-09-14T19:31:13.500Z",
       "syncError": null
     },
     {
@@ -2431,7 +2576,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-14T14:16:41.615Z",
+      "lastSync": "2026-09-14T19:31:16.298Z",
       "syncError": null,
       "attachment": "BCL_EXISTING_PR"
     },
@@ -2459,7 +2604,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-14T15:00:42.840Z",
+      "lastSync": "2026-09-14T19:31:19.343Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2477,7 +2622,18 @@
         "status": "NOT_REVIEWED"
       },
       "events": [],
-      "unread": 0
+      "unread": 0,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "fa828049e25c673abee9ed0416f8d5e6be716f4b",
+      "reporter": "noisy",
+      "issueCreatedAt": "2026-09-14T06:56:20Z",
+      "prCreatedAt": "2026-09-14T16:50:02Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T19:31:22.371Z",
+      "syncError": null
     },
     {
       "id": "blueye-sdk-225",
@@ -2493,7 +2649,18 @@
         "status": "NOT_REVIEWED"
       },
       "events": [],
-      "unread": 0
+      "unread": 0,
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "afe4af5dba567c205840fe6378e6582a7a12c271",
+      "reporter": "follesoe",
+      "issueCreatedAt": "2026-09-13T19:18:29Z",
+      "prCreatedAt": "2026-09-14T17:10:34Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T19:31:25.103Z",
+      "syncError": null
     },
     {
       "id": "rmfakecloud-485",
@@ -2504,12 +2671,35 @@
       "testedHeadSha": "19dce9aca962ecac954ea30d55deeaef7a8599e5",
       "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34874268293",
-      "state": "open",
+      "state": "closed",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0
+      "events": [
+        {
+          "key": "pr-comment:5668214617",
+          "kind": "pr-comment",
+          "author": "rmitchellscott",
+          "reporter": false,
+          "url": "https://github.com/ddvk/rmfakecloud/pull/486#issuecomment-5668214617",
+          "updatedAt": "2026-09-14T17:46:17Z",
+          "state": null,
+          "body": "No thanks slop bot.",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "clean",
+      "headSha": "19dce9aca962ecac954ea30d55deeaef7a8599e5",
+      "reporter": "SohnyBohny",
+      "issueCreatedAt": "2026-09-14T16:28:36Z",
+      "prCreatedAt": "2026-09-14T17:26:41Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T19:31:28.142Z",
+      "syncError": null
     },
     {
       "id": "esp-osc-2",
@@ -2525,7 +2715,18 @@
         "status": "NOT_REVIEWED"
       },
       "events": [],
-      "unread": 0
+      "unread": 0,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "394ec37490373661d769938bb4e72cc18198cc9e",
+      "reporter": "Jimbo181",
+      "issueCreatedAt": "2026-09-14T13:48:39Z",
+      "prCreatedAt": "2026-09-14T17:41:22Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-14T19:31:31.134Z",
+      "syncError": null
     }
   ],
   "schemaVersion": 1

@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 2,
+  "id": "pipewirecontroller-19",
+  "status": "ready",
+  "title": "Refresh device volume and mute changed outside the app",
+  "issue": "https://github.com/knightinfected/PipeWireController/issues/19",
+  "problem": "The Devices page reads volume and mute only when it is opened or manually refreshed, so hardware buttons, GNOME controls and other PipeWire clients leave its controls visibly stale.",
+  "reproduce": "Open the Devices page at pinned revision 6784365f, change a sink volume or mute state outside the application, and keep the page open. There is no polling callback or reconciliation path, so the displayed slider and mute button retain their old values.",
+  "acceptance": "While the Devices page is visible, external volume and mute changes update the existing row controls within three seconds. Polls do not rebuild unchanged rows, do not overwrite a control touched locally in the previous two seconds, stop when the page is hidden, and rebuild once if a PipeWire node id changes.",
+  "repair": "Poll one PipeWire dump every three seconds only while the page is mapped, reconcile volume and mute into the existing controls, give local edits a grace window, and rebuild rows only when node membership or ids change. Add deterministic tests for external updates, local-edit protection and node recreation.",
+  "sources": [
+    {
+      "id": "baseline",
+      "repository": "knightinfected/PipeWireController",
+      "commit": "6784365f91872586bc09cf65d9ab192abea6d824",
+      "directory": "sources/pipewirecontroller-19"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [
+    "cases/pipewirecontroller-19/"
+  ],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/pipewirecontroller-19",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/pipewirecontroller-19/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/pipewirecontroller-19/test.mjs",
+          "sources/pipewirecontroller-19"
+        ]
+      }
+    ],
+    "build": [
+      {
+        "cwd": "sources/pipewirecontroller-19",
+        "argv": [
+          "python",
+          "-m",
+          "compileall",
+          "-q",
+          "pwctl",
+          "tests/test_device_levels.py"
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "report": "reports/pipewirecontroller-19.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves baseline-red/candidate-green reconciliation with production code, checks Python syntax, and runs the focused unit suite. GTK rendering and a live PipeWire graph are not available in the container; the reporter remains the final Bluetooth/GNOME validation.",
+    "ownerCheck": "Open Route \u2192 Devices, change output volume and mute with the Bluetooth headset buttons and GNOME controls, and confirm the visible slider/button follow within three seconds without leaving the page. Drag the app slider continuously and confirm it does not jump backward; unplug/reconnect the device and confirm controls still target it."
+  },
+  "selection": {
+    "report": "cases/pipewirecontroller-19/triage.json",
+    "sha256": "e55630438d1991fb51be8d5517a810eeaa9b880a6b1db5f387ce068caeffa5a9",
+    "reason": "A current user reproduces stale device controls with both Bluetooth hardware buttons and GNOME controls. The cause is deterministic, no competing PR exists, and the focused repair can preserve open row state while remaining owner-testable on the reported setup."
+  },
+  "template": {
+    "language": "node",
+    "protocol": "none"
+  },
+  "publish": {
+    "source": "baseline",
+    "target": "knightinfected/PipeWireController",
+    "base": "main",
+    "commitMessage": "fix(devices): follow external volume changes",
+    "paths": [
+      "pwctl/ui/devices.py",
+      "pwctl/ui/device_levels.py",
+      "tests/test_device_levels.py"
+    ],
+    "verificationOnlyPaths": [
+      "test_bcl_issue_19.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "baseline",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/pipewirecontroller-19/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "test_bcl_issue_19.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "python",
+        "test_bcl_issue_19.py"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "DEVICE_LEVELS_STALE"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_device_levels.py",
+        "-v"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 3 tests"
+  }
+}

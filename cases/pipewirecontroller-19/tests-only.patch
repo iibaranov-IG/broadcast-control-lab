@@ -1,0 +1,72 @@
+diff --git a/test_bcl_issue_19.py b/test_bcl_issue_19.py
+new file mode 100644
+--- /dev/null
++++ b/test_bcl_issue_19.py
+@@ -0,0 +1,67 @@
++"""BCL contract for live Devices-page volume and mute reconciliation."""
++
++from pathlib import Path
++from types import SimpleNamespace
++
++
++def fail(message):
++    print(f'FAIL: {message}')
++    print('DEVICE_LEVELS_STALE')
++    raise SystemExit(1)
++
++
++devices = Path('pwctl/ui/devices.py').read_text()
++for token in ('GLib.timeout_add_seconds', "self.widget.connect('unmap'", 'sync_device_levels'):
++    if token not in devices:
++        fail(f'Devices page lacks {token}')
++
++try:
++    from pwctl.ui.device_levels import sync_device_levels
++except ImportError as error:
++    fail(f'live reconciliation helper is missing: {error}')
++
++
++class Control:
++    def __init__(self):
++        self.values = []
++
++    def set_value(self, value):
++        self.values.append(value)
++
++    def set_active(self, value):
++        self.values.append(value)
++
++
++def controls(node_id=4, touched=0.0):
++    return {'headphones': {
++        'node_id': node_id,
++        'volume': Control(),
++        'mute': Control(),
++        'updating': False,
++        'local_ts': touched,
++    }}
++
++
++node = SimpleNamespace(name='headphones', id=4, volume=0.35, muted=True)
++state = controls()
++if not sync_device_levels(state, [node], 10.0, 2.0):
++    fail('unchanged node membership requested a rebuild')
++if state['headphones']['volume'].values != [0.35]:
++    fail('external volume was not applied')
++if state['headphones']['mute'].values != [True]:
++    fail('external mute was not applied')
++print('PASS: external volume and mute update existing controls')
++
++grace = controls(touched=9.0)
++sync_device_levels(grace, [node], 10.0, 2.0)
++if grace['headphones']['volume'].values or grace['headphones']['mute'].values:
++    fail('poll overwrote a recent local control change')
++print('PASS: local control changes receive a grace window')
++
++recreated = SimpleNamespace(name='headphones', id=9, volume=0.35, muted=True)
++if sync_device_levels(controls(), [recreated], 10.0, 2.0):
++    fail('recreated PipeWire node did not request a row rebuild')
++print('PASS: recreated nodes refresh their callback ids')
++print('PASS: Devices page reconciles externally changed state')
++print('# tests 3')
++print('# skipped 0')

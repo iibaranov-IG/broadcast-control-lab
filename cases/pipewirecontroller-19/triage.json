@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T04:41:49.268Z",
+  "issue": {
+    "repository": "knightinfected/PipeWireController",
+    "number": "19",
+    "url": "https://github.com/knightinfected/PipeWireController/issues/19",
+    "title": "[Bug]: Volume Levels in \"Devices\" view not updating when changed externally",
+    "state": "open",
+    "updatedAt": "2026-09-11T23:48:00Z"
+  },
+  "source": {
+    "repository": "knightinfected/PipeWireController",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "6784365f91872586bc09cf65d9ab192abea6d824",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "pwctl/__init__.py",
+      "pwctl/app.py",
+      "pwctl/backend/__init__.py",
+      "pwctl/backend/backends.py",
+      "pwctl/backend/bluetooth.py",
+      "pwctl/backend/chains.py",
+      "pwctl/backend/config.py",
+      "pwctl/backend/enhance.py",
+      "pwctl/backend/graph.py",
+      "pwctl/backend/hrir.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/knightinfected/PipeWireController/blob/6784365f91872586bc09cf65d9ab192abea6d824/pyproject.toml"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:knightinfected/PipeWireController": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 81,
+    "scoreRange": [
+      80,
+      81
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "The visible control contradicts the actual headphone/device state during ordinary use.",
+        "evidence": [
+          "issue reproduction"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 4,
+        "reason": "The report is one week old and targets current v0.6.0.",
+        "evidence": [
+          "issue created 2026-09-08"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 3,
+        "reason": "The reporter supplied exact versions and diagnostics but has not replied yet.",
+        "evidence": [
+          "issue body"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "External volume and mute changes must update existing controls without leaving the view.",
+        "evidence": [
+          "issue expected behavior"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 4,
+        "reason": "The missing refresh is visible in source and the reconciliation path can be tested deterministically.",
+        "evidence": [
+          "pwctl/ui/devices.py"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "The change is confined to Devices-page polling and a small reconciliation helper.",
+        "evidence": [
+          "local reviewed diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Pure state tests cover updates, local grace, and node recreation; a live PipeWire check remains.",
+        "evidence": [
+          "local unittest run"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Polling is active only while the page is mapped and preserves existing row widgets.",
+        "evidence": [
+          "local reviewed diff"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 4,
+        "reason": "The repository was updated in the past day and has current releases/issues.",
+        "evidence": [
+          "repository metadata"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fix applies to all PipeWire sinks and sources controlled externally.",
+        "evidence": [
+          "issue examples"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The reconciliation pattern covers volume and mute from hardware buttons, GNOME controls, and other clients.",
+        "evidence": [
+          "issue reproduction"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "The focused helper can support future device-state fields but this repair stays scoped.",
+        "evidence": [
+          "local helper design"
+        ]
+      }
+    ],
+    "class": "QUICK_REVIEW",
+    "deliveryReadiness": 76,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      4,
+      76,
+      81
+    ],
+    "selectable": true
+  },
+  "durationMs": 2646
+}

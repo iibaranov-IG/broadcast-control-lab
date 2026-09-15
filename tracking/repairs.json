@@ -33,7 +33,7 @@
       "headSha": "1455b64bb57c44d501dc18cb7655a06c5f290e25",
       "id": "openmixercontrol-8",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/8",
-      "lastSync": "2026-09-15T18:17:47.239Z",
+      "lastSync": "2026-09-15T21:30:36.414Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/91",
       "reporter": "schulz-alexander",
       "run": null,
@@ -70,7 +70,7 @@
       "headSha": "bfb749b74f3b46ffb3751f6d8cfaaeff7ebfdecb",
       "id": "openmixercontrol-54",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/54",
-      "lastSync": "2026-09-15T18:17:50.212Z",
+      "lastSync": "2026-09-15T21:30:40.839Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/92",
       "reporter": "flipfi",
       "run": null,
@@ -118,7 +118,7 @@
       "headSha": "de3cd33a82c55c59a8d2189a8ced0d0b60a298ec",
       "id": "wirelessboard-93",
       "issue": "https://github.com/willcgage/wirelessboard/issues/93",
-      "lastSync": "2026-09-15T18:17:53.894Z",
+      "lastSync": "2026-09-15T21:30:44.461Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/103",
       "reporter": "willcgage",
       "run": null,
@@ -155,7 +155,7 @@
       "headSha": "d62d1cdacbb78398be452718e55c95a0b1929bc2",
       "id": "network-audio-controller-55",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/55",
-      "lastSync": "2026-09-15T18:17:56.415Z",
+      "lastSync": "2026-09-15T21:30:47.945Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/58",
       "reporter": "coaxk",
       "run": null,
@@ -225,7 +225,7 @@
       "headSha": "439962cba7a03b409b68e40ebb0b66f9f5d129c8",
       "id": "network-audio-controller-47",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/47",
-      "lastSync": "2026-09-15T18:17:59.079Z",
+      "lastSync": "2026-09-15T21:30:51.388Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/57",
       "reporter": "stanelie",
       "run": null,
@@ -702,7 +702,7 @@
       "headSha": "22d6db8b9c768233f8b1d0e39cab40bf3bacb09b",
       "id": "jammernetz-35",
       "issue": "https://github.com/christofmuc/JammerNetz/issues/35",
-      "lastSync": "2026-09-15T18:18:01.522Z",
+      "lastSync": "2026-09-15T21:30:54.808Z",
       "pr": "https://github.com/christofmuc/JammerNetz/pull/108",
       "reporter": "iamthechrisb",
       "run": null,
@@ -772,7 +772,7 @@
       "headSha": "f1536c3d1a395620edc73815deca2b5173f7c7de",
       "id": "low-latency-audio-32",
       "issue": "https://github.com/microsoft/low-latency-audio/issues/32",
-      "lastSync": "2026-09-15T18:18:04.196Z",
+      "lastSync": "2026-09-15T21:30:58.349Z",
       "pr": "https://github.com/microsoft/low-latency-audio/pull/35",
       "reporter": "tankoha",
       "run": null,
@@ -930,7 +930,7 @@
       "headSha": "37f1ad4f80ddc7ab42b52f8687b1175db53c6faa",
       "id": "dometools-47",
       "issue": "https://github.com/prefrontalcortex/DomeTools/issues/47",
-      "lastSync": "2026-09-15T18:18:06.985Z",
+      "lastSync": "2026-09-15T21:31:01.889Z",
       "pr": "https://github.com/prefrontalcortex/DomeTools/pull/49",
       "reporter": "Hanesto",
       "run": null,
@@ -1011,7 +1011,7 @@
       "headSha": "6e3694bbbf98930016c8e5e9ab0db4fec9c79d8c",
       "id": "wirelessboard-92",
       "issue": "https://github.com/willcgage/wirelessboard/issues/92",
-      "lastSync": "2026-09-15T18:18:09.641Z",
+      "lastSync": "2026-09-15T21:31:05.297Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/101",
       "reporter": "willcgage",
       "run": null,
@@ -1103,7 +1103,7 @@
       "headSha": "3b62b36abd58c780aaac7328c4c32e4c6a6630bd",
       "id": "ipcamlapse-33",
       "issue": "https://github.com/KalyteraSystems/IPCamLapse/issues/33",
-      "lastSync": "2026-09-15T18:18:12.161Z",
+      "lastSync": "2026-09-15T21:31:08.751Z",
       "pr": "https://github.com/KalyteraSystems/IPCamLapse/pull/50",
       "reporter": "elkampu",
       "run": null,
@@ -1128,7 +1128,7 @@
       "headSha": "a2f96d5143b5e87a45d68b9086d1fd80ae2afe27",
       "id": "midimonster-150",
       "issue": "https://github.com/cbdevnet/midimonster/issues/150",
-      "lastSync": "2026-09-15T18:18:16.140Z",
+      "lastSync": "2026-09-15T21:31:13.154Z",
       "pr": "https://github.com/cbdevnet/midimonster/pull/151",
       "reporter": "jetryco",
       "run": null,
@@ -1198,7 +1198,7 @@
       "headSha": "e0b946103373552baca68fb8d18446ea87f9b277",
       "id": "fader-x-5",
       "issue": "https://github.com/stagehacks/FADER_X/issues/5",
-      "lastSync": "2026-09-15T18:18:18.977Z",
+      "lastSync": "2026-09-15T21:31:16.659Z",
       "pr": "https://github.com/stagehacks/FADER_X/pull/8",
       "reporter": "istnv",
       "run": null,
@@ -1249,7 +1249,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2025-02-24T22:58:56Z",
       "ci": "none",
-      "lastSync": "2026-09-15T18:18:21.576Z",
+      "lastSync": "2026-09-15T21:31:20.209Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1277,7 +1277,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:18:25.189Z",
+      "lastSync": "2026-09-15T21:31:23.974Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1317,7 +1317,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T18:18:27.709Z",
+      "lastSync": "2026-09-15T21:31:27.271Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1345,7 +1345,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:18:30.223Z",
+      "lastSync": "2026-09-15T21:31:30.513Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1442,7 +1442,7 @@
       "mergedAt": "2026-09-14T08:02:35Z",
       "reporterResponseAt": "2026-09-14T08:02:08Z",
       "ci": "success",
-      "lastSync": "2026-09-15T18:18:32.787Z",
+      "lastSync": "2026-09-15T21:31:33.928Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-14T10:47:47.991Z"
@@ -1483,7 +1483,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:18:35.572Z",
+      "lastSync": "2026-09-15T21:31:37.442Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1589,7 +1589,7 @@
       "mergedAt": "2026-09-14T16:58:12Z",
       "reporterResponseAt": "2026-09-15T00:24:25Z",
       "ci": "success",
-      "lastSync": "2026-09-15T18:18:38.171Z",
+      "lastSync": "2026-09-15T21:31:40.796Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1651,7 +1651,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T19:35:00Z",
       "ci": "none",
-      "lastSync": "2026-09-15T18:18:40.700Z",
+      "lastSync": "2026-09-15T21:31:44.234Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1691,7 +1691,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T18:18:43.575Z",
+      "lastSync": "2026-09-15T21:31:47.754Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1753,7 +1753,7 @@
       "mergedAt": "2026-09-14T11:43:45Z",
       "reporterResponseAt": "2026-09-14T09:51:57Z",
       "ci": "success",
-      "lastSync": "2026-09-15T18:18:45.982Z",
+      "lastSync": "2026-09-15T21:31:51.123Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1837,7 +1837,7 @@
       "mergedAt": "2026-09-14T14:52:37Z",
       "reporterResponseAt": "2026-09-14T12:57:21Z",
       "ci": "none",
-      "lastSync": "2026-09-15T18:18:48.769Z",
+      "lastSync": "2026-09-15T21:31:54.588Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1921,7 +1921,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T16:02:33Z",
       "ci": "none",
-      "lastSync": "2026-09-15T18:18:51.101Z",
+      "lastSync": "2026-09-15T21:31:57.759Z",
       "syncError": null
     },
     {
@@ -1993,7 +1993,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T10:33:28Z",
       "ci": "success",
-      "lastSync": "2026-09-15T18:18:53.450Z",
+      "lastSync": "2026-09-15T21:32:01.163Z",
       "syncError": null
     },
     {
@@ -2054,7 +2054,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T18:18:56.172Z",
+      "lastSync": "2026-09-15T21:32:04.734Z",
       "syncError": null
     },
     {
@@ -2185,7 +2185,7 @@
         }
       ],
       "unread": 10,
-      "evidenceStaleSince": "2026-09-15T18:18:59.156Z",
+      "evidenceStaleSince": "2026-09-15T21:32:08.559Z",
       "mergeable": true,
       "mergeableState": "clean",
       "headSha": "158d24bd1ac7b9fd7e02ae9cc3027a1c0c83e6da",
@@ -2195,7 +2195,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T08:45:51Z",
       "ci": "success",
-      "lastSync": "2026-09-15T18:18:59.156Z",
+      "lastSync": "2026-09-15T21:32:08.559Z",
       "syncError": null
     },
     {
@@ -2245,7 +2245,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T18:19:01.764Z",
+      "lastSync": "2026-09-15T21:32:12.025Z",
       "syncError": null
     },
     {
@@ -2295,7 +2295,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T13:43:10Z",
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:04.448Z",
+      "lastSync": "2026-09-15T21:32:15.702Z",
       "syncError": null
     },
     {
@@ -2311,7 +2311,7 @@
       "hardware": {
         "status": "NOT_REVIEWED",
         "priorStatus": "NOT_REVIEWED",
-        "testedHeadSha": "b1e94bf750930ee0d09ac0b95e8f02a57807aee5"
+        "testedHeadSha": "17f3dea24588e388ffd5ea5456ecb7411b37cd5d"
       },
       "events": [
         {
@@ -2369,9 +2369,9 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T15:54:33Z",
       "ci": "success",
-      "lastSync": "2026-09-15T18:19:07.662Z",
+      "lastSync": "2026-09-15T21:32:19.396Z",
       "syncError": null,
-      "evidenceStaleSince": "2026-09-15T18:19:07.662Z"
+      "evidenceStaleSince": "2026-09-15T21:32:19.396Z"
     },
     {
       "id": "surge-8569",
@@ -2475,7 +2475,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T12:47:41Z",
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:10.220Z",
+      "lastSync": "2026-09-15T21:32:22.806Z",
       "syncError": null
     },
     {
@@ -2529,7 +2529,7 @@
         }
       ],
       "unread": 3,
-      "evidenceStaleSince": "2026-09-15T18:19:12.948Z",
+      "evidenceStaleSince": "2026-09-15T21:32:26.381Z",
       "mergeable": true,
       "mergeableState": "blocked",
       "headSha": "926c4bb6ff5d2ee95f3c35eab1d378fef10983b8",
@@ -2539,7 +2539,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:12.948Z",
+      "lastSync": "2026-09-15T21:32:26.381Z",
       "syncError": null
     },
     {
@@ -2602,8 +2602,8 @@
         }
       ],
       "unread": 4,
-      "mergeable": null,
-      "mergeableState": "unknown",
+      "mergeable": true,
+      "mergeableState": "blocked",
       "headSha": "87a7a8f1696b193f5656586ec84489d8ae5b550e",
       "reporter": "fututukamono",
       "issueCreatedAt": "2026-07-10T15:30:31Z",
@@ -2611,7 +2611,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-07-15T14:15:08Z",
       "ci": "success",
-      "lastSync": "2026-09-15T18:19:15.712Z",
+      "lastSync": "2026-09-15T21:32:30.005Z",
       "syncError": null
     },
     {
@@ -2650,7 +2650,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:18.344Z",
+      "lastSync": "2026-09-15T21:32:33.682Z",
       "syncError": null
     },
     {
@@ -2662,7 +2662,7 @@
       "testedHeadSha": "4274c81f5b910d993c7fecbaf85704e5697581b5",
       "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34853798547",
-      "state": "draft",
+      "state": "closed",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
@@ -2677,11 +2677,33 @@
           "state": null,
           "body": "I traced this to the input binding path and opened a focused draft fix in #1735.\n\nThe app currently reads AUHAL's `deviceID` immediately after `setDeviceID`. A USB driver such as the C920 can accept that command and publish the new ID asynchronously, so Transcripted rejects the route before its existing 300 ms settle check. The PR lets a successful route command reach that delayed check; driver errors and routes that are still stale afterward remain rejected.\n\nThe deterministic regression is red on the pinned baseline and green with the patch. BCL also reproduced the source-level red/green contract in [this run](https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34853798547). I do not have the physical C920, so could you test the draft build on the same setup and confirm whether dictation starts normally after switching microphones? Please also check that disconnecting the C920 still reports it unavailable.\n",
           "read": false
+        },
+        {
+          "key": "issue-comment:5688180087",
+          "kind": "issue-comment",
+          "author": "r3dbars",
+          "reporter": false,
+          "url": "https://github.com/r3dbars/transcripted/issues/1734#issuecomment-5688180087",
+          "updatedAt": "2026-09-15T21:14:07Z",
+          "state": null,
+          "body": "The binding-path fix is now merged in #1736, with thanks to @iibaranov-IG for tracing and contributing the original fix in #1735. A successful AUHAL device switch now gets the existing bounded settle/strict verification window instead of being rejected by an immediate stale read; driver errors and a route still stale after settling remain failures. The deterministic regression and broader local QA pass, but we have not yet tested the physical C920 on macOS 26.4.1, so I am keeping this issue open and am not claiming the reported case is resolved. Could you please test a build containing #1736 on the same C920 setup: select the webcam mic and dictate twice in a row, confirm the text lands in the target app, then disconnect the C920 and confirm the unavailable/retry path is clear? No private audio or transcript is needed in the reply.",
+          "read": false
+        },
+        {
+          "key": "pr-comment:5688100527",
+          "kind": "pr-comment",
+          "author": "r3dbars",
+          "reporter": false,
+          "url": "https://github.com/r3dbars/transcripted/pull/1735#issuecomment-5688100527",
+          "updatedAt": "2026-09-15T21:07:23Z",
+          "state": null,
+          "body": "Thank you, Igor, for tracing the asynchronous AUHAL binding and proposing the focused repair. The same production binding change has landed in #1736 with a broader stale/zero/disconnect test matrix and a follow-up correction so selection-success diagnostics wait for settled verification. I’m closing this overlapping draft as superseded, not dismissing the finding. Issue #1734 stays open until the reporter’s physical C920 dictation and disconnect behavior is confirmed; please reopen or flag anything #1736 missed.",
+          "read": false
         }
       ],
-      "unread": 1,
-      "mergeable": true,
-      "mergeableState": "blocked",
+      "unread": 3,
+      "mergeable": null,
+      "mergeableState": "unknown",
       "headSha": "4274c81f5b910d993c7fecbaf85704e5697581b5",
       "reporter": "aquarius-noble",
       "issueCreatedAt": "2026-09-14T08:35:09Z",
@@ -2689,7 +2711,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:20.770Z",
+      "lastSync": "2026-09-15T21:32:37.152Z",
       "syncError": null,
       "attachment": "BCL_EXISTING_PR"
     },
@@ -2717,7 +2739,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T18:19:23.522Z",
+      "lastSync": "2026-09-15T21:32:40.347Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2745,7 +2767,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:26.302Z",
+      "lastSync": "2026-09-15T21:32:44.383Z",
       "syncError": null
     },
     {
@@ -2784,7 +2806,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T07:47:44Z",
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:28.726Z",
+      "lastSync": "2026-09-15T21:32:47.623Z",
       "syncError": null
     },
     {
@@ -2823,7 +2845,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:31.396Z",
+      "lastSync": "2026-09-15T21:32:51.283Z",
       "syncError": null
     },
     {
@@ -2850,7 +2872,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:34.176Z",
+      "lastSync": "2026-09-15T21:32:54.870Z",
       "syncError": null
     },
     {
@@ -2877,7 +2899,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:36.712Z",
+      "lastSync": "2026-09-15T21:32:58.329Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2905,7 +2927,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:39.648Z",
+      "lastSync": "2026-09-15T21:33:02.253Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2945,7 +2967,7 @@
       "mergedAt": "2026-09-15T17:16:54Z",
       "reporterResponseAt": null,
       "ci": "failure",
-      "lastSync": "2026-09-15T18:19:42.128Z",
+      "lastSync": "2026-09-15T21:33:05.597Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2985,7 +3007,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T18:19:44.586Z",
+      "lastSync": "2026-09-15T21:33:08.654Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2998,12 +3020,24 @@
       "testedHeadSha": "29aa8439739411dda7d9423d8add15d6cdc68680",
       "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34904142153",
-      "state": "open",
+      "state": "closed",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0,
+      "events": [
+        {
+          "key": "pr-comment:5688022598",
+          "kind": "pr-comment",
+          "author": "dalegaard",
+          "reporter": false,
+          "url": "https://github.com/KalicoCrew/kalico/pull/971#issuecomment-5688022598",
+          "updatedAt": "2026-09-15T21:01:04Z",
+          "state": null,
+          "body": "Hi,\r\n\r\nThis is too complicated.\r\n\r\nBest regards, \r\nLasse",
+          "read": false
+        }
+      ],
+      "unread": 1,
       "headSha": "29aa8439739411dda7d9423d8add15d6cdc68680",
       "commitEnvelopeNote": "GPG-signed DCO commit; tree 8e3db56133dbbb8eec6d2a5dfd52ddb0490da609 matches the BCL-tested candidate tree",
       "mergeable": true,
@@ -3014,7 +3048,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T18:19:47.309Z",
+      "lastSync": "2026-09-15T21:33:12.096Z",
       "syncError": null
     },
     {
@@ -3187,7 +3221,7 @@
       "mergedAt": "2026-09-15T04:04:28Z",
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T18:19:50.152Z",
+      "lastSync": "2026-09-15T21:33:15.891Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-15T03:45:55.082Z"
@@ -3239,26 +3273,129 @@
       "pr": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55",
       "candidateSha256": "c9970dd44725346d6a5d9af00af6ee741221d3f15297d22e1ac4e11a3c33bd05",
       "testedHeadSha": "87ab6fe692c0941da5162d7932558f6060046d8a",
-      "evidenceStatus": "BOUND_CANDIDATE",
+      "evidenceStatus": "STALE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34913124457",
       "state": "draft",
       "hardware": {
-        "status": "NOT_REVIEWED"
+        "status": "NOT_REVIEWED",
+        "priorStatus": "NOT_REVIEWED",
+        "testedHeadSha": "87ab6fe692c0941da5162d7932558f6060046d8a"
       },
-      "events": [],
-      "unread": 0,
+      "events": [
+        {
+          "key": "pr-comment:5686600008",
+          "kind": "pr-comment",
+          "author": "chrisuthe",
+          "reporter": false,
+          "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55#issuecomment-5686600008",
+          "updatedAt": "2026-09-15T19:12:30Z",
+          "state": null,
+          "body": "I pushed two commits on top of Igor's fix that address the Copilot review. The outage gap is now retired together with the first real device timestamp instead of from `poll()`. It is also dropped when a stream ends or reconfigures, and frames written just before the device drops out are counted too.\n\n@mguaylam, could you rerun your test from #54 with this branch on the OpenWrt box? Start playback, unplug the USB DAC, plug it back in, and check that:\n\n- playback resumes on its own;\n- there is no XRUN loop;\n- the log shows no Lost/Regained sync cycling after recovery.\n\nI'm keeping this PR in draft until that hardware test passes. The same gap in the Pulse, PortAudio and PipeWire sinks is tracked in #58.",
+          "read": false
+        },
+        {
+          "key": "pr-comment:5686657991",
+          "kind": "pr-comment",
+          "author": "chrisuthe",
+          "reporter": false,
+          "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55#issuecomment-5686657991",
+          "updatedAt": "2026-09-15T19:16:21Z",
+          "state": null,
+          "body": "Also big thank you to @iibaranov-IG  for jumping in! Appreciate the energy and contribution!",
+          "read": false
+        },
+        {
+          "key": "review-comment:4019085133",
+          "kind": "review-comment",
+          "author": "Copilot",
+          "reporter": false,
+          "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55#discussion_r4019085133",
+          "updatedAt": "2026-09-15T18:48:01Z",
+          "state": null,
+          "body": "This accumulated count is not cleared by `AlsaAudioSink::clear()`. A stream end or mid-stream flush while the PCM is absent therefore leaves old discarded frames behind; if `poll()` later reopens before another successful `configure()`, it reports frames from the ended/flushed stream into the player's new accounting. Clear the discarded-frame accumulator in `clear()` before its null-PCM early return, while preserving the pending recovery attempt.\n\nThis issue also appears on line 615 of the same file.",
+          "read": false
+        },
+        {
+          "key": "review-comment:4019085218",
+          "kind": "review-comment",
+          "author": "Copilot",
+          "reporter": false,
+          "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55#discussion_r4019085218",
+          "updatedAt": "2026-09-15T18:48:01Z",
+          "state": null,
+          "body": "`poll()` releases `device_mutex_` before delivering this notification, so the sync-task thread can acquire the mutex, perform the first real write, and invoke its playback callback before this gap callback runs (`alsa_sink.h:42-44`). That reintroduces the outage-sized backlog on the first post-recovery timestamp and can also deliver timestamps out of order. Keep the gap pending under the mutex and have the first `write()` emit the gap callback before its normal playback callback (both after unlocking), or otherwise gate writes until this notification has completed.",
+          "read": false
+        },
+        {
+          "key": "review-comment:4019294571",
+          "kind": "review-comment",
+          "author": "chrisuthe",
+          "reporter": false,
+          "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55#discussion_r4019294571",
+          "updatedAt": "2026-09-15T19:12:21Z",
+          "state": null,
+          "body": "Fixed in a6b1c23. `clear()` now drops the pending gap with `SinkRecovery::forget_discarded_frames()` before its null-PCM early return, and `configure()` drops it next to the `last_format_` assignment, so it goes whether the open succeeds or fails. Neither calls `reset()`, so the recovery budget is left alone. 0dfadde adds tests that forgetting the gap keeps both a live and a spent budget as they were.",
+          "read": false
+        },
+        {
+          "key": "review-comment:4019295167",
+          "kind": "review-comment",
+          "author": "chrisuthe",
+          "reporter": false,
+          "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55#discussion_r4019295167",
+          "updatedAt": "2026-09-15T19:12:26Z",
+          "state": null,
+          "body": "Fixed in a6b1c23. `poll()` no longer reports the gap. It stays pending in `SinkRecovery` under `device_mutex_`. The first `write()` that gets a device timestamp takes it under that same lock and, after unlocking, fires a single `on_frames_played(gap + frames_done, finish_us)`, saturating at `UINT32_MAX`. A write without timing leaves it pending. With no separate gap report there is nothing to race or reorder, and the timestamp the player keeps is the device's finish time.\n\nI also count frames that `snd_pcm_writei` accepted before `recover_()` closed the PCM in the same call. `write()` returns those bytes but never reported them, so they had the same missing-retire problem.",
+          "read": false
+        },
+        {
+          "key": "review:5214439994",
+          "kind": "review",
+          "author": "copilot-pull-request-reviewer[bot]",
+          "reporter": false,
+          "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55#pullrequestreview-5214439994",
+          "updatedAt": "2026-09-15T18:48:01Z",
+          "state": "COMMENTED",
+          "body": "### 🟡 Changes recommended\n\nPlayback accounting remains vulnerable to callback ordering, stream flushes, and partial writes during device loss.\n\n*Get a fresh assessment by requesting another Copilot review.*\n\n<details>\n<summary>Pull request overview</summary>\n\nFixes ALSA playback-clock drift after device recovery by retiring frames discarded during outages.\n\n**Changes:**\n- Adds saturating discarded-frame accounting.\n- Reports discarded frames after ALSA recovery.\n- Adds gap and overflow unit tests.\n</details>\n\n<details>\n<summary>File summaries</summary>\n\n| File | Description |\r\n| ---- | ----------- |\r\n| `src/alsa_sink.cpp` | Tracks and reports discarded ALSA frames. |\r\n| `src/sink_recovery.cpp` | Implements saturating frame accounting. |\r\n| `src/sink_recovery.h` | Declares discarded-frame state and APIs. |\r\n| `tests/sink_recovery_test.cpp` | Tests one-time reporting and saturation. |\n</details>\n\n<details>\n<summary>Review details</summary>\n\n### Suppressed comments (1)\n\n**src/alsa_sink.cpp:618**\n* Accounting only in the already-closed-device branch misses frames accepted earlier in a `write()` call that later detects device loss. In that case `frames_done` is returned to the producer, but the normal callback is skipped because `recover_()` closed `pcm_`; those frames remain permanently buffered even after this gap is retired. When a write exits because recovery closed the device, add its already-written `frames_done` to the discarded count as well.\n```\n            const size_t consumed = (frame == 0) ? length : length - (length % frame);\n            if (frame != 0) {\n                this->recovery_.discard_frames(static_cast<uint32_t>(consumed / frame));\n            }\n```\n\n- **Files reviewed:** 4/4 changed files\n- **Comments generated:** 2\n- **Review effort level:** Balanced\n</details>\n\n---\n\n💡 <a href=\"/Sendspin/sendspin-cpp-cli/new/main?filename=.github/skills/code-review/SKILL.md\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Add a `code-review` agent skill</a> or configure MCP servers for context-aware, tailored reviews. <a href=\"https://docs.github.com/copilot/how-tos/use-copilot-agents/request-a-code-review/use-code-review?tool=webui#mcp-servers-and-agent-skills\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more in the docs.</a>",
+          "read": false
+        },
+        {
+          "key": "review:5214696515",
+          "kind": "review",
+          "author": "chrisuthe",
+          "reporter": false,
+          "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55#pullrequestreview-5214696515",
+          "updatedAt": "2026-09-15T19:12:21Z",
+          "state": "COMMENTED",
+          "body": "",
+          "read": false
+        },
+        {
+          "key": "review:5214697310",
+          "kind": "review",
+          "author": "chrisuthe",
+          "reporter": false,
+          "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55#pullrequestreview-5214697310",
+          "updatedAt": "2026-09-15T19:12:26Z",
+          "state": "COMMENTED",
+          "body": "",
+          "read": false
+        }
+      ],
+      "unread": 9,
       "mergeable": true,
-      "mergeableState": "unstable",
-      "headSha": "87ab6fe692c0941da5162d7932558f6060046d8a",
+      "mergeableState": "clean",
+      "headSha": "a6b1c233148851cf7d1ebab733faf879f5bf028c",
       "reporter": "mguaylam",
       "issueCreatedAt": "2026-09-14T23:47:57Z",
       "prCreatedAt": "2026-09-15T00:22:01Z",
       "mergedAt": null,
       "reporterResponseAt": null,
-      "ci": "none",
-      "lastSync": "2026-09-15T18:19:54.253Z",
+      "ci": "success",
+      "lastSync": "2026-09-15T21:33:21.137Z",
       "syncError": null,
-      "attachment": "EXTERNAL_PR"
+      "attachment": "EXTERNAL_PR",
+      "evidenceStaleSince": "2026-09-15T21:33:21.137Z"
     },
     {
       "id": "openterface-642",
@@ -3296,7 +3433,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T01:25:47Z",
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:56.739Z",
+      "lastSync": "2026-09-15T21:33:24.741Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3324,7 +3461,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:19:59.072Z",
+      "lastSync": "2026-09-15T21:33:28.515Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3375,7 +3512,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T04:18:34Z",
       "ci": "none",
-      "lastSync": "2026-09-15T18:20:01.521Z",
+      "lastSync": "2026-09-15T21:33:31.878Z",
       "syncError": null,
       "attachment": "VERIFIED_EXISTING_PR"
     },
@@ -3388,7 +3525,7 @@
       "testedHeadSha": "7d5843b46c2694d276ce78ae4bd4d32b92ac8511",
       "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34922087038",
-      "state": "draft",
+      "state": "merged",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
@@ -3403,19 +3540,41 @@
           "state": null,
           "body": "This error originated from a custom integration.\n\nLogger: custom_components.chime_tts\nSource: custom_components/chime_tts/__init__.py:1161\nIntegration: Chime TTS (documentation, issues)\nFirst occurred: 04:19:35 (1 occurrence)\nLast logged: 04:19:35\n\nasync_get_playback_audio_path --> Unable to generate local audio file\n\nThis error originated from a custom integration.\n\nLogger: custom_components.chime_tts\nSource: custom_components/chime_tts/__init__.py:1167\nIntegration: Chime TTS (documentation, issues)\nFirst occurred: 04:19:35 (1 occurrence)\nLast logged: 04:19:35\n\nasync_get_playback_audio_path --> Unable to generate Media Content Id",
           "read": false
+        },
+        {
+          "key": "issue-comment:5687874765",
+          "kind": "issue-comment",
+          "author": "nimroddolev",
+          "reporter": false,
+          "url": "https://github.com/nimroddolev/chime_tts/issues/339#issuecomment-5687874765",
+          "updatedAt": "2026-09-15T20:48:29Z",
+          "state": null,
+          "body": "This issue has been addressed in the new release v1.3.1-beta1. Can you please [update to the beta version](https://nimroddolev.github.io/chime_tts/docs/quick-start/installing-chime-tts#beta-versions) and let me know if the issue is resolved?",
+          "read": false
+        },
+        {
+          "key": "review:5215345105",
+          "kind": "review",
+          "author": "nimroddolev",
+          "reporter": false,
+          "url": "https://github.com/nimroddolev/chime_tts/pull/340#pullrequestreview-5215345105",
+          "updatedAt": "2026-09-15T20:21:53Z",
+          "state": "APPROVED",
+          "body": "",
+          "read": false
         }
       ],
-      "unread": 1,
-      "mergeable": true,
-      "mergeableState": "blocked",
+      "unread": 3,
+      "mergeable": null,
+      "mergeableState": "unknown",
       "headSha": "7d5843b46c2694d276ce78ae4bd4d32b92ac8511",
       "reporter": "riddlenl",
       "issueCreatedAt": "2026-09-15T02:15:44Z",
       "prCreatedAt": "2026-09-15T02:46:19Z",
-      "mergedAt": null,
+      "mergedAt": "2026-09-15T20:23:43Z",
       "reporterResponseAt": "2026-09-15T02:24:37Z",
-      "ci": "none",
-      "lastSync": "2026-09-15T18:20:04.110Z",
+      "ci": "success",
+      "lastSync": "2026-09-15T21:33:35.291Z",
       "syncError": null
     },
     {
@@ -3487,7 +3646,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T01:38:54Z",
       "ci": "failure",
-      "lastSync": "2026-09-15T18:20:06.697Z",
+      "lastSync": "2026-09-15T21:33:38.619Z",
       "syncError": null
     },
     {
@@ -3548,7 +3707,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T18:20:09.262Z",
+      "lastSync": "2026-09-15T21:33:42.114Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "priorCandidates": [
@@ -3622,7 +3781,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:20:12.523Z",
+      "lastSync": "2026-09-15T21:33:45.973Z",
       "syncError": null
     },
     {
@@ -3661,7 +3820,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T18:20:15.520Z",
+      "lastSync": "2026-09-15T21:33:49.701Z",
       "syncError": null
     },
     {
@@ -3688,19 +3847,63 @@
           "state": null,
           "body": "I addressed item 4 in #12. Preset-bank geometry now comes from the connected device profile, so HX Effects maps `01D ↔ 3` and `27A ↔ 104` consistently in the CLI, GUI, worker messages, and offline backup extraction. The existing three-slot HX Stomp mapping remains unchanged.\n\nThe pinned baseline fails the reported mapping and the candidate passes it; CLI/GUI compile and the focused protocol/backup suites account for 179 tests. The isolated evidence is linked in the PR.\n\n@fruzz-urban, when convenient, could you compare `01D` and `27A` in the CLI and GUI with the HX Effects front panel, and confirm that selecting `27A` reaches index 104? An extracted HX Effects backup should use those same labels.\n",
           "read": false
+        },
+        {
+          "key": "review-comment:4019256842",
+          "kind": "review-comment",
+          "author": "Copilot",
+          "reporter": false,
+          "url": "https://github.com/crmne/tonepush/pull/12#discussion_r4019256842",
+          "updatedAt": "2026-09-15T19:07:49Z",
+          "state": null,
+          "body": "`BackupPreset` is a public type re-exported by `hx-catalog`, so this required field likewise breaks downstream code that constructs the struct. Please either preserve the existing public shape or document and version the breaking API change together with the other public-crate updates.",
+          "read": false
+        },
+        {
+          "key": "review-comment:4019256904",
+          "kind": "review-comment",
+          "author": "Copilot",
+          "reporter": false,
+          "url": "https://github.com/crmne/tonepush/pull/12#discussion_r4019256904",
+          "updatedAt": "2026-09-15T19:07:49Z",
+          "state": null,
+          "body": "`DeviceProfile` is a public struct in the published `hx-proto` crate and is exposed by the USB API, so adding this required field breaks downstream struct literals. The workspace remains at 0.6.0 and this change has no migration or compatibility note; please avoid changing the public struct shape or include an explicit API/version migration.",
+          "read": false
+        },
+        {
+          "key": "review-comment:4019256942",
+          "kind": "review-comment",
+          "author": "Copilot",
+          "reporter": false,
+          "url": "https://github.com/crmne/tonepush/pull/12#discussion_r4019256942",
+          "updatedAt": "2026-09-15T19:07:49Z",
+          "state": null,
+          "body": "The new GUI profile-routing path is not covered by the existing `App` tests. Add a focused test that connects an HX Effects profile and asserts `active_slot_label(104) == \"27A\"` (plus the existing three-slot fallback), otherwise a future GUI call-site regression can pass the protocol and backup tests while breaking the GUI acceptance requirement.",
+          "read": false
+        },
+        {
+          "key": "review:5214651590",
+          "kind": "review",
+          "author": "copilot-pull-request-reviewer[bot]",
+          "reporter": false,
+          "url": "https://github.com/crmne/tonepush/pull/12#pullrequestreview-5214651590",
+          "updatedAt": "2026-09-15T19:07:49Z",
+          "state": "COMMENTED",
+          "body": "### 🟡 Changes recommended\n\nUnresolved critical public API compatibility issues remain, along with backup handling and GUI settings/test findings.\n\n*Get a fresh assessment by requesting another Copilot review.*\n\n<details>\n<summary>Pull request overview</summary>\n\nUpdates preset-bank labels and commands to use device-specific geometry across HX Effects and HX Stomp.\n\n**Changes:**\n- Adds profile-aware slot parsing and rendering.\n- Routes labels through CLI, GUI, and worker paths.\n- Applies device geometry to offline backup labels.\n</details>\n\n<details>\n<summary>File summaries</summary>\n\n| File | Review summary |\r\n|---|---|\r\n| `crates/tonepush-gui/src/session.rs` | Uses profile-aware worker labels. |\r\n| `crates/tonepush-gui/src/lib.rs` | **Nit (2 votes):** add focused HX Effects and fallback label tests. |\r\n| `crates/tonepush-cli/src/main.rs` | Uses profile-aware CLI labels. |\r\n| `crates/hx-proto/src/rpc.rs` | Provides profile-aware slot conversion. |\r\n| `crates/hx-proto/src/lib.rs` | **Critical (3 votes):** required public field breaks downstream struct literals. **Moderate (1 vote):** settings metadata remains three-slot and should become profile-aware. |\r\n| `crates/hx-catalog/src/hxb.rs` | **Critical (3 votes):** required `BackupPreset` field breaks downstream constructors. **Moderate (1 vote):** unknown device IDs incorrectly fall back to three-slot labels. |\n</details>\n\n<details>\n<summary>Review details</summary>\n\n### Suppressed comments (2)\n\n**crates/hx-catalog/src/hxb.rs:145**\n* `map_or(3, ...)` treats an unrecognized `device` id the same as a missing id. A backup from a newer or otherwise unsupported four-slot device will therefore be accepted and exported with three-slot filenames such as `35C` instead of its actual label. Keep the legacy fallback only for absent metadata and reject or preserve unknown geometry when an id is present.\n```\n                .map_or(3, |profile| profile.presets_per_bank);\n```\n**crates/hx-proto/src/lib.rs:63**\n* `presets_per_bank` is not propagated to the settings metadata: `hx_proto::settings::SETTINGS` still defines preset numbering as `01A - 42C`, and the GUI renders that string verbatim. On a connected HX Effects, Preferences will therefore continue to show a three-slot/42-bank range even though the new slot labels use four-slot/32-bank geometry; make this display profile-aware as well.\n```\n    pub presets_per_bank: u8,\n```\n\n- **Files reviewed:** 6/6 changed files\n- **Comments generated:** 3\n- **Review effort level:** Lite\n</details>\n\n---\n\n💡 <a href=\"/crmne/tonepush/new/main?filename=.github/skills/code-review/SKILL.md\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Add a `code-review` agent skill</a> or configure MCP servers for context-aware, tailored reviews. <a href=\"https://docs.github.com/copilot/how-tos/use-copilot-agents/request-a-code-review/use-code-review?tool=webui#mcp-servers-and-agent-skills\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more in the docs.</a>",
+          "read": false
         }
       ],
-      "unread": 1,
-      "mergeable": null,
-      "mergeableState": "unknown",
+      "unread": 5,
+      "mergeable": true,
+      "mergeableState": "clean",
       "headSha": "7f74db19d84091c2742af51622dd6e218060a74e",
       "reporter": "fruzz-urban",
       "issueCreatedAt": "2026-09-15T00:10:49Z",
       "prCreatedAt": "2026-09-15T05:18:55Z",
       "mergedAt": null,
       "reporterResponseAt": null,
-      "ci": "none",
-      "lastSync": "2026-09-15T18:20:18.284Z",
+      "ci": "success",
+      "lastSync": "2026-09-15T21:33:53.264Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3741,7 +3944,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T06:08:16Z",
       "ci": "none",
-      "lastSync": "2026-09-15T18:20:20.838Z",
+      "lastSync": "2026-09-15T21:33:56.939Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "testedTreeSha": "3adfe79930cfce5bde6d8a150cf2e6636b90fe4b",

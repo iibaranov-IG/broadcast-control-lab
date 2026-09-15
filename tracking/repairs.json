@@ -3115,10 +3115,10 @@
       "title": "Persist CH9329 baudrate across a power cycle",
       "issue": "https://github.com/TechxArtisanStudio/Openterface_QT/issues/642",
       "pr": "https://github.com/TechxArtisanStudio/Openterface_QT/pull/643",
-      "candidateSha256": null,
-      "testedHeadSha": null,
-      "evidenceStatus": "NOT_BOUND",
-      "run": null,
+      "candidateSha256": "263cb4d430d8b46af0012bcd0839292b2923eee91fe2aeedf56104aa052c3ef8",
+      "testedHeadSha": "80fa6e91f289e6e1cadbed0cfec6f51b49eb054c",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34915086801",
       "state": "draft",
       "hardware": {
         "status": "NOT_REVIEWED"

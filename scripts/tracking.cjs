@@ -19,9 +19,25 @@ function read(root) {
 }
 function register(db, c, result, digest = null, run = null) {
   link(result.url, 'pull'); link(c.issue, 'issues')
-  const prior = db.repairs.find(r => r.pr === result.url || r.id === c.id)
+  const byPr = db.repairs.find(r => r.pr === result.url)
+  const byCase = db.repairs.find(r => r.id === c.id)
+  if (byPr && byPr.id !== c.id) throw new Error('Tracking identity conflict')
+  if (byPr && byCase && byPr !== byCase) throw new Error('Tracking identity conflict')
+  const prior = byCase || byPr
   if (prior) {
-    if (prior.id !== c.id || (prior.candidateSha256 && digest && prior.candidateSha256 !== digest)) throw new Error('Tracking identity conflict')
+    if (prior.id !== c.id) throw new Error('Tracking identity conflict')
+    const candidateChanged = Boolean(prior.candidateSha256 && digest && prior.candidateSha256 !== digest)
+    if (candidateChanged) {
+      prior.priorCandidates ||= []
+      prior.priorCandidates.push({
+        candidateSha256: prior.candidateSha256,
+        testedHeadSha: prior.testedHeadSha || null,
+        run: prior.run || null,
+      })
+      if (prior.hardware?.status && prior.hardware.status !== 'NOT_REVIEWED') {
+        prior.hardware = { ...prior.hardware, status: 'STALE', priorStatus: prior.hardware.status }
+      }
+    }
     prior.pr = result.url
     prior.state = result.state || prior.state
     if (digest) prior.candidateSha256 = digest

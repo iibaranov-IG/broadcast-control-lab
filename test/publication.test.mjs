@@ -43,14 +43,21 @@ function fixture(t) {
 }
 
 function github(p) {
-  const calls = [], state = { ref: null, prs: [], commits: {}, failure: false }
+  const calls = [], state = { ref: null, prs: [], commits: {}, failure: false, tracked: null }
   const parent = { tree: { sha: 'parent-tree' }, parents: [] }
   const api = (method, endpoint, body) => {
     calls.push({ method, endpoint, body })
     if (method === 'GET' && endpoint === 'repos/up/project') return { full_name: 'up/project' }
     if (method === 'GET' && endpoint === 'repos/me/project') return { source: { full_name: 'up/project' }, permissions: { push: true } }
     if (endpoint === 'repos/up/project/commits/main') return { sha: p.candidate.source.commit }
-    if (endpoint.includes('/compare/')) return { status: 'identical' }
+    if (endpoint.includes('/compare/')) return endpoint.endsWith('...manual')
+      ? { status: 'ahead', merge_base_commit: { sha: p.candidate.source.commit } }
+      : { status: 'identical' }
+    if (method === 'GET' && endpoint === 'repos/up/project/pulls/7' && state.tracked) return state.tracked
+    if (method === 'PATCH' && endpoint === 'repos/up/project/pulls/7' && state.tracked) {
+      state.tracked.body = body.body
+      return state.tracked
+    }
     if (method === 'GET' && endpoint.includes('/pulls?')) return state.prs
     if (method === 'GET' && endpoint.includes('/git/commits/')) return endpoint.endsWith(p.candidate.source.commit) ? parent : state.commits[endpoint.split('/').pop()]
     if (method === 'GET' && endpoint.includes('/git/ref/')) {
@@ -145,6 +152,45 @@ test('Publish creates one draft PR and reuses it on repeat, even after closure',
   assert.equal(second.state, 'closed')
   assert.equal(mock.calls.filter(x => x.method === 'POST' && x.endpoint.endsWith('/pulls')).length, 1)
   assert.equal(mock.calls.filter(x => x.method === 'PATCH').length, 0)
+})
+test('Publication reuses an explicitly tracked PR with a different branch name', t => {
+  const f = fixture(t), mock = github(f.p)
+  f.p.existingPR = 'https://github.com/up/project/pull/7'
+  mock.state.commits.manual = {
+    tree: { sha: f.p.candidate.tree },
+    parents: [{ sha: 'review-commit' }],
+  }
+  mock.state.tracked = {
+    html_url: f.p.existingPR,
+    state: 'open',
+    head: { sha: 'manual', repo: { full_name: f.p.fork } },
+    base: { ref: f.p.base },
+  }
+
+  const result = publisher.publishPlan(f.p, mock.api)
+
+  assert.equal(result.url, f.p.existingPR)
+  assert.equal(result.reused, true)
+  assert.equal(result.headSha, 'manual')
+  assert.match(mock.state.tracked.body, /<!-- bcl:example:/)
+  assert.equal(mock.calls.filter(call => call.method === 'POST').length, 0)
+})
+test('Publication never binds evidence to a tracked PR with different bytes', t => {
+  const f = fixture(t), mock = github(f.p)
+  f.p.existingPR = 'https://github.com/up/project/pull/7'
+  mock.state.commits.manual = {
+    tree: { sha: 'different-tree' },
+    parents: [{ sha: f.p.candidate.source.commit }],
+  }
+  mock.state.tracked = {
+    html_url: f.p.existingPR,
+    state: 'open',
+    head: { sha: 'manual', repo: { full_name: f.p.fork } },
+    base: { ref: f.p.base },
+  }
+
+  assert.throws(() => publisher.publishPlan(f.p, mock.api), /differs from the tested candidate/)
+  assert.equal(mock.calls.filter(call => call.method === 'PATCH' || call.method === 'POST').length, 0)
 })
 test('Publication can use a repository-specific commit message without changing the PR title', t => {
   const f = fixture(t)

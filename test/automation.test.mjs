@@ -91,6 +91,29 @@ test('evidence publication replaces an earlier PR for the same case', t => {
   assert.equal(f.entry.testedHeadSha, 'c'.repeat(40))
   assert.equal(f.entry.evidenceStatus, 'BOUND_CANDIDATE')
 })
+test('review fixes replace evidence for the same case and PR while preserving its audit trail', t => {
+  const f = setup(t)
+  f.entry.run = 'https://github.com/run/old'
+  f.entry.hardware = { status: 'REPORTED_PASS', report: { observed: 'Worked on old bytes' } }
+  tracking.register(f.db, f.c, { url: f.entry.pr, state: 'open', headSha: 'c'.repeat(40) }, 'd'.repeat(64), 'https://github.com/run/new')
+  assert.equal(f.db.repairs.length, 1)
+  assert.equal(f.entry.candidateSha256, 'd'.repeat(64))
+  assert.equal(f.entry.testedHeadSha, 'c'.repeat(40))
+  assert.equal(f.entry.run, 'https://github.com/run/new')
+  assert.equal(f.entry.evidenceStatus, 'BOUND_CANDIDATE')
+  assert.equal(f.entry.hardware.status, 'STALE')
+  assert.equal(f.entry.hardware.priorStatus, 'REPORTED_PASS')
+  assert.deepEqual(f.entry.priorCandidates, [{
+    candidateSha256: 'b'.repeat(64),
+    testedHeadSha: 'a'.repeat(40),
+    run: 'https://github.com/run/old',
+  }])
+})
+test('one PR can never be registered to two cases', t => {
+  const f = setup(t)
+  assert.throws(() => tracking.register(f.db, { ...f.c, id: 'other-2' }, { url: f.entry.pr }, 'd'.repeat(64)), /identity conflict/)
+  assert.equal(f.db.repairs.length, 1)
+})
 test('Replies are unread, edits reopen them, and positive prose never verifies hardware', t => {
   const f = setup(t)
   assert.equal(tracking.sync(f.root, fakeApi()).unread, 1)

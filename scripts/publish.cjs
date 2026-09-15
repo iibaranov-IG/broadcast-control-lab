@@ -36,6 +36,17 @@ function publishPlan(p, request = api) {
   const base = request('GET', `${target}/commits/${encodeURIComponent(p.base)}`)
   const comparison = request('GET', `${target}/compare/${p.candidate.source.commit}...${base.sha}`)
   if (!['ahead', 'identical'].includes(comparison.status)) throw new Error('Tested baseline is not an ancestor of target base; rebase and test again')
+  if (p.existingPR) {
+    const match = new RegExp(`^https://github\\.com/${p.target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/pull/([1-9]\\d*)$`).exec(p.existingPR)
+    if (!match) throw new Error('Tracked PR does not match the publication target')
+    const pr = request('GET', `${target}/pulls/${match[1]}`)
+    if (pr.state !== 'open' || pr.head?.repo?.full_name !== p.fork || pr.base?.ref !== p.base) throw new Error('Tracked PR is closed or does not match the fork and base')
+    const headCommit = request('GET', `${fork}/git/commits/${pr.head.sha}`)
+    const history = request('GET', `${target}/compare/${p.candidate.source.commit}...${pr.head.sha}`)
+    if (headCommit.tree.sha !== p.candidate.tree || history.status !== 'ahead' || history.merge_base_commit?.sha !== p.candidate.source.commit) throw new Error('Tracked PR differs from the tested candidate; refusing to bind evidence')
+    request('PATCH', `${target}/pulls/${match[1]}`, { body: p.body })
+    return { url: pr.html_url, reused: true, state: pr.state, headSha: pr.head.sha }
+  }
   const existingPRs = () => request('GET', `${target}/pulls?state=all&head=${encodeURIComponent(head)}&base=${encodeURIComponent(p.base)}&per_page=100`)
   const priorPRs = existingPRs()
   const marker = `<!-- bcl:${p.candidate.case}:${p.digest} -->`
@@ -123,6 +134,8 @@ function publish(root, c, options) {
     fs.writeFileSync(path.join(output, 'PUBLISH-PR.md'), p.body)
     fs.writeFileSync(path.join(output, 'publish-plan.json'), JSON.stringify({ target: p.target, fork: p.fork, base: p.base, branch: p.branch, title: p.title, candidateSha256: p.digest }, null, 2) + '\n')
     if (options.dryRun) return { preview: path.join(output, 'PUBLISH-PR.md'), branch: p.branch }
+    const tracked = require('./tracking.cjs').read(root).repairs.find(repair => repair.id === c.id)
+    if (tracked?.pr) p.existingPR = tracked.pr
     const result = publishPlan(p)
     fs.writeFileSync(path.join(output, 'publication.json'), JSON.stringify(result, null, 2) + '\n')
     const tracking = require('./tracking.cjs')

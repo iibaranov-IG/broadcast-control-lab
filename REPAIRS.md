@@ -77,6 +77,7 @@ Updated 2026-09-11.
 | chime-tts-339 | [Issue](https://github.com/nimroddolev/chime_tts/issues/339) | [PR](https://github.com/nimroddolev/chime_tts/pull/340) | draft | none | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-15T03:46:09.381Z |
 | advanced-camera-card-2794 | [Issue](https://github.com/dermotduffy/advanced-camera-card/issues/2794) | [PR](https://github.com/dermotduffy/advanced-camera-card/pull/2797) | draft | failure | BOUND_CANDIDATE | 3 | NOT_REVIEWED | 2026-09-15T03:46:11.758Z |
 | logic-pro-mcp-38 | [Issue](https://github.com/koltyj/logic-pro-mcp/issues/38) | [PR](https://github.com/koltyj/logic-pro-mcp/pull/42) | open | success | BOUND_CANDIDATE | 3 | NOT_REVIEWED | 2026-09-15T03:46:14.054Z |
+| audacity-12147 | [Issue](https://github.com/audacity/audacity/issues/12147) | [PR](https://github.com/audacity/audacity/pull/12148) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

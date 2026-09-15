@@ -3465,6 +3465,22 @@
           "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34925294456"
         }
       ]
+    },
+    {
+      "id": "audacity-12147",
+      "title": "Restore Audacity playback seek shortcuts",
+      "issue": "https://github.com/audacity/audacity/issues/12147",
+      "pr": "https://github.com/audacity/audacity/pull/12148",
+      "candidateSha256": "dd11eefd59b71e0854833ad3cb879324cbbe393ab5f393025637b55690263d89",
+      "testedHeadSha": "4f1680ab0606ac3c62da9a8dc04ef4746e5142bc",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34927282673",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

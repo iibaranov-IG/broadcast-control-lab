@@ -16,8 +16,10 @@ const checks = [
   ['Accessibility track mutation consumes track/value', accessibility.includes('params["track"]') && accessibility.includes('params["value"]')],
   ['master dispatcher sends value', /operation: "mixer\.set_master_volume",\s*params: \["value": String\(value\)\]/s.test(dispatcher)],
   ['master routes only through implemented Accessibility backend', /"mixer\.set_master_volume":\s*\[\.accessibility\]/.test(router) && accessibility.includes('case "mixer.set_master_volume"')],
-  ['master fader prefers Master with Stereo Out fallback', elements.includes('index(containing: "master") ?? index(containing: "stereo out")')],
+  ['master fader tries Master before Stereo Out', elements.includes('indices(containing: "master") + indices(containing: "stereo out")') && elements.includes('for index in masterStripCandidateIndices')],
+  ['master reports failed Accessibility writes', accessibility.includes('guard AXHelpers.setAttribute(slider') && accessibility.includes('Failed to set master volume control')],
   ['focused Swift regressions cover all reported commands', tests.includes('testVolumeUsesTheAdvertisedParameterContract') && tests.includes('testPanUsesTheAdvertisedParameterContract') && tests.includes('testMasterVolumeRoutesThroughAccessibilityWithValue')],
+  ['malformed mixer values stop before routing', tests.includes('testMalformedMixerValuesAreRejectedBeforeRouting') && dispatcher.includes('InputValidation.double') && dispatcher.includes('InputValidation.int')],
 ]
 
 for (const [name, pass] of checks) console.log(`${pass ? 'PASS' : 'FAIL'}: ${name}`)

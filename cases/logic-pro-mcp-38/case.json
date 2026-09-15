@@ -6,8 +6,8 @@
   "issue": "https://github.com/koltyj/logic-pro-mcp/issues/38",
   "problem": "logic_mixer advertises track/value, but set_volume and set_pan translate them into keys that neither OSC nor Accessibility accepts. set_master_volume routes to two channels that do not implement it, so all three public commands always fail.",
   "reproduce": "At pinned revision bdc105e7, exercise the documented set_volume, set_pan, and set_master_volume contracts. The dispatcher/channel contract check fails with MIXER_PARAMETER_CONTRACT_BROKEN; the reporter also reproduced all three failures over the released stdio MCP server.",
-  "acceptance": "set_volume and set_pan preserve track/value through the dispatcher and both backends; set_master_volume reaches a real Accessibility handler that selects Master, with Stereo Out only when no separate master strip exists. Focused Swift tests cover each reported command.",
-  "repair": "Use the documented track/value names end to end, implement master fader selection through the existing Accessibility mixer tree, remove the unsupported OSC master route, and add dispatcher regressions.",
+  "acceptance": "set_volume and set_pan preserve track/value through the dispatcher and both backends; set_master_volume reaches a real Accessibility handler that tries Master, then Stereo Out when needed. Missing, malformed, and out-of-range inputs stop before routing, failed Accessibility writes remain errors, and focused Swift tests cover every reported command.",
+  "repair": "Use documented track/value names end to end, validate mutations before routing, implement ordered master-fader selection through the existing Accessibility mixer tree, check the write result, remove the unsupported OSC master route, and add dispatcher regressions.",
   "sources": [
     {
       "id": "baseline",

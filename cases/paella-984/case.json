@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "paella-984",
+  "status": "ready",
+  "title": "Deliver audio-only playback support to Opencast 21",
+  "issue": "https://github.com/polimediaupv/paella/issues/984",
+  "problem": "Opencast 21 locks paella-opencast-core 2.0.1, which drops audio/m4a delivery tracks and produces an empty Paella streams array even though support was released in 2.0.3.",
+  "reproduce": "Convert the issue's single presentation/delivery audio/m4a track with the package versions pinned by Opencast develop; EventConversor.getStreams returns an empty array.",
+  "acceptance": "The same Opencast search result produces one presentation stream with role mainAudio and an audio source, the focused regression passes, and the complete engage-paella-player-8 bundle builds.",
+  "repair": "Advance only the required Paella core, Opencast core and skin lock entries to the minimum compatible releases that contain audio-only conversion, and add an integration regression using the reported payload shape.",
+  "sources": [
+    {
+      "id": "opencast",
+      "repository": "opencast/opencast",
+      "commit": "c2ddb4ea73b063534349a890551c9340a9e4303c",
+      "directory": "sources/paella-984"
+    }
+  ],
+  "runtime": {"node": "22.20.0", "python": "3.12.14"},
+  "watch": ["cases/paella-984/", "scripts/dependencies.cjs"],
+  "steps": {
+    "dependencies": [{"cwd": "sources/paella-984", "argv": ["audited-profile", "paella-984"]}],
+    "prepare": [{"cwd": "sources/paella-984", "argv": ["git", "apply", "../../cases/paella-984/repair.patch"]}],
+    "test": [{"cwd": ".", "argv": ["node", "cases/paella-984/test.mjs", "sources/paella-984"]}],
+    "build": [{"cwd": "sources/paella-984/modules/engage-paella-player-8", "argv": ["npm", "run", "build"]}]
+  },
+  "artifacts": {"report": "reports/paella-984.json"},
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL executes the exact issue payload against the locked dependency before and after the repair and builds both Paella bundles. It does not ingest media into a complete Opencast server or exercise browser audio output.",
+    "ownerCheck": "Install the resulting Opencast 21 build, load the audio-only event from issue #984, and confirm playback starts with audio controls and no empty streams manifest error."
+  },
+  "selection": {"report": "cases/paella-984/triage.json", "sha256": "038fdb91a8ea8b301c26df844ecf42d93a88f935c5a5069f48abc307fe294d25"},
+  "upstream": {
+    "kind": "node",
+    "source": "opencast",
+    "timeoutMs": 180000,
+    "setup": [{"cwd": ".", "argv": ["git", "apply", "../../cases/paella-984/tests-only.patch"]}],
+    "build": [{"cwd": "modules/engage-paella-player-8", "argv": ["npm", "ci", "--offline", "--ignore-scripts", "--no-audit", "--no-fund"]}],
+    "testFiles": ["modules/engage-paella-player-8/package.json", "modules/engage-paella-player-8/tests/audio-only-manifest.test.mjs"],
+    "regression": {"cwd": "modules/engage-paella-player-8", "argv": ["npm", "test"]},
+    "negative": {"exitCode": 1, "outputIncludes": "0 !== 1"},
+    "suite": {"cwd": "modules/engage-paella-player-8", "argv": ["npm", "test"]},
+    "suiteOutputIncludes": "tests 1"
+  },
+  "publish": {
+    "source": "opencast",
+    "target": "opencast/opencast",
+    "base": "develop",
+    "commitMessage": "Fix audio-only playback in Paella Player 8",
+    "paths": [
+      "modules/engage-paella-player-8/package-lock.json",
+      "modules/engage-paella-player-8/package.json",
+      "modules/engage-paella-player-8/tests/audio-only-manifest.test.mjs"
+    ]
+  }
+}

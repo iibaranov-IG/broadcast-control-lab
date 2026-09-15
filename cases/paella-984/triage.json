@@ -1,0 +1,331 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-14T23:58:03.321Z",
+  "issue": {
+    "repository": "polimediaupv/paella",
+    "number": "984",
+    "url": "https://github.com/polimediaupv/paella/issues/984",
+    "title": "Audio-only Opencast events fail playback",
+    "state": "open",
+    "updatedAt": "2026-09-14T21:56:11Z"
+  },
+  "source": {
+    "repository": "opencast/opencast",
+    "requestedRef": "c2ddb4ea73b063534349a890551c9340a9e4303c",
+    "defaultBranch": "develop",
+    "archived": false,
+    "license": "ECL-2.0",
+    "commit": "c2ddb4ea73b063534349a890551c9340a9e4303c",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": ".github/PULL_REQUEST_TEMPLATE.md",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/.github/PULL_REQUEST_TEMPLATE.md",
+        "content": "<!--\nExplain what this pull request does.  If this fixes a bug, also explain how to reproduce the issue.\n-->\n\n<!--\nIf your pull request is targeting the legacy (second oldest release branch), explain why this patch is so important that\nit needs to go into the legacy and can not go just into stable or develop.\n-->\n\n### How to test this patch\n\n<!--\nExplain how to test this patch. If this requires a particular set-up or configuration, explain that as well and provide\nthe necessary configuration if possible. The easier it is for others to test the patch, the faster this will get\nreviewed and merged.\n\nFor more information, see https://docs.opencast.org/develop/#participate/development-process/#ai-policy-for-pull-requests\n-->\n\n### AI Usage\n<!--\nIf you used AI in a significant way to create this pull request, please explain how you used it and what you used it for. This is for us to better understand and deal with AI contributions. Your pull request will not be declined just becasue of AI usage.\n-->\n\n### Your pull request should…\n\n* [ ] have a concise title\n* [ ] [close an accompanying issue](https://docs.opencast.org/develop/developer/#participate/development-process/#automatically-closing-issues-when-a-pr-is-merged) if one exists\n* [ ] [be against the correct branch](https://docs.opencast.org/develop/developer/development-process#acceptance-criteria-for-patches-in-different-versions)\n* [ ] include migration scripts and documentation, if appropriate\n* [ ] pass automated tests\n* [ ] have a clean commit history\n* [ ] does not incorrectly update the submodules\n* [ ] [have proper commit messages (title and body) for all commits](https://medium.com/@steveamaza/e028865e5791)\n* [ ] explain why it needs to be merged into the legacy branch, if it is targeting the legacy branch\n* [ ] include a [release note](https://docs.opencast.org/develop/developer/#participate/development-process/#release-notes) if a feature, or supports a feature (ie, backend part of a frontend feature)\n",
+        "requirementHints": [
+          "Explain what this pull request does.  If this fixes a bug, also explain how to reproduce the issue.",
+          "If your pull request is targeting the legacy (second oldest release branch), explain why this patch is so important that",
+          "### How to test this patch",
+          "Explain how to test this patch. If this requires a particular set-up or configuration, explain that as well and provide",
+          "the necessary configuration if possible. The easier it is for others to test the patch, the faster this will get",
+          "If you used AI in a significant way to create this pull request, please explain how you used it and what you used it for. This is for us to better understand and deal with AI contributions. Your pull request will not be declined just becasue of AI usage.",
+          "### Your pull request should…",
+          "* [ ] pass automated tests",
+          "* [ ] have a clean commit history",
+          "* [ ] [have proper commit messages (title and body) for all commits](https://medium.com/@steveamaza/e028865e5791)"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "AGENTS.md",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/AGENTS.md",
+        "content": "# Opencast — notes for Claude\n\n## Building\n\nAlways use the Maven wrapper from the repository root — `./mvnw`, never a system `mvn`. It pins the\nMaven version the project expects, and `${opencast.basedir}` (used e.g. for the Checkstyle config path)\nresolves correctly only from the root. Target individual modules with `-pl` instead of changing\ndirectory:\n\n```\n./mvnw -pl modules/<module> <goal>\n```\n\n## Running a development Opencast (build → dependencies → start → test)\n\nRecipe for getting an actually running Opencast to test against. All of it is verified to work.\n\n### 1. Build the distribution\n\nFull build (needed at least once, and whenever many modules changed):\n\n```\n./mvnw clean install -Pdev -DskipTests -Dcheckstyle.skip=true\n```\n\n`-Pdev` is the profile that produces a development distribution.\n\nIf everything has been built before and only a single module was modified and rebuilt, re-assembling is\nenough — no need to rebuild the world:\n\n```\ncd assemblies && ../mvnw clean install -Pdev\n```\n\nEither way the result is a distribution directory:\n\n```\n./build/opencast-dist-develop-<version>-SNAPSHOT/\n```\n\n### 2. Start the runtime dependencies (containers)\n\nCompose files live in `docs/scripts/devel-dependency-containers/`. Use `docker compose` or\n`podman compose` / `podman-compose`, whichever is installed — check with `which podman docker`.\n\nFirst tear down anything left over. Always use `docker-compose-all-sql.yml` for this: it lists every\nservice, so it also removes containers started from the more complex compose files.\n\n```\ncd docs/scripts/devel-dependency-containers\npodman compose -f docker-compose-all-sql.yml down --timeout 0\n```\n\n`Error: no container with name or ID \"…_mariadb_1\" found` and friends are expected here — those\nservices were simply never started.\n\nThen bring up the actual runtime dependency, OpenSearch:\n\n```\npodman compose -f docker-compose.yml up -d\n```\n\nThe other files (`docker-compose-mariadb.yml`, `docker-compose-postgresql.yml`,\n`docker-compose-all-sql.yml`) add databases and are only needed when explicitly testing against those;\n`docker-compose.yml` is the normal case. No data is persisted — every start is a clean system.\n\nSanity check: `curl http://127.0.0.1:9200` returns the OpenSearch version JSON.\n\n### 3. Start Opencast\n\n**First check whether something is already listening on port 8080:**\n\n```\nss -tulpen sport :8080\n```\n\nIf there is, do not start a second Opencast and do not kill the running one — it may well be a\nlong-lived instance the user is working with. Ask the user how to proceed (reuse it, or have them stop\nit). Only start Opencast yourself if the port is free or you started that instance in this session.\n\nEverything from here happens inside the distribution directory:\n\n```\ncd build/opencast-dist-develop-*-SNAPSHOT\n./bin/start-opencast\n```\n\nThis runs in the **foreground** with a Karaf console attached — start it in the background when\nscripting it. (`./bin/start-opencast server` runs without the local console, `daemon` detaches.)\n\nStartup takes a while. Opencast is up once `http://127.0.0.1:8080/` answers; the login is\n`admin` / `opencast`, e.g.:\n\n```\ncurl -u admin:opencast http://127.0.0.1:8080/info/me.json\n```\n\nLogs, relative to the distribution directory:\n\n```\ndata/log/opencast.log\ndata/log/karaf.log\n```\n\n### 4. Ingest real media as an event (often unnecessary)\n\nReal media is only needed when the change actually touches media handling, processing, playback or\ndistribution. For most work — API responses, admin UI, search, ACLs, metadata — an event without real\nmedia, or no event at all, is enough, and skipping the ingest saves a lot of waiting. Think about\nwhether you need it before doing it.\n\nIf you do, use the ingest service's\n`addMediaPackage/fast` endpoint. It creates the media package, attaches the track, and starts the\n`fast` workflow in one call — no need to fiddle with the admin UI:\n\n```\ncurl -u admin:opencast http://localhost:8080/ingest/addMediaPackage/fast \\\n  -F 'flavor=presenter/source' \\\n  -F mediaUri=https://radosgw.public.os.wwu.de/opencast-test-media/goat.mp4 \\\n  -F title=Test \\\n  -F identifier=test\n```\n\n`mediaUri` is downloaded by Opencast itself, so any reachable URL works (the one above is a small\npublic test video). `identifier` fixes the event id, which makes it easy to address the event in\nfollow-up API calls; drop it to have one generated. Repeat the call with different `flavor`/`mediaUri`\nform fields — they are read pairwise — to attach more tracks.\n\nProcessing takes a moment; watch `data/log/opencast.log` or poll the event:\n\n```\ncurl -u admin:opencast http://localhost:8080/api/events/test\n```\n\n### 5. Stop again\n\n```\n./bin/stop-opencast\n```\n\nand, back in `docs/scripts/devel-dependency-containers/`:\n\n```\npodman compose -f docker-compose-all-sql.yml down --timeout 0\n```\n\n## Checkstyle\n\nStyle is enforced by `docs/checkstyle/opencast-checkstyle.xml` (Checkstyle 8.36.2), bound to the Maven\n`validate` phase with `failOnViolation=true` — so a style violation breaks the build before compilation,\nfor `src/main` **and** `src/test`.\n\nCheck a single module without a full build:\n\n```\n./mvnw -pl modules/<module> checkstyle:check\n```\n\nSections can be exempted with `// CHECKSTYLE:OFF` … `// CHECKSTYLE:ON`\n(or `// CHECKSTYLE:OFF checkstyle:<CheckName>` … `// CHECKSTYLE:ON checkstyle:<CheckName>` for a single check).\n\n## Import order (the rule that trips up generated code)\n\n```xml\n<module name=\"ImportOrder\">\n  <property name=\"groups\" value=\"org.opencastproject,com,net,org,java,javax\"/>\n  <property name=\"ordered\" value=\"true\"/>\n  <property name=\"separated\" value=\"true\"/>\n  <property name=\"option\" value=\"top\"/>\n  <property name=\"sortStaticImportsAlphabetically\" value=\"true\"/>\n</module>\n```\n\nResulting layout — **exactly one blank line between blocks, none inside a block**:\n\n1. **All static imports**, in one block at the very top (`option=top`), sorted alphabetically across\n   *all* packages (`sortStaticImportsAlphabetically`). Static imports are **not** split into the groups\n   below: `static java.lang.String.format`, `static javax.…`, `static org.apache.…`,\n   `static org.opencastproject.…` all live in the same block in plain alphabetical order.\n2. `org.opencastproject.*`\n3. `com.*`\n4. `net.*`\n5. `org.*` (everything else: `org.apache`, `org.junit`, `org.slf4j`, `org.osgi`, `org.easymock`, …)\n6. `java.*`\n7. `javax.*`\n8. **Everything else** — anything matching no group (`io.*`, `edu.*`, `de.*`, …) goes in a final block\n   *after* `javax`. This is Checkstyle's implicit trailing group; it is easy to get wrong.\n\nGroup matching is longest-prefix, which is why `org.opencastproject` (group 2) wins over `org` (group 5).\n\nSorting inside a group is a **case-sensitive ASCII compare of the full import string**. Consequences:\n\n- Uppercase sorts before lowercase: `javax.ws.rs.PUT` < `javax.ws.rs.Path` < `javax.ws.rs.PathParam`;\n  `org.opencastproject.util.UrlSupport` < `org.opencastproject.util.data.Tuple`\n  (i.e. classes in a package come *before* its subpackages).\n- `_` (0x5F) sorts after uppercase letters: `…SC_NOT_FOUND` < `…SC_NO_CONTENT`.\n\nDo not sort with a locale/case-insensitive comparator — use plain byte order (`LC_ALL=C sort`).\n\nAlso enforced: no star imports (`AvoidStarImport`), no unused imports (`UnusedImports`), no redundant\nimports (same package / `java.lang`), no `sun.*`.\n\n### Example\n\n```java\nimport static org.easymock.EasyMock.expect;\nimport static org.opencastproject.util.DateTimeSupport.fromUTC;\n\nimport org.opencastproject.security.api.User;\nimport org.opencastproject.util.NotFoundException;\n\nimport com.google.gson.JsonObject;\n\nimport net.fortuna.ical4j.model.property.RRule;\n\nimport org.apache.commons.lang3.StringUtils;\nimport org.slf4j.Logger;\n\nimport java.util.List;\nimport java.util.Map;\n\nimport javax.ws.rs.GET;\nimport javax.ws.rs.Path;\n\nimport io.restassured.http.ContentType;\n```\n\n## Other formatting rules worth remembering\n\n- Indentation: 2 spaces; `case` 2; wrapped lines 4; `throws` continuation 8. Spaces only, no tabs.\n- Max line length: 120 characters.\n- Opening brace on the same line; braces mandatory for every `if`/`else`/`for`/`while`/`do`.\n- Files must end with a single LF newline (LF line separators).\n- Every `.java` and `.js` file needs the ECL license header from `docs/checkstyle/opencast-header.txt`\n  (line 3, the copyright year line, is exempt from matching). Copy it from a neighbouring file when\n  creating a new one.\n- Modifier order per JLS; no redundant modifiers (e.g. `public` on interface methods).\n",
+        "requirementHints": [
+          "## Running a development Opencast (build → dependencies → start → test)",
+          "Recipe for getting an actually running Opencast to test against. All of it is verified to work.",
+          "./mvnw clean install -Pdev -DskipTests -Dcheckstyle.skip=true",
+          "If everything has been built before and only a single module was modified and rebuilt, re-assembling is",
+          "`docker-compose-all-sql.yml`) add databases and are only needed when explicitly testing against those;",
+          "whether you need it before doing it.",
+          "  -F mediaUri=https://radosgw.public.os.wwu.de/opencast-test-media/goat.mp4 \\",
+          "  -F title=Test \\",
+          "  -F identifier=test",
+          "public test video). `identifier` fixes the event id, which makes it easy to address the event in",
+          "curl -u admin:opencast http://localhost:8080/api/events/test",
+          "`validate` phase with `failOnViolation=true` — so a style violation breaks the build before compilation,",
+          "for `src/main` **and** `src/test`.",
+          "- Uppercase sorts before lowercase: `javax.ws.rs.PUT` < `javax.ws.rs.Path` < `javax.ws.rs.PathParam`;",
+          "  (i.e. classes in a package come *before* its subpackages).",
+          "- Files must end with a single LF newline (LF line separators)."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/CONTRIBUTING.md",
+        "content": "Contributing to Opencast\n========================\n\nThis is a short outline of what to pay attention to when contributing to Opencast. If you are interested in a long\ndocument defining rules and recommendations as well as a detailed explanation of Opencast's branching model, take a look\nat [the development process documentation](https://docs.opencast.org/develop/developer/#participate/development-process).\nBut this guide should suffice for most contributions.\n\n\nAccepting Criteria for Patches in Different Versions\n----------------------------------------------------\n\nUpdates between minor versions should be as smooth as possible and should usually not need manual intervention.\nThat is why patches may only be accepted into releases branches (`r/?.x`) if they meet the following criteria:\n\n- Patches must not modify existing database tables\n- Patches must not modify the indexes or otherwise cause re-indexing\n- Patches must not modify existing translation keys\n- Patches must work with the same configuration within a major version\n\nPatches which do not meet these criteria should target the branch `develop` to become part of the next major version.\n\n\nTests\n-----\n\nWhen building Opencast, a set of unit tests is automatically run on the code. Passing these tests is a hard requirement.\nThese (and a few more) tests are also run automatically on our CI system. Again, all tests need to pass.\n\nIf the CI tests on your pull request fail and you are sure it is not caused by your patch, please complain. Errors\nhappen and committers can easily trigger a new build. But your patch will not be merged without these tests passing.\n\nAdditionally, a reviewer will be assigned to your pull request to ensure that there are no further issues. Once\neverything is fine, the reviewer will merge the pull request. The assignment may take some time. This is normal, so do\nnot be concerned.\n\n\nChecklist\n---------\n\n- [ ] [Closes an accompanying issue](https://help.github.com/en/articles/closing-issues-using-keywords) if one exists\n- [ ] Pull request has a proper title and description\n- [ ] Appropriate documentation is included\n- [ ] Code passes automatic tests\n- [ ] The pull request has a clean commit history\n- [ ] Commits have a proper commit message (title and body)\n\nThere may be additional, special requirements for certain changes (e.g. database changes require update scripts) but you\nshould be mostly fine if you follow this checklist. If you hit a special case, the reviewer will point that out and\nmaybe even help to fix that issue.\n",
+        "requirementHints": [
+          "- Patches must not modify existing database tables",
+          "- Patches must not modify the indexes or otherwise cause re-indexing",
+          "- Patches must not modify existing translation keys",
+          "- Patches must work with the same configuration within a major version",
+          "Tests",
+          "When building Opencast, a set of unit tests is automatically run on the code. Passing these tests is a hard requirement.",
+          "These (and a few more) tests are also run automatically on our CI system. Again, all tests need to pass.",
+          "If the CI tests on your pull request fail and you are sure it is not caused by your patch, please complain. Errors",
+          "happen and committers can easily trigger a new build. But your patch will not be merged without these tests passing.",
+          "Additionally, a reviewer will be assigned to your pull request to ensure that there are no further issues. Once",
+          "everything is fine, the reviewer will merge the pull request. The assignment may take some time. This is normal, so do",
+          "- [ ] Pull request has a proper title and description",
+          "- [ ] Code passes automatic tests",
+          "- [ ] The pull request has a clean commit history",
+          "- [ ] Commits have a proper commit message (title and body)"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "modules/common/src/test/resources/InfusionAll.js",
+      "modules/engage-paella-player-8/src/applyQueryParams.ts",
+      "modules/engage-paella-player-8/src/auth.ts",
+      "modules/engage-paella-player-8/src/i18n/all.ts",
+      "modules/engage-paella-player-8/src/index/index.ts",
+      "modules/engage-paella-player-8/src/paella-embedapi.ts",
+      "modules/engage-paella-player-8/src/vite-env.d.ts",
+      "modules/engage-paella-player-8/src/watch.ts",
+      "modules/engage-paella-player-8/tailwind.config.js",
+      "modules/engage-paella-player-8/vite.config.embedapi.ts"
+    ],
+    "buildFiles": [
+      {
+        "path": "docs/checkstyle/eslint-config/package.json",
+        "kind": "node",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/docs/checkstyle/eslint-config/package.json"
+      },
+      {
+        "path": "docs/guides/.infrastructure/package.json",
+        "kind": "node",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/docs/guides/.infrastructure/package.json"
+      },
+      {
+        "path": "docs/guides/package.json",
+        "kind": "node",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/docs/guides/package.json"
+      },
+      {
+        "path": "modules/engage-paella-player-8/package.json",
+        "kind": "node",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/modules/engage-paella-player-8/package.json"
+      },
+      {
+        "path": "modules/engage-ui/package.json",
+        "kind": "node",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/modules/engage-ui/package.json"
+      },
+      {
+        "path": "modules/graphql-ui/package.json",
+        "kind": "node",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/modules/graphql-ui/package.json"
+      },
+      {
+        "path": "modules/lti/package.json",
+        "kind": "node",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/modules/lti/package.json"
+      },
+      {
+        "path": "modules/runtime-info-ui/package.json",
+        "kind": "node",
+        "url": "https://github.com/opencast/opencast/blob/c2ddb4ea73b063534349a890551c9340a9e4303c/modules/runtime-info-ui/package.json"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: The repair is confined to the standalone engage-paella-player-8 npm module and does not read or modify an Opencast submodule.",
+      "url": "https://github.com/opencast/opencast/tree/c2ddb4ea73b063534349a890551c9340a9e4303c",
+      "resolution": {
+        "reason": "The repair is confined to the standalone engage-paella-player-8 npm module and does not read or modify an Opencast submodule.",
+        "evidence": [
+          "modules/engage-paella-player-8/package.json",
+          "A sparse checkout installed, tested and built the module without initializing submodules"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [
+    {
+      "url": "https://github.com/opencast/editor/pull/1706",
+      "relation": "PR link in issue description; relationship needs review",
+      "title": "Make editor audio-only proof",
+      "author": "Arnei",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "headSha": "4ea5ae6fe101aa9062a5eacdd68663d30bf1fed7",
+      "updatedAt": "2026-09-14T21:57:30Z"
+    }
+  ],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:polimediaupv/paella": "complete",
+    "openPRs:opencast/opencast": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 97,
+    "scoreRange": [
+      97,
+      98
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Audio-only events cannot be played at all.",
+        "evidence": [
+          "Issue #984 stack trace and empty streams error"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report and its test event were created today against Opencast 21 development.",
+        "evidence": [
+          "Issue created 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter is an active Opencast maintainer and supplied the complete event payload.",
+        "evidence": [
+          "Issue #984 by gregorydlogan"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "The provided audio/m4a track must produce one mainAudio Paella stream instead of an empty array.",
+        "evidence": [
+          "Reported payload",
+          "Paella manifest integrity error"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The exact payload deterministically returns zero streams with locked core 2.0.1 and one stream with 2.0.3.",
+        "evidence": [
+          "Local baseline and candidate converter runs"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The production repair is a surgical lock-file update plus one integration regression test.",
+        "evidence": [
+          "Candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "The module installs, runs the converter test and builds without a server or hardware.",
+        "evidence": [
+          "npm test",
+          "npm run build"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "The minimum fixed package stays within declared semver ranges and the complete player bundle builds.",
+        "evidence": [
+          "package.json ranges",
+          "Successful Vite builds"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Opencast develop and the Paella integration are actively maintained.",
+        "evidence": [
+          "Opencast develop updated 2026-09-12",
+          "Paella player repositories updated 2026-09-14"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 5,
+        "reason": "The dependency pin affects every Opencast 21 installation using Paella Player 8.",
+        "evidence": [
+          "Shared engage-paella-player-8 lock file"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The regression fixture protects any future audio-only presenter or presentation delivery track.",
+        "evidence": [
+          "Event conversion test"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 5,
+        "reason": "Restoring a non-empty manifest unlocks Paella loading and the entire playback path.",
+        "evidence": [
+          "checkManifestIntegrity failure in paella-core"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      97
+    ],
+    "selectable": true
+  },
+  "durationMs": 9363
+}

@@ -4,6 +4,14 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { load } = require('./case.cjs')
 const c = load(process.argv[2])
+if (c.id === 'paella-984' && c.sources.length === 1 && c.sources[0].repository === 'opencast/opencast' && c.sources[0].commit === 'c2ddb4ea73b063534349a890551c9340a9e4303c') {
+  const source = path.resolve(c.sources[0].directory, 'modules/engage-paella-player-8')
+  const expected = { 'package.json': '14c8da2afc1869ff0934f87c2bd48e0d1859cb30e428179039d3659e2e4ff351', 'package-lock.json': '107554c8b3c22b681213d40ea1ade77dd3b43d27bb80a3cdc6d933bcd328ccec' }
+  for (const [name, sha] of Object.entries(expected)) if (require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(source, name))).digest('hex') !== sha) throw new Error('paella-984 dependency manifest changed; review required')
+  execFileSync('npm', ['ci', '--ignore-scripts', '--no-audit', '--no-fund'], { cwd: source, stdio: 'inherit' })
+  for (const dependency of ['@asicupv/paella-core@2.11.3', '@asicupv/paella-opencast-core@2.0.3', '@asicupv/paella-opencast-skin@2.0.1']) execFileSync('npm', ['cache', 'add', dependency], { cwd: source, stdio: 'inherit' })
+  process.exit(0)
+}
 if (c.id === 'rmfakecloud-485' && c.sources.length === 1 && c.sources[0].repository === 'ddvk/rmfakecloud' && c.sources[0].commit === '1958bff18a530038d3916cba0168ad99a24220b4') {
   const source = path.resolve(c.sources[0].directory)
   const expected = { 'ui/package.json': 'd3084024d201cac60925ff500378b7d4f0980f294200f900886a6676a535194b', 'ui/pnpm-lock.yaml': '28fa36d604416e840e70e95ecdf8896e636702f351f91c246ce57e74127e3718' }

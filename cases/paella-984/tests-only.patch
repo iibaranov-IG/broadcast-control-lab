@@ -1,0 +1,65 @@
+diff --git a/modules/engage-paella-player-8/package.json b/modules/engage-paella-player-8/package.json
+index 6dfa7f7648..eb4633c72d 100644
+--- a/modules/engage-paella-player-8/package.json
++++ b/modules/engage-paella-player-8/package.json
+@@ -4,6 +4,7 @@
+   "version": "2.0.0",
+   "type": "module",
+   "scripts": {
++    "test": "node --test tests/*.test.mjs",
+     "dev": "vite",
+     "build:ghpages": "USE_OC_SERVER_FROM_URL=true OC_PAELLA8_BASE_URL='/paella-opencast' OC_PRESENTATION_URL='https://develop.opencast.org' CONFIG_FOLDER='https://polimediaupv.github.io/paella-opencast/config/' OC_PAELLA8_URL_TEMPLATE='/paella-opencast/watch.html?id={videoId}&ocServer={OC_PRESENTATION_URL}' vite build",
+     "build": "tsc && vite build && vite build -c vite.config.embedapi.ts --emptyOutDir false",
+diff --git a/modules/engage-paella-player-8/tests/audio-only-manifest.test.mjs b/modules/engage-paella-player-8/tests/audio-only-manifest.test.mjs
+new file mode 100644
+index 0000000000..4fe65a5d2a
+--- /dev/null
++++ b/modules/engage-paella-player-8/tests/audio-only-manifest.test.mjs
+@@ -0,0 +1,47 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++
++import {
++  EventConversor,
++  opencastSearchResultToOpencastPaellaEvent,
++} from '@asicupv/paella-opencast-core';
++
++test('converts an Opencast audio-only delivery track into a Paella stream', () => {
++  const searchResult = {
++    mediapackage: {
++      id: 'audio-only-event',
++      duration: 597008,
++      title: 'audio only presentation',
++      media: {
++        track: {
++          id: 'audio-track',
++          type: 'presentation/delivery',
++          mimetype: 'audio/m4a',
++          tags: { tag: ['engage-download', 'engage-streaming'] },
++          url: 'https://example.invalid/presentation.m4a',
++          duration: 597008,
++          live: false,
++          master: false,
++          audio: { channels: 2, samplingrate: 44100 },
++        },
++      },
++      attachments: { attachment: [] },
++      metadata: { catalog: [] },
++    },
++    acl: [],
++  };
++
++  const event = opencastSearchResultToOpencastPaellaEvent(searchResult);
++  const streams = new EventConversor({}, {}).getStreams(event);
++
++  assert.equal(streams.length, 1);
++  assert.equal(streams[0].content, 'presentation');
++  assert.equal(streams[0].role, 'mainAudio');
++  assert.deepEqual(streams[0].sources.audio, [
++    {
++      src: 'https://example.invalid/presentation.m4a',
++      mimetype: 'audio/m4a',
++      res: { w: 0, h: 0 },
++    },
++  ]);
++});

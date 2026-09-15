@@ -45,13 +45,13 @@ function publishPlan(p, request = api) {
     const history = request('GET', `${target}/compare/${p.candidate.source.commit}...${pr.head.sha}`)
     if (headCommit.tree.sha !== p.candidate.tree || history.status !== 'ahead' || history.merge_base_commit?.sha !== p.candidate.source.commit) throw new Error('Tracked PR differs from the tested candidate; refusing to bind evidence')
     request('PATCH', `${target}/pulls/${match[1]}`, { body: p.body })
-    return { url: pr.html_url, reused: true, state: pr.state, headSha: pr.head.sha }
+    return { url: pr.html_url, reused: true, state: pr.state, headSha: pr.head.sha, testedTreeSha: p.candidate.tree, testedParentSha: p.candidate.source.commit }
   }
   const existingPRs = () => request('GET', `${target}/pulls?state=all&head=${encodeURIComponent(head)}&base=${encodeURIComponent(p.base)}&per_page=100`)
   const priorPRs = existingPRs()
   const marker = `<!-- bcl:${p.candidate.case}:${p.digest} -->`
   const existing = priorPRs.find(pr => pr.body?.includes(marker))
-  if (existing) return { url: existing.html_url, reused: true, state: existing.state }
+  if (existing) return { url: existing.html_url, reused: true, state: existing.state, headSha: existing.head.sha, testedTreeSha: p.candidate.tree, testedParentSha: p.candidate.source.commit }
   if (priorPRs.length) throw new Error('Branch already has a different PR; refusing to overwrite it')
   const parent = request('GET', `${fork}/git/commits/${p.candidate.source.commit}`)
   const entries = p.candidate.files.map(f => {
@@ -73,12 +73,12 @@ function publishPlan(p, request = api) {
   if (headCommit.tree.sha !== tree.sha || headCommit.parents.length !== 1 || headCommit.parents[0].sha !== p.candidate.source.commit) throw new Error('Existing branch differs from tested candidate; refusing to overwrite')
   try {
     const pr = request('POST', `${target}/pulls`, { title: p.title, body: p.body, head, head_repo: p.fork.split('/')[1], base: p.base, draft: true, maintainer_can_modify: true })
-    return { url: pr.html_url, reused: false, state: pr.state, headSha: ref.object.sha }
+    return { url: pr.html_url, reused: false, state: pr.state, headSha: ref.object.sha, testedTreeSha: p.candidate.tree, testedParentSha: p.candidate.source.commit }
   } catch (error) {
     if (error.status !== 422) throw error
     const raced = existingPRs().find(pr => pr.body?.includes(marker))
     if (!raced) throw error
-    return { url: raced.html_url, reused: true, state: raced.state }
+    return { url: raced.html_url, reused: true, state: raced.state, headSha: raced.head.sha, testedTreeSha: p.candidate.tree, testedParentSha: p.candidate.source.commit }
   }
 }
 function parseOptions(args) {

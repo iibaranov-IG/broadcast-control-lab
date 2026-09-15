@@ -42,10 +42,15 @@ function register(db, c, result, digest = null, run = null) {
     prior.state = result.state || prior.state
     if (digest) prior.candidateSha256 = digest
     if (run) prior.run = run
-    if (digest && result.headSha) { prior.testedHeadSha = result.headSha; prior.evidenceStatus = 'BOUND_CANDIDATE' }
+    if (digest && result.headSha) {
+      prior.testedHeadSha = result.headSha
+      prior.testedTreeSha = result.testedTreeSha || prior.testedTreeSha || null
+      prior.testedParentSha = result.testedParentSha || prior.testedParentSha || null
+      prior.evidenceStatus = 'BOUND_CANDIDATE'
+    }
     return prior
   }
-  const entry = { id: c.id, title: c.title, issue: c.issue, pr: result.url, candidateSha256: digest, testedHeadSha: result.headSha || null, evidenceStatus: digest && result.headSha ? 'BOUND_CANDIDATE' : 'NOT_BOUND', run, state: result.state || 'unknown', hardware: { status: 'NOT_REVIEWED' }, events: [], unread: 0 }
+  const entry = { id: c.id, title: c.title, issue: c.issue, pr: result.url, candidateSha256: digest, testedHeadSha: result.headSha || null, testedTreeSha: result.testedTreeSha || null, testedParentSha: result.testedParentSha || null, evidenceStatus: digest && result.headSha ? 'BOUND_CANDIDATE' : 'NOT_BOUND', run, state: result.state || 'unknown', hardware: { status: 'NOT_REVIEWED' }, events: [], unread: 0 }
   db.repairs.push(entry)
   return entry
 }
@@ -101,8 +106,13 @@ function syncEntry(entry, api, now) {
   const old = new Map((entry.events || []).map(e => [e.key, e]))
   const fresh = events.map(e => ({ ...e, read: old.get(e.key)?.read === true && old.get(e.key)?.updatedAt === e.updatedAt && old.get(e.key)?.body === e.body && old.get(e.key)?.state === e.state }))
   const reporterResponseAt = fresh.filter(e => e.reporter && e.updatedAt).map(e => e.updatedAt).sort()[0] || null
-  const changed = Boolean((entry.testedHeadSha || entry.headSha) && (entry.testedHeadSha || entry.headSha) !== info.head.sha)
-  return { ...entry, ...(changed ? { evidenceStatus: 'STALE', evidenceStaleSince: now, hardware: { ...entry.hardware, status: entry.hardware?.status === 'NOT_REVIEWED' ? 'NOT_REVIEWED' : 'STALE', priorStatus: entry.hardware?.status, testedHeadSha: entry.headSha } } : {}), state: info.merged_at ? 'merged' : info.draft && info.state === 'open' ? 'draft' : info.state, mergeable: info.mergeable ?? null, mergeableState: info.mergeable_state || 'unknown', headSha: info.head.sha, reporter: owner, issueCreatedAt: issueInfo.created_at || entry.issueCreatedAt || null, prCreatedAt: info.created_at || entry.prCreatedAt || null, mergedAt: info.merged_at || null, reporterResponseAt, ci, events: fresh, unread: fresh.filter(e => !e.read).length, lastSync: now, syncError: null }
+  let changed = Boolean((entry.testedHeadSha || entry.headSha) && (entry.testedHeadSha || entry.headSha) !== info.head.sha)
+  if (changed && entry.testedTreeSha && entry.testedParentSha) {
+    const commit = api('GET', `${p}/git/commits/${info.head.sha}`)
+    const sameTestedTree = commit.tree?.sha === entry.testedTreeSha && commit.parents?.length === 1 && commit.parents[0].sha === entry.testedParentSha
+    if (sameTestedTree) changed = false
+  }
+  return { ...entry, ...(!changed && entry.testedTreeSha ? { testedHeadSha: info.head.sha, evidenceStatus: 'BOUND_CANDIDATE', evidenceStaleSince: undefined } : {}), ...(changed ? { evidenceStatus: 'STALE', evidenceStaleSince: now, hardware: { ...entry.hardware, status: entry.hardware?.status === 'NOT_REVIEWED' ? 'NOT_REVIEWED' : 'STALE', priorStatus: entry.hardware?.status, testedHeadSha: entry.headSha } } : {}), state: info.merged_at ? 'merged' : info.draft && info.state === 'open' ? 'draft' : info.state, mergeable: info.mergeable ?? null, mergeableState: info.mergeable_state || 'unknown', headSha: info.head.sha, reporter: owner, issueCreatedAt: issueInfo.created_at || entry.issueCreatedAt || null, prCreatedAt: info.created_at || entry.prCreatedAt || null, mergedAt: info.merged_at || null, reporterResponseAt, ci, events: fresh, unread: fresh.filter(e => !e.read).length, lastSync: now, syncError: null }
 }
 function hours(from, to) {
   const a = Date.parse(from || ''), b = Date.parse(to || '')
@@ -197,6 +207,15 @@ function attach(root, c, url, api, update = remoteUpdate) {
   // Attaching establishes tracking identity, never proof that these bytes passed BCL.
   return update(root, db => {
     const entry = register(db, c, { url, state: info.merged_at ? 'merged' : info.state })
+    const candidatePath = path.join(root, 'reports', c.id, 'candidate.json')
+    if (entry.candidateSha256 && fs.existsSync(candidatePath)) {
+      const bytes = fs.readFileSync(candidatePath)
+      const candidate = JSON.parse(bytes)
+      if (require('./publication.cjs').hash(bytes) === entry.candidateSha256 && candidate.case === c.id) {
+        entry.testedTreeSha = candidate.tree
+        entry.testedParentSha = candidate.source.commit
+      }
+    }
     const refreshed = syncEntry(entry, api, new Date().toISOString())
     Object.assign(entry, refreshed, { attachment: 'EXTERNAL_PR', evidenceStatus: refreshed.evidenceStatus === 'STALE' ? 'STALE' : entry.candidateSha256 ? 'BOUND_CANDIDATE' : 'NOT_BOUND' })
   }, `Attach existing PR for ${c.id}`, api)

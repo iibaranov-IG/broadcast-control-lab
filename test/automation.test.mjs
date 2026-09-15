@@ -114,6 +114,21 @@ test('one PR can never be registered to two cases', t => {
   assert.throws(() => tracking.register(f.db, { ...f.c, id: 'other-2' }, { url: f.entry.pr }, 'd'.repeat(64)), /identity conflict/)
   assert.equal(f.db.repairs.length, 1)
 })
+test('a signed replacement commit keeps evidence bound when tree and parent are unchanged', t => {
+  const f = setup(t)
+  const tree = 'c'.repeat(40), parent = 'd'.repeat(40), signedHead = 'e'.repeat(40)
+  f.entry.testedTreeSha = tree
+  f.entry.testedParentSha = parent
+  const api = fakeApi()
+  const refreshed = tracking.syncEntry(f.entry, (method, endpoint) => {
+    if (endpoint.endsWith(`/git/commits/${signedHead}`)) return { tree: { sha: tree }, parents: [{ sha: parent }] }
+    if (endpoint.endsWith('/pulls/2')) return { state: 'open', draft: true, created_at: '2026-09-10T01:00:00Z', merged_at: null, head: { sha: signedHead } }
+    return api(method, endpoint)
+  }, '2026-09-15T01:00:00Z')
+  assert.equal(refreshed.evidenceStatus, 'BOUND_CANDIDATE')
+  assert.equal(refreshed.testedHeadSha, signedHead)
+  assert.equal(refreshed.state, 'draft')
+})
 test('Replies are unread, edits reopen them, and positive prose never verifies hardware', t => {
   const f = setup(t)
   assert.equal(tracking.sync(f.root, fakeApi()).unread, 1)

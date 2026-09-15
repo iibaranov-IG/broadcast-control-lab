@@ -101,6 +101,7 @@ function containerRun(c, { harness = false, shared = null, legacy = false } = {}
       '--mount', `type=bind,source=${stage},target=/work`, '--workdir=/work',
       '-e', 'HOME=/work/.home', '-e', 'COREPACK_HOME=/work/.cache/corepack', '-e', 'YARN_CACHE_FOLDER=/work/.cache/yarn',
       '-e', 'CARGO_HOME=/work/.cache/cargo',
+      '-e', 'RUSTUP_TOOLCHAIN=1.97.1',
       '-e', `BCL_REVISION=${bclRevision}`, '-e', `BCL_IMAGE_ID=${imageId}`]
     if (c?.steps.dependencies.length) {
       // Only the audited registry installer runs with network access; never a passport command.

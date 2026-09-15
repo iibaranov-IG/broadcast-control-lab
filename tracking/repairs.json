@@ -3281,6 +3281,46 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "logic-pro-mcp-38",
+      "title": "Align Logic Pro mixer parameter contracts",
+      "issue": "https://github.com/koltyj/logic-pro-mcp/issues/38",
+      "pr": "https://github.com/koltyj/logic-pro-mcp/pull/41",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "pr-comment:5674199370",
+          "kind": "pr-comment",
+          "author": "coderabbitai[bot]",
+          "reporter": false,
+          "url": "https://github.com/koltyj/logic-pro-mcp/pull/41#issuecomment-5674199370",
+          "updatedAt": "2026-09-15T03:25:27Z",
+          "state": null,
+          "body": "<!-- This is an auto-generated comment: summarize by coderabbit.ai -->\n<!-- review_stack_entry_start -->\n\n<a href=\"https://app.coderabbit.ai/change-stack/koltyj/logic-pro-mcp/pull/41#gh-light-mode-only\"><img src=\"https://storage.googleapis.com/coderabbit_public_assets/review-stack-in-coderabbit-ui.svg\" alt=\"Review Change Stack\" width=\"202\" height=\"32\"></a><a href=\"https://app.coderabbit.ai/change-stack/koltyj/logic-pro-mcp/pull/41#gh-dark-mode-only\"><img src=\"https://storage.googleapis.com/coderabbit_public_assets/review-stack-in-coderabbit-ui-dark.svg\" alt=\"Review Change Stack\" width=\"202\" height=\"32\"></a>\n\n<!-- review_stack_entry_end -->\n<!-- This is an auto-generated comment: review in progress by coderabbit.ai -->\n\n> [!NOTE]\n> Currently processing new changes in this PR. This may take a few minutes, please wait...\n> \n> <details>\n> <summary>⚙️ Run configuration</summary>\n> \n> **Configuration used**: Organization UI\n> \n> **Review profile**: CHILL\n> \n> **Plan**: Team\n> \n> **Run ID**: `1f68d99f-5271-413f-8a2a-e566cbe200c4`\n> \n> </details>\n> \n> <details>\n> <summary>📥 Commits</summary>\n> \n> Reviewing files that changed from the base of the PR and between bdc105e7defd3622b1869e2dcd0dfd5159e1409c and 9b7d01ac9f3d0b7833370d43c853c0caf19fd956.\n> \n> </details>\n> \n> <details>\n> <summary>📒 Files selected for processing (6)</summary>\n> \n> * `Sources/LogicProMCP/Accessibility/AXLogicProElements.swift`\n> * `Sources/LogicProMCP/Channels/AccessibilityChannel.swift`\n> * `Sources/LogicProMCP/Channels/ChannelRouter.swift`\n> * `Sources/LogicProMCP/Channels/OSCChannel.swift`\n> * `Sources/LogicProMCP/Dispatchers/MixerDispatcher.swift`\n> * `Tests/LogicProMCPTests/MixerDispatcherTests.swift`\n> \n> </details>\n> \n> \n\n<!-- end of auto-generated comment: review in progress by coderabbit.ai -->\n\n<!-- finishing_touch_checkbox_start -->\n\n<details>\n<summary>✨ Finishing Touches</summary>\n\n<details>\n<summary>🧪 Generate unit tests (beta)</summary>\n\n- [ ] <!-- {\"checkboxId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\", \"radioGroupId\": \"utg-output-choice-group-unknown_comment_id\"} -->   Create PR with unit tests\n\n</details>\n<details>\n<summary>✨ Simplify code</summary>\n\n- [ ] <!-- {\"checkboxId\": \"f120d606-b0e2-4b7d-8316-181794555b43\", \"radioGroupId\": \"simplify-output-choice-group-unknown_comment_id\"} -->   Create PR with simplified code\n\n</details>\n\n</details>\n\n<!-- finishing_touch_checkbox_end -->\n<!-- tips_start -->\n\n---\n\n\n\n\n<sub>Comment `@coderabbitai help` to get the list of available commands.</sub>\n\n<!-- tips_end -->",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "blocked",
+      "headSha": "9b7d01ac9f3d0b7833370d43c853c0caf19fd956",
+      "reporter": "williamnash",
+      "issueCreatedAt": "2026-09-15T03:14:05Z",
+      "prCreatedAt": "2026-09-15T03:24:38Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "pending",
+      "lastSync": "2026-09-15T03:31:34.463Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

@@ -3287,10 +3287,10 @@
       "title": "Align Logic Pro mixer parameter contracts",
       "issue": "https://github.com/koltyj/logic-pro-mcp/issues/38",
       "pr": "https://github.com/koltyj/logic-pro-mcp/pull/42",
-      "candidateSha256": "a912c91dfa6e241ed6d496a00fe6b131b7f648f93c4bc256f984ddb7fbd84bda",
-      "testedHeadSha": "40a18c641fc8ff88e02032cf8fdd68304e97f4ae",
+      "candidateSha256": "7413d86f1ae1da44d4aa6c5f829db4c1bee1dc4777bf7e81b0d9540963877ae2",
+      "testedHeadSha": "6ab5426def9e5e673363ca8f52a4789d743023cc",
       "evidenceStatus": "BOUND_CANDIDATE",
-      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34925294456",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34925676502",
       "state": "open",
       "hardware": {
         "status": "NOT_REVIEWED"
@@ -3320,7 +3320,14 @@
       "ci": "pending",
       "lastSync": "2026-09-15T03:31:34.463Z",
       "syncError": null,
-      "attachment": "EXTERNAL_PR"
+      "attachment": "EXTERNAL_PR",
+      "priorCandidates": [
+        {
+          "candidateSha256": "a912c91dfa6e241ed6d496a00fe6b131b7f648f93c4bc256f984ddb7fbd84bda",
+          "testedHeadSha": "40a18c641fc8ff88e02032cf8fdd68304e97f4ae",
+          "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34925294456"
+        }
+      ]
     }
   ],
   "schemaVersion": 1

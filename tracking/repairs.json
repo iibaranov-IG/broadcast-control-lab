@@ -3221,6 +3221,34 @@
       "lastSync": "2026-09-15T01:37:15.322Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "naudio-107",
+      "title": "Keep USB audio choices stable across PortAudio renumbering",
+      "issue": "https://github.com/KJ5HST-LABS/naudio/issues/107",
+      "pr": "https://github.com/KJ5HST-LABS/naudio/pull/108",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "draft",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "36f026b683193f106a8d8ad7b6f2ab8c009e7c10",
+      "reporter": "KJ5HST",
+      "issueCreatedAt": "2026-09-15T00:35:37Z",
+      "prCreatedAt": "2026-09-15T02:19:28Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-15T02:19:41.941Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

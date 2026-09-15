@@ -106,6 +106,11 @@ test('empty or entirely skipped suites do not qualify; supported summaries recor
   assert.throws(() => suiteSummary('python', 'Ran 2 tests\nOK (skipped=2)'), /nonempty/)
   assert.equal(suiteSummary('cpp-cmake', '100% tests passed, 0 tests failed out of 24').total, 24)
   assert.equal(suiteSummary('cpp-autotools', '# TOTAL: 5\n# SKIP: 1').skipped, 1)
+  assert.deepEqual(
+    suiteSummary('rust', 'test result: ok. 86 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out\ntest result: ok. 1 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out'),
+    { total: 89, skipped: 2, parser: 'rust', source: 'upstream output; successful exit required' },
+  )
+  assert.throws(() => suiteSummary('rust', 'test result: ok. 0 passed; 0 failed; 4 ignored;'), /nonempty/)
 })
 test('batch rejects contract-only cases before preparation and continues after individual failure', t => {
   const f = fixture(t)

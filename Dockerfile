@@ -1,9 +1,15 @@
 ARG NODE_VERSION=22.20.0
 ARG PYTHON_VERSION=3.12.14
 FROM node:${NODE_VERSION}-bookworm AS node
+FROM rust:1.97.1-bookworm AS rust
 FROM python:${PYTHON_VERSION}-bookworm
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=rust /usr/local/cargo /usr/local/cargo
+COPY --from=rust /usr/local/rustup /usr/local/rustup
+ENV PATH="/usr/local/cargo/bin:${PATH}" \
+    RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo
 RUN apt-get update \
  && apt-get install -y --no-install-recommends build-essential cmake autoconf automake libtool pkg-config libgl1 libglib2.0-0 libportaudio2 \
  && rm -rf /var/lib/apt/lists/*

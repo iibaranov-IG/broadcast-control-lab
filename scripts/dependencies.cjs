@@ -4,6 +4,17 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { load } = require('./case.cjs')
 const c = load(process.argv[2])
+if (c.id === 'tonepush-9' && c.sources.length === 1 && c.sources[0].repository === 'crmne/tonepush' && c.sources[0].commit === '9c5fe357c563da8d3ac971ea1e9231c665884cdd') {
+  const source = path.resolve(c.sources[0].directory)
+  const expected = {
+    'Cargo.toml': 'bab2d822e86e7d6acf274c368e25bfbd539d195c59f0542db37317d48006c13e',
+    'Cargo.lock': 'db1a77a01d7d709a444ca18d35c4118fe28e167df57ea360cc8cbb3549a7b268',
+    'crates/hx-proto/Cargo.toml': '622484501c757bd9c303b3b36a0d884e253032b6085d6580ba67c7cdd835eb89',
+  }
+  for (const [name, sha] of Object.entries(expected)) if (require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(source, name))).digest('hex') !== sha) throw new Error('tonepush-9 dependency manifest changed; review required')
+  execFileSync('cargo', ['fetch', '--locked'], { cwd: source, stdio: 'inherit', env: { ...process.env, CARGO_HOME: '/work/.cache/cargo' } })
+  process.exit(0)
+}
 if (c.id === 'paella-984' && c.sources.length === 1 && c.sources[0].repository === 'opencast/opencast' && c.sources[0].commit === 'c2ddb4ea73b063534349a890551c9340a9e4303c') {
   const source = path.resolve(c.sources[0].directory, 'modules/engage-paella-player-8')
   const expected = { 'package.json': '14c8da2afc1869ff0934f87c2bd48e0d1859cb30e428179039d3659e2e4ff351', 'package-lock.json': '107554c8b3c22b681213d40ea1ade77dd3b43d27bb80a3cdc6d933bcd328ccec' }

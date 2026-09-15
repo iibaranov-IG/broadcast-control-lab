@@ -4,6 +4,13 @@ const { spawnSync, execFileSync } = require('node:child_process')
 const { createHash } = require('node:crypto')
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 function suiteSummary(kind, text) {
+  if (kind === 'rust') {
+    const matches = [...text.matchAll(/test result: ok\. (\d+) passed; \d+ failed; (\d+) ignored;/g)]
+    const passed = matches.reduce((total, match) => total + Number(match[1]), 0)
+    const skipped = matches.reduce((total, match) => total + Number(match[2]), 0)
+    if (!matches.length || passed <= 0) throw new Error('Upstream suite has no recognized nonempty executed-test summary')
+    return { total: passed + skipped, skipped, parser: kind, source: 'upstream output; successful exit required' }
+  }
   const totalMatch = kind === 'python' ? /Ran (\d+) tests?\b/.exec(text) : kind === 'cpp-cmake' ? /tests failed out of (\d+)/.exec(text) : kind === 'cpp-autotools' ? /# TOTAL:\s*(\d+)/.exec(text) : /(?:#|ℹ) tests\s+(\d+)/.exec(text)
   const skippedMatch = kind === 'python' ? /skipped=(\d+)/.exec(text) : kind === 'cpp-autotools' ? /# SKIP:\s*(\d+)/.exec(text) : kind === 'node' ? /(?:#|ℹ) skipped\s+(\d+)/.exec(text) : null
   const total = Number(totalMatch?.[1] || 0)
@@ -32,7 +39,7 @@ function clearBytecode(directory) {
 function validate(c, relative) {
   const u = c.upstream
   if (!u) return
-  if (!['cpp-cmake', 'cpp-autotools', 'python', 'node'].includes(u.kind)) throw new Error('Unsupported upstream kind')
+  if (!['cpp-cmake', 'cpp-autotools', 'python', 'node', 'rust'].includes(u.kind)) throw new Error('Unsupported upstream kind')
   if (u.sourceBytecode !== undefined && typeof u.sourceBytecode !== 'boolean') throw new Error('sourceBytecode must be boolean')
   if (!c.sources.some(s => s.id === u.source)) throw new Error('Unknown upstream source')
   if (c.publish && c.publish.source !== u.source) throw new Error('Upstream and publication must use the same source')

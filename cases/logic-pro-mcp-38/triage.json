@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T03:27:35.501Z",
+  "issue": {
+    "repository": "koltyj/logic-pro-mcp",
+    "number": "38",
+    "url": "https://github.com/koltyj/logic-pro-mcp/issues/38",
+    "title": "logic_mixer set_volume/set_pan/set_master_volume always fail (param-name mismatch)",
+    "state": "open",
+    "updatedAt": "2026-09-15T03:14:05Z"
+  },
+  "source": {
+    "repository": "koltyj/logic-pro-mcp",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "bdc105e7defd3622b1869e2dcd0dfd5159e1409c",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "Package.swift",
+      "Sources/LogicProMCP/Accessibility/AXHelpers.swift",
+      "Sources/LogicProMCP/Accessibility/AXLogicProElements.swift",
+      "Sources/LogicProMCP/Accessibility/AXValueExtractors.swift",
+      "Sources/LogicProMCP/Channels/AccessibilityChannel.swift",
+      "Sources/LogicProMCP/Channels/AppleScriptChannel.swift",
+      "Sources/LogicProMCP/Channels/CGEventChannel.swift",
+      "Sources/LogicProMCP/Channels/Channel.swift",
+      "Sources/LogicProMCP/Channels/ChannelRouter.swift",
+      "Sources/LogicProMCP/Channels/CoreMIDIChannel.swift"
+    ],
+    "buildFiles": [
+      {
+        "path": "Package.swift",
+        "kind": "swift",
+        "url": "https://github.com/koltyj/logic-pro-mcp/blob/bdc105e7defd3622b1869e2dcd0dfd5159e1409c/Package.swift"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "ACTIVE_RELATED_PR",
+      "severity": "info",
+      "detail": "A related PR is active. Review its scope: help validate it or identify a distinct repair; do not assume it already solves this issue. Resolved for this revision: The only related PR is #41, the candidate produced for this BCL case after selection; there is no competing implementation.",
+      "url": "https://github.com/koltyj/logic-pro-mcp/issues/38",
+      "resolution": {
+        "reason": "The only related PR is #41, the candidate produced for this BCL case after selection; there is no competing implementation.",
+        "evidence": [
+          "PR #41 head is iibaranov-IG:fix/mixer-parameter-contract",
+          "PR #41 fixes this exact issue and is bound to baseline bdc105e7"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [
+    {
+      "url": "https://github.com/koltyj/logic-pro-mcp/pull/41",
+      "relation": "open PR explicitly mentions issue",
+      "title": "fix: align mixer parameter contracts",
+      "author": "iibaranov-IG",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "headSha": "9b7d01ac9f3d0b7833370d43c853c0caf19fd956",
+      "updatedAt": "2026-09-15T03:25:58Z"
+    }
+  ],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:koltyj/logic-pro-mcp": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 86,
+    "scoreRange": [
+      85,
+      86
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Three advertised mixer commands always fail.",
+        "evidence": [
+          "Issue #38 live reproduction"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The issue was reported today against current main.",
+        "evidence": [
+          "Opened 2026-09-15",
+          "baseline bdc105e7"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 3,
+        "reason": "Reporter supplied exact logs and code locations; application validation reply is pending.",
+        "evidence": [
+          "Detailed issue body"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Each command must reach a backend using one documented parameter contract.",
+        "evidence": [
+          "logic_mixer schema",
+          "focused routing tests"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The key mismatch is unconditional and visible in source; reporter reproduced it live.",
+        "evidence": [
+          "Dispatcher emits index/volume while channels require incompatible keys"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "The patch aligns three small paths and adds master strip lookup.",
+        "evidence": [
+          "PR #41 focused diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Production build and routing tests are automated; final AX mutation needs Logic Pro.",
+        "evidence": [
+          "swift build -c release",
+          "owner check"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Public track/value contract is preserved and master avoids an invented OSC address.",
+        "evidence": [
+          "README example",
+          "Accessibility-only master route"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Repository merged several fixes in the last month.",
+        "evidence": [
+          "Recent PRs #29, #32 and #35"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fix restores core DAW mixer automation for all MCP clients.",
+        "evidence": [
+          "Shared logic_mixer dispatcher"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "Canonical parameters prevent both OSC and Accessibility failures.",
+        "evidence": [
+          "One contract shared by dispatcher and channels"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "The same contract tests make future mixer command drift easier to catch.",
+        "evidence": [
+          "Capturing channel regression tests"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 83,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      83,
+      86
+    ],
+    "selectable": true
+  },
+  "durationMs": 5502
+}

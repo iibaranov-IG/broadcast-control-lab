@@ -1,0 +1,240 @@
+diff --git a/Sources/LogicProMCP/Accessibility/AXLogicProElements.swift b/Sources/LogicProMCP/Accessibility/AXLogicProElements.swift
+index 0d82aaa..c4b4327 100644
+--- a/Sources/LogicProMCP/Accessibility/AXLogicProElements.swift
++++ b/Sources/LogicProMCP/Accessibility/AXLogicProElements.swift
+@@ -166,6 +166,25 @@ enum AXLogicProElements {
+         return stripControl(strip, role: kAXSliderRole, description: StripControl.pan)
+     }
+ 
++    /// Find the master strip's volume fader. Logic Pro normally labels it
++    /// "Master"; "Stereo Out" is the output-strip fallback used by layouts
++    /// that do not expose a separate master strip.
++    static func findMasterFader() -> AXUIElement? {
++        let strips = mixerStrips()
++        let descriptions = strips.map { AXHelpers.getDescription($0) }
++        guard let index = masterStripIndex(descriptions: descriptions) else { return nil }
++        return stripControl(strips[index], role: kAXSliderRole, description: StripControl.volume)
++    }
++
++    static func masterStripIndex(descriptions: [String?]) -> Int? {
++        func index(containing needle: String) -> Int? {
++            descriptions.firstIndex {
++                $0?.localizedCaseInsensitiveContains(needle) == true
++            }
++        }
++        return index(containing: "master") ?? index(containing: "stereo out")
++    }
++
+     // MARK: - Menu Bar
+ 
+     /// Get the menu bar for Logic Pro.
+diff --git a/Sources/LogicProMCP/Channels/AccessibilityChannel.swift b/Sources/LogicProMCP/Channels/AccessibilityChannel.swift
+index c806efc..1b1cb36 100644
+--- a/Sources/LogicProMCP/Channels/AccessibilityChannel.swift
++++ b/Sources/LogicProMCP/Channels/AccessibilityChannel.swift
+@@ -76,6 +76,8 @@ actor AccessibilityChannel: Channel {
+             return setMixerValue(params: params, target: .volume)
+         case "mixer.set_pan":
+             return setMixerValue(params: params, target: .pan)
++        case "mixer.set_master_volume":
++            return setMasterVolume(params: params)
+         case "mixer.set_send":
+             return .error("Send adjustment not yet implemented via AX")
+         case "mixer.set_input", "mixer.set_output":
+@@ -305,9 +307,9 @@ actor AccessibilityChannel: Channel {
+     }
+ 
+     private func setMixerValue(params: [String: String], target: MixerTarget) -> ChannelResult {
+-        guard let indexStr = params["index"], let index = Int(indexStr),
++        guard let indexStr = params["track"], let index = Int(indexStr),
+               let valueStr = params["value"], let value = Double(valueStr) else {
+-            return .error("Missing 'index' or 'value' parameter")
++            return .error("Missing 'track' or 'value' parameter")
+         }
+         let element: AXUIElement?
+         switch target {
+@@ -324,6 +326,17 @@ actor AccessibilityChannel: Channel {
+         return .success("{\"\(label)\":\(value),\"track\":\(index)}")
+     }
+ 
++    private func setMasterVolume(params: [String: String]) -> ChannelResult {
++        guard let valueStr = params["value"], let value = Double(valueStr) else {
++            return .error("Missing or invalid 'value' parameter")
++        }
++        guard let slider = AXLogicProElements.findMasterFader() else {
++            return .error("Cannot find master volume control")
++        }
++        AXHelpers.setAttribute(slider, kAXValueAttribute, NSNumber(value: value))
++        return .success("{\"master_volume\":\(value)}")
++    }
++
+     // MARK: - Project
+ 
+     private func getProjectInfo() -> ChannelResult {
+diff --git a/Sources/LogicProMCP/Channels/ChannelRouter.swift b/Sources/LogicProMCP/Channels/ChannelRouter.swift
+index 34d459d..da6ae88 100644
+--- a/Sources/LogicProMCP/Channels/ChannelRouter.swift
++++ b/Sources/LogicProMCP/Channels/ChannelRouter.swift
+@@ -51,7 +51,7 @@ actor ChannelRouter {
+         "mixer.set_output":           [.accessibility],
+         "mixer.set_input":            [.accessibility],
+         "mixer.get_channel_strip":    [.accessibility],
+-        "mixer.set_master_volume":    [.osc, .accessibility],
++        "mixer.set_master_volume":    [.accessibility],
+         "mixer.set_output_volume":    [.osc, .accessibility],
+         "mixer.get_bus_routing":      [.accessibility],
+         "mixer.toggle_eq":            [.accessibility],
+diff --git a/Sources/LogicProMCP/Channels/OSCChannel.swift b/Sources/LogicProMCP/Channels/OSCChannel.swift
+index 84a9a3e..d2b33c2 100644
+--- a/Sources/LogicProMCP/Channels/OSCChannel.swift
++++ b/Sources/LogicProMCP/Channels/OSCChannel.swift
+@@ -29,16 +29,16 @@ actor OSCChannel: Channel {
+ 
+         case "mixer.set_volume":
+             guard let track = params["track"].flatMap(Int.init),
+-                  let volume = params["volume"].flatMap(Float.init) else {
+-                return .error("set_volume requires 'track' (int) and 'volume' (float 0.0-1.0)")
++                  let volume = params["value"].flatMap(Float.init) else {
++                return .error("set_volume requires 'track' (int) and 'value' (float 0.0-1.0)")
+             }
+             let msg = OSCMessage(address: "/track/\(track)/volume", arguments: [.float(volume)])
+             return await send(msg, description: "Set track \(track) volume to \(volume)")
+ 
+         case "mixer.set_pan":
+             guard let track = params["track"].flatMap(Int.init),
+-                  let pan = params["pan"].flatMap(Float.init) else {
+-                return .error("set_pan requires 'track' (int) and 'pan' (float -1.0 to 1.0)")
++                  let pan = params["value"].flatMap(Float.init) else {
++                return .error("set_pan requires 'track' (int) and 'value' (float -1.0 to 1.0)")
+             }
+             let msg = OSCMessage(address: "/track/\(track)/pan", arguments: [.float(pan)])
+             return await send(msg, description: "Set track \(track) pan to \(pan)")
+diff --git a/Sources/LogicProMCP/Dispatchers/MixerDispatcher.swift b/Sources/LogicProMCP/Dispatchers/MixerDispatcher.swift
+index 93e59b1..8de5e1b 100644
+--- a/Sources/LogicProMCP/Dispatchers/MixerDispatcher.swift
++++ b/Sources/LogicProMCP/Dispatchers/MixerDispatcher.swift
+@@ -48,7 +48,7 @@ struct MixerDispatcher {
+             let value = params["value"]?.doubleValue ?? params["volume"]?.doubleValue ?? 0.0
+             let result = await router.route(
+                 operation: "mixer.set_volume",
+-                params: ["index": String(track), "volume": String(value)]
++                params: ["track": String(track), "value": String(value)]
+             )
+             return CallTool.Result(content: [.text(result.message)], isError: !result.isSuccess)
+ 
+@@ -57,7 +57,7 @@ struct MixerDispatcher {
+             let value = params["value"]?.doubleValue ?? params["pan"]?.doubleValue ?? 0.0
+             let result = await router.route(
+                 operation: "mixer.set_pan",
+-                params: ["index": String(track), "pan": String(value)]
++                params: ["track": String(track), "value": String(value)]
+             )
+             return CallTool.Result(content: [.text(result.message)], isError: !result.isSuccess)
+ 
+@@ -93,7 +93,7 @@ struct MixerDispatcher {
+             let value = params["value"]?.doubleValue ?? params["volume"]?.doubleValue ?? 0.0
+             let result = await router.route(
+                 operation: "mixer.set_master_volume",
+-                params: ["volume": String(value)]
++                params: ["value": String(value)]
+             )
+             return CallTool.Result(content: [.text(result.message)], isError: !result.isSuccess)
+ 
+diff --git a/Tests/LogicProMCPTests/MixerDispatcherTests.swift b/Tests/LogicProMCPTests/MixerDispatcherTests.swift
+new file mode 100644
+index 0000000..03bca6c
+--- /dev/null
++++ b/Tests/LogicProMCPTests/MixerDispatcherTests.swift
+@@ -0,0 +1,92 @@
++import MCP
++import XCTest
++@testable import LogicProMCP
++
++final class MixerDispatcherTests: XCTestCase {
++    func testVolumeUsesTheAdvertisedParameterContract() async {
++        let channel = CapturingMixerChannel(id: .osc)
++        let router = ChannelRouter()
++        await router.register(channel)
++
++        let result = await MixerDispatcher.handle(
++            command: "set_volume",
++            params: ["track": .int(4), "value": .double(0.75)],
++            router: router,
++            cache: StateCache()
++        )
++
++        XCTAssertFalse(result.isError == true)
++        let call = await channel.lastCall
++        XCTAssertEqual(call?.operation, "mixer.set_volume")
++        XCTAssertEqual(call?.params, ["track": "4", "value": "0.75"])
++    }
++
++    func testPanUsesTheAdvertisedParameterContract() async {
++        let channel = CapturingMixerChannel(id: .osc)
++        let router = ChannelRouter()
++        await router.register(channel)
++
++        let result = await MixerDispatcher.handle(
++            command: "set_pan",
++            params: ["track": .int(2), "value": .double(-0.5)],
++            router: router,
++            cache: StateCache()
++        )
++
++        XCTAssertFalse(result.isError == true)
++        let call = await channel.lastCall
++        XCTAssertEqual(call?.operation, "mixer.set_pan")
++        XCTAssertEqual(call?.params, ["track": "2", "value": "-0.5"])
++    }
++
++    func testMasterVolumeRoutesThroughAccessibilityWithValue() async {
++        let channel = CapturingMixerChannel(id: .accessibility)
++        let router = ChannelRouter()
++        await router.register(channel)
++
++        let result = await MixerDispatcher.handle(
++            command: "set_master_volume",
++            params: ["value": .double(0.6)],
++            router: router,
++            cache: StateCache()
++        )
++
++        XCTAssertFalse(result.isError == true)
++        let call = await channel.lastCall
++        XCTAssertEqual(call?.operation, "mixer.set_master_volume")
++        XCTAssertEqual(call?.params, ["value": "0.6"])
++    }
++
++    func testMasterStripPrefersMasterAndFallsBackToStereoOut() {
++        XCTAssertEqual(
++            AXLogicProElements.masterStripIndex(descriptions: ["Audio 1", "Stereo Out", "Master"]),
++            2
++        )
++        XCTAssertEqual(
++            AXLogicProElements.masterStripIndex(descriptions: ["Audio 1", "Stereo Out"]),
++            1
++        )
++        XCTAssertNil(AXLogicProElements.masterStripIndex(descriptions: ["Audio 1", "Aux 1"]))
++    }
++}
++
++private actor CapturingMixerChannel: Channel {
++    nonisolated let id: ChannelID
++    private(set) var lastCall: (operation: String, params: [String: String])?
++
++    init(id: ChannelID) {
++        self.id = id
++    }
++
++    func start() async throws {}
++    func stop() async {}
++
++    func execute(operation: String, params: [String: String]) async -> ChannelResult {
++        lastCall = (operation, params)
++        return .success("ok")
++    }
++
++    func healthCheck() async -> ChannelHealth {
++        .healthy()
++    }
++}

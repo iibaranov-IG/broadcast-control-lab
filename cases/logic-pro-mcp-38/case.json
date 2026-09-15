@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 2,
+  "id": "logic-pro-mcp-38",
+  "status": "ready",
+  "title": "Align Logic Pro mixer parameter contracts",
+  "issue": "https://github.com/koltyj/logic-pro-mcp/issues/38",
+  "problem": "logic_mixer advertises track/value, but set_volume and set_pan translate them into keys that neither OSC nor Accessibility accepts. set_master_volume routes to two channels that do not implement it, so all three public commands always fail.",
+  "reproduce": "At pinned revision bdc105e7, exercise the documented set_volume, set_pan, and set_master_volume contracts. The dispatcher/channel contract check fails with MIXER_PARAMETER_CONTRACT_BROKEN; the reporter also reproduced all three failures over the released stdio MCP server.",
+  "acceptance": "set_volume and set_pan preserve track/value through the dispatcher and both backends; set_master_volume reaches a real Accessibility handler that selects Master, with Stereo Out only when no separate master strip exists. Focused Swift tests cover each reported command.",
+  "repair": "Use the documented track/value names end to end, implement master fader selection through the existing Accessibility mixer tree, remove the unsupported OSC master route, and add dispatcher regressions.",
+  "sources": [
+    {
+      "id": "baseline",
+      "repository": "koltyj/logic-pro-mcp",
+      "commit": "bdc105e7defd3622b1869e2dcd0dfd5159e1409c",
+      "directory": "sources/logic-pro-mcp-38"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [
+    "cases/logic-pro-mcp-38/"
+  ],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/logic-pro-mcp-38",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/logic-pro-mcp-38/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/logic-pro-mcp-38/test.mjs",
+          "sources/logic-pro-mcp-38"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/logic-pro-mcp-38.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves an exact baseline-red/candidate-green contract and the candidate builds in Swift release mode. The upstream macOS CI awaits maintainer approval for a first-time fork, and changing a live Logic Pro mixer remains the owner check.",
+    "ownerCheck": "With the mixer visible and Accessibility permission granted, call set_volume and set_pan on a noncritical test track, then set_master_volume. Confirm the intended track controls and Master fader move to the requested values; if no separate Master strip exists, confirm Stereo Out moves."
+  },
+  "selection": {
+    "report": "cases/logic-pro-mcp-38/triage.json",
+    "sha256": "4ff994a02a2796cf3395157cd923e1d7aee7ac5e079b6c53a376b3bccf4202c8",
+    "reason": "A fresh report provides live logs and exact code locations for three always-failing advertised commands. The defect is deterministic, the patch is focused, and no competing PR exists."
+  },
+  "template": {
+    "language": "node",
+    "protocol": "none"
+  },
+  "publish": {
+    "source": "baseline",
+    "target": "koltyj/logic-pro-mcp",
+    "base": "main",
+    "commitMessage": "fix: align mixer parameter contracts",
+    "paths": [
+      "Sources/LogicProMCP/Accessibility/AXLogicProElements.swift",
+      "Sources/LogicProMCP/Channels/AccessibilityChannel.swift",
+      "Sources/LogicProMCP/Channels/ChannelRouter.swift",
+      "Sources/LogicProMCP/Channels/OSCChannel.swift",
+      "Sources/LogicProMCP/Dispatchers/MixerDispatcher.swift",
+      "Tests/LogicProMCPTests/MixerDispatcherTests.swift"
+    ],
+    "verificationOnlyPaths": [
+      "test_bcl_issue_38.mjs"
+    ]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "baseline",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/logic-pro-mcp-38/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "test_bcl_issue_38.mjs"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "test_bcl_issue_38.mjs"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "MIXER_PARAMETER_CONTRACT_BROKEN"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "test_bcl_issue_38.mjs"
+      ]
+    },
+    "suiteOutputIncludes": "PASS: mixer parameter contract is aligned end to end"
+  }
+}

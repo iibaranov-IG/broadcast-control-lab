@@ -11,7 +11,7 @@ ENV PATH="/usr/local/cargo/bin:${PATH}" \
     RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo
 RUN apt-get update \
- && apt-get install -y --no-install-recommends build-essential cmake autoconf automake libtool pkg-config libgl1 libglib2.0-0 libportaudio2 ffmpeg \
+ && apt-get install -y --no-install-recommends build-essential cmake autoconf automake libtool pkg-config gperf libgl1 libglib2.0-dev libportaudio2 ffmpeg \
  && rm -rf /var/lib/apt/lists/*
 RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
  && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \

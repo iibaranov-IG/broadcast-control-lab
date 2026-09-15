@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "rtpengine-2172",
+  "status": "ready",
+  "title": "Keep nested Opus option lookups in separate hash tables",
+  "issue": "https://github.com/sipwise/rtpengine/issues/2172",
+  "problem": "The unnumbered application-value lookup replaces the active outer hash slot while const_str_hash scans lib/opus.c. Consequently vbr and packet_loss, which appear after that nested switch, are generated into the application table and can never be recognized as encoder option keys.",
+  "reproduce": "At 25ac052c, generating lib/opus.c with WITH_TRANSCODING produces an outer table with only complexity, compression_level, and application; packet_loss and vbr are absent and the outer lookup returns no match for them.",
+  "acceptance": "The generated outer table contains all seven Opus encoder option spellings, the nested table contains the seven application spellings, and the focused constant-string hash executable recognizes entries before, inside, and after a nested lookup.",
+  "repair": "Assign the nested application-value switch to numbered lookup slot 1, leaving the surrounding encoder-option switch in slot 0, and add a focused nested-table regression to the existing const_str_hash test.",
+  "sources": [{"id":"baseline","repository":"sipwise/rtpengine","commit":"25ac052c3503d790dd56efe46dbaf8e2fd3acea0","directory":"sources/rtpengine-2172"}],
+  "runtime": {"node":"22.20.0","python":"3.12.14"},
+  "watch": ["cases/rtpengine-2172/"],
+  "steps": {
+    "dependencies": [],
+    "prepare": [{"cwd":"sources/rtpengine-2172","argv":["git","apply","../../cases/rtpengine-2172/repair.patch"]}],
+    "test": [{"cwd":".","argv":["node","cases/rtpengine-2172/test.mjs","sources/rtpengine-2172"]}],
+    "build": []
+  },
+  "artifacts": {"report":"reports/rtpengine-2172.json"},
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies generated lookup membership and executes the focused C hash test in Linux. It does not run a live rtpengine call or inspect encoded Opus packets.",
+    "ownerCheck": "Set packet_loss=10 on the affected Opus transcode path and confirm the unknown-option warning disappears and in-band FEC packets are produced when the peer offers useinbandfec=1."
+  },
+  "selection": {"report":"cases/rtpengine-2172/triage.json","sha256":"232ec989281865739359312ceefaa734788e6709c8cdffbacccd9cba94809b87"},
+  "template": {"language":"cpp","protocol":"media"},
+  "publish": {
+    "source":"baseline",
+    "target":"sipwise/rtpengine",
+    "base":"master",
+    "commitMessage":"Fix nested Opus option hash lookups",
+    "paths":["lib/opus.c","t/test-const_str_hash.c"]
+  },
+  "upstream": {
+    "kind":"cpp-autotools",
+    "source":"baseline",
+    "timeoutMs":120000,
+    "setup":[{"cwd":".","argv":["git","apply","../../cases/rtpengine-2172/tests-only.patch"]}],
+    "build":[],
+    "testFiles":["t/test-const_str_hash.c"],
+    "regression":{"cwd":".","argv":["node","../../cases/rtpengine-2172/verify.mjs"]},
+    "negative":{"exitCode":1,"outputIncludes":"OPUS_OUTER_HASH_MISSING_OPTIONS"},
+    "suite":{"cwd":".","argv":["node","../../cases/rtpengine-2172/verify.mjs","--suite"]},
+    "suiteOutputIncludes":"# TOTAL: 4"
+  }
+}

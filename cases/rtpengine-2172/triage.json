@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T06:50:07.890Z",
+  "issue": {
+    "repository": "sipwise/rtpengine",
+    "number": "2172",
+    "url": "https://github.com/sipwise/rtpengine/issues/2172",
+    "title": "Opus encoder options vbr and packet_loss are never recognized: const_str_hash drops keys after a nested CSH_LOOKUP switch",
+    "state": "open",
+    "updatedAt": "2026-09-15T06:25:44Z"
+  },
+  "source": {
+    "repository": "sipwise/rtpengine",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "GPL-3.0",
+    "commit": "25ac052c3503d790dd56efe46dbaf8e2fd3acea0",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "daemon/.ycm_extra_conf.py",
+      "daemon/audio_player.c",
+      "daemon/call.c",
+      "daemon/call_flags.c",
+      "daemon/call_interfaces.c",
+      "daemon/cdr.c",
+      "daemon/cli.c",
+      "daemon/codec.c",
+      "daemon/control_ng.c",
+      "daemon/control_ng_flags_parser.c"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/sipwise/rtpengine/blob/25ac052c3503d790dd56efe46dbaf8e2fd3acea0/Makefile"
+      },
+      {
+        "path": "daemon/Makefile",
+        "kind": "make",
+        "url": "https://github.com/sipwise/rtpengine/blob/25ac052c3503d790dd56efe46dbaf8e2fd3acea0/daemon/Makefile"
+      },
+      {
+        "path": "docs/Makefile",
+        "kind": "make",
+        "url": "https://github.com/sipwise/rtpengine/blob/25ac052c3503d790dd56efe46dbaf8e2fd3acea0/docs/Makefile"
+      },
+      {
+        "path": "kernel-module/Makefile",
+        "kind": "make",
+        "url": "https://github.com/sipwise/rtpengine/blob/25ac052c3503d790dd56efe46dbaf8e2fd3acea0/kernel-module/Makefile"
+      },
+      {
+        "path": "lib/Makefile",
+        "kind": "make",
+        "url": "https://github.com/sipwise/rtpengine/blob/25ac052c3503d790dd56efe46dbaf8e2fd3acea0/lib/Makefile"
+      },
+      {
+        "path": "perf-tester/Makefile",
+        "kind": "make",
+        "url": "https://github.com/sipwise/rtpengine/blob/25ac052c3503d790dd56efe46dbaf8e2fd3acea0/perf-tester/Makefile"
+      },
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/sipwise/rtpengine/blob/25ac052c3503d790dd56efe46dbaf8e2fd3acea0/pyproject.toml"
+      },
+      {
+        "path": "python/Makefile",
+        "kind": "make",
+        "url": "https://github.com/sipwise/rtpengine/blob/25ac052c3503d790dd56efe46dbaf8e2fd3acea0/python/Makefile"
+      },
+      {
+        "path": "recording-daemon/Makefile",
+        "kind": "make",
+        "url": "https://github.com/sipwise/rtpengine/blob/25ac052c3503d790dd56efe46dbaf8e2fd3acea0/recording-daemon/Makefile"
+      },
+      {
+        "path": "t/Makefile",
+        "kind": "make",
+        "url": "https://github.com/sipwise/rtpengine/blob/25ac052c3503d790dd56efe46dbaf8e2fd3acea0/t/Makefile"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "workClaims": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20,
+    "maxWorkClaims": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "issueComments": "complete",
+    "openPRs:sipwise/rtpengine": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Explicit PR references and explicit first-person work claims are matched; semantically related work, off-platform coordination and unusual wording can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 98,
+    "scoreRange": [
+      97,
+      98
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "packet_loss is silently ignored, preventing negotiated Opus FEC.",
+        "evidence": [
+          "Issue #2172 daemon warning and packet counts"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The issue was filed today against current master and a maintained release.",
+        "evidence": [
+          "Issue #2172 timestamps"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter supplied versions, commands, logs and measured output.",
+        "evidence": [
+          "Issue #2172"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "vbr and packet_loss must be present in the outer key table while application values use their own table.",
+        "evidence": [
+          "generated lookup tables"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "Generator output deterministically has three outer keys before the repair and seven after it.",
+        "evidence": [
+          "local baseline and candidate generation"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repair assigns the nested application lookup to the existing numbered slot and adds focused coverage.",
+        "evidence": [
+          "candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Generation and the focused C test run in a small Linux container without hardware.",
+        "evidence": [
+          "container test"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "All existing application spellings remain and the outer options regain their own table.",
+        "evidence": [
+          "generated key counts and nested lookup test"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository and master branch are active.",
+        "evidence": [
+          "current repository metadata"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 5,
+        "reason": "rtpengine is widely used for real-time voice and WebRTC media.",
+        "evidence": [
+          "public project scope"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The test documents the intended numbered-slot pattern for nested constant-string lookups.",
+        "evidence": [
+          "test-const_str_hash"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Restoring packet_loss enables Opus packet-loss tuning and negotiated in-band FEC.",
+        "evidence": [
+          "Issue #2172"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      98
+    ],
+    "selectable": true
+  },
+  "durationMs": 3383
+}

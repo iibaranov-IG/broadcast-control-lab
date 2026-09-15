@@ -3047,10 +3047,10 @@
       "title": "Deliver audio-only playback support to Opencast 21",
       "issue": "https://github.com/polimediaupv/paella/issues/984",
       "pr": "https://github.com/opencast/opencast/pull/8017",
-      "candidateSha256": null,
-      "testedHeadSha": null,
-      "evidenceStatus": "NOT_BOUND",
-      "run": null,
+      "candidateSha256": "2c1f89a84b8a5b6049679d18b9d27f96231ba56a04b79eb2f19e72e8548eb079",
+      "testedHeadSha": "229a37c554201a0a79f733c8bc803382780ed29c",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34911524170",
       "state": "open",
       "hardware": {
         "status": "NOT_REVIEWED"

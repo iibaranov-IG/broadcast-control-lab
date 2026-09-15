@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 2,
+  "id": "node-av-349",
+  "status": "ready",
+  "title": "Report MJPEG USB-camera modes as a compressed codec",
+  "issue": "https://github.com/seydx/node-av/issues/349",
+  "problem": "Linux device enumeration converts every V4L2 FourCC only to AVPixelFormat. MJPG is compressed and has no AVPixelFormat, so common high-resolution USB-camera modes surface as NONE with no usable format identity.",
+  "reproduce": "At the pinned revision, v4l2FormatToAV handles raw FourCC values only. V4L2_PIX_FMT_MJPEG falls through to AV_PIX_FMT_NONE, matching the reporter\u2019s null avGetPixFmtName output.",
+  "acceptance": "MJPG and JPEG capture modes expose AV_CODEC_ID_MJPEG while retaining AV_PIX_FMT_NONE until decode; raw modes expose AV_CODEC_ID_RAWVIDEO plus their existing pixel format; codecId reaches both native APIs and the public TypeScript DeviceMode.",
+  "repair": "Represent capture identity with both pixelFormat and codecId, map Linux MJPG/JPEG to the MJPEG codec, and carry the codec through synchronous, asynchronous, and TypeScript device-mode APIs.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "seydx/node-av",
+      "commit": "8b4e1cf4dc52a00693609ac2067fc7cfb6067e82",
+      "directory": "sources/node-av-349"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/node-av-349",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/node-av-349/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/node-av-349/test.mjs",
+          "sources/node-av-349"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/node-av-349.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the malformed baseline mapping and complete candidate API path. TypeScript library, tests and examples compile; the Linux translation unit compiles in Ubuntu 24.04. Full native linking needs the project\u2019s prebuilt custom FFmpeg tree, and physical enumeration needs the reporter\u2019s MJPG camera.",
+    "ownerCheck": "Run DeviceAPI.modes on the same /dev/video20 camera and confirm MJPG resolutions return codecId AV_CODEC_ID_MJPEG; avGetCodecName(mode.codecId) should return mjpeg while YUYV modes keep their existing pixelFormat."
+  },
+  "selection": {
+    "report": "cases/node-av-349/triage.json",
+    "sha256": "03b7ed481ab076b476a535400f697a6cb034a5fb6d926cc4abf8f6aa4f1bb43c",
+    "reason": "A fresh USB-camera owner supplied exact V4L2 and NodeAV output at the current beta; no competing PR exists, and the missing compressed-format identity is deterministic in the pinned Linux mapping."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "seydx/node-av",
+    "base": "main",
+    "commitMessage": "fix: report MJPEG device modes as a codec",
+    "paths": [
+      "src/bindings/device.h",
+      "src/bindings/device_async.cc",
+      "src/bindings/device_darwin.mm",
+      "src/bindings/device_linux.cc",
+      "src/bindings/device_sync.cc",
+      "src/bindings/device_win32.cc",
+      "src/lib/device.ts",
+      "src/lib/native-types.ts",
+      "test/device.test.ts"
+    ],
+    "verificationOnlyPaths": [
+      "test/bcl_mjpeg_device_mode.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "sourceBytecode": true,
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/node-av-349/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "test/bcl_mjpeg_device_mode.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "test/bcl_mjpeg_device_mode.py"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "DeviceMode must expose compressed capture codecs"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "test/bcl_mjpeg_device_mode.py"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 2 tests"
+  }
+}

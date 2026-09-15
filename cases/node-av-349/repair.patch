@@ -1,0 +1,226 @@
+diff --git a/src/bindings/device.h b/src/bindings/device.h
+index c08e02b..71e902c 100644
+--- a/src/bindings/device.h
++++ b/src/bindings/device.h
+@@ -8,6 +8,7 @@
+ extern "C" {
+ #include <libavutil/pixfmt.h>
+ #include <libavutil/samplefmt.h>
++#include <libavcodec/codec_id.h>
+ }
+ 
+ namespace ffmpeg {
+@@ -30,6 +31,7 @@ struct DeviceMode {
+   double minFrameRate;
+   double maxFrameRate;
+   AVPixelFormat pixelFormat = AV_PIX_FMT_NONE;  // FFmpeg AVPixelFormat enum value
++  AVCodecID codecId = AV_CODEC_ID_NONE;         // Compressed capture format, or RAWVIDEO
+ };
+ 
+ struct AudioDeviceMode {
+diff --git a/src/bindings/device_async.cc b/src/bindings/device_async.cc
+index 995cedf..461cacb 100644
+--- a/src/bindings/device_async.cc
++++ b/src/bindings/device_async.cc
+@@ -70,6 +70,7 @@ static Napi::Array DeviceModesToJS(Napi::Env env, const std::vector<DeviceMode>&
+     modeObj.Set("minFrameRate", Napi::Number::New(env, modes[i].minFrameRate));
+     modeObj.Set("maxFrameRate", Napi::Number::New(env, modes[i].maxFrameRate));
+     modeObj.Set("pixelFormat", Napi::Number::New(env, static_cast<int>(modes[i].pixelFormat)));
++    modeObj.Set("codecId", Napi::Number::New(env, static_cast<int>(modes[i].codecId)));
+     result[i] = modeObj;
+   }
+ 
+diff --git a/src/bindings/device_darwin.mm b/src/bindings/device_darwin.mm
+index 5c92a6d..73fa47c 100644
+--- a/src/bindings/device_darwin.mm
++++ b/src/bindings/device_darwin.mm
+@@ -221,6 +221,7 @@ static AVPixelFormat cvPixelFormatToAV(OSType format) {
+       mode.minFrameRate = fps.first;
+       mode.maxFrameRate = fps.second;
+       mode.pixelFormat = key.pixelFormat;
++      mode.codecId = key.pixelFormat == AV_PIX_FMT_NONE ? AV_CODEC_ID_NONE : AV_CODEC_ID_RAWVIDEO;
+       modes.push_back(mode);
+     }
+ 
+diff --git a/src/bindings/device_linux.cc b/src/bindings/device_linux.cc
+index 8508f91..71310c7 100644
+--- a/src/bindings/device_linux.cc
++++ b/src/bindings/device_linux.cc
+@@ -28,21 +28,28 @@ static struct AlsaSilencer {
+ 
+ namespace ffmpeg {
+ 
+-// V4L2 fourcc → FFmpeg AVPixelFormat
+-static AVPixelFormat v4l2FormatToAV(uint32_t fourcc) {
++struct VideoFormat {
++  AVPixelFormat pixelFormat;
++  AVCodecID codecId;
++};
++
++// V4L2 fourcc → FFmpeg raw pixel format or compressed codec.
++static VideoFormat v4l2FormatToAV(uint32_t fourcc) {
+   switch (fourcc) {
+-    case V4L2_PIX_FMT_YUYV:    return AV_PIX_FMT_YUYV422;
+-    case V4L2_PIX_FMT_UYVY:    return AV_PIX_FMT_UYVY422;
+-    case V4L2_PIX_FMT_YUV420:  return AV_PIX_FMT_YUV420P;
+-    case V4L2_PIX_FMT_YVU420:  return AV_PIX_FMT_YUV420P;
+-    case V4L2_PIX_FMT_NV12:    return AV_PIX_FMT_NV12;
+-    case V4L2_PIX_FMT_NV21:    return AV_PIX_FMT_NV21;
+-    case V4L2_PIX_FMT_RGB24:   return AV_PIX_FMT_RGB24;
+-    case V4L2_PIX_FMT_BGR24:   return AV_PIX_FMT_BGR24;
+-    case V4L2_PIX_FMT_RGB32:   return AV_PIX_FMT_RGBA;
+-    case V4L2_PIX_FMT_BGR32:   return AV_PIX_FMT_BGRA;
+-    case V4L2_PIX_FMT_GREY:    return AV_PIX_FMT_GRAY8;
+-    default:                   return AV_PIX_FMT_NONE;
++    case V4L2_PIX_FMT_YUYV:    return {AV_PIX_FMT_YUYV422, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_UYVY:    return {AV_PIX_FMT_UYVY422, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_YUV420:  return {AV_PIX_FMT_YUV420P, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_YVU420:  return {AV_PIX_FMT_YUV420P, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_NV12:    return {AV_PIX_FMT_NV12, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_NV21:    return {AV_PIX_FMT_NV21, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_RGB24:   return {AV_PIX_FMT_RGB24, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_BGR24:   return {AV_PIX_FMT_BGR24, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_RGB32:   return {AV_PIX_FMT_RGBA, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_BGR32:   return {AV_PIX_FMT_BGRA, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_GREY:    return {AV_PIX_FMT_GRAY8, AV_CODEC_ID_RAWVIDEO};
++    case V4L2_PIX_FMT_MJPEG:
++    case V4L2_PIX_FMT_JPEG:    return {AV_PIX_FMT_NONE, AV_CODEC_ID_MJPEG};
++    default:                   return {AV_PIX_FMT_NONE, AV_CODEC_ID_NONE};
+   }
+ }
+ 
+@@ -214,10 +221,12 @@ std::vector<DeviceMode> enumerateDeviceModes(const std::string& deviceName) {
+   struct ModeKey {
+     int w, h;
+     AVPixelFormat pixelFormat;
++    AVCodecID codecId;
+     bool operator<(const ModeKey& o) const {
+       if (w != o.w) return w < o.w;
+       if (h != o.h) return h < o.h;
+-      return pixelFormat < o.pixelFormat;
++      if (pixelFormat != o.pixelFormat) return pixelFormat < o.pixelFormat;
++      return codecId < o.codecId;
+     }
+   };
+   std::map<ModeKey, std::pair<double, double>> modeMap;
+@@ -228,7 +237,7 @@ std::vector<DeviceMode> enumerateDeviceModes(const std::string& deviceName) {
+   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+ 
+   for (fmt.index = 0; ioctl(fd, VIDIOC_ENUM_FMT, &fmt) == 0; fmt.index++) {
+-    AVPixelFormat pixFmt = v4l2FormatToAV(fmt.pixelformat);
++    VideoFormat videoFormat = v4l2FormatToAV(fmt.pixelformat);
+ 
+     struct v4l2_frmsizeenum frmsize;
+     memset(&frmsize, 0, sizeof(frmsize));
+@@ -262,7 +271,7 @@ std::vector<DeviceMode> enumerateDeviceModes(const std::string& deviceName) {
+         }
+ 
+         if (maxFps > 0) {
+-          ModeKey key{w, h, pixFmt};
++          ModeKey key{w, h, videoFormat.pixelFormat, videoFormat.codecId};
+           auto it = modeMap.find(key);
+           if (it == modeMap.end()) {
+             modeMap[key] = {minFps, maxFps};
+@@ -284,6 +293,7 @@ std::vector<DeviceMode> enumerateDeviceModes(const std::string& deviceName) {
+     mode.minFrameRate = fps.first;
+     mode.maxFrameRate = fps.second;
+     mode.pixelFormat = key.pixelFormat;
++    mode.codecId = key.codecId;
+     modes.push_back(mode);
+   }
+ 
+diff --git a/src/bindings/device_sync.cc b/src/bindings/device_sync.cc
+index e86898a..380de2e 100644
+--- a/src/bindings/device_sync.cc
++++ b/src/bindings/device_sync.cc
+@@ -46,6 +46,7 @@ static Napi::Array DeviceModesToJS(Napi::Env env, const std::vector<DeviceMode>&
+     modeObj.Set("minFrameRate", Napi::Number::New(env, modes[i].minFrameRate));
+     modeObj.Set("maxFrameRate", Napi::Number::New(env, modes[i].maxFrameRate));
+     modeObj.Set("pixelFormat", Napi::Number::New(env, static_cast<int>(modes[i].pixelFormat)));
++    modeObj.Set("codecId", Napi::Number::New(env, static_cast<int>(modes[i].codecId)));
+     result[i] = modeObj;
+   }
+ 
+diff --git a/src/bindings/device_win32.cc b/src/bindings/device_win32.cc
+index fd11b79..aeb73d8 100644
+--- a/src/bindings/device_win32.cc
++++ b/src/bindings/device_win32.cc
+@@ -332,6 +332,7 @@ std::vector<DeviceMode> enumerateDeviceModes(const std::string& deviceName) {
+     mode.minFrameRate = fps.first;
+     mode.maxFrameRate = fps.second;
+     mode.pixelFormat = key.pixelFormat;
++    mode.codecId = key.pixelFormat == AV_PIX_FMT_NONE ? AV_CODEC_ID_NONE : AV_CODEC_ID_RAWVIDEO;
+     modes.push_back(mode);
+   }
+ 
+diff --git a/src/lib/device.ts b/src/lib/device.ts
+index edff414..22d60af 100644
+--- a/src/lib/device.ts
++++ b/src/lib/device.ts
+@@ -1,6 +1,6 @@
+ import { bindings } from './binding.js';
+ 
+-import type { AVPixelFormat, AVSampleFormat } from '../constants/constants.js';
++import type { AVCodecID, AVPixelFormat, AVSampleFormat } from '../constants/constants.js';
+ import type { NativeAudioDeviceMode, NativeDeviceInfo, NativeDeviceMode } from './native-types.js';
+ 
+ /**
+@@ -58,6 +58,8 @@ export interface DeviceMode {
+   minFrameRate: number;
+   maxFrameRate: number;
+   pixelFormat: AVPixelFormat;
++  /** Compressed capture codec, or `AV_CODEC_ID_RAWVIDEO` when `pixelFormat` describes raw frames. */
++  codecId: AVCodecID;
+ }
+ 
+ /**
+@@ -206,6 +208,7 @@ export class Device {
+       minFrameRate: m.minFrameRate,
+       maxFrameRate: m.maxFrameRate,
+       pixelFormat: m.pixelFormat,
++      codecId: m.codecId,
+     }));
+   }
+ 
+@@ -236,6 +239,7 @@ export class Device {
+       minFrameRate: m.minFrameRate,
+       maxFrameRate: m.maxFrameRate,
+       pixelFormat: m.pixelFormat,
++      codecId: m.codecId,
+     }));
+   }
+ 
+diff --git a/src/lib/native-types.ts b/src/lib/native-types.ts
+index fda25e5..d706864 100644
+--- a/src/lib/native-types.ts
++++ b/src/lib/native-types.ts
+@@ -1104,6 +1104,7 @@ export interface NativeDeviceMode {
+   minFrameRate: number;
+   maxFrameRate: number;
+   pixelFormat: AVPixelFormat;
++  codecId: AVCodecID;
+ }
+ 
+ /**
+diff --git a/test/device.test.ts b/test/device.test.ts
+index 0c7bb23..e82831f 100644
+--- a/test/device.test.ts
++++ b/test/device.test.ts
+@@ -1,7 +1,7 @@
+ import assert from 'node:assert';
+ import { describe, it } from 'node:test';
+ 
+-import { DeviceAPI } from '../src/api/device.js';
++import { AV_CODEC_ID_NONE, AV_PIX_FMT_NONE, DeviceAPI } from '../src/index.js';
+ import { skipInCI } from './index.js';
+ 
+ describe('Device', () => {
+@@ -190,6 +190,8 @@ describe('Device', () => {
+           assert(typeof mode.minFrameRate === 'number');
+           assert(typeof mode.maxFrameRate === 'number');
+           assert(typeof mode.pixelFormat === 'number');
++          assert(typeof mode.codecId === 'number');
++          assert(mode.pixelFormat !== AV_PIX_FMT_NONE || mode.codecId !== AV_CODEC_ID_NONE, 'Capture mode must identify a raw pixel format or codec');
+           assert(mode.width > 0);
+           assert(mode.height > 0);
+           assert(mode.minFrameRate > 0);

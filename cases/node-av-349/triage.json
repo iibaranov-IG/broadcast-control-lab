@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T01:09:47.011Z",
+  "issue": {
+    "repository": "seydx/node-av",
+    "number": "349",
+    "url": "https://github.com/seydx/node-av/issues/349",
+    "title": "Bug: The AVPixelFormat field lacks the common MJPG pixel format.",
+    "state": "open",
+    "updatedAt": "2026-09-14T08:55:35Z"
+  },
+  "source": {
+    "repository": "seydx/node-av",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "8b4e1cf4dc52a00693609ac2067fc7cfb6067e82",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/seydx/node-av/blob/8b4e1cf4dc52a00693609ac2067fc7cfb6067e82/CONTRIBUTING.md",
+        "content": "# Contributing\n\n## Setup\n\n```bash\ngit clone https://github.com/YOUR_USERNAME/node-av.git\ncd node-av\ngit submodule update --init --recursive\nnpm install\nnpm run build\n```\n\n**Requirements:** Node.js 22.18+, Python 3.x, pkg-config.\n\nThe project uses a custom [jellyfin-ffmpeg](https://github.com/jellyfin/jellyfin-ffmpeg) fork as a git submodule in `externals/jellyfin-ffmpeg`. The native bindings are built against this specific FFmpeg version — standard FFmpeg builds are not supported. On macOS, use `./build_mac_local.sh` to compile FFmpeg and all dependencies as static libraries to `/opt/ffbuild/prefix` (build tools are installed automatically via Homebrew).\n\n## Development\n\n### Building\n\n```bash\nnpm run build              # Full build (generate + native + TypeScript + tests + examples)\nnpm run build:native       # Native C++ bindings only\nnpm run build:tsc          # TypeScript only\nnpm run build:tests        # Tests only\nnpm run build:examples     # Examples only\nnpm run clean              # Clean all build artifacts and rebuild\n```\n\n### Testing & Linting\n\n```bash\nnpm run test:all                   # Build + run all tests\nnpm run test                       # Run tests (assumes already built)\ntsx --test test/decoder.test.ts    # Run a single test file\n\nnpm run lint               # ESLint\nnpm run lint:fix           # ESLint with auto-fix\nnpm run format             # Prettier\n```\n\n### Code Generation\n\nConstants in `src/constants/` are auto-generated from FFmpeg headers — don't edit them directly.\n\n```bash\nnpm run generate           # Regenerate all constants (includes FFmpeg patching)\nnpm run generate:constants # FFmpeg constants only\nnpm run generate:encoders  # Encoder list only\nnpm run generate:decoders  # Decoder list only\nnpm run generate:layouts   # Channel layouts only\nnpm run generate:hardware  # Hardware types only\n```\n\nModify the generator scripts in `scripts/` if changes are needed.\n\n## Architecture\n\nThe project has three layers:\n\n- **`src/bindings/`** — C++ N-API bindings to FFmpeg. Each component has `*.cc` (registration), `*_async.cc` (async workers), `*_sync.cc` (sync methods).\n- **`src/lib/`** — Low-level TypeScript wrappers around the native bindings.\n- **`src/api/`** — High-level API with resource management, pipelines, and async generators.\n\n### Resource Management\n\nNative objects use reference counting. TypeScript classes implement the Disposable pattern — use `using` / `await using` for automatic cleanup, or call `.free()` / `.close()` manually.\n\n### Platform-Specific Code\n\nDevice enumeration (`src/bindings/device_*.cc`) has platform-specific implementations:\n- **macOS** — AVFoundation / CoreMedia\n- **Linux** — Video4Linux (video), ALSA (audio)\n- **Windows** — DirectShow\n\n## Pull Requests\n\n1. Create a branch from `main`\n2. Make your changes\n3. Verify: `npm run lint && npm run build:tsc && npm run build:tests && npm run build:examples && npm run test`\n4. Submit a PR with a clear description of what and why\n\n## Conventions\n\n- ESM with `.js` extensions in imports\n- Prettier (2-space indent, single quotes, semicolons, max 170 chars)\n- Node.js built-in test runner (`node:test`) — every new feature or bugfix should have tests\n- JSDoc on all public classes, methods, and interfaces\n- `using` / `await using` for resource cleanup\n- Async by default, sync variants suffixed with `Sync`\n- Use predefined constants from `src/constants/` instead of magic numbers\n- Mark internal API methods with `@internal`\n",
+        "requirementHints": [
+          "npm run build              # Full build (generate + native + TypeScript + tests + examples)",
+          "npm run build:tests        # Tests only",
+          "### Testing & Linting",
+          "npm run test:all                   # Build + run all tests",
+          "npm run test                       # Run tests (assumes already built)",
+          "tsx --test test/decoder.test.ts    # Run a single test file",
+          "## Pull Requests",
+          "3. Verify: `npm run lint && npm run build:tsc && npm run build:tests && npm run build:examples && npm run test`",
+          "- Node.js built-in test runner (`node:test`) — every new feature or bugfix should have tests"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "benchmarks/cases/latency.ts",
+      "benchmarks/cases/memory.ts",
+      "benchmarks/cases/transcode.ts",
+      "benchmarks/index.ts",
+      "benchmarks/regen-report.ts",
+      "benchmarks/runner.ts",
+      "benchmarks/utils/ffmpeg-cli.ts",
+      "benchmarks/utils/measure.ts",
+      "benchmarks/utils/report.ts",
+      "eslint.config.js"
+    ],
+    "buildFiles": [
+      {
+        "path": "examples/electron/builder/package.json",
+        "kind": "node",
+        "url": "https://github.com/seydx/node-av/blob/8b4e1cf4dc52a00693609ac2067fc7cfb6067e82/examples/electron/builder/package.json"
+      },
+      {
+        "path": "examples/electron/forge/package.json",
+        "kind": "node",
+        "url": "https://github.com/seydx/node-av/blob/8b4e1cf4dc52a00693609ac2067fc7cfb6067e82/examples/electron/forge/package.json"
+      },
+      {
+        "path": "package.json",
+        "kind": "node",
+        "url": "https://github.com/seydx/node-av/blob/8b4e1cf4dc52a00693609ac2067fc7cfb6067e82/package.json"
+      }
+    ],
+    "nodeScripts": [
+      "benchmark",
+      "build",
+      "build:benchmarks",
+      "build:examples",
+      "build:native",
+      "build:tests",
+      "build:tsc",
+      "clean",
+      "docs:dev",
+      "docs:build",
+      "docs:preview",
+      "format",
+      "generate",
+      "generate:ffmpeg-version",
+      "generate:constants",
+      "generate:encoders",
+      "generate:decoders",
+      "generate:hardware",
+      "generate:layouts",
+      "generate:options",
+      "generate:format-options",
+      "generate:formats",
+      "generate:bsf-options",
+      "generate:filter-options",
+      "install",
+      "install-updates",
+      "lint",
+      "lint:fix",
+      "lint:gyp",
+      "patch:ffmpeg",
+      "postinstall",
+      "predocs",
+      "release:patch",
+      "release:minor",
+      "release:major",
+      "release:beta:patch",
+      "release:beta:minor",
+      "release:beta:major",
+      "test",
+      "test:all",
+      "update"
+    ],
+    "nodeDependencyCount": 29
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: All gitlinks were fetched at their immutable index revisions; the focused repair does not modify submodule contents, and the Linux translation unit compiles against compatible public FFmpeg headers.",
+      "url": "https://github.com/seydx/node-av/tree/8b4e1cf4dc52a00693609ac2067fc7cfb6067e82",
+      "resolution": {
+        "reason": "All gitlinks were fetched at their immutable index revisions; the focused repair does not modify submodule contents, and the Linux translation unit compiles against compatible public FFmpeg headers.",
+        "evidence": [
+          "git submodule status --recursive: 7dd7324, b18cfc7, f16c282, 5371e73",
+          "BCL dependency-scan inventory",
+          "Ubuntu 24.04 C++ syntax build"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:seydx/node-av": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 86,
+    "scoreRange": [
+      85,
+      86
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "Common USB-camera MJPG modes are returned without a usable format identity.",
+        "evidence": [
+          "Issue #349 output"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report was opened today against the current beta line.",
+        "evidence": [
+          "Issue created 2026-09-14"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 4,
+        "reason": "The reporter has the affected camera and supplied exact enumeration output.",
+        "evidence": [
+          "Issue #349 reproduction"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "MJPG modes must expose the MJPEG codec while raw modes continue exposing their pixel format.",
+        "evidence": [
+          "V4L2 MJPG FourCC",
+          "FFmpeg AV_CODEC_ID_MJPEG"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 4,
+        "reason": "The defective mapping is deterministic in source; physical enumeration remains for owner validation.",
+        "evidence": [
+          "device_linux.cc mapping",
+          "reporter output"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "The repair adds one mode field and carries it through native and TypeScript boundaries.",
+        "evidence": [
+          "focused candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Static Linux compilation and all TypeScript builds are local; only final USB-camera enumeration needs hardware.",
+        "evidence": [
+          "Ubuntu compiler check",
+          "project build scripts"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Raw formats keep their pixel formats and receive RAWVIDEO; unknown formats remain NONE instead of being mislabeled.",
+        "evidence": [
+          "platform mapping logic",
+          "mode invariant test"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository was updated after the issue was filed and is shipping beta releases.",
+        "evidence": [
+          "main at 8b4e1cf",
+          "version 6.2.0-beta.23"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "MJPG is widely used by USB cameras for higher resolutions and frame rates.",
+        "evidence": [
+          "reporter's 1080p MJPG modes"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "The codec field can identify future compressed capture formats without pretending they are pixel formats.",
+        "evidence": [
+          "DeviceMode codecId API"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Correct format identity lets callers select, open, and decode the camera's high-resolution modes.",
+        "evidence": [
+          "Issue #349 API example"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 88,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      88,
+      86
+    ],
+    "selectable": true
+  },
+  "durationMs": 2947
+}

@@ -1,0 +1,36 @@
+diff --git a/test/bcl_mjpeg_device_mode.py b/test/bcl_mjpeg_device_mode.py
+new file mode 100644
+index 0000000..c94a9eb
+--- /dev/null
++++ b/test/bcl_mjpeg_device_mode.py
+@@ -0,0 +1,30 @@
++from pathlib import Path
++import unittest
++
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++class MJPEGDeviceModeTests(unittest.TestCase):
++    def test_linux_mjpeg_is_reported_as_a_codec(self):
++        header = (ROOT / "src/bindings/device.h").read_text()
++        linux = (ROOT / "src/bindings/device_linux.cc").read_text()
++
++        self.assertIn("AVCodecID codecId", header, "DeviceMode must expose compressed capture codecs")
++        self.assertIn("V4L2_PIX_FMT_MJPEG", linux)
++        self.assertIn("{AV_PIX_FMT_NONE, AV_CODEC_ID_MJPEG}", linux)
++
++    def test_codec_identity_crosses_native_and_typescript_boundaries(self):
++        async_binding = (ROOT / "src/bindings/device_async.cc").read_text()
++        sync_binding = (ROOT / "src/bindings/device_sync.cc").read_text()
++        native_types = (ROOT / "src/lib/native-types.ts").read_text()
++        public_api = (ROOT / "src/lib/device.ts").read_text()
++
++        self.assertIn('modeObj.Set("codecId"', async_binding)
++        self.assertIn('modeObj.Set("codecId"', sync_binding)
++        self.assertIn("codecId: AVCodecID", native_types)
++        self.assertIn("codecId: m.codecId", public_api)
++
++
++if __name__ == "__main__":
++    unittest.main()

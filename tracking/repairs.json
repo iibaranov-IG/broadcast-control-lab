@@ -3502,6 +3502,46 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "tonepush-9",
+      "title": "Use four-slot bank labels for HX Effects presets",
+      "issue": "https://github.com/crmne/tonepush/issues/9",
+      "pr": "https://github.com/crmne/tonepush/pull/12",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "issue-comment:5675157716",
+          "kind": "issue-comment",
+          "author": "iibaranov-IG",
+          "reporter": false,
+          "url": "https://github.com/crmne/tonepush/issues/9#issuecomment-5675157716",
+          "updatedAt": "2026-09-15T05:19:27Z",
+          "state": null,
+          "body": "I addressed item 4 in #12. Preset-bank geometry now comes from the connected device profile, so HX Effects maps `01D ↔ 3` and `27A ↔ 104` consistently in the CLI, GUI, worker messages, and offline backup extraction. The existing three-slot HX Stomp mapping remains unchanged.\n\nThe pinned baseline fails the reported mapping and the candidate passes it; CLI/GUI compile and the focused protocol/backup suites account for 179 tests. The isolated evidence is linked in the PR.\n\n@fruzz-urban, when convenient, could you compare `01D` and `27A` in the CLI and GUI with the HX Effects front panel, and confirm that selecting `27A` reaches index 104? An extracted HX Effects backup should use those same labels.\n",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "7f74db19d84091c2742af51622dd6e218060a74e",
+      "reporter": "fruzz-urban",
+      "issueCreatedAt": "2026-09-15T00:10:49Z",
+      "prCreatedAt": "2026-09-15T05:18:55Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-15T05:19:52.074Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

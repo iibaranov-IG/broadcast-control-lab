@@ -3286,11 +3286,11 @@
       "id": "logic-pro-mcp-38",
       "title": "Align Logic Pro mixer parameter contracts",
       "issue": "https://github.com/koltyj/logic-pro-mcp/issues/38",
-      "pr": "https://github.com/koltyj/logic-pro-mcp/pull/41",
-      "candidateSha256": null,
-      "testedHeadSha": null,
-      "evidenceStatus": "NOT_BOUND",
-      "run": null,
+      "pr": "https://github.com/koltyj/logic-pro-mcp/pull/42",
+      "candidateSha256": "a912c91dfa6e241ed6d496a00fe6b131b7f648f93c4bc256f984ddb7fbd84bda",
+      "testedHeadSha": "40a18c641fc8ff88e02032cf8fdd68304e97f4ae",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34925294456",
       "state": "open",
       "hardware": {
         "status": "NOT_REVIEWED"

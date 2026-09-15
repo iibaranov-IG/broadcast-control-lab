@@ -76,7 +76,7 @@ Updated 2026-09-11.
 | naudio-107 | [Issue](https://github.com/KJ5HST-LABS/naudio/issues/107) | [PR](https://github.com/KJ5HST-LABS/naudio/pull/108) | draft | none | BOUND_CANDIDATE | 0 | NOT_REVIEWED | 2026-09-15T02:19:41.941Z |
 | chime-tts-339 | [Issue](https://github.com/nimroddolev/chime_tts/issues/339) | [PR](https://github.com/nimroddolev/chime_tts/pull/340) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | advanced-camera-card-2794 | [Issue](https://github.com/dermotduffy/advanced-camera-card/issues/2794) | [PR](https://github.com/dermotduffy/advanced-camera-card/pull/2797) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
-| logic-pro-mcp-38 | [Issue](https://github.com/koltyj/logic-pro-mcp/issues/38) | [PR](https://github.com/koltyj/logic-pro-mcp/pull/41) | open | pending | NOT_BOUND | 1 | NOT_REVIEWED | 2026-09-15T03:31:34.463Z |
+| logic-pro-mcp-38 | [Issue](https://github.com/koltyj/logic-pro-mcp/issues/38) | [PR](https://github.com/koltyj/logic-pro-mcp/pull/42) | open | pending | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-15T03:31:34.463Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

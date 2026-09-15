@@ -43,11 +43,15 @@ function mentions(text, issue, sameRepo) {
   if (new RegExp(`(^|[^A-Za-z0-9_.\\/-])${full.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?!\\d)`, 'i').test(text)) return true
   return sameRepo && new RegExp(`(^|[\\s(])#${issue.number}(?!\\d)`).test(text || '')
 }
+function workClaim(text) {
+  const value = String(text || '').replace(/\r/g, '')
+  return /\b(?:i(?:['’]d| would) like to work on this|i(?:['’]ll| will) (?:work on|investigate|prepare (?:a )?(?:fix|pr))|i(?:['’]m| am) (?:working on|taking|investigating)|assign (?:this )?(?:issue )?to me|can i work on this)\b/i.test(value)
+}
 async function inspect(url, opts = {}, request = require('./github-read.cjs').reader()) {
   const issue = issueURL(url)
   opts = { dependencies: [], ...opts }
   if (opts.source && !repository.test(opts.source)) throw new Error('Invalid source repository')
-  const report = { schemaVersion: 1, checkedAt: new Date().toISOString(), issue: { ...issue }, source: { repository: opts.source || issue.repository, requestedRef: opts.ref || null }, findings: [], relatedPRs: [], dependencies: [], errors: [], scope: { cloned: false, built: false, reproduced: false, maxPages: 5, maxRelatedPRs: 20 }, coverage: {} }
+  const report = { schemaVersion: 1, checkedAt: new Date().toISOString(), issue: { ...issue }, source: { repository: opts.source || issue.repository, requestedRef: opts.ref || null }, findings: [], relatedPRs: [], workClaims: [], dependencies: [], errors: [], scope: { cloned: false, built: false, reproduced: false, maxPages: 5, maxRelatedPRs: 20, maxWorkClaims: 20 }, coverage: {} }
   const finding = (code, severity, detail, link) => report.findings.push({ code, severity, detail, url: link })
   async function read(endpoint, label) {
     try { return await request(endpoint) }
@@ -131,6 +135,17 @@ async function inspect(url, opts = {}, request = require('./github-read.cjs').re
       const linked = event.source?.issue
       if (linked?.pull_request && /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/[1-9]\d*$/.test(linked.html_url || '')) references.set(linked.html_url, 'issue timeline cross-reference')
     }
+    const comments = await list(`repos/${issue.repository}/issues/${issue.number}/comments`, 'issueComments')
+    for (const comment of comments) {
+      if (!workClaim(comment.body) || comment.user?.type === 'Bot') continue
+      report.workClaims.push({
+        author: comment.user?.login || null,
+        url: comment.html_url,
+        createdAt: comment.created_at,
+        excerpt: String(comment.body || '').replace(/\s+/g, ' ').trim().slice(0, 240),
+      })
+      if (report.workClaims.length === report.scope.maxWorkClaims) break
+    }
     for (const prRepo of new Set([issue.repository, source])) {
       const pulls = await list(`repos/${prRepo}/pulls?state=open`, `openPRs:${prRepo}`)
       for (const pr of pulls) if (mentions(`${pr.title || ''}\n${pr.body || ''}`, issue, prRepo === issue.repository) && pr.html_url) references.set(pr.html_url, 'open PR explicitly mentions issue')
@@ -152,22 +167,24 @@ async function inspect(url, opts = {}, request = require('./github-read.cjs').re
     if (item.state === 'open' || (ref.kind === 'pull' && !item.merged_at)) finding('DEPENDENCY_UNRESOLVED', 'defer', 'An explicitly declared dependency remains open or its PR was closed without merge. Confirm an alternative before building.', url)
   }
   if (report.relatedPRs.some(pr => pr.state === 'open')) finding('ACTIVE_RELATED_PR', 'question', 'A related PR is active. Review its scope: help validate it or identify a distinct repair; do not assume it already solves this issue.', issue.url)
+  if (report.workClaims.length) finding('ACTIVE_WORK_CLAIM', 'question', 'A participant explicitly said they are working on this issue. Check their latest status before starting a competing repair.', report.workClaims[0].url || issue.url)
   if (report.errors.length) finding('READ_INCOMPLETE', 'question', 'Some GitHub reads failed. Unavailable data is not evidence that source or related PRs do not exist.', issue.url)
   report.decision = report.findings.some(f => f.severity === 'defer') ? 'DEFER' : report.findings.some(f => f.severity === 'question') ? 'NEEDS_INFO' : 'READY_TO_INVESTIGATE'
   report.nextActions = report.findings.filter(f => f.severity !== 'info').map(f => f.detail)
   if (!report.nextActions.length) report.nextActions.push('Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build.')
-  report.limitations = ['READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.', 'Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.', 'Only explicit PR references are matched; semantically related work without links can be missed.', 'Runtime compatibility, contribution policy and complete reproduction steps still require engineering review.']
+  report.limitations = ['READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.', 'Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.', 'Explicit PR references and explicit first-person work claims are matched; semantically related work, off-platform coordination and unusual wording can be missed.', 'Runtime compatibility, contribution policy and complete reproduction steps still require engineering review.']
   return report
 }
 function markdown(r) {
   const clean = s => String(s || '').replace(/[\r\n]/g, ' ')
-  return [`# BCL triage: ${clean(r.issue.title || r.issue.url)}`, '', `Decision: **${r.decision}**`, `Checked: ${r.checkedAt}`, `Issue: ${r.issue.url}`, `Source: ${r.source.repository}`, `Revision: ${r.source.commit || 'unresolved'}`, '', '## Findings', '', ...r.findings.map(f => `- **${f.code}** (${f.severity}): ${clean(f.detail)} [Source](${f.url})`), ...(r.findings.length ? [] : ['No metadata blocker found within the stated coverage.']), '', '## Related PRs', '', ...r.relatedPRs.map(p => `- [${clean(p.title)}](${p.url}) — ${p.merged ? 'merged' : p.state}${p.draft ? ', draft' : ''}; author: ${clean(p.author)}; ${p.relation}`), '', '## Next actions', '', ...r.nextActions.map(a => `- ${clean(a)}`), '', '## Read errors', '', ...r.errors.map(e => `- ${e.check}: ${clean(e.message)} — ${e.url}`), '', '## Limits', '', ...r.limitations.map(l => `- ${l}`), '', 'No clone, build, test execution, PR or owner message was performed.', ''].join('\n')
+  return [`# BCL triage: ${clean(r.issue.title || r.issue.url)}`, '', `Decision: **${r.decision}**`, `Checked: ${r.checkedAt}`, `Issue: ${r.issue.url}`, `Source: ${r.source.repository}`, `Revision: ${r.source.commit || 'unresolved'}`, '', '## Findings', '', ...r.findings.map(f => `- **${f.code}** (${f.severity}): ${clean(f.detail)} [Source](${f.url})`), ...(r.findings.length ? [] : ['No metadata blocker found within the stated coverage.']), '', '## Related PRs', '', ...r.relatedPRs.map(p => `- [${clean(p.title)}](${p.url}) — ${p.merged ? 'merged' : p.state}${p.draft ? ', draft' : ''}; author: ${clean(p.author)}; ${p.relation}`), '', '## Work claims', '', ...r.workClaims.map(c => `- [${clean(c.author || 'participant')}](${c.url}) at ${clean(c.createdAt)}: ${clean(c.excerpt)}`), ...(r.workClaims.length ? [] : ['No explicit first-person work claim found within the stated coverage.']), '', '## Next actions', '', ...r.nextActions.map(a => `- ${clean(a)}`), '', '## Read errors', '', ...r.errors.map(e => `- ${e.check}: ${clean(e.message)} — ${e.url}`), '', '## Limits', '', ...r.limitations.map(l => `- ${l}`), '', 'No clone, build, test execution, PR or owner message was performed.', ''].join('\n')
 }
 const resolvableFindings = new Set([
   'SUBMODULES',
   'NONREGISTRY_DEPENDENCIES',
   'NO_BUILD_RECIPE',
   'ACTIVE_RELATED_PR',
+  'ACTIVE_WORK_CLAIM',
 ])
 function applyResolutions(report, assessment = {}) {
   for (const [code, item] of Object.entries(assessment.resolutions || {})) {
@@ -200,4 +217,4 @@ async function run(root, url, args = [], request = require('./github-read.cjs').
   fs.writeFileSync(path.join(directory, 'TRIAGE.md'), markdown(report) + '\n## Candidate ranking\n\n' + JSON.stringify(report.ranking, null, 2) + '\n')
   return { decision: report.decision, report: path.join(directory, 'TRIAGE.md'), data: path.join(directory, 'triage.json') }
 }
-module.exports = { options, issueURL, mentions, inspect, markdown, applyResolutions, run }
+module.exports = { options, issueURL, mentions, workClaim, inspect, markdown, applyResolutions, run }

@@ -19,7 +19,7 @@ function fixture(overrides = {}) {
     if (endpoint === 'repos/team/project') return { default_branch: 'main', archived: false }
     if (endpoint === 'repos/team/project/commits/main') return { sha, commit: { tree: { sha: 'tree' } } }
     if (endpoint.startsWith('repos/team/project/git/trees/')) return { truncated: false, tree: [{ type: 'blob', path: 'src/main.cpp' }, { type: 'blob', path: 'CMakeLists.txt' }] }
-    if (endpoint.includes('/timeline?') || endpoint.includes('/pulls?')) return []
+    if (endpoint.includes('/timeline?') || endpoint.includes('/pulls?') || endpoint.includes('/comments?')) return []
     throw new Error(`Unexpected request ${endpoint}`)
   }
   return { api, calls }
@@ -71,6 +71,30 @@ test('Active related PR asks for scope review rather than automatic rejection', 
   assert.equal(r.decision, 'NEEDS_INFO')
   assert.equal(r.relatedPRs[0].author, 'contributor')
   assert.ok(r.findings.some(f => f.code === 'ACTIVE_RELATED_PR' && f.severity === 'question'))
+})
+test('Explicit participant work claim is surfaced before a PR exists', async () => {
+  const claim = {
+    body: "I’d like to work on this issue. I’ll investigate the audio lifecycle and prepare a focused fix.",
+    html_url: 'https://github.com/team/project/issues/12#issuecomment-7',
+    created_at: '2026-09-15T02:43:00Z',
+    user: { login: 'helper', type: 'User' },
+  }
+  const f = fixture({ 'repos/team/project/issues/12/comments?per_page=100&page=1': [claim] })
+  const r = await triage.inspect(url, {}, f.api)
+  assert.equal(r.decision, 'NEEDS_INFO')
+  assert.equal(r.workClaims[0].author, 'helper')
+  assert.ok(r.findings.some(finding => finding.code === 'ACTIVE_WORK_CLAIM'))
+})
+test('Ordinary discussion and bot prose do not become work claims', async () => {
+  const f = fixture({
+    'repos/team/project/issues/12/comments?per_page=100&page=1': [
+      { body: 'This still reproduces for me.', user: { login: 'reporter', type: 'User' } },
+      { body: "I'll work on this", user: { login: 'automation', type: 'Bot' } },
+    ],
+  })
+  const r = await triage.inspect(url, {}, f.api)
+  assert.equal(r.decision, 'READY_TO_INVESTIGATE')
+  assert.deepEqual(r.workClaims, [])
 })
 test('Cross-referenced PR from another repository is included', async () => {
   const f = fixture({ 'repos/team/project/issues/12/timeline?per_page=100&page=1': [{ source: { issue: { html_url: 'https://github.com/team/code/pull/3', pull_request: {} } } }], 'repos/team/code/pulls/3': { state: 'closed', merged_at: '2026-09-11', title: 'Possible related fix', user: { login: 'author' } } })

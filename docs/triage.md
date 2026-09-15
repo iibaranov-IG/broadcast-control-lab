@@ -45,6 +45,7 @@ they do not prove the required change exists in the revision you intend to build
 - Issue status and presence of a description.
 - Source repository status, pinned commit, recognized source files and build manifests.
 - Explicit PR references in the issue timeline, description and open PR descriptions.
+- Explicit first-person work claims in issue comments, even before a PR exists.
 - Root Node/Python manifests for Git, local and workspace dependency hints; submodules are flagged separately.
 - Status of up to ten explicitly declared dependency issues or PRs.
 
@@ -59,7 +60,8 @@ All decisions are successful command results; automation should inspect the JSON
 This is metadata triage, not reproduction or repair verification. Source and build
 detection are heuristics. Unsupported languages, tracker-only repositories and
 unreadable files need review; they are not classified as closed source.
-Only explicit PR references are matched, so unrelated wording can hide relevant work.
+Explicit PR references and common first-person work claims are matched. Semantically
+related work, off-platform coordination and unusual claim wording can still be missed.
 Timeline and open-PR searches stop at 500 entries each; at most 20 linked PRs are
 inspected. Truncated trees and failed reads are reported instead of giving an all-clear.
 

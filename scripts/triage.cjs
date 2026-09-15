@@ -29,9 +29,9 @@ function reference(url) {
 const buildNames = new Map([
   ['CMakeLists.txt', 'cpp-cmake'], ['configure.ac', 'cpp-autotools'], ['configure.in', 'cpp-autotools'],
   ['package.json', 'node'], ['pyproject.toml', 'python'], ['setup.py', 'python'],
-  ['Makefile', 'make'], ['Cargo.toml', 'rust'], ['go.mod', 'go'],
+  ['Makefile', 'make'], ['Cargo.toml', 'rust'], ['go.mod', 'go'], ['Package.swift', 'swift'],
 ])
-const sourcePattern = /\.(c|cc|cpp|cxx|h|hpp|py|js|mjs|cjs|ts|tsx|rs|go)$/i
+const sourcePattern = /\.(c|cc|cpp|cxx|h|hpp|py|js|mjs|cjs|ts|tsx|rs|go|swift)$/i
 const nonRegistryDependency = /(git\+|git:\/\/|github:|git@github|https?:\/\/github\.com\/[^\s"']+\.git|(?:file|workspace):)/i
 function packageDependencyText(pkg) {
   const sections = ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies', 'resolutions', 'overrides']

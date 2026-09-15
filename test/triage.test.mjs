@@ -33,6 +33,24 @@ test('Healthy source becomes ready for investigation, not qualified or reproduce
   assert.equal(r.scope.reproduced, false)
   assert.ok(f.calls.every(c => !c.includes('/archive') && !c.includes('/git/blobs')))
 })
+test('Swift packages expose source and build evidence', async () => {
+  const f = fixture({
+    'repos/team/project/git/trees/tree?recursive=1': {
+      truncated: false,
+      tree: [
+        { type: 'blob', path: 'Package.swift' },
+        { type: 'blob', path: 'Sources/App/main.swift' },
+        { type: 'blob', path: 'Tests/AppTests/AppTests.swift' },
+      ],
+    },
+  })
+  const r = await triage.inspect(url, {}, f.api)
+  assert.equal(r.decision, 'READY_TO_INVESTIGATE')
+  assert.equal(r.source.buildFiles[0].kind, 'swift')
+  assert.ok(r.source.codeExamples.includes('Sources/App/main.swift'))
+  assert.ok(!r.findings.some(finding => finding.code === 'NO_SOURCE_IDENTIFIED'))
+  assert.ok(!r.findings.some(finding => finding.code === 'NO_BUILD_RECIPE'))
+})
 test('Issue tracker without code needs a source repository, not a claim of closed source', async () => {
   const f = fixture({ 'repos/team/project/git/trees/tree?recursive=1': { tree: [{ type: 'blob', path: 'README.md' }] } })
   const r = await triage.inspect(url, {}, f.api)

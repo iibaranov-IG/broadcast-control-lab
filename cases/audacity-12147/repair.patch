@@ -1,0 +1,132 @@
+diff --git a/src/playback/internal/playbackcontroller.cpp b/src/playback/internal/playbackcontroller.cpp
+index bca663cef..4993f78f1 100644
+--- a/src/playback/internal/playbackcontroller.cpp
++++ b/src/playback/internal/playbackcontroller.cpp
+@@ -5,6 +5,8 @@
+ #include "playbackuiactions.h"
+ #include "../playbacktypes.h"
+ 
++#include <algorithm>
++
+ using namespace muse;
+ using namespace au::audio;
+ using namespace au::playback;
+@@ -21,6 +23,10 @@ static const ActionQuery PLAYBACK_STOP_QUERY("action://playback/stop");
+ static const ActionQuery PLAYBACK_REWIND_START_QUERY("action://playback/rewind-start");
+ static const ActionQuery PLAYBACK_REWIND_END_QUERY("action://playback/rewind-end");
+ static const ActionQuery PLAYBACK_SEEK_QUERY("action://playback/seek");
++static const ActionCode SEEK_LEFT_SHORT_CODE("seek-left-short");
++static const ActionCode SEEK_RIGHT_SHORT_CODE("seek-right-short");
++static const ActionCode SEEK_LEFT_LONG_CODE("seek-left-long");
++static const ActionCode SEEK_RIGHT_LONG_CODE("seek-right-long");
+ static const ActionQuery PLAYBACK_CHANGE_PLAY_REGION_QUERY("action://playback/play-region-change");
+ static const ActionQuery PLAYBACK_CHANGE_AUDIO_API_QUERY("action://playback/change-api");
+ static const ActionQuery PLAYBACK_CHANGE_PLAYBACK_DEVICE_QUERY("action://playback/change-playback-device");
+@@ -86,6 +92,10 @@ void PlaybackController::init()
+     dispatcher()->reg(this, PLAYBACK_REWIND_START_QUERY, this, &PlaybackController::rewindToStartAction);
+     dispatcher()->reg(this, PLAYBACK_REWIND_END_QUERY, this, &PlaybackController::rewindToEndAction);
+     dispatcher()->reg(this, PLAYBACK_SEEK_QUERY, this, &PlaybackController::onSeekAction);
++    dispatcher()->reg(this, SEEK_LEFT_SHORT_CODE, [this]() { seekBy(-playbackConfiguration()->shortSkip()); });
++    dispatcher()->reg(this, SEEK_RIGHT_SHORT_CODE, [this]() { seekBy(playbackConfiguration()->shortSkip()); });
++    dispatcher()->reg(this, SEEK_LEFT_LONG_CODE, [this]() { seekBy(-playbackConfiguration()->longSkip()); });
++    dispatcher()->reg(this, SEEK_RIGHT_LONG_CODE, [this]() { seekBy(playbackConfiguration()->longSkip()); });
+     dispatcher()->reg(this, PLAYBACK_CHANGE_PLAY_REGION_QUERY, this, &PlaybackController::onChangePlaybackRegionAction);
+     dispatcher()->reg(this, PLAYBACK_CHANGE_AUDIO_API_QUERY, this, &PlaybackController::setAudioApi);
+     dispatcher()->reg(this, PLAYBACK_CHANGE_PLAYBACK_DEVICE_QUERY, this, &PlaybackController::setAudioOutputDevice);
+@@ -582,6 +592,16 @@ void PlaybackController::doSeek(const muse::secs_t secs, bool applyIfPlaying)
+     m_pauseShouldStopPlayback = false;
+ }
+ 
++void PlaybackController::seekBy(const muse::secs_t delta)
++{
++    if (isStopped() || recordController()->isRecording()) {
++        return;
++    }
++
++    const muse::secs_t target = std::clamp(playbackPosition() + delta, muse::secs_t(0.0), totalPlayTime());
++    doSeek(target, isPlaying());
++}
++
+ void PlaybackController::onChangePlaybackRegionAction(const muse::actions::ActionQuery& q)
+ {
+     IF_ASSERT_FAILED(q.contains("start")) {
+@@ -1169,5 +1189,10 @@ bool PlaybackController::canReceiveAction(const ActionCode& code) const
+         return !isPlaying() && !recordController()->isRecording();
+     }
+ 
++    if (code == SEEK_LEFT_SHORT_CODE || code == SEEK_RIGHT_SHORT_CODE
++        || code == SEEK_LEFT_LONG_CODE || code == SEEK_RIGHT_LONG_CODE) {
++        return !isStopped() && !recordController()->isRecording();
++    }
++
+     return true;
+ }
+diff --git a/src/playback/internal/playbackcontroller.h b/src/playback/internal/playbackcontroller.h
+index 4387512c6..af48df2d5 100644
+--- a/src/playback/internal/playbackcontroller.h
++++ b/src/playback/internal/playbackcontroller.h
+@@ -144,6 +144,7 @@ private:
+     void rewindToEndAction();
+     void onSeekAction(const muse::actions::ActionQuery& q);
+     void doSeek(const muse::secs_t secs, bool applyIfPlaying);
++    void seekBy(muse::secs_t delta);
+     void onChangePlaybackRegionAction(const muse::actions::ActionQuery& q);
+     void doChangePlaybackRegion(const PlaybackRegion& region);
+     void pauseAction();
+diff --git a/src/playback/internal/playbackuiactions.cpp b/src/playback/internal/playbackuiactions.cpp
+index c3dcc748e..d75611739 100644
+--- a/src/playback/internal/playbackuiactions.cpp
++++ b/src/playback/internal/playbackuiactions.cpp
+@@ -24,6 +24,10 @@ static const ActionQuery PLAYBACK_STOP_QUERY("action://playback/stop");
+ 
+ static const ActionQuery PLAYBACK_REWIND_START_QUERY("action://playback/rewind-start");
+ static const ActionQuery PLAYBACK_REWIND_END_QUERY("action://playback/rewind-end");
++static const ActionCode SEEK_LEFT_SHORT_CODE("seek-left-short");
++static const ActionCode SEEK_RIGHT_SHORT_CODE("seek-right-short");
++static const ActionCode SEEK_LEFT_LONG_CODE("seek-left-long");
++static const ActionCode SEEK_RIGHT_LONG_CODE("seek-right-long");
+ 
+ static const ActionQuery PLAYBACK_CHANGE_AUDIO_API_QUERY("action://playback/change-api");
+ static const ActionQuery PLAYBACK_CHANGE_PLAYBACK_DEVICE_QUERY("action://playback/change-playback-device");
+@@ -87,6 +91,30 @@ const UiActionList PlaybackUiActions::m_mainActions = {
+              TranslatableString("action_description", "Stop playback"),
+              IconCode::Code::STOP_FILL
+              ),
++    UiAction(SEEK_LEFT_SHORT_CODE,
++             au::context::UiCtxProjectOpened,
++             au::context::CTX_PROJECT_FOCUSED,
++             TranslatableString("action", "Short seek left during playback"),
++             TranslatableString("action_description", "Seek left by the short period during playback")
++             ),
++    UiAction(SEEK_RIGHT_SHORT_CODE,
++             au::context::UiCtxProjectOpened,
++             au::context::CTX_PROJECT_FOCUSED,
++             TranslatableString("action", "Short seek right during playback"),
++             TranslatableString("action_description", "Seek right by the short period during playback")
++             ),
++    UiAction(SEEK_LEFT_LONG_CODE,
++             au::context::UiCtxProjectOpened,
++             au::context::CTX_PROJECT_FOCUSED,
++             TranslatableString("action", "Long seek left during playback"),
++             TranslatableString("action_description", "Seek left by the long period during playback")
++             ),
++    UiAction(SEEK_RIGHT_LONG_CODE,
++             au::context::UiCtxProjectOpened,
++             au::context::CTX_PROJECT_FOCUSED,
++             TranslatableString("action", "Long seek right during playback"),
++             TranslatableString("action_description", "Seek right by the long period during playback")
++             ),
+     UiAction(PLAYBACK_REWIND_START_QUERY.toString(),
+              au::context::UiCtxProjectOpened,
+              au::context::CTX_PROJECT_FOCUSED,
+@@ -378,6 +406,10 @@ void PlaybackUiActions::init()
+             PLAYBACK_TOGGLE_PLAY_FROM_CURSOR_QUERY.toString(),
+             PLAYBACK_PLAY_SELECTION_QUERY.toString(),
+             PLAYBACK_PAUSE_QUERY.toString(),
++            SEEK_LEFT_SHORT_CODE,
++            SEEK_RIGHT_SHORT_CODE,
++            SEEK_LEFT_LONG_CODE,
++            SEEK_RIGHT_LONG_CODE,
+             PLAYBACK_REWIND_START_QUERY.toString(),
+             PLAYBACK_REWIND_END_QUERY.toString()
+         };

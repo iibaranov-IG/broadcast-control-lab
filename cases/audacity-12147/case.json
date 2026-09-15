@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 2,
+  "id": "audacity-12147",
+  "status": "ready",
+  "title": "Restore Audacity playback seek shortcuts",
+  "issue": "https://github.com/audacity/audacity/issues/12147",
+  "problem": "Audacity 4 keeps default key bindings for four playback-seek action codes but no longer registers those actions, so arrow keys cannot seek a running stream and the commands are absent from shortcut preferences.",
+  "reproduce": "Start playback and press Left or Right, or search Preferences > Shortcuts for the short and long seek commands; the pinned source has key bindings but no matching UI actions or dispatcher handlers.",
+  "acceptance": "All four commands are registered and remappable; while playback is active they seek by configured short/long periods in both directions, clamp to the project bounds, and remain disabled while stopped.",
+  "repair": "Restore the four playback UI actions and dispatch them through a bounded relative-seek helper that updates the active stream, with focused controller coverage for active, stopped and boundary behavior.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "audacity/audacity",
+      "commit": "b51ae6bddaffd719c60686ff121e10e8f0850a0a",
+      "directory": "sources/audacity-12147"
+    }
+  ],
+  "runtime": {"node": "22.20.0", "python": "3.12.14"},
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {"cwd": "sources/audacity-12147", "argv": ["git", "apply", "../../cases/audacity-12147/repair.patch"]}
+    ],
+    "test": [
+      {"cwd": ".", "argv": ["node", "cases/audacity-12147/test.mjs", "sources/audacity-12147"]}
+    ],
+    "build": []
+  },
+  "artifacts": {"report": "reports/audacity-12147.json"},
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL verifies baseline-red/candidate-green source contracts and focused C++ test coverage. This workstation lacks the required Qt 6.10 kit, so the complete application and C++ test target rely on upstream CI; Windows runtime behavior remains an owner check.",
+    "ownerCheck": "On Windows, start playback and verify Left/Right seek by the configured short period, Shift+Left/Shift+Right seek by the long period, project bounds clamp, and all four commands appear in Preferences > Shortcuts."
+  },
+  "selection": {
+    "report": "cases/audacity-12147/triage.json",
+    "sha256": "7fbb95da354a456caac545418c02d66086aca3e1829e1f9c911a73be4ff8e731",
+    "reason": "A fresh Windows user report exposes deterministic missing action registration; no related PR exists and both pinned submodules were verified."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "audacity/audacity",
+    "base": "master",
+    "paths": [
+      "src/playback/internal/playbackcontroller.cpp",
+      "src/playback/internal/playbackcontroller.h",
+      "src/playback/internal/playbackuiactions.cpp",
+      "src/playback/tests/playbackcontroller_tests.cpp"
+    ]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {"cwd": ".", "argv": ["git", "apply", "../../cases/audacity-12147/tests-only.patch"]}
+    ],
+    "build": [],
+    "testFiles": ["src/playback/tests/playbackcontroller_tests.cpp"],
+    "regression": {"cwd": ".", "argv": ["node", "../../cases/audacity-12147/upstream.mjs"]},
+    "negative": {"exitCode": 1, "outputIncludes": "BUG_SEEK_ACTIONS_UNREGISTERED"},
+    "suite": {"cwd": ".", "argv": ["node", "../../cases/audacity-12147/upstream.mjs"]},
+    "suiteOutputIncludes": "# tests 4"
+  }
+}

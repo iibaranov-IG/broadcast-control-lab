@@ -1,0 +1,389 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T03:56:08.136Z",
+  "issue": {
+    "repository": "audacity/audacity",
+    "number": "12147",
+    "url": "https://github.com/audacity/audacity/issues/12147",
+    "title": "Regression: Broken keyboard shortcuts for playback rewinding / seeking via arrow keys in Audacity 4",
+    "state": "open",
+    "updatedAt": "2026-09-15T02:38:17Z"
+  },
+  "source": {
+    "repository": "audacity/audacity",
+    "requestedRef": null,
+    "defaultBranch": "master",
+    "archived": false,
+    "license": "NOASSERTION",
+    "commit": "b51ae6bddaffd719c60686ff121e10e8f0850a0a",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": ".github/pull_request_template.md",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/.github/pull_request_template.md",
+        "content": "Resolves: *(direct link to the issue)*\n\n*(short description of the changes and the motivation to make the changes)*\n\n<!-- Use \"x\" to fill the checkboxes below like [x] -->\n\n- [ ] I signed [CLA](https://www.audacityteam.org/cla/)\n- [ ] The title of the pull request describes an issue it addresses\n- [ ] If changes are extensive, then there is a sequence of easily reviewable commits\n- [ ] Each commit's message describes its purpose and effects\n- [ ] There are no behavior changes unnecessary for the stated purpose of the PR\n\nRecommended:\n- [ ] Each commit compiles and runs on my machine without known undesirable changes of behavior\n\nQA:\n\n- [ ] Testflow test cases have been run\n",
+        "requirementHints": [
+          "- [ ] The title of the pull request describes an issue it addresses",
+          "- [ ] If changes are extensive, then there is a sequence of easily reviewable commits",
+          "- [ ] Each commit's message describes its purpose and effects",
+          "- [ ] Each commit compiles and runs on my machine without known undesirable changes of behavior",
+          "- [ ] Testflow test cases have been run"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/CONTRIBUTING.md",
+        "content": "There are several ways to contribute to Audacity:\n\n## Developing\n\nAudacity is mostly coded in C++. You'll need to be at least somewhat comfortable in it to start contributing code.\n\nIf you want to develop Audacity:\n\n* Build instructions can be found in the BUILDING.md\n* [Coding standards](https://audacity.gitbook.io/dev/getting-started/coding-standards) and other info on the process can be found [in the dev resources](https://audacity.gitbook.io/dev/).\n* You will need to [sign the CLA](https://www.audacityteam.org/cla/) to contribute code.\n* If you need help, you can ask in the [Audacity dev discord](https://discord.gg/N3XKxzTrq3).\n\n### Developing Plug-ins\n\nAudacity supports a wide variety of plug-in APIs, namely [Nyquist](https://manual.audacityteam.org/man/nyquist.html), LV2, Audio Units (macOS only) and VST2 effects. These plug-ins generally won't be shipped as part of Audacity, but they still may be a tremendous help for Audacity users.\n\n## Testing / Finding bugs\n\nYou can download current development builds in the [Actions tab on Github](https://github.com/audacity/audacity/actions). These builds are tied to certain pull requests. As a rule of thumb: If it's not yet merged, report any broken things you find which might be a result of the pull request directly as a comment on the pull request. If the code has been merged, [make a new bug in the issue tracker](https://github.com/audacity/audacity/issues/new/choose).\n\nWhen reporting bugs, try to find the most general form of it. For example, if you encounter a bug when amplifying a clip 2 hours into a project, try to see if it also happens when you're using a different effect (Normalize, for example), and if it also happens if the clip is near the beginning.\n\nBugs must be reproducible. If you can't find steps to reproduce a bug, try asking if you went wrong somewhere [in the Audacity forum](https://forum.audacityteam.org/) instead.\n\n## Translating\n\nSee [our translators page](https://www.audacityteam.org/community/translators/) for more information on how to translate Audacity.\n\n## Feedback & Feature requests\n\nIf you have anything you think Audacity can do better, you can voice it in [the relevant section in the forum](https://forum.audacityteam.org/c/feedback-and-discussion-forum/adding-features-to-audacity/22). If you have a very concrete idea something in the code which should be added or changed, you can also [make an enhancement request in the issue tracker](https://github.com/audacity/audacity/issues/new/choose).\n\n## Supporting Users\n\nThe most active Audacity user community can be found [in the forum](https://forum.audacityteam.org/), so if you want to help users with their problems, this would be the first stop.\n\n### Making video tutorials\n\nVideo tutorials are very helpful to users, as they tend to be easier to follow than written instructions. When you make video tutorials, make sure to mention which version of Audacity you're using, so that users know what the problem might be should they stumble upon your tutorial after a few years and find that their version of Audacity does very different things to yours.\n",
+        "requirementHints": [
+          "## Testing / Finding bugs",
+          "You can download current development builds in the [Actions tab on Github](https://github.com/audacity/audacity/actions). These builds are tied to certain pull requests. As a rule of thumb: If it's not yet merged, report any broken things you find which might be a result of the pull request directly as a comment on the pull request. If the code has been merged, [make a new bug in the issue tracker](https://github.com/audacity/audacity/issues/new/choose).",
+          "Bugs must be reproducible. If you can't find steps to reproduce a bug, try asking if you went wrong somewhere [in the Audacity forum](https://forum.audacityteam.org/) instead."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "au3/crashreporter/CrashReportApp.cpp",
+      "au3/crashreporter/CrashReportApp.h",
+      "au3/include/audacity/Types.h",
+      "au3/libraries/au3-audacity-application-logic/AudacityApplicationLogic.cpp",
+      "au3/libraries/au3-audacity-application-logic/AudacityApplicationLogic.h",
+      "au3/libraries/au3-audacity-application-logic/AudacityApplicationLogicTypes.h",
+      "au3/libraries/au3-audio-devices/AudioIOBase.cpp",
+      "au3/libraries/au3-audio-devices/AudioIOBase.h",
+      "au3/libraries/au3-audio-devices/DeviceChange.cpp",
+      "au3/libraries/au3-audio-devices/DeviceChange.h"
+    ],
+    "buildFiles": [
+      {
+        "path": "CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/CMakeLists.txt"
+      },
+      {
+        "path": "au3/crashreporter/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/crashreporter/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-audacity-application-logic/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-audacity-application-logic/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-audio-devices/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-audio-devices/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-audio-graph/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-audio-graph/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-audio-io/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-audio-io/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-audio-unit/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-audio-unit/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-basic-ui/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-basic-ui/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-breakpad-configurer/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-breakpad-configurer/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-builtin-effects/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-builtin-effects/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-channel/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-channel/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-cloud-audiocom/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-cloud-audiocom/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-command-parameters/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-command-parameters/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-components/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-components/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-concurrency/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-concurrency/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-crashpad-configurer/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-crashpad-configurer/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-crypto/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-crypto/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-crypto/tests/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-crypto/tests/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-dynamic-range-processor/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-dynamic-range-processor/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-dynamic-range-processor/tests/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-dynamic-range-processor/tests/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-effects/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-effects/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-exceptions/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-exceptions/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-export-ui/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-export-ui/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-fft/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-fft/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-file-formats/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-file-formats/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-files/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-files/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-graphics/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-graphics/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-import-export/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-import-export/CMakeLists.txt"
+      },
+      {
+        "path": "au3/libraries/au3-import-export/riff-test-util/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/audacity/audacity/blob/b51ae6bddaffd719c60686ff121e10e8f0850a0a/au3/libraries/au3-import-export/riff-test-util/CMakeLists.txt"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: Both declared submodules are public and pinned to immutable commits. The repair touches only Audacity playback sources and tests; muse supplies the fixed action and shortcut interfaces but is not modified.",
+      "url": "https://github.com/audacity/audacity/tree/b51ae6bddaffd719c60686ff121e10e8f0850a0a",
+      "resolution": {
+        "reason": "Both declared submodules are public and pinned to immutable commits. The repair touches only Audacity playback sources and tests; muse supplies the fixed action and shortcut interfaces but is not modified.",
+        "evidence": [
+          ".gitmodules maps muse and muse_deps to public MuseScore repositories",
+          "muse commit a908ba77f867199d07830b0d1524988e33e9a186 is available",
+          "muse_deps commit 22764f6f5c2a25078b9a5c902fb46afaa97d2f24 is available"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:audacity/audacity": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 82,
+    "scoreRange": [
+      82,
+      83
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "A basic playback navigation workflow is unavailable and cannot be remapped.",
+        "evidence": [
+          "Issue #12147 actual behavior"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report was opened today against Audacity 4.0.0.",
+        "evidence": [
+          "Created 2026-09-15 UTC"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 3,
+        "reason": "The reporter supplied a complete first report but has not yet replied to a proposed repair.",
+        "evidence": [
+          "Issue #12147"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Four named seek commands must appear in shortcuts and arrows must move the active stream by configured periods.",
+        "evidence": [
+          "Issue expected behavior",
+          "existing shortcuts.xml entries"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 4,
+        "reason": "The baseline deterministically contains shortcut mappings without matching registered UI actions.",
+        "evidence": [
+          "shortcuts.xml and PlaybackUiActions at b51ae6b"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 4,
+        "reason": "The change is confined to playback actions, controller routing and focused tests.",
+        "evidence": [
+          "candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 3,
+        "reason": "Focused contracts and controller tests are available; the complete Qt application build is delegated to upstream CI.",
+        "evidence": [
+          "src/playback/tests",
+          "BUILDING.md Qt requirements"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "The active-only actions preserve stopped cursor movement and clamp both project boundaries.",
+        "evidence": [
+          "shortcut context resolution",
+          "focused boundary and stopped-state tests"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Audacity main and release branches receive daily changes.",
+        "evidence": [
+          "b51ae6b current main",
+          "recent merged PRs"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 5,
+        "reason": "Audacity playback keyboard navigation affects a broad audio-editing audience.",
+        "evidence": [
+          "Audacity public project",
+          "default Left/Right mappings"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The restored actions work with configurable short and long seek periods on every desktop platform.",
+        "evidence": [
+          "IPlaybackConfiguration shortSkip/longSkip"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Registering the actions restores both default arrows and user remapping in Preferences.",
+        "evidence": [
+          "shortcuts registry resolves only registered UiActions"
+        ]
+      }
+    ],
+    "class": "QUICK_REVIEW",
+    "deliveryReadiness": 68,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      68,
+      82
+    ],
+    "selectable": true
+  },
+  "durationMs": 4011
+}

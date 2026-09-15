@@ -1,11 +1,11 @@
 diff --git a/Sources/LogicProMCP/Accessibility/AXLogicProElements.swift b/Sources/LogicProMCP/Accessibility/AXLogicProElements.swift
-index 0d82aaa..c9e9338 100644
+index 0d82aaa..8f8b6d3 100644
 --- a/Sources/LogicProMCP/Accessibility/AXLogicProElements.swift
 +++ b/Sources/LogicProMCP/Accessibility/AXLogicProElements.swift
-@@ -166,6 +166,31 @@ enum AXLogicProElements {
+@@ -166,6 +166,33 @@ enum AXLogicProElements {
          return stripControl(strip, role: kAXSliderRole, description: StripControl.pan)
      }
-
+ 
 +    /// Find the master strip's volume fader. Logic Pro normally labels it
 +    /// "Master"; "Stereo Out" is the output-strip fallback used by layouts
 +    /// that do not expose a separate master strip.
@@ -23,16 +23,18 @@ index 0d82aaa..c9e9338 100644
 +    }
 +
 +    static func masterStripCandidateIndices(descriptions: [String?]) -> [Int] {
-+        func indices(containing needle: String) -> [Int] {
++        func indices(matching expectedDescription: String) -> [Int] {
 +            descriptions.indices.filter {
-+                descriptions[$0]?.localizedCaseInsensitiveContains(needle) == true
++                descriptions[$0]?
++                    .trimmingCharacters(in: .whitespacesAndNewlines)
++                    .localizedCaseInsensitiveCompare(expectedDescription) == .orderedSame
 +            }
 +        }
-+        return indices(containing: "master") + indices(containing: "stereo out")
++        return indices(matching: "Master") + indices(matching: "Stereo Out")
 +    }
 +
      // MARK: - Menu Bar
-
+ 
      /// Get the menu bar for Logic Pro.
 diff --git a/Sources/LogicProMCP/Channels/AccessibilityChannel.swift b/Sources/LogicProMCP/Channels/AccessibilityChannel.swift
 index c806efc..ae4aebe 100644
@@ -49,7 +51,7 @@ index c806efc..ae4aebe 100644
          case "mixer.set_input", "mixer.set_output":
 @@ -305,9 +307,9 @@ actor AccessibilityChannel: Channel {
      }
-
+ 
      private func setMixerValue(params: [String: String], target: MixerTarget) -> ChannelResult {
 -        guard let indexStr = params["index"], let index = Int(indexStr),
 +        guard let indexStr = params["track"], let index = Int(indexStr),
@@ -62,7 +64,7 @@ index c806efc..ae4aebe 100644
 @@ -324,6 +326,19 @@ actor AccessibilityChannel: Channel {
          return .success("{\"\(label)\":\(value),\"track\":\(index)}")
      }
-
+ 
 +    private func setMasterVolume(params: [String: String]) -> ChannelResult {
 +        guard let valueStr = params["value"], let value = Double(valueStr) else {
 +            return .error("Missing or invalid 'value' parameter")
@@ -77,7 +79,7 @@ index c806efc..ae4aebe 100644
 +    }
 +
      // MARK: - Project
-
+ 
      private func getProjectInfo() -> ChannelResult {
 diff --git a/Sources/LogicProMCP/Channels/ChannelRouter.swift b/Sources/LogicProMCP/Channels/ChannelRouter.swift
 index 34d459d..da6ae88 100644
@@ -97,7 +99,7 @@ index 84a9a3e..d2b33c2 100644
 --- a/Sources/LogicProMCP/Channels/OSCChannel.swift
 +++ b/Sources/LogicProMCP/Channels/OSCChannel.swift
 @@ -29,16 +29,16 @@ actor OSCChannel: Channel {
-
+ 
          case "mixer.set_volume":
              guard let track = params["track"].flatMap(Int.init),
 -                  let volume = params["volume"].flatMap(Float.init) else {
@@ -107,7 +109,7 @@ index 84a9a3e..d2b33c2 100644
              }
              let msg = OSCMessage(address: "/track/\(track)/volume", arguments: [.float(volume)])
              return await send(msg, description: "Set track \(track) volume to \(volume)")
-
+ 
          case "mixer.set_pan":
              guard let track = params["track"].flatMap(Int.init),
 -                  let pan = params["pan"].flatMap(Float.init) else {
@@ -143,7 +145,7 @@ index 93e59b1..5ed4468 100644
 +                params: ["track": String(track), "value": String(value)]
              )
              return CallTool.Result(content: [.text(result.message)], isError: !result.isSuccess)
-
+ 
          case "set_pan":
 -            let track = params["track"]?.intValue ?? params["index"]?.intValue ?? 0
 -            let value = params["value"]?.doubleValue ?? params["pan"]?.doubleValue ?? 0.0
@@ -163,10 +165,10 @@ index 93e59b1..5ed4468 100644
 +                params: ["track": String(track), "value": String(value)]
              )
              return CallTool.Result(content: [.text(result.message)], isError: !result.isSuccess)
-
+ 
 @@ -90,10 +106,14 @@ struct MixerDispatcher {
              return CallTool.Result(content: [.text(result.message)], isError: !result.isSuccess)
-
+ 
          case "set_master_volume":
 -            let value = params["value"]?.doubleValue ?? params["volume"]?.doubleValue ?? 0.0
 +            let value: Double
@@ -180,7 +182,7 @@ index 93e59b1..5ed4468 100644
 +                params: ["value": String(value)]
              )
              return CallTool.Result(content: [.text(result.message)], isError: !result.isSuccess)
-
+ 
 @@ -140,4 +160,8 @@ struct MixerDispatcher {
              )
          }
@@ -192,10 +194,10 @@ index 93e59b1..5ed4468 100644
  }
 diff --git a/Tests/LogicProMCPTests/MixerDispatcherTests.swift b/Tests/LogicProMCPTests/MixerDispatcherTests.swift
 new file mode 100644
-index 0000000..581a8f4
+index 0000000..345c10e
 --- /dev/null
 +++ b/Tests/LogicProMCPTests/MixerDispatcherTests.swift
-@@ -0,0 +1,126 @@
+@@ -0,0 +1,132 @@
 +import MCP
 +import XCTest
 +@testable import LogicProMCP
@@ -269,6 +271,12 @@ index 0000000..581a8f4
 +        XCTAssertEqual(
 +            AXLogicProElements.masterStripCandidateIndices(descriptions: ["Audio 1", "Aux 1"]),
 +            []
++        )
++        XCTAssertEqual(
++            AXLogicProElements.masterStripCandidateIndices(
++                descriptions: ["Master Bus", " stereo out\n", "MASTER"]
++            ),
++            [2, 1]
 +        )
 +    }
 +

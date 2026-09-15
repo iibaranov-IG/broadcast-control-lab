@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 2,
+  "id": "openterface-642",
+  "status": "ready",
+  "title": "Persist CH9329 baudrate across a power cycle",
+  "issue": "https://github.com/TechxArtisanStudio/Openterface_QT/issues/642",
+  "problem": "Openterface writes the CH9329's pin-reported serial mode 0x80 back through CMD_SET_PARA_CFG even though the protocol accepts only writable software modes 0x00-0x02. The menu path also discards the command response and resets after an error, so 115200 appears to work until power is removed and reconnect falls back to 9600.",
+  "reproduce": "Inspect both baudrate parameter packets at the reporter's pinned revision: byte 6 is 0x80. The official WCH protocol identifies 0x80-0x82 as read-only hardware-pin states and limits CMD_SET_PARA_CFG serial mode values to 0x00-0x02.",
+  "acceptance": "Both 9600 and 115200 parameter packets use writable protocol mode 0x00, and menu, strategy and diagnostics paths accept only a matching successful response with a valid checksum before reset. The baseline check fails and the unchanged check passes on the candidate.",
+  "repair": "Encode software protocol mode in persistent parameter packets and centralize strict CH9329 response validation across configuration and reset paths.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "TechxArtisanStudio/Openterface_QT",
+      "commit": "7be8db841fe8ffa27e8adcbbcd654230846994c1",
+      "directory": "sources/openterface-642"
+    }
+  ],
+  "runtime": {"node": "22.20.0", "python": "3.12.14"},
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {"cwd": "sources/openterface-642", "argv": ["git", "apply", "../../cases/openterface-642/repair.patch"]}
+    ],
+    "test": [
+      {"cwd": ".", "argv": ["node", "cases/openterface-642/test.mjs", "sources/openterface-642"]}
+    ],
+    "build": []
+  },
+  "artifacts": {"report": "reports/openterface-642.json"},
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the invalid baseline packet, writable candidate packet, and strict response gates. A separate Ubuntu 24.04 qmake build compiled the complete application and five focused Qt tests passed. Only the reporter can prove nonvolatile persistence on a physical CH9329 power cycle.",
+    "ownerCheck": "Start connected at 9600, select 115200, unplug the complete Mini-KVM, reconnect it, and confirm GET_INFO answers at 115200 and the stored baudrate remains 115200."
+  },
+  "selection": {
+    "report": "cases/openterface-642/triage.json",
+    "sha256": "b5fc1bc8f55bc196174057b31d7d79dba3d9457712727b6a4b35100fba9033a0",
+    "reason": "A fresh CH9329 owner supplied four power-cycle reproductions at an exact current revision, no competing PR exists, and the malformed command is independently verifiable against the official protocol."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "TechxArtisanStudio/Openterface_QT",
+    "base": "main",
+    "commitMessage": "fix: persist CH9329 baudrate configuration",
+    "paths": [
+      "serial/SerialPortManager.cpp",
+      "serial/ch9329.h",
+      "serial/chipstrategy/CH9329Strategy.cpp",
+      "tests/CMakeLists.txt",
+      "tests/serial/test_ch9329_config.cpp",
+      "ui/advance/diagnostics/diagnosticsmanager.cpp"
+    ],
+    "verificationOnlyPaths": ["tests/bcl_ch9329_persistent_config.py"]
+  },
+  "upstream": {
+    "kind": "python",
+    "sourceBytecode": true,
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {"cwd": ".", "argv": ["git", "apply", "../../cases/openterface-642/tests-only.patch"]}
+    ],
+    "build": [],
+    "testFiles": ["tests/bcl_ch9329_persistent_config.py"],
+    "regression": {"cwd": ".", "argv": ["python3", "tests/bcl_ch9329_persistent_config.py"]},
+    "negative": {"exitCode": 1, "outputIncludes": "persistent SET_PARA_CFG packets must use software protocol mode 0x00"},
+    "suite": {"cwd": ".", "argv": ["python3", "tests/bcl_ch9329_persistent_config.py"]},
+    "suiteOutputIncludes": "Ran 2 tests"
+  }
+}

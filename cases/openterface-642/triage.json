@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T00:37:07.882Z",
+  "issue": {
+    "repository": "TechxArtisanStudio/Openterface_QT",
+    "number": "642",
+    "url": "https://github.com/TechxArtisanStudio/Openterface_QT/issues/642",
+    "title": "CH9329: 115200 baud choice is lost after the replug the app asks for",
+    "state": "open",
+    "updatedAt": "2026-09-14T22:59:15Z"
+  },
+  "source": {
+    "repository": "TechxArtisanStudio/Openterface_QT",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "AGPL-3.0",
+    "commit": "7be8db841fe8ffa27e8adcbbcd654230846994c1",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "SysKeyBlocker/SystemKeyBlocker.cpp",
+      "SysKeyBlocker/SystemKeyBlocker.h",
+      "SysKeyBlocker/SystemKeyBlocker_win.cpp",
+      "SysKeyBlocker/SystemKeyBlocker_x11.cpp",
+      "ai/ChatAgentTypes.cpp",
+      "ai/ChatAgentTypes.h",
+      "ai/ChatApiClient.cpp",
+      "ai/ChatApiClient.h",
+      "ai/ChatConversationBuilder.cpp",
+      "ai/ChatConversationBuilder.h"
+    ],
+    "buildFiles": [
+      {
+        "path": "CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/TechxArtisanStudio/Openterface_QT/blob/7be8db841fe8ffa27e8adcbbcd654230846994c1/CMakeLists.txt"
+      },
+      {
+        "path": "SysKeyBlocker/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/TechxArtisanStudio/Openterface_QT/blob/7be8db841fe8ffa27e8adcbbcd654230846994c1/SysKeyBlocker/CMakeLists.txt"
+      },
+      {
+        "path": "driver/linux/Makefile",
+        "kind": "make",
+        "url": "https://github.com/TechxArtisanStudio/Openterface_QT/blob/7be8db841fe8ffa27e8adcbbcd654230846994c1/driver/linux/Makefile"
+      },
+      {
+        "path": "tests/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/TechxArtisanStudio/Openterface_QT/blob/7be8db841fe8ffa27e8adcbbcd654230846994c1/tests/CMakeLists.txt"
+      },
+      {
+        "path": "tests/mcp/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/TechxArtisanStudio/Openterface_QT/blob/7be8db841fe8ffa27e8adcbbcd654230846994c1/tests/mcp/CMakeLists.txt"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:TechxArtisanStudio/Openterface_QT": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 88,
+    "scoreRange": [
+      88,
+      89
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "The application requests a power cycle that silently loses the selected high-speed setting.",
+        "evidence": [
+          "Issue #642 expected and actual behavior"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report was opened today against current main.",
+        "evidence": [
+          "Issue created 2026-09-14",
+          "Reported commit 7be8db8"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The affected owner supplied repeated hardware captures and exact acceptance behavior.",
+        "evidence": [
+          "Issue #642"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "After selecting 115200 and power cycling, the device must answer at 115200 and settings must remain 115200.",
+        "evidence": [
+          "Issue #642 expected behavior"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 4,
+        "reason": "Command construction and status handling reproduce deterministically; final nonvolatile persistence requires the owner's device.",
+        "evidence": [
+          "Static command bytes",
+          "CH9329 device required for power cycle"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The likely repair is confined to CH9329 configuration construction and response handling with focused tests.",
+        "evidence": [
+          "serial/ch9329.h",
+          "SerialPortManager::applyCommandBasedBaudrateChange"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Protocol and regression tests are cheap; one owner power-cycle check remains.",
+        "evidence": [
+          "Official WCH protocol",
+          "Issue reporter hardware"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Exact byte and error-path tests can prevent invalid parameters and reset-after-failure regressions.",
+        "evidence": [
+          "WCH command format"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Main and pull requests were updated today.",
+        "evidence": [
+          "Reported current main commit",
+          "Recent merge history"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The fix applies to CH9329-based Openterface and Mini-KVM devices using persistent baud selection.",
+        "evidence": [
+          "Issue environment"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The shared CH9329 constants feed menu, reset strategy and diagnostics paths.",
+        "evidence": [
+          "Three command construction call sites"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Persistent high speed avoids reconnect fallback and prevents settings from being overwritten to 9600.",
+        "evidence": [
+          "Issue logs",
+          "storeBaudrateIfNeeded path"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 95,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      95,
+      88
+    ],
+    "selectable": true
+  },
+  "durationMs": 2767
+}

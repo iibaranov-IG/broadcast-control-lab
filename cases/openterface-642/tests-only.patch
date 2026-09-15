@@ -1,0 +1,38 @@
+diff --git a/tests/bcl_ch9329_persistent_config.py b/tests/bcl_ch9329_persistent_config.py
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/tests/bcl_ch9329_persistent_config.py
+@@ -0,0 +1,32 @@
++import pathlib
++import re
++import unittest
++
++ROOT = pathlib.Path(__file__).resolve().parents[1]
++
++
++class CH9329PersistentConfigTest(unittest.TestCase):
++    def test_parameter_packets_use_writable_serial_mode(self):
++        header = (ROOT / "serial/ch9329.h").read_text()
++        for name in ("CMD_SET_PARA_CFG_PREFIX_9600", "CMD_SET_PARA_CFG_PREFIX_115200"):
++            match = re.search(name + r'.*fromHex\("([^"]+)', header)
++            self.assertIsNotNone(match, name)
++            packet = bytes.fromhex(match.group(1))
++            self.assertEqual(packet[6], 0x00, "persistent SET_PARA_CFG packets must use software protocol mode 0x00")
++
++    def test_configuration_paths_validate_device_status(self):
++        header = (ROOT / "serial/ch9329.h").read_text()
++        manager = (ROOT / "serial/SerialPortManager.cpp").read_text()
++        strategy = (ROOT / "serial/chipstrategy/CH9329Strategy.cpp").read_text()
++        diagnostics = (ROOT / "ui/advance/diagnostics/diagnosticsmanager.cpp").read_text()
++        self.assertIn("isSuccessfulCH9329Response", header)
++        self.assertIn("response[5]) != DEF_CMD_SUCCESS", header)
++        self.assertIn("checksum == static_cast<uint8_t>(response.back())", header)
++        self.assertIn("if (!isSuccessfulCH9329Response(configResponse", manager)
++        self.assertIn("isSuccessfulCH9329Response(response", strategy)
++        self.assertIn("isSuccessfulCH9329Response(resetResponse", strategy)
++        self.assertIn("isSuccessfulCH9329Response(configResponse", diagnostics)
++
++
++if __name__ == "__main__":
++    unittest.main()

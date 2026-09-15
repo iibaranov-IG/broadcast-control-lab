@@ -1,0 +1,157 @@
+diff --git a/serial/SerialPortManager.cpp b/serial/SerialPortManager.cpp
+index 1b55f82..c15fae5 100644
+--- a/serial/SerialPortManager.cpp
++++ b/serial/SerialPortManager.cpp
+@@ -4035,7 +4035,13 @@ void SerialPortManager::applyCommandBasedBaudrateChange(int baudRate, const QStr
+     }
+     command[5] = mode; 
+     command.append(CMD_SET_PARA_CFG_MID);
+-    sendSyncCommand(command, true);
++    const QByteArray configResponse = sendSyncCommand(command, true);
++    if (!isSuccessfulCH9329Response(configResponse, static_cast<uint8_t>(command[3]))) {
++        qCWarning(log_core_serial_config) << logPrefix
++                                         << "CH9329 rejected the baudrate configuration:"
++                                         << configResponse.toHex(' ');
++        return;
++    }
+     bool success = sendResetCommand();
+     QThread::msleep(500);
+     success = success && setBaudRate(baudRate);
+diff --git a/serial/ch9329.h b/serial/ch9329.h
+index 3951580..9e7038f 100644
+--- a/serial/ch9329.h
++++ b/serial/ch9329.h
+@@ -17,8 +17,9 @@ const QByteArray CMD_RESET = QByteArray::fromHex("57 AB 00 0F 00");
+ const QByteArray CMD_SET_DEFAULT_CFG = QByteArray::fromHex("57 AB 00 0C 00");
+ const QByteArray CMD_SET_USB_STRING_PREFIX = QByteArray::fromHex("57 AB 00 0B");
+ const QByteArray CMD_SEND_KB_GENERAL_DATA = QByteArray::fromHex("57 AB 00 02 08 00 00 00 00 00 00 00 00");
+-const QByteArray CMD_SET_PARA_CFG_PREFIX_115200 = QByteArray::fromHex("57 AB 00 09 32 00 80 00 00 01 C2 00");
+-const QByteArray CMD_SET_PARA_CFG_PREFIX_9600 = QByteArray::fromHex("57 AB 00 09 32 00 80 00 00 00 25 80");
++// SET_PARA_CFG accepts software serial modes 0x00-0x02; 0x80-0x82 are read-only pin states.
++const QByteArray CMD_SET_PARA_CFG_PREFIX_115200 = QByteArray::fromHex("57 AB 00 09 32 00 00 00 00 01 C2 00");
++const QByteArray CMD_SET_PARA_CFG_PREFIX_9600 = QByteArray::fromHex("57 AB 00 09 32 00 00 00 00 00 25 80");
+ const QByteArray CMD_SET_PARA_CFG_MID = QByteArray::fromHex("08 00 00 03 86 1a 29 e1 00 00 00 01 00 0d 00 00 00 00 00 00 00") + QByteArray(22, 0x00) ;
+ 
+ // New USB switch commands for CH32V208 serial port (firmware with new USB switching protocol)
+@@ -54,6 +55,24 @@ const uint8_t DEF_CMD_ERR_PARA = 0xE5;
+ /* Command error when operate */
+ const uint8_t DEF_CMD_ERR_OPERATE = 0xE6;
+ 
++inline bool isSuccessfulCH9329Response(const QByteArray &response, uint8_t command)
++{
++    if (response.size() != 7
++        || static_cast<uint8_t>(response[0]) != 0x57
++        || static_cast<uint8_t>(response[1]) != 0xAB
++        || static_cast<uint8_t>(response[3]) != (command | 0x80)
++        || static_cast<uint8_t>(response[4]) != 0x01
++        || static_cast<uint8_t>(response[5]) != DEF_CMD_SUCCESS) {
++        return false;
++    }
++
++    uint8_t checksum = 0;
++    for (qsizetype i = 0; i < response.size() - 1; ++i) {
++        checksum = static_cast<uint8_t>(checksum + static_cast<uint8_t>(response[i]));
++    }
++    return checksum == static_cast<uint8_t>(response.back());
++}
++
+ static uint16_t toLittleEndian(uint16_t value) {
+     return (value >> 8) | (value << 8);
+ }
+diff --git a/serial/chipstrategy/CH9329Strategy.cpp b/serial/chipstrategy/CH9329Strategy.cpp
+index 56ca389..910424a 100644
+--- a/serial/chipstrategy/CH9329Strategy.cpp
++++ b/serial/chipstrategy/CH9329Strategy.cpp
+@@ -131,7 +131,7 @@ bool CH9329Strategy::performReset(
+     }
+     
+     // Check response status
+-    if (response.size() >= 6 && response[5] == DEF_CMD_SUCCESS) {
++    if (isSuccessfulCH9329Response(response, static_cast<uint8_t>(configCommand[3]))) {
+         qCDebug(log_core_serial) << "CH9329: Reconfiguration command successful";
+         
+         // Also explicitly log reconfiguration success to file during diagnostics
+@@ -143,7 +143,7 @@ bool CH9329Strategy::performReset(
+         
+         // Send reset command
+         QByteArray resetResponse = sendSyncCommand(CMD_RESET, true);
+-        if (resetResponse.isEmpty()) {
++        if (!isSuccessfulCH9329Response(resetResponse, static_cast<uint8_t>(CMD_RESET[3]))) {
+             qCWarning(log_core_serial) << "CH9329: Reset command failed";
+             return false;
+         }
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 94fc8b3..b939234 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -55,6 +55,10 @@ add_test(NAME HotplugDebounce COMMAND test_hotplug_debounce)
+ add_test(NAME HotplugMonitor COMMAND test_hotplug_monitor)
+ add_test(NAME HotplugScenarios COMMAND test_hotplug_scenarios)
+ 
++add_executable(test_ch9329_config serial/test_ch9329_config.cpp)
++target_link_libraries(test_ch9329_config PRIVATE Qt6::Core Qt6::Test)
++add_test(NAME CH9329Config COMMAND test_ch9329_config)
++
+ # Test 4: Four-subsystem integration
+ add_executable(test_subsystem_integration
+     hotplug/test_subsystem_integration.cpp
+diff --git a/tests/serial/test_ch9329_config.cpp b/tests/serial/test_ch9329_config.cpp
+new file mode 100644
+index 0000000..50e21e3
+--- /dev/null
++++ b/tests/serial/test_ch9329_config.cpp
+@@ -0,0 +1,39 @@
++#include <QtTest>
++
++#include "serial/ch9329.h"
++
++Q_LOGGING_CATEGORY(log_core_serial, "opf.test.serial")
++
++class TestCH9329Config : public QObject
++{
++    Q_OBJECT
++
++private slots:
++    void usesSoftwareProtocolModeForPersistentConfiguration();
++    void acceptsValidatedCommandResponse();
++    void rejectsFailedOrMalformedResponses();
++};
++
++void TestCH9329Config::usesSoftwareProtocolModeForPersistentConfiguration()
++{
++    QCOMPARE(static_cast<uint8_t>(CMD_SET_PARA_CFG_PREFIX_9600[6]), uint8_t(0x00));
++    QCOMPARE(static_cast<uint8_t>(CMD_SET_PARA_CFG_PREFIX_115200[6]), uint8_t(0x00));
++}
++
++void TestCH9329Config::acceptsValidatedCommandResponse()
++{
++    const QByteArray response = QByteArray::fromHex("57 AB 00 89 01 00 8C");
++
++    QVERIFY(isSuccessfulCH9329Response(response, 0x09));
++}
++
++void TestCH9329Config::rejectsFailedOrMalformedResponses()
++{
++    QVERIFY(!isSuccessfulCH9329Response(QByteArray(), 0x09));
++    QVERIFY(!isSuccessfulCH9329Response(QByteArray::fromHex("57 AB 00 C9 01 E5 B1"), 0x09));
++    QVERIFY(!isSuccessfulCH9329Response(QByteArray::fromHex("57 AB 00 8F 01 00 92"), 0x09));
++    QVERIFY(!isSuccessfulCH9329Response(QByteArray::fromHex("57 AB 00 89 01 00 00"), 0x09));
++}
++
++QTEST_MAIN(TestCH9329Config)
++#include "test_ch9329_config.moc"
+diff --git a/ui/advance/diagnostics/diagnosticsmanager.cpp b/ui/advance/diagnostics/diagnosticsmanager.cpp
+index 7bda613..2f60159 100644
+--- a/ui/advance/diagnostics/diagnosticsmanager.cpp
++++ b/ui/advance/diagnostics/diagnosticsmanager.cpp
+@@ -1174,8 +1174,8 @@ bool DiagnosticsManager::performHighBaudrateTest()
+         appendToLog("Sending configuration command for 115200 baudrate...");
+         QByteArray configResponse = serialManager.sendSyncCommand(command, true);
+         
+-        if (configResponse.isEmpty()) {
+-            appendToLog("No response received from configuration command");
++        if (!isSuccessfulCH9329Response(configResponse, static_cast<uint8_t>(command[3]))) {
++            appendToLog(QString("Configuration command failed: %1").arg(QString(configResponse.toHex(' '))));
+             return false;
+         }
+         

@@ -3109,6 +3109,34 @@
       "lastSync": "2026-09-15T00:25:48.218Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "openterface-642",
+      "title": "Persist CH9329 baudrate across a power cycle",
+      "issue": "https://github.com/TechxArtisanStudio/Openterface_QT/issues/642",
+      "pr": "https://github.com/TechxArtisanStudio/Openterface_QT/pull/643",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "draft",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "80fa6e91f289e6e1cadbed0cfec6f51b49eb054c",
+      "reporter": "atomicdog",
+      "issueCreatedAt": "2026-09-14T22:59:15Z",
+      "prCreatedAt": "2026-09-15T00:51:56Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-15T00:57:10.282Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

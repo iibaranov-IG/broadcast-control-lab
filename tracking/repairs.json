@@ -3081,6 +3081,34 @@
       "lastSync": "2026-09-15T00:04:29.323Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "sendspin-54",
+      "title": "Resume ALSA playback after a USB DAC replug",
+      "issue": "https://github.com/Sendspin/sendspin-cpp-cli/issues/54",
+      "pr": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "draft",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "87ab6fe692c0941da5162d7932558f6060046d8a",
+      "reporter": "mguaylam",
+      "issueCreatedAt": "2026-09-14T23:47:57Z",
+      "prCreatedAt": "2026-09-15T00:22:01Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "none",
+      "lastSync": "2026-09-15T00:25:48.218Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

@@ -70,6 +70,7 @@ Updated 2026-09-11.
 | kalico-970 | [Issue](https://github.com/KalicoCrew/kalico/issues/970) | [PR](https://github.com/KalicoCrew/kalico/pull/971) | open | success | BOUND_CANDIDATE | 0 | NOT_REVIEWED | 2026-09-14T23:15:22.919Z |
 | uttrflow-555 | [Issue](https://github.com/uttrflow/uttrflow-swift/issues/555) | [PR](https://github.com/uttrflow/uttrflow-swift/pull/800) | open | success | NOT_BOUND | 5 | NOT_REVIEWED | 2026-09-14T23:38:27.406Z |
 | paella-984 | [Issue](https://github.com/polimediaupv/paella/issues/984) | [PR](https://github.com/opencast/opencast/pull/8017) | open | failure | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-15T00:04:29.323Z |
+| sendspin-54 | [Issue](https://github.com/Sendspin/sendspin-cpp-cli/issues/54) | [PR](https://github.com/Sendspin/sendspin-cpp-cli/pull/55) | draft | none | NOT_BOUND | 0 | NOT_REVIEWED | 2026-09-15T00:25:48.218Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

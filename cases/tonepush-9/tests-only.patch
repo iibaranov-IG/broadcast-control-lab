@@ -1,0 +1,39 @@
+diff --git a/crates/hx-proto/tests/bcl_device_slot_labels.rs b/crates/hx-proto/tests/bcl_device_slot_labels.rs
+new file mode 100644
+index 0000000..db03b70
+--- /dev/null
++++ b/crates/hx-proto/tests/bcl_device_slot_labels.rs
+@@ -0,0 +1,16 @@
++use hx_proto::{HX_EFFECTS, HX_STOMP};
++
++#[test]
++fn hx_effects_uses_four_slots_per_bank() {
++    assert_eq!(HX_EFFECTS.slot_label(3), "01D");
++    assert_eq!(HX_EFFECTS.slot_label(104), "27A");
++    assert_eq!(HX_EFFECTS.parse_slot("01D"), Some(3));
++    assert_eq!(HX_EFFECTS.parse_slot("27A"), Some(104));
++}
++
++#[test]
++fn three_slot_hx_stomp_labels_remain_unchanged() {
++    assert_eq!(HX_STOMP.slot_label(3), "02A");
++    assert_eq!(HX_STOMP.parse_slot("02A"), Some(3));
++    assert_eq!(HX_STOMP.parse_slot("01D"), None);
++}
+diff --git a/bcl_hx_effects_slots.mjs b/bcl_hx_effects_slots.mjs
+new file mode 100644
+index 0000000..5ea97e7
+--- /dev/null
++++ b/bcl_hx_effects_slots.mjs
+@@ -0,0 +1,11 @@
++import { spawnSync } from 'node:child_process'
++
++const run = spawnSync('cargo', ['test', '--locked', '-p', 'hx-proto', '--test', 'bcl_device_slot_labels'], {
++  cwd: process.cwd(),
++  stdio: 'inherit',
++})
++if (run.error) throw run.error
++if (run.status !== 0) {
++  console.error('HX_EFFECTS_SLOT_LABELS_WRONG')
++  process.exit(1)
++}

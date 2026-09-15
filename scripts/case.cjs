@@ -26,7 +26,7 @@ function validate(c, id = c.id) {
     }
     dirs.add(s.directory)
   }
-  for (const lang of ['node', 'python']) if (c.runtime?.[lang] && !/^\d+\.\d+\.\d+$/.test(c.runtime[lang])) throw new Error(`Pin ${lang} version`)
+  for (const lang of ['node', 'python', 'rust']) if (c.runtime?.[lang] && !/^\d+\.\d+\.\d+$/.test(c.runtime[lang])) throw new Error(`Pin ${lang} version`)
   if (!c.runtime?.node) throw new Error('Node runtime required by runner')
   for (const phase of ['dependencies', 'prepare', 'test', 'build']) {
     if (!Array.isArray(c.steps?.[phase]) || (phase === 'test' && !c.steps[phase].length)) throw new Error(`Invalid ${phase} steps`)
@@ -79,6 +79,11 @@ function run(c) {
       const version = execFileSync('python3', ['--version'], { encoding: 'utf8' }).trim()
       execution.environment.python = version
       if (version !== `Python ${c.runtime.python}`) throw new Error(`Use Python ${c.runtime.python}`)
+    }
+    if (c.runtime.rust) {
+      const version = execFileSync('rustc', ['--version'], { encoding: 'utf8' }).trim()
+      if (!version.startsWith(`rustc ${c.runtime.rust} `)) throw new Error(`Use Rust ${c.runtime.rust}`)
+      execution.environment.rust = version
     }
     execution.environment.platform = `${process.platform}/${process.arch}`
     execution.environment.image = process.env.BCL_IMAGE_ID || 'unknown'

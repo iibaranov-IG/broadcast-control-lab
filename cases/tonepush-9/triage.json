@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T05:06:08.695Z",
+  "issue": {
+    "repository": "crmne/tonepush",
+    "number": "9",
+    "url": "https://github.com/crmne/tonepush/issues/9",
+    "title": "First hardware test on HX Effects (fw 3.80): handshake and slot write work; four parser/labeling issues and a settings timeout",
+    "state": "open",
+    "updatedAt": "2026-09-15T00:10:49Z"
+  },
+  "source": {
+    "repository": "crmne/tonepush",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "9c5fe357c563da8d3ac971ea1e9231c665884cdd",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "crates/hx-catalog/src/build.rs",
+      "crates/hx-catalog/src/extract.rs",
+      "crates/hx-catalog/src/format.rs",
+      "crates/hx-catalog/src/home.rs",
+      "crates/hx-catalog/src/hxb.rs",
+      "crates/hx-catalog/src/inspect.rs",
+      "crates/hx-catalog/src/lib.rs",
+      "crates/hx-catalog/src/load.rs",
+      "crates/hx-catalog/src/write.rs",
+      "crates/hx-catalog/tests/hlx_fixtures.rs"
+    ],
+    "buildFiles": [
+      {
+        "path": "Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/crmne/tonepush/blob/9c5fe357c563da8d3ac971ea1e9231c665884cdd/Cargo.toml"
+      },
+      {
+        "path": "crates/hx-catalog/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/crmne/tonepush/blob/9c5fe357c563da8d3ac971ea1e9231c665884cdd/crates/hx-catalog/Cargo.toml"
+      },
+      {
+        "path": "crates/hx-proto/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/crmne/tonepush/blob/9c5fe357c563da8d3ac971ea1e9231c665884cdd/crates/hx-proto/Cargo.toml"
+      },
+      {
+        "path": "crates/hx-ruby/ext/hx_ruby/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/crmne/tonepush/blob/9c5fe357c563da8d3ac971ea1e9231c665884cdd/crates/hx-ruby/ext/hx_ruby/Cargo.toml"
+      },
+      {
+        "path": "crates/hx-usb/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/crmne/tonepush/blob/9c5fe357c563da8d3ac971ea1e9231c665884cdd/crates/hx-usb/Cargo.toml"
+      },
+      {
+        "path": "crates/tonepush-cli/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/crmne/tonepush/blob/9c5fe357c563da8d3ac971ea1e9231c665884cdd/crates/tonepush-cli/Cargo.toml"
+      },
+      {
+        "path": "crates/tonepush-gui/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/crmne/tonepush/blob/9c5fe357c563da8d3ac971ea1e9231c665884cdd/crates/tonepush-gui/Cargo.toml"
+      },
+      {
+        "path": "crates/voidx-client/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/crmne/tonepush/blob/9c5fe357c563da8d3ac971ea1e9231c665884cdd/crates/voidx-client/Cargo.toml"
+      },
+      {
+        "path": "crates/voidx-proto/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/crmne/tonepush/blob/9c5fe357c563da8d3ac971ea1e9231c665884cdd/crates/voidx-proto/Cargo.toml"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:crmne/tonepush": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 90,
+    "scoreRange": [
+      90,
+      91
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Every displayed label and every label-based command targets the wrong preset on HX Effects.",
+        "evidence": [
+          "issue item 4"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The hardware report was opened today against the current source revision.",
+        "evidence": [
+          "issue created 2026-09-15"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter owns the exact HX Effects, tested all 128 slots, and supplied precise firmware and index observations.",
+        "evidence": [
+          "issue hardware report"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "HX Effects index 104 must render as 27A and 27A must parse back to 104; D slots must be accepted.",
+        "evidence": [
+          "issue item 4"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The three-slot constant is directly visible in pure deterministic functions and fails the reported mapping.",
+        "evidence": [
+          "crates/hx-proto/src/rpc.rs"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 3,
+        "reason": "The core change is small but must be threaded through CLI, GUI and offline backup labels to avoid partial correction.",
+        "evidence": [
+          "local reviewed diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 4,
+        "reason": "Pure Rust tests cover both directions and UI/CLI compilation; only final front-panel confirmation needs hardware.",
+        "evidence": [
+          "local Rust test runs"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Existing three-slot functions remain compatibility wrappers and only the confirmed HX Effects profile changes behavior.",
+        "evidence": [
+          "local profile design"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 4,
+        "reason": "The repository was updated within two days and the issue targets its current development revision.",
+        "evidence": [
+          "repository pushedAt 2026-09-13"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "All HX Effects users rely on correct preset names for select, save, rename, backup and GUI operations.",
+        "evidence": [
+          "call-site review"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "Device-profile bank geometry prevents the same hard-coded assumption across every command and view.",
+        "evidence": [
+          "local DeviceProfile API"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Other device families can declare their own bank geometry without rewriting parser or presentation code.",
+        "evidence": [
+          "local DeviceProfile API"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 95,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      95,
+      90
+    ],
+    "selectable": true
+  },
+  "durationMs": 4582
+}

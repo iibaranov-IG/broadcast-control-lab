@@ -1,0 +1,491 @@
+diff --git a/crates/hx-catalog/src/hxb.rs b/crates/hx-catalog/src/hxb.rs
+index aa903cd..d772d33 100644
+--- a/crates/hx-catalog/src/hxb.rs
++++ b/crates/hx-catalog/src/hxb.rs
+@@ -35,8 +35,10 @@ use crate::Error;
+ 
+ /// One preset recovered from a backup.
+ pub struct BackupPreset {
+-    /// Zero-based slot: 0 is 01A, 1 is 01B, 3 is 02A (three presets to a bank).
++    /// Zero-based slot in front-panel order.
+     pub index: usize,
++    /// Number of preset letters in this backup's device banks.
++    pub presets_per_bank: u8,
+     /// The preset's name. Truly empty slots read as `""`; a never-edited one as
+     /// `"New Preset"`.
+     pub name: String,
+@@ -48,10 +50,10 @@ pub struct BackupPreset {
+ }
+ 
+ impl BackupPreset {
+-    /// The front-panel label for this slot, like `03B` - the pedal's own three
+-    /// presets to a bank, so it matches what the hardware shows.
++    /// The front-panel label for this slot, using the device id stored in the
++    /// backup rather than assuming every HX family has three presets per bank.
+     pub fn label(&self) -> String {
+-        hx_proto::rpc::slot_label(self.index as i64)
++        hx_proto::rpc::slot_label_for(self.index as i64, self.presets_per_bank)
+     }
+ 
+     /// The `.hlx` document as pretty JSON with a trailing newline, matching how
+@@ -132,6 +134,15 @@ fn presets_from(setlist: &Value) -> Result<Backup, Error> {
+                 .as_object()
+                 .ok_or_else(|| Error::Backup(format!("preset slot {index} is not an object")))?;
+             let meta = preset.get("meta");
++            let presets_per_bank = preset
++                .get("device")
++                .and_then(Value::as_u64)
++                .and_then(|device_id| {
++                    hx_proto::PROFILES
++                        .iter()
++                        .find(|profile| u64::from(profile.device_id) == device_id)
++                })
++                .map_or(3, |profile| profile.presets_per_bank);
+             let name = match meta {
+                 None => String::new(),
+                 Some(meta) => meta
+@@ -158,6 +169,7 @@ fn presets_from(setlist: &Value) -> Result<Backup, Error> {
+             });
+             Ok(BackupPreset {
+                 index,
++                presets_per_bank,
+                 name,
+                 hlx,
+                 empty,
+@@ -445,6 +457,27 @@ mod tests {
+         assert!(hlx.pointer("/data/tone/dsp0").is_some());
+     }
+ 
++    #[test]
++    fn backup_labels_follow_the_stored_device_family() {
++        let presets: Vec<Value> = (0..105)
++            .map(|index| {
++                json!({
++                    "device": hx_proto::HX_EFFECTS.device_id,
++                    "meta": { "name": format!("Preset {index}") },
++                    "tone": {}
++                })
++            })
++            .collect();
++        let setlist = json!({
++            "schema": "L6Setlist",
++            "data": { "presets": presets }
++        });
++
++        let backup = read_backup(&bundle(&setlist)).expect("reads an HX Effects backup");
++        assert_eq!(backup.presets[3].label(), "01D");
++        assert_eq!(backup.presets[104].label(), "27A");
++    }
++
+     #[test]
+     fn refuses_bytes_that_are_not_a_bundle() {
+         assert!(Container::parse(b"not an hxb").is_err());
+diff --git a/crates/hx-proto/src/lib.rs b/crates/hx-proto/src/lib.rs
+index 9406957..b36055b 100644
+--- a/crates/hx-proto/src/lib.rs
++++ b/crates/hx-proto/src/lib.rs
+@@ -59,6 +59,8 @@ pub struct DeviceProfile {
+     pub name: &'static str,
+     /// Number of user preset slots.
+     pub presets: u16,
++    /// Preset letters shown in each front-panel bank.
++    pub presets_per_bank: u8,
+     /// How many footswitches a bypass can be put on. Three on an HX Stomp,
+     /// which is why its assign page offers five: FS1 to FS5 counts the two on
+     /// the sides that a Stomp does not have and a Helix does.
+@@ -68,10 +70,23 @@ pub struct DeviceProfile {
+     pub device_id: u32,
+ }
+ 
++impl DeviceProfile {
++    /// Read either a zero-based index or this device's front-panel label.
++    pub fn parse_slot(&self, text: &str) -> Option<i64> {
++        rpc::parse_slot_for(text, self.presets_per_bank)
++    }
++
++    /// Render a zero-based preset index as this device shows it.
++    pub fn slot_label(&self, index: i64) -> String {
++        rpc::slot_label_for(index, self.presets_per_bank)
++    }
++}
++
+ pub const HX_STOMP: DeviceProfile = DeviceProfile {
+     product_id: 0x4246,
+     name: "HX Stomp",
+     presets: 126,
++    presets_per_bank: 3,
+     switches: 5,
+     device_id: 0x0021_0006,
+ };
+@@ -79,6 +94,7 @@ pub const HX_STOMP_XL: DeviceProfile = DeviceProfile {
+     product_id: 0x4253,
+     name: "HX Stomp XL",
+     presets: 128,
++    presets_per_bank: 3,
+     switches: 8,
+     device_id: 0x0021_000B,
+ };
+@@ -86,6 +102,7 @@ pub const HELIX_FLOOR: DeviceProfile = DeviceProfile {
+     product_id: 0x4248,
+     name: "Helix Floor",
+     presets: 128,
++    presets_per_bank: 3,
+     switches: 10,
+     device_id: 0x0021_0001,
+ };
+@@ -93,6 +110,7 @@ pub const HELIX_RACK: DeviceProfile = DeviceProfile {
+     product_id: 0x4249,
+     name: "Helix Rack",
+     presets: 128,
++    presets_per_bank: 3,
+     switches: 10,
+     device_id: 0x0021_0002,
+ };
+@@ -100,6 +118,7 @@ pub const HELIX_LT: DeviceProfile = DeviceProfile {
+     product_id: 0x424A,
+     name: "Helix LT",
+     presets: 128,
++    presets_per_bank: 3,
+     switches: 10,
+     device_id: 0x0021_0004,
+ };
+@@ -107,6 +126,7 @@ pub const HX_EFFECTS: DeviceProfile = DeviceProfile {
+     product_id: 0x4245,
+     name: "HX Effects",
+     presets: 128,
++    presets_per_bank: 4,
+     switches: 6,
+     device_id: 0x0021_0005,
+ };
+@@ -147,4 +167,12 @@ mod tests {
+             assert_eq!(profile_for(product_id), Some(&profile));
+         }
+     }
++
++    #[test]
++    fn hx_effects_uses_four_presets_per_bank() {
++        assert_eq!(HX_EFFECTS.slot_label(3), "01D");
++        assert_eq!(HX_EFFECTS.slot_label(104), "27A");
++        assert_eq!(HX_EFFECTS.parse_slot("27A"), Some(104));
++        assert_eq!(HX_EFFECTS.parse_slot("01D"), Some(3));
++    }
+ }
+diff --git a/crates/hx-proto/src/rpc.rs b/crates/hx-proto/src/rpc.rs
+index 56efb32..cbf007f 100644
+--- a/crates/hx-proto/src/rpc.rs
++++ b/crates/hx-proto/src/rpc.rs
+@@ -389,30 +389,49 @@ impl Message {
+ /// The tools print `03B`, so they should accept it. Requiring the reader to
+ /// convert back to 7 by hand is a small cruelty.
+ pub fn parse_slot(text: &str) -> Option<i64> {
++    parse_slot_for(text, 3)
++}
++
++/// Read a preset address for hardware with the given number of slots per bank.
++pub fn parse_slot_for(text: &str, presets_per_bank: u8) -> Option<i64> {
++    if presets_per_bank == 0 || presets_per_bank > 26 {
++        return None;
++    }
+     if let Ok(index) = text.trim().parse::<i64>() {
+         return (index >= 0).then_some(index);
+     }
+     let text = text.trim();
+     let (bank, slot) = text.split_at(text.len().checked_sub(1)?);
+     let letter = slot.chars().next()?.to_ascii_uppercase();
+-    let position = "ABC".find(letter)? as i64;
++    if !letter.is_ascii_uppercase() {
++        return None;
++    }
++    let position = (letter as u8).checked_sub(b'A')? as i64;
++    if position >= i64::from(presets_per_bank) {
++        return None;
++    }
+     let bank: i64 = bank.parse().ok()?;
+     (bank >= 1)
+         .then_some(bank)
+         .and_then(|bank| bank.checked_sub(1))
+-        .and_then(|bank| bank.checked_mul(3))
++        .and_then(|bank| bank.checked_mul(i64::from(presets_per_bank)))
+         .and_then(|index| index.checked_add(position))
+ }
+ 
+ /// Render a preset index the way the hardware labels it: `03B` for index 7.
+ pub fn slot_label(index: i64) -> String {
+-    if index < 0 {
++    slot_label_for(index, 3)
++}
++
++/// Render an index for hardware with the given number of slots per bank.
++pub fn slot_label_for(index: i64, presets_per_bank: u8) -> String {
++    if index < 0 || presets_per_bank == 0 || presets_per_bank > 26 {
+         return index.to_string();
+     }
+     format!(
+         "{:02}{}",
+-        index / 3 + 1,
+-        b"ABC"[(index % 3) as usize] as char
++        index / i64::from(presets_per_bank) + 1,
++        (b'A' + (index % i64::from(presets_per_bank)) as u8) as char
+     )
+ }
+ 
+@@ -774,4 +793,14 @@ mod tests {
+         assert_eq!(slot_label(125), "42C");
+         assert_eq!(slot_label(-1), "-1");
+     }
++
++    #[test]
++    fn four_slot_banks_use_a_through_d() {
++        assert_eq!(slot_label_for(0, 4), "01A");
++        assert_eq!(slot_label_for(3, 4), "01D");
++        assert_eq!(slot_label_for(104, 4), "27A");
++        assert_eq!(parse_slot_for("27A", 4), Some(104));
++        assert_eq!(parse_slot_for("01D", 4), Some(3));
++        assert_eq!(parse_slot_for("01E", 4), None);
++    }
+ }
+diff --git a/crates/tonepush-cli/src/main.rs b/crates/tonepush-cli/src/main.rs
+index d49ce6e..ca67223 100644
+--- a/crates/tonepush-cli/src/main.rs
++++ b/crates/tonepush-cli/src/main.rs
+@@ -499,18 +499,22 @@ fn main() -> Result<()> {
+         Cmd::ExportHxb { bundle, output } => export_hxb(&bundle, &output),
+         Cmd::IrInfo { file } => ir_info(&file),
+         Cmd::List => list_devices(),
+-        // Reject a malformed preset address before opening anything: failing
+-        // after a five-second connect to say "that is not a preset" is rude.
+-        Cmd::Select { ref index, .. } | Cmd::Rename { ref index, .. } if slot(index).is_err() => {
+-            slot(index).map(|_| ())
++        // Reject addresses no supported device can understand before paying
++        // the connection delay. The attached profile validates it again.
++        Cmd::Select { ref index, .. } | Cmd::Rename { ref index, .. }
++            if !hx_proto::PROFILES
++                .iter()
++                .any(|profile| profile.parse_slot(index).is_some()) =>
++        {
++            bail!("{index:?} is not a preset; use a label like 03B or an index like 7")
+         }
+         cmd => on_device(cmd),
+     }
+ }
+ 
+ /// Accept whichever form of preset address the user has to hand.
+-fn slot(text: &str) -> Result<i64> {
+-    hx_proto::rpc::parse_slot(text).with_context(|| {
++fn slot(profile: &hx_proto::DeviceProfile, text: &str) -> Result<i64> {
++    profile.parse_slot(text).with_context(|| {
+         format!("{text:?} is not a preset; use a label like 03B or an index like 7")
+     })
+ }
+@@ -854,19 +858,19 @@ fn validate_switch(session: &hx_usb::Session, switch: u8) -> Result<()> {
+ }
+ 
+ fn select(session: &mut hx_usb::Session, setlist: i64, index: &str) -> Result<()> {
+-    let index = slot(index)?;
++    let index = slot(&session.profile, index)?;
+     session.select_preset(setlist, index)?;
+     println!(
+         "selected {} (setlist {setlist})",
+-        hx_proto::rpc::slot_label(index)
++        session.profile.slot_label(index)
+     );
+     Ok(())
+ }
+ 
+ fn rename(session: &mut hx_usb::Session, setlist: i64, index: &str, name: &str) -> Result<()> {
+-    let index = slot(index)?;
++    let index = slot(&session.profile, index)?;
+     session.rename_preset(setlist, index, name)?;
+-    println!("{} renamed to {name}", hx_proto::rpc::slot_label(index));
++    println!("{} renamed to {name}", session.profile.slot_label(index));
+     Ok(())
+ }
+ 
+@@ -960,7 +964,7 @@ fn show_preset(session: &mut hx_usb::Session, raw: bool) -> Result<()> {
+     match session.preset_info() {
+         Ok((setlist, index, name)) => println!(
+             "preset:   {} {}  (setlist {setlist}, index {index})",
+-            hx_proto::rpc::slot_label(index),
++            session.profile.slot_label(index),
+             name
+         ),
+         Err(e) => println!("preset:   (metadata unavailable: {e})"),
+@@ -980,7 +984,7 @@ fn list_presets(session: &mut hx_usb::Session, setlist: i64) -> Result<()> {
+         let index = index as i64;
+         println!(
+             "{} {:<24} {}",
+-            hx_proto::rpc::slot_label(index),
++            session.profile.slot_label(index),
+             name,
+             if index == current { "<- loaded" } else { "" }
+         );
+@@ -1074,12 +1078,15 @@ fn save_preset(
+ ) -> Result<()> {
+     let (_, loaded, current) = session.preset_info()?;
+     let target = match index {
+-        Some(text) => slot(text)?,
++        Some(text) => slot(&session.profile, text)?,
+         None => loaded,
+     };
+     let name = name.unwrap_or(&current);
+     session.save_preset(setlist, target, name)?;
+-    println!("saved to {} as {name:?}", hx_proto::rpc::slot_label(target));
++    println!(
++        "saved to {} as {name:?}",
++        session.profile.slot_label(target)
++    );
+     Ok(())
+ }
+ 
+@@ -1141,7 +1148,7 @@ fn backup_all(
+             .read_preset()
+             .with_context(|| format!("reading preset {index}"))?;
+ 
+-        let label = hx_proto::rpc::slot_label(index);
++        let label = session.profile.slot_label(index);
+         let file = directory.join(format!("{label}-{}.hxpreset", sanitise(name)));
+         write_file(&file, preset.encode()).with_context(|| format!("writing {file:?}"))?;
+         println!("  {label}  {name}");
+@@ -1157,10 +1164,11 @@ fn back_up(session: &mut hx_usb::Session, directory: &std::path::Path) -> Result
+     use hx_usb::backup::Step;
+ 
+     let started = std::time::Instant::now();
++    let profile = session.profile;
+     let manifest = hx_usb::backup::capture(session, directory, now(), |step| match step {
+         Step::Presets { done, total, name } => {
+             if !name.is_empty() {
+-                println!("  {}  {name}", hx_proto::rpc::slot_label(done as i64));
++                println!("  {}  {name}", profile.slot_label(done as i64));
+             }
+             let _ = total;
+         }
+@@ -1507,7 +1515,7 @@ fn show_chain(session: &mut hx_usb::Session) -> Result<()> {
+     let catalog = hx_catalog::Catalog::load().ok();
+ 
+     if let Some((_, index, name)) = optional_device_value(session.preset_info())? {
+-        print!("{} {}", hx_proto::rpc::slot_label(index), name);
++        print!("{} {}", session.profile.slot_label(index), name);
+     }
+     if let Some(tempo) = preset.tempo() {
+         print!("   {tempo:.1} BPM");
+diff --git a/crates/tonepush-gui/src/lib.rs b/crates/tonepush-gui/src/lib.rs
+index a8ab0ce..d838df3 100644
+--- a/crates/tonepush-gui/src/lib.rs
++++ b/crates/tonepush-gui/src/lib.rs
+@@ -966,7 +966,13 @@ impl App {
+         if self.pro_active() {
+             format!("{}", slot + 1)
+         } else {
+-            hx_proto::rpc::slot_label(slot)
++            hx_proto::PROFILES
++                .iter()
++                .find(|profile| profile.name == self.device.trim())
++                .map_or_else(
++                    || hx_proto::rpc::slot_label(slot),
++                    |profile| profile.slot_label(slot),
++                )
+         }
+     }
+ 
+@@ -1712,7 +1718,7 @@ impl App {
+             ui.set_max_width(320.0);
+             ui.label(format!(
+                 "Empty {} - “{name}” - back to a blank preset?",
+-                hx_proto::rpc::slot_label(index)
++                self.active_slot_label(index)
+             ));
+             ui.label(
+                 RichText::new("This writes the pedal's flash. Undo does not reach it.")
+@@ -2147,7 +2153,7 @@ impl App {
+             .get(index as usize)
+             .filter(|n| !n.is_empty())
+             .cloned()
+-            .unwrap_or_else(|| hx_proto::rpc::slot_label(index));
++            .unwrap_or_else(|| self.active_slot_label(index));
+         let mut decided = None;
+         theme::modal("Unsaved changes").show(ctx, |ui| {
+             ui.set_max_width(340.0);
+@@ -2247,7 +2253,7 @@ impl App {
+         }
+         if let Some(name) = processor::preset_title(
+             ui,
+-            &hx_proto::rpc::slot_label(self.preset_index),
++            &self.active_slot_label(self.preset_index),
+             &self.preset_name,
+             self.dirty,
+             true,
+@@ -2422,7 +2428,7 @@ impl App {
+                             .cloned()
+                             .unwrap_or_default();
+                         let selected = index == self.preset_index;
+-                        let label = format!("{}  {}", hx_proto::rpc::slot_label(index), name);
++                        let label = format!("{}  {}", self.active_slot_label(index), name);
+                         ui.horizontal(|ui| {
+                             // One height for the row, and every widget in it
+                             // centred on that: a text star, a drawn icon and
+@@ -2503,7 +2509,7 @@ impl App {
+                                 let text = if empty {
+                                     RichText::new(format!(
+                                         "{}  empty",
+-                                        hx_proto::rpc::slot_label(index)
++                                        self.active_slot_label(index)
+                                     ))
+                                     .color(theme::ACCENT)
+                                 } else {
+@@ -7465,7 +7471,7 @@ impl App {
+                     let labels: Vec<String> = (0..total)
+                         .map(|i| {
+                             let name = self.presets.get(i as usize).cloned().unwrap_or_default();
+-                            format!("{}  {}", hx_proto::rpc::slot_label(i), name)
++                            format!("{}  {}", self.active_slot_label(i), name)
+                         })
+                         .collect();
+                     egui::ComboBox::from_id_salt("load-dest")
+@@ -7523,7 +7529,7 @@ impl App {
+             self.note(format!(
+                 "loading {} into {}",
+                 preview.name,
+-                hx_proto::rpc::slot_label(preview.dest)
++                self.active_slot_label(preview.dest)
+             ));
+             match preview.load {
+                 LoadKind::Document(bytes) => self.send(Cmd::LoadDocument {
+diff --git a/crates/tonepush-gui/src/session.rs b/crates/tonepush-gui/src/session.rs
+index 3685a4a..e1e38eb 100644
+--- a/crates/tonepush-gui/src/session.rs
++++ b/crates/tonepush-gui/src/session.rs
+@@ -496,6 +496,13 @@ struct Audition {
+ }
+ 
+ impl Worker {
++    fn slot_label(&self, index: i64) -> String {
++        self.device.as_ref().map_or_else(
++            || hx_proto::rpc::slot_label(index),
++            |device| device.profile.slot_label(index),
++        )
++    }
++
+     fn run(mut self) {
+         let mut last_poll = Instant::now();
+         loop {
+@@ -904,10 +911,7 @@ impl Worker {
+                     if self.shown.0 == index {
+                         self.reload();
+                     }
+-                    self.send(Evt::Activity(format!(
+-                        "emptied {}",
+-                        hx_proto::rpc::slot_label(index)
+-                    )));
++                    self.send(Evt::Activity(format!("emptied {}", self.slot_label(index))));
+                 }
+             }
+             Cmd::ClearBlock(block) => {
+@@ -1589,7 +1593,7 @@ impl Worker {
+                     None => {
+                         self.send(Evt::Failed(format!(
+                             "{} is not a preset document",
+-                            hx_proto::rpc::slot_label(index)
++                            self.slot_label(index)
+                         )));
+                         false
+                     }

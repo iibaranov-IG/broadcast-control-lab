@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 2,
+  "id": "tonepush-9",
+  "status": "ready",
+  "title": "Use four-slot bank labels for HX Effects presets",
+  "issue": "https://github.com/crmne/tonepush/issues/9",
+  "problem": "TonePush hard-codes three presets per bank, so every front-panel label and label-based command is wrong on HX Effects. For example, device index 104 is shown and parsed incorrectly instead of 27A.",
+  "reproduce": "At pinned revision 9c5fe357, rpc::slot_label(104) returns 35C and parse_slot(\"27A\") returns 78. The real HX Effects on firmware 3.80 has 32 banks of A-D presets and reports index 104 as 27A.",
+  "acceptance": "The HX Effects profile renders index 104 as 27A, parses 27A back to 104, accepts D slots, and carries that geometry through CLI, GUI and offline backup labels while the existing three-slot HX Stomp mapping remains unchanged.",
+  "repair": "Store presets-per-bank in DeviceProfile, provide profile-aware parse/render methods, use them at every connected-device CLI and GUI call site, and recover the profile from device ids in backup preset records.",
+  "sources": [
+    {
+      "id": "baseline",
+      "repository": "crmne/tonepush",
+      "commit": "9c5fe357c563da8d3ac971ea1e9231c665884cdd",
+      "directory": "sources/tonepush-9"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14",
+    "rust": "1.97.1"
+  },
+  "watch": [
+    "cases/tonepush-9/"
+  ],
+  "steps": {
+    "dependencies": [
+      {
+        "cwd": "sources/tonepush-9",
+        "argv": [
+          "cargo",
+          "fetch",
+          "--locked"
+        ]
+      }
+    ],
+    "prepare": [
+      {
+        "cwd": "sources/tonepush-9",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/tonepush-9/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/tonepush-9/test.mjs",
+          "sources/tonepush-9"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/tonepush-9.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the reported index/label mapping against production Rust code, preserves HX Stomp behavior, compiles the CLI and GUI, and runs the pure protocol and backup suites. It cannot operate the reporter\u2019s physical HX Effects; the final front-panel selection check remains with its owner.",
+    "ownerCheck": "On the HX Effects, compare Presets output around indices 3 and 104 with the front panel: they should read 01D and 27A. Run select 27A, rename or save a disposable preset addressed as 01D, and confirm the intended front-panel slot changes. Check the same labels in the GUI and in an extracted HX Effects backup."
+  },
+  "selection": {
+    "report": "cases/tonepush-9/triage.json",
+    "sha256": "6c009a1a69ed29349d3ffe9a2d7a90f12f37c35dee012f03741a2995a6ba502f"
+  },
+  "template": {
+    "language": "rust",
+    "protocol": "usb"
+  },
+  "publish": {
+    "source": "baseline",
+    "target": "crmne/tonepush",
+    "base": "main",
+    "commitMessage": "fix: use device-specific preset bank labels",
+    "paths": [
+      "crates/hx-proto/src/lib.rs",
+      "crates/hx-proto/src/rpc.rs",
+      "crates/hx-catalog/src/hxb.rs",
+      "crates/tonepush-cli/src/main.rs",
+      "crates/tonepush-gui/src/lib.rs",
+      "crates/tonepush-gui/src/session.rs"
+    ],
+    "verificationOnlyPaths": [
+      "crates/hx-proto/tests/bcl_device_slot_labels.rs",
+      "bcl_hx_effects_slots.mjs"
+    ]
+  },
+  "upstream": {
+    "kind": "rust",
+    "source": "baseline",
+    "timeoutMs": 600000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/tonepush-9/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [
+      {
+        "cwd": ".",
+        "argv": [
+          "cargo",
+          "check",
+          "--locked",
+          "-p",
+          "tonepush-cli",
+          "-p",
+          "tonepush-gui"
+        ]
+      }
+    ],
+    "testFiles": [
+      "crates/hx-proto/tests/bcl_device_slot_labels.rs",
+      "bcl_hx_effects_slots.mjs"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "bcl_hx_effects_slots.mjs"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "HX_EFFECTS_SLOT_LABELS_WRONG"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "hx-proto",
+        "-p",
+        "hx-catalog"
+      ]
+    },
+    "suiteOutputIncludes": "test result: ok."
+  }
+}

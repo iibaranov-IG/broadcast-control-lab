@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 2,
+  "id": "naudio-107",
+  "status": "ready",
+  "title": "Keep USB audio choices stable across PortAudio renumbering",
+  "issue": "https://github.com/KJ5HST-LABS/naudio/issues/107",
+  "problem": "The control page saves PortAudio enumeration ids. When USB, Bluetooth, or display audio devices appear or disappear, those positions can point to a different microphone or speaker on the next start.",
+  "reproduce": "At pinned revision 2540170, each device option value is its numeric id and formToSettings writes capture-id/playback-id while clearing the existing name pattern.",
+  "acceptance": "Selecting capture or playback stores the device name pattern and clears the transient id; an existing id resolves to its current device and migrates on save; an unresolved saved name is visible; direct daemon id options remain supported.",
+  "repair": "Use device names as picker values, resolve stored patterns and legacy ids against each new device list, save capture/playback patterns, and extend the served-page control gate and operator documentation.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "KJ5HST-LABS/naudio",
+      "commit": "25401700885ea4eccc84c8303b0ffcc1be60e0fa",
+      "directory": "sources/naudio-107"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/naudio-107",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/naudio-107/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/naudio-107/test.mjs",
+          "sources/naudio-107"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/naudio-107.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": true,
+    "limitations": "BCL proves the baseline writes transient ids and the candidate writes names, migrates legacy ids, exposes unresolved names, and embeds the checks in the live control-page arm. The upstream project built locally and all 524 hardware-free ctests passed. A station owner should still confirm the same interface is selected after a real USB re-enumeration.",
+    "ownerCheck": "Choose the radio USB interface on the Setup page and save. Stop the service, unplug an unrelated earlier-enumerated audio device, then restart and confirm /api/state stream.captureName (and sinkName when configured) still names the selected interface."
+  },
+  "selection": {
+    "report": "cases/naudio-107/triage.json",
+    "sha256": "aae5fd2a43ac1bb633a0f080798037a94b2296a333e2d34fa499b02ede6f889d",
+    "reason": "A fresh owner report demonstrates wrong-device capture and feedback after USB renumbering. The defect is deterministic in the pinned page, has no competing PR, and the project supplies a complete hardware-free control-page suite."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "KJ5HST-LABS/naudio",
+    "base": "main",
+    "commitMessage": "fix(control-page): persist audio devices by name",
+    "paths": [
+      "CHANGELOG.md",
+      "INSTALL.md",
+      "docs/man/na_audio_daemon.1",
+      "tests/daemon/controlcheck.sh",
+      "tools/control_page.js"
+    ],
+    "verificationOnlyPaths": [
+      "test_bcl_device_name.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "sourceBytecode": true,
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/naudio-107/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "test_bcl_device_name.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "test_bcl_device_name.py"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "device picker must carry the durable name"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "test_bcl_device_name.py"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 3 tests"
+  }
+}

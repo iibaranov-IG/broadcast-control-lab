@@ -1,0 +1,37 @@
+diff --git a/test_bcl_device_name.py b/test_bcl_device_name.py
+new file mode 100644
+index 0000000..cd9e212
+--- /dev/null
++++ b/test_bcl_device_name.py
+@@ -0,0 +1,31 @@
++from pathlib import Path
++import unittest
++
++
++ROOT = Path(__file__).resolve().parent
++
++
++class StableDeviceChoiceTests(unittest.TestCase):
++    def test_picker_saves_names_and_clears_transient_ids(self):
++        page = (ROOT / "tools/control_page.js").read_text()
++        self.assertIn("o.value = d.name", page, "device picker must carry the durable name")
++        self.assertIn("out['capture'] = cap; out['capture-id'] = ''", page)
++        self.assertIn("out['playback'] = play; out['playback-id'] = ''", page)
++
++    def test_old_ids_migrate_and_missing_names_are_visible(self):
++        page = (ROOT / "tools/control_page.js").read_text()
++        self.assertIn("const idMatch = list.find", page)
++        self.assertIn("idMatch ? idMatch.name", page)
++        self.assertIn("is not currently connected", page)
++
++    def test_served_page_gate_and_docs_cover_the_contract(self):
++        gate = (ROOT / "tests/daemon/controlcheck.sh").read_text()
++        install = (ROOT / "INSTALL.md").read_text()
++        man = (ROOT / "docs/man/na_audio_daemon.1").read_text()
++        self.assertIn("device picker values are durable names", gate)
++        self.assertIn("The page saves its name", install)
++        self.assertIn("PortAudio ids are enumeration positions", man)
++
++
++if __name__ == "__main__":
++    unittest.main()

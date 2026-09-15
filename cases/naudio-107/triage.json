@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T02:14:21.830Z",
+  "issue": {
+    "repository": "KJ5HST-LABS/naudio",
+    "number": "107",
+    "url": "https://github.com/KJ5HST-LABS/naudio/issues/107",
+    "title": "control page: the picker pins a device INDEX, and indexes renumber when a device comes or goes — the page cannot write the name pattern the daemon already supports",
+    "state": "open",
+    "updatedAt": "2026-09-15T00:35:37Z"
+  },
+  "source": {
+    "repository": "KJ5HST-LABS/naudio",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "LGPL-2.1",
+    "commit": "25401700885ea4eccc84c8303b0ffcc1be60e0fa",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/KJ5HST-LABS/naudio/blob/25401700885ea4eccc84c8303b0ffcc1be60e0fa/CONTRIBUTING.md",
+        "content": "# Contributing to naudio\n\nThanks for your interest. naudio is the C/C++ reference toolkit for the net-audio audio-streaming\nprotocol. A few conventions keep it clean and cross-platform.\n\n## Build & test before you push\n\n```bash\ncmake -S . -B build\ncmake --build build -j\nctest --test-dir build --output-on-failure\n```\n\nAll tests must pass (the suite is hardware-free, so it runs anywhere). CI runs the same on Linux,\nmacOS, and Windows — see [.github/workflows/ci.yml](.github/workflows/ci.yml).\n\n## Code conventions\n\n- **C++17**, no compiler extensions (`CMAKE_CXX_EXTENSIONS OFF`). Build warning-free.\n- **C11** (`CMAKE_C_STANDARD 11`, `_REQUIRED ON`) — and, unlike C++, compiler extensions are\n  deliberately left **on**. Strict `-std=c11` defines `__STRICT_ANSI__`, which on glibc hides the\n  POSIX declarations `tools/na_hamlib_bridge.c` depends on; it compiles on macOS and fails on\n  Linux, so please do not \"restore the symmetry\" with `CMAKE_C_EXTENSIONS OFF`. Note this is the\n  level the *tests* compile at: `include/naudio.h` itself is C99-clean, so a consumer of the C ABI\n  is not obliged to build at C11. **That is enforced, not merely asserted** — the\n  `naudio_c99_header_gate` ctest arm compiles a TU including the header at\n  `-std=c99 -pedantic-errors` on every run (`tests/c99-header-gate/`). So a `_Static_assert`,\n  `_Alignas` or anonymous union added to the **public header** will fail the suite even though the\n  rest of the build accepts it; that is deliberate, and the fix is to use a C99 construct — or, if\n  the floor genuinely has to rise, to change this sentence and the one in `CMakeLists.txt` with it\n  and say why.\n- **Keep `naudio_core` pure.** No fork/exec, no PortAudio, no sockets, no threads in the core library.\n  Process/device/socket/thread code goes in `naudio_pa` / `naudio_net` / `tools/` — see the target\n  layout table in the [README](README.md).\n- **Public C ABI changes** must tag new symbols with `NA_EXPORT` and keep `include/naudio.h`\n  C-callable (the `naudio_c_abi_smoke` test enforces this). Honor the length-probe / NULL-buffer\n  contract on text functions.\n- **Do not tell consumers to gate a NEW SYMBOL on `na_version_number()`.** It cannot work: the\n  reference is resolved when the image loads, so a missing symbol aborts the process before any\n  check of yours runs, and the version of an unreleased cycle does not distinguish the build that\n  has the symbol from the one that does not. Document new symbols as configure-time detections\n  (`check_symbol_exists`). A version comparison is for **struct fields and behaviour** of symbols\n  that already exist — that use is correct and stays.\n\n## Licensing & provenance (please read)\n\nnaudio is **LGPL-2.1-or-later**. Contributions are accepted under that license.\n\n- **Do not paste or link GPL/copyleft source.** naudio's shipped artifacts must stay free of any\n  copyleft obligation. See [LICENSE](LICENSE).\n- Only contribute code you have the right to license under LGPL-2.1+. Do not port code from projects\n  with incompatible licenses.\n\n## Changing the wire protocol\n\nThe `0xAF01` wire is **frozen at v1** (`docs/audio-streaming-protocol-v1.md`). A wire change\nrequires: (1) a spec revision, (2) regenerating the golden vectors via\n`conformance/tools/gen_vectors.py` — which writes `conformance/vectors/vectors.ini`,\n`conformance/vectors/vectors-v1_2.ini` (spec-1.2/1.3 forms, `Conformance.GoldenVectorsV12`)\n**and** `conformance/vectors/vectors-v1_4.ini` (spec-1.4 discovery, `Conformance.GoldenVectorsV14`),\neach under its own fail-closed 0-skipped gate; see spec §12. Adding a record to the generator\nmeans raising that gate's count literal deliberately — it is what stops a vector going missing\nfrom an `.ini` and the suite reporting green over a smaller corpus — and\n(3) re-checking the codec and every example client against the regenerated vectors.\nThe byte-identity tell for a correctly received stream is `first_frame_hex=68c569c66ac76bc8`.\n\n## Cutting a release\n\n**First, set `NAUDIO_VERSION_PRERELEASE` in `include/naudio.h`** — `\"\"` for a final `X.Y.Z`, or\nthe SemVer tag *including its leading dash* (`\"-rc6\"`) for a pre-release. It is what separates a\nrelease from the builds around it: the three numeric macros cannot, because every build of an\nunreleased `X.Y.Z` reports `X.Y.Z`. Getting this wrong is how `v1.0.0rc5` and the main branch\nafter it both came to answer `1.0.0` from `na_version_string()`, which made a consumer's version\ngate true against a library that lacked the symbol it was gating (see the header's *Library\nversion* note). The CMake version gate does **not** check it — a pre-release tag is not part of\nthe SONAME — so nothing but this step and `c_abi_smoke`'s shape check stands behind it.\n\nThen push a `v*` tag. `.github/workflows/release.yml` builds every platform, runs the full suite,\ngates the **packages themselves** (a package-based install must pass the same external-consumer\ncommands a build-tree install does), and attaches the artifacts to a GitHub Release — prerelease\nautomatically for a `v*rc*` tag. `workflow_dispatch` runs the byte-identical dry run without\ntouching a release, which is how the pipeline is proven before a tag exists.\n\n**The macOS `.pkg` is signed, notarized and stapled by the release workflow itself.** The macOS\njob imports the org's `DEVELOPER_ID_CERTIFICATE_P12` and `DEVELOPER_ID_INSTALLER_P12` into a\nthrowaway keychain; `cmake/CodesignPayload.cmake` signs every payload binary at\n`CPACK_PRE_BUILD_SCRIPTS` (hardened runtime, secure timestamp, and the audio-input entitlement on\n`na_audio_daemon` and `na_audio_source` — the two tools that open an input device, which the\nhardened runtime otherwise silences when launchd starts them); and once the installer gate has\npassed, the wrapper is `productsign`ed, submitted with `notarytool` (`APPLE_ID`, `APPLE_TEAM_ID`,\n`APPLE_APP_SPECIFIC_PASSWORD`) and stapled. None of that is trusted: `packaging/macos/signing-status.sh`\nmeasures the artifact afterwards and the release note is written from that measurement, never\nassumed (issue #99: the note used to assert \"signed and notarized\" unconditionally, which was false\nat the moment it published and true only if a human followed up). A run with the secrets present\nmust measure `signed` or it fails; a run without them publishes an honest \"unsigned\" sentence.\n\n**If a release was published without the secrets**, the fallback is still one command:\n\n```\npackaging/macos/publish-signed-pkg.sh v1.0.0rc4          # add --dry-run to verify and publish nothing\n```\n\nIt signs, notarizes, staples, re-uploads, regenerates `sha256sums.txt` from the published assets,\nand rewrites that sentence — together, because doing them separately is what left one release\ndescribing a file it had already replaced. It refuses to upload anything that does not measure as\nsigned first, and re-downloads the published assets to check the result. It needs a Developer ID\nInstaller identity and a `notarytool` keychain profile (run it with `--help` for the one-time\nsetup), and a `.pkg` whose payload CI signed — an unsigned payload cannot be retrofitted, so re-run\nthe release instead.\n\nThe Windows installer is unsigned (no certificate) and SmartScreen warns about it.\n\n## Pull requests\n\nKeep PRs focused. Describe what changed and why, and confirm `ctest` is green. New behavior should\ncome with a test (a `FakeBackend`/loopback unit test, or a conformance vector for wire changes).\n",
+        "requirementHints": [
+          "## Build & test before you push",
+          "ctest --test-dir build --output-on-failure",
+          "All tests must pass (the suite is hardware-free, so it runs anywhere). CI runs the same on Linux,",
+          "- **C11** (`CMAKE_C_STANDARD 11`, `_REQUIRED ON`) — and, unlike C++, compiler extensions are",
+          "  level the *tests* compile at: `include/naudio.h` itself is C99-clean, so a consumer of the C ABI",
+          "  `naudio_c99_header_gate` ctest arm compiles a TU including the header at",
+          "  `-std=c99 -pedantic-errors` on every run (`tests/c99-header-gate/`). So a `_Static_assert`,",
+          "- **Public C ABI changes** must tag new symbols with `NA_EXPORT` and keep `include/naudio.h`",
+          "  C-callable (the `naudio_c_abi_smoke` test enforces this). Honor the length-probe / NULL-buffer",
+          "  reference is resolved when the image loads, so a missing symbol aborts the process before any",
+          "- **Do not paste or link GPL/copyleft source.** naudio's shipped artifacts must stay free of any",
+          "gates the **packages themselves** (a package-based install must pass the same external-consumer",
+          "touching a release, which is how the pipeline is proven before a tag exists.",
+          "must measure `signed` or it fails; a run without them publishes an honest \"unsigned\" sentence.",
+          "## Pull requests",
+          "Keep PRs focused. Describe what changed and why, and confirm `ctest` is green. New behavior should",
+          "come with a test (a `FakeBackend`/loopback unit test, or a conformance vector for wire changes)."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "conformance/tools/gen_vectors.py",
+      "examples/c/inject_tone.c",
+      "examples/c/play_to_speakers.c",
+      "examples/cpp/play_to_speakers.cpp",
+      "examples/python/play_to_speakers.py",
+      "examples/rust/build.rs",
+      "examples/rust/src/main.rs",
+      "examples/server/audio_source.c",
+      "include/naudio.h",
+      "include/naudio/AudioPacket.hpp"
+    ],
+    "buildFiles": [
+      {
+        "path": "CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/KJ5HST-LABS/naudio/blob/25401700885ea4eccc84c8303b0ffcc1be60e0fa/CMakeLists.txt"
+      },
+      {
+        "path": "examples/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/KJ5HST-LABS/naudio/blob/25401700885ea4eccc84c8303b0ffcc1be60e0fa/examples/CMakeLists.txt"
+      },
+      {
+        "path": "examples/rust/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/KJ5HST-LABS/naudio/blob/25401700885ea4eccc84c8303b0ffcc1be60e0fa/examples/rust/Cargo.toml"
+      },
+      {
+        "path": "tests/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/KJ5HST-LABS/naudio/blob/25401700885ea4eccc84c8303b0ffcc1be60e0fa/tests/CMakeLists.txt"
+      },
+      {
+        "path": "tests/external-consumer/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/KJ5HST-LABS/naudio/blob/25401700885ea4eccc84c8303b0ffcc1be60e0fa/tests/external-consumer/CMakeLists.txt"
+      },
+      {
+        "path": "tests/ffi-clients/rust-probe/Cargo.toml",
+        "kind": "rust",
+        "url": "https://github.com/KJ5HST-LABS/naudio/blob/25401700885ea4eccc84c8303b0ffcc1be60e0fa/tests/ffi-clients/rust-probe/Cargo.toml"
+      },
+      {
+        "path": "tools/CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/KJ5HST-LABS/naudio/blob/25401700885ea4eccc84c8303b0ffcc1be60e0fa/tools/CMakeLists.txt"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:KJ5HST-LABS/naudio": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 97,
+    "scoreRange": [
+      97,
+      97
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 5,
+        "reason": "Renumbering can silently route a live radio stream through the wrong microphone or into room speakers.",
+        "evidence": [
+          "Issue #107 observed feedback and wrong-device cases"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The owner filed the report today against current main.",
+        "evidence": [
+          "Issue created 2026-09-15 UTC"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The project owner reported the defect with a concrete installation and fake-backend acceptance path.",
+        "evidence": [
+          "Issue #107"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "A picker choice must save a name, clear the transient id, and expose unresolved names.",
+        "evidence": [
+          "Issue #107 Expected and Acceptance"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The shipped page deterministically writes an enumeration id and clears the supported name field.",
+        "evidence": [
+          "tools/control_page.js at 2540170"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The focused change is confined to picker behavior, its control-page gate, and operator documentation.",
+        "evidence": [
+          "candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "The end-to-end control-page arm and complete hardware-free suite run locally.",
+        "evidence": [
+          "controlcheck pass",
+          "524 ctests pass"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Old id configurations still display and migrate on save; direct command-line ids remain supported.",
+        "evidence": [
+          "fillDeviceSelect id fallback",
+          "daemon settings table"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "Current main contains same-day control-page development.",
+        "evidence": [
+          "main commit 2540170"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "USB, Bluetooth, and display audio renumbering is common across station computers.",
+        "evidence": [
+          "Issue #107 scenarios"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "The behavior applies to both capture and playback selectors on every supported host.",
+        "evidence": [
+          "control_page.js shared picker"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 5,
+        "reason": "Stable selection prevents wrong audio, silence, channel-count errors, and feedback after login or reconnect.",
+        "evidence": [
+          "Issue #107 observed outcomes"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      97
+    ],
+    "selectable": true
+  },
+  "durationMs": 3419
+}

@@ -1,0 +1,170 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 44ee5c3..f67c3fc 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -10,6 +10,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
+ - **The control page shows whether the service runs at login, and on a Mac opens Login Items** (issue #102, third part). A *Runs at login* row beside the autostart checkbox reads *On*, *Off* or *Not installed* from the platform's own switch on every poll — on macOS the agent's presence in the user's launchd domain, which is what the Login Items switch adds and removes; on Linux the user unit and `systemctl --user is-enabled`; on Windows the logon task and its Disabled state — so a switch flipped in System Settings shows on the page within a second. The row mirrors the switch and does not offer one: nothing outside System Settings can move the macOS switch (measured), so the honest control is the row's **Open Login Items…** button, served by `POST /api/open-login-items` behind the same three browser defences as every other action. On Linux the row names the `systemctl --user` command; on Windows, the task. `/api/state` carries the reading as `service` for anything else that polls it. The quit dialog's "start it again" sentence names Network Audio Service and Login Items on macOS.
+ 
+ ### Changed
++- **The control page keeps a selected audio device across PortAudio renumbering** (issue #107). Device pickers now save the selected capture or playback device's name pattern and clear its enumeration id. Those ids are positions in the current device list and can move when a USB microphone is unplugged, a Bluetooth headset appears, or a display wakes; the same saved id could therefore open a laptop microphone or room speakers at the next login. Existing id-based configurations still select their current row and migrate to the name on the next save, while a saved name that no longer resolves is shown as disconnected. Direct `--capture-id` and `--playback-id` use remains available from the command line.
+ - **The control page is two tabs, Setup and Stream, so that configuring first is the page's shape** (issue #106). The two stacked panels let a stream run on settings the operator had changed but not saved, with the only cue a Save button two panels down, and a save while streaming was acknowledged in a notice on the other panel. Now Setup — the device pickers, every setting, Save, and the *Runs at login* row — comes first, and the page opens on it until a capture device has been chosen; Stream holds the status, the counters and Start / Stop / Restart / Quit. Start stays off, with the reason beside it and a link to Setup, until a capture device is chosen and saved, and while Setup holds unsaved changes (its tab carries a dot). Settings saved while a stream is running are announced on the Stream tab, beside a Restart button promoted to the primary action, and the notice clears when the stream restarts or stops. Nothing changed in the daemon or its API.
+ - **The macOS background service runs at your next login — including on a Mac upgraded from rc8 or earlier that never switched it on — and the Login Items switch is its one switch** (issue #102, second part). The launchd agent no longer ships `Disabled: true`. That key was the service's inertness, and it produced the bug reported: Login Items showed the agent's switch ON while launchd had never bootstrapped it, and `launchctl enable`/`disable` — the documented switch — turned out not to move the Login Items switch in either direction (measured: the two are independent stores). So the platform's switch is the switch: the agent ships on, and from the next login it serves the control page on `127.0.0.1`, opening no device until Start is pressed; turning it off in *System Settings › General › Login Items & Extensions* stops it and keeps it off. Installing still starts no capture — that guarantee moved from a key to the agent's own arguments (`--mode control`, autostart off), and the service-unit test now runs those arguments and requires an idle pipeline, as does the release pipeline's installer gate on the installed binary. The postinstall clears a `launchctl disable` left by the rc7/rc8 instructions, which would otherwise block the service while the switch said on. `INSTALL.md` and the man page describe the switch instead of the commands. Linux and Windows are unchanged: they have no such system switch and still arrive switched off with their commands.
+ - **On a fresh install, the macOS background service is listed in Login Items as Network Audio Service, not under the developer's name — and the Applications entry that opens the control page is now `Network Audio Service.app`** (issue #102, first part). Login Items names a launchd agent after the app its plist associates it with, so the launchd agent now names that bundle through `AssociatedBundleIdentifiers`, and the bundle is named after the service rather than the page because that row is the service's switch: the name in Settings, in the Finder and in Spotlight is one string (the Finder shows a bundle's on-disk name and ignores a display name that differs from it — measured — so the bundle is renamed on disk, not just relabelled). The release pipeline signs the bundle with the same Developer ID as the daemon: Background Task Management honours the association only when the app and the agent carry the same Team ID, and silently drops it otherwise (measured), so an unsigned build keeps the old grouping. Because the bundle is assembled by the installer's postinstall rather than shipped whole, its signature travels inside the `.pkg` as loose files beside the bundle's two pieces and is placed with them; the installer gate and the payload-signature step verify the assembled bundle on the installed files, and the postinstall removes the `naudio Control.app` that rc7 and rc8 placed, since two bundles with one identifier would leave Login Items to name either. A Mac that already had the service registered by an earlier release keeps the developer's name: Background Task Management names a legacy agent's entry once, when it first creates it, and neither reinstalling over it nor a reboot renames it (measured on an rc7 upgrade — the association is recorded and the app is recognised, but the entry's parent does not move). What does rename it, also measured, is making it drop the entry first: remove the agent's plist, open Login Items (the pane rescans and drops the orphaned entry), and run the installer again — no logout needed; `INSTALL.md` and the man page give the steps. The Linux and Windows shortcuts keep the page's name, **naudio Control**; neither platform has a service row that borrows an app's name. The name is the issue's first half; the switch beside it is the entry above.
+diff --git a/INSTALL.md b/INSTALL.md
+index ee239af..9c908bf 100644
+--- a/INSTALL.md
++++ b/INSTALL.md
+@@ -207,7 +207,8 @@ The page has two tabs, **Setup** and **Stream**, in that order because the setti
+ Start does. On **Setup** you:
+ 
+ - **pick the capture device** — the radio's USB audio interface, chosen from a list rather than
+-  typed as a name or an index;
++  typed by hand. The page saves its name, so adding or removing another USB, Bluetooth or display
++  audio device does not silently move the saved choice to a different enumeration index;
+ - **set the transport, port, sample rate and channel count**, and save them, which writes the
+   same configuration file `man na_audio_daemon` describes (so the background service below picks
+   up exactly what you chose);
+diff --git a/docs/man/na_audio_daemon.1 b/docs/man/na_audio_daemon.1
+index 841d53d..0dc941d 100644
+--- a/docs/man/na_audio_daemon.1
++++ b/docs/man/na_audio_daemon.1
+@@ -288,6 +288,18 @@ are actions, not settings, and have no key.
+ The control page writes this file when you save (see
+ .B THE CONTROL PAGE
+ above), so it is not a file you have to edit by hand.
++Device choices made on the page are written as
++.B capture
++and
++.B playback
++name patterns rather than
++.B capture-id
++or
++.BR playback-id .
++PortAudio ids are enumeration positions and can move when another USB, Bluetooth,
++or display audio device appears or disappears; a name continues to select the same
++device after that renumbering. Existing id-based files remain accepted and are
++migrated when the choice is next saved on the page.
+ It is rewritten whole each time, which means comments you add are lost \(em
+ edit it in one place or the other, not both.
+ Only settings that differ from their defaults are written: a file listing
+diff --git a/tests/daemon/controlcheck.sh b/tests/daemon/controlcheck.sh
+index 6c1bd20..9ff3a2c 100755
+--- a/tests/daemon/controlcheck.sh
++++ b/tests/daemon/controlcheck.sh
+@@ -154,6 +154,22 @@ body | grep -q '<script src="/app.js">' \
+ 
+ expect "GET /app.js" 200 "/app.js"
+ body | grep -q "addEventListener" && ok "/app.js carries the page script" || bad "/app.js is not the script"
++# A picker choice must survive PortAudio renumbering. The HTTP half below proves that a name
++# round-trips through /api/config; these assertions prove the served page sends that name and
++# clears the transient id instead of doing the reverse. Assert on the served asset, not the source
++# file, so forgetting to embed a changed script fails this end-to-end arm too.
++body | grep -Fq "o.value = d.name" \
++    && ok "device picker values are durable names" \
++    || bad "device picker values are not device names"
++body | grep -Fq "out['capture'] = cap; out['capture-id'] = ''" \
++    && ok "saving capture writes its name and clears its enumeration id" \
++    || bad "saving capture does not migrate the enumeration id to a name"
++body | grep -Fq "out['playback'] = play; out['playback-id'] = ''" \
++    && ok "saving playback writes its name and clears its enumeration id" \
++    || bad "saving playback does not migrate the enumeration id to a name"
++body | grep -Fq 'is not currently connected' \
++    && ok "an unresolved saved device is visible to the operator" \
++    || bad "the page does not report an unresolved saved device"
+ 
+ # The header that makes the separation worth having.
+ "$CURL" -sS -D "$TMP/head" -o /dev/null "$URL" 2> /dev/null
+@@ -245,7 +261,7 @@ expect "POST a bogus stream action" 400 "/api/stream" -X POST -H "$CT" -d '{"act
+ 
+ # ---- the write that must work, and must round-trip --------------------------------------------
+ expect "POST a valid settings change" 200 "/api/config" -X POST -H "$CT" \
+-    -d '{"transport":"udp","port":"5001","channels":"1","autostart":"true","capture":"USB Codec"}'
++    -d '{"transport":"udp","port":"5001","channels":"1","autostart":"true","capture":"USB Codec","capture-id":""}'
+ 
+ for want in 'transport = udp' 'port = 5001' 'channels = 1' 'autostart = true' 'capture = USB Codec'; do
+     grep -qx -- "$want" "$CONF" \
+@@ -276,6 +292,12 @@ expect "GET /api/state after the write" 200 "/api/state"
+     || bad "the write did not reach the daemon's own settings"
+ [ "$(jget settings.autostart.value)" = "true" ] && ok "the daemon now reports autostart = true" \
+     || bad "autostart did not reach the daemon's settings"
++[ "$(jget settings.capture.value)" = "USB Codec" ] \
++    && ok "the durable capture name round-trips through /api/config" \
++    || bad "the durable capture name did not round-trip"
++[ -z "$(jget settings.capture-id.value)" ] \
++    && ok "the transient capture id is cleared when the name is saved" \
++    || bad "capture-id survived migration to the durable name"
+ 
+ # The file the page wrote must be a file the daemon accepts. This is the assertion that catches a
+ # renderer emitting a key the parser does not take — the page would look like it worked and the
+diff --git a/tools/control_page.js b/tools/control_page.js
+index 927a197..c6bba6a 100644
+--- a/tools/control_page.js
++++ b/tools/control_page.js
+@@ -99,10 +99,10 @@ function chooseInitialTab() {
+ }
+ 
+ // --- devices ----------------------------------------------------------------------------
+-// The picker offers BOTH ways the daemon can name a device, because both exist in the config
+-// file for a reason: an id is exact but moves when devices are re-enumerated, a name pattern
+-// survives that but can match nothing. Selecting a device writes the id; "match by name"
+-// keeps whatever pattern is already configured.
++// Device ids are positions in PortAudio's current enumeration and can move after a USB,
++// Bluetooth or display device appears or disappears. The picker therefore writes the selected
++// device's name pattern. Existing id-based files still resolve to the corresponding row and are
++// migrated to the name on the next save.
+ function fillDeviceSelect(sel, list, dir, idKey, patKey) {
+   const currentId = settings[idKey] ? settings[idKey].value : '';
+   const currentPat = settings[patKey] ? settings[patKey].value : '';
+@@ -110,8 +110,13 @@ function fillDeviceSelect(sel, list, dir, idKey, patKey) {
+ 
+   const auto = document.createElement('option');
+   auto.value = '';
++  const patternMatch = currentPat && list
++    ? list.find((d) => (`${d.name} ${d.hostApi}`).toLowerCase().includes(currentPat.toLowerCase()))
++    : null;
+   auto.textContent = currentPat
+-    ? `Match by name: “${currentPat}”`
++    ? (patternMatch
++        ? `Saved name “${currentPat}” resolves to [${patternMatch.id}] ${patternMatch.name}`
++        : `Saved name “${currentPat}” is not currently connected`)
+     : (dir === 'capture' ? 'Automatic (first USB audio device)' : 'None — discard received audio');
+   sel.appendChild(auto);
+ 
+@@ -126,13 +131,18 @@ function fillDeviceSelect(sel, list, dir, idKey, patKey) {
+   }
+   for (const d of list) {
+     const o = document.createElement('option');
+-    o.value = String(d.id);
++    o.value = d.name;
++    o.dataset.deviceId = String(d.id);
+     const ch = dir === 'capture' ? d.inputs : d.outputs;
+     o.textContent = `[${d.id}] ${d.name} — ${ch} ch, ${Math.round(d.defaultRate)} Hz, ${d.hostApi}` +
+                     (d.virtual ? ' (virtual)' : '');
+     sel.appendChild(o);
+   }
+-  sel.value = list.some((d) => String(d.id) === currentId) ? currentId : '';
++  if (patternMatch) sel.value = patternMatch.name;
++  else {
++    const idMatch = list.find((d) => String(d.id) === currentId);
++    sel.value = idMatch ? idMatch.name : '';
++  }
+ }
+ 
+ function renderDevices() {
+@@ -194,12 +204,12 @@ function formToSettings() {
+     'control-port': $('controlPortInp').value.trim(),
+     autostart: $('autostartChk').checked ? 'true' : 'false',
+   };
+-  // A chosen device writes its id and clears the name pattern; leaving the selector on the
+-  // first entry keeps whichever pattern is configured and clears the id.
++  // A chosen device writes its durable name pattern and clears the enumeration id. Leaving the
++  // selector on the first entry keeps whichever pattern is configured and clears the id.
+   const cap = $('captureSel').value;
+   const play = $('playbackSel').value;
+-  if (cap) { out['capture-id'] = cap; out['capture'] = ''; } else { out['capture-id'] = ''; }
+-  if (play) { out['playback-id'] = play; out['playback'] = ''; } else { out['playback-id'] = ''; }
++  if (cap) { out['capture'] = cap; out['capture-id'] = ''; } else { out['capture-id'] = ''; }
++  if (play) { out['playback'] = play; out['playback-id'] = ''; } else { out['playback-id'] = ''; }
+   return out;
+ }
+ 

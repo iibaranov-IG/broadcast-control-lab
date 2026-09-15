@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T02:36:05.473Z",
+  "issue": {
+    "repository": "nimroddolev/chime_tts",
+    "number": "339",
+    "url": "https://github.com/nimroddolev/chime_tts/issues/339",
+    "title": "External audiofile with chime_path not working after update",
+    "state": "open",
+    "updatedAt": "2026-09-15T02:24:37Z"
+  },
+  "source": {
+    "repository": "nimroddolev/chime_tts",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "e754dc435a76a775422c2bf7ea35046b68e5cc34",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "CONTRIBUTING.md",
+        "url": "https://github.com/nimroddolev/chime_tts/blob/e754dc435a76a775422c2bf7ea35046b68e5cc34/CONTRIBUTING.md",
+        "content": "# Contribution guidelines\r\n\r\nContributing to this project should be as easy and transparent as possible, whether it's:\r\n\r\n- Reporting a bug\r\n- Discussing the current state of the code\r\n- Submitting a fix\r\n- Proposing new features\r\n\r\n## Github is used for everything\r\n\r\nGithub is used to host code, to track issues and feature requests, as well as accept pull requests.\r\n\r\nPull requests are the best way to propose changes to the codebase.\r\n\r\n1. Fork the repo and create your branch from `main`.\r\n2. If you've changed something, update the documentation.\r\n3. Make sure your code lints (using `scripts/lint`).\r\n4. Test you contribution.\r\n5. Issue that pull request!\r\n\r\n## Any contributions you make will be under the MIT Software License\r\n\r\nIn short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.\r\n\r\n## Report bugs using Github's [issues](../../issues)\r\n\r\nGitHub issues are used to track public bugs.\r\nReport a bug by [opening a new issue](../../issues/new/choose); it's that easy!\r\n\r\n## Write bug reports with detail, background, and sample code\r\n\r\n**Great Bug Reports** tend to have:\r\n\r\n- A quick summary and/or background\r\n- Steps to reproduce\r\n  - Be specific!\r\n  - Give sample code if you can.\r\n- What you expected would happen\r\n- What actually happens\r\n- Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)\r\n\r\nPeople *love* thorough bug reports. I'm not even kidding.\r\n\r\n## Use a Consistent Coding Style\r\n\r\nUse [black](https://github.com/ambv/black) to make sure the code follows the style.\r\n\r\n## Test your code modification\n\nThis custom component is based on [chime_tts template](https://github.com/ludeeus/chime_tts).\n\r\nIt comes with development environment in a container, easy to launch\r\nif you use Visual Studio Code. With this container you will have a stand alone\r\nHome Assistant instance running and already configured with the included\n[`configuration.yaml`](./config/configuration.yaml)\nfile.\n\n## Compatibility strategy\n\nCompatibility issues are one of the hardest things to reproduce locally, so the\nproject now tests the integration in two complementary ways:\n\n1. `tox` compatibility matrix\n   This runs the unit/integration test suite against a representative Home\n   Assistant floor/current/latest stack so API drift shows up before release.\n\n2. Docker-backed Home Assistant smoke tests\n   These boot real `stable` and `dev` Home Assistant containers and run the live\n   end-to-end suite against the actual integration.\n\nUseful local commands:\n\n- `make matrix`\n- `make test-e2e`\n- `./scripts/ha-docker stable pull`\n- `./scripts/ha-docker dev pull`\n\nIf you are investigating a user report, try to add a focused regression test to\nthe regular pytest suite first, then add or extend a Docker E2E case when the\nissue depends on real Home Assistant runtime behavior.\n\n## License\n\r\nBy contributing, you agree that your contributions will be licensed under its MIT License.\r\n",
+        "requirementHints": [
+          "Github is used to host code, to track issues and feature requests, as well as accept pull requests.\r",
+          "Pull requests are the best way to propose changes to the codebase.\r",
+          "4. Test you contribution.\r",
+          "5. Issue that pull request!\r",
+          "## Test your code modification",
+          "project now tests the integration in two complementary ways:",
+          "   This runs the unit/integration test suite against a representative Home",
+          "   Assistant floor/current/latest stack so API drift shows up before release.",
+          "2. Docker-backed Home Assistant smoke tests",
+          "- `make test-e2e`",
+          "If you are investigating a user report, try to add a focused regression test to",
+          "the regular pytest suite first, then add or extend a Docker E2E case when the"
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "custom_components/chime_tts/__init__.py",
+      "custom_components/chime_tts/chime_sets.py",
+      "custom_components/chime_tts/config.py",
+      "custom_components/chime_tts/config_flow.py",
+      "custom_components/chime_tts/const.py",
+      "custom_components/chime_tts/helpers/filesystem.py",
+      "custom_components/chime_tts/helpers/helpers.py",
+      "custom_components/chime_tts/helpers/media_player.py",
+      "custom_components/chime_tts/helpers/media_player_helper.py",
+      "custom_components/chime_tts/helpers/panel.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "Makefile",
+        "kind": "make",
+        "url": "https://github.com/nimroddolev/chime_tts/blob/e754dc435a76a775422c2bf7ea35046b68e5cc34/Makefile"
+      },
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/nimroddolev/chime_tts/blob/e754dc435a76a775422c2bf7ea35046b68e5cc34/pyproject.toml"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:nimroddolev/chime_tts": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 94,
+    "scoreRange": [
+      93,
+      94
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "External alert audio stopped playing on the user's Google Audio target.",
+        "evidence": [
+          "Issue #339"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The owner reported and followed up today on Home Assistant 2026.9.2.",
+        "evidence": [
+          "Issue created 2026-09-15 UTC"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter immediately supplied the two exact log failures from the affected installation.",
+        "evidence": [
+          "Issue comment 5673685101"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "A downloaded URL descriptor must load its local audio without being resolved as a string a second time.",
+        "evidence": [
+          "async_get_playback_audio_path",
+          "async_get_audio_from_path"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The pinned code deterministically discards every pre-resolved external-audio descriptor.",
+        "evidence": [
+          "failing issue_339 regression on e754dc4"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repair changes one resolution guard and adds one focused regression test.",
+        "evidence": [
+          "candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "The red/green path and full pytest suite run without the user's device or URL.",
+        "evidence": [
+          "pytest issue_339",
+          "264-test floor suite"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "String paths retain their existing resolution path; only already resolved dictionaries bypass duplicate resolution.",
+        "evidence": [
+          "candidate branch condition"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The project has current September 2026 commits and a three-version compatibility matrix.",
+        "evidence": [
+          "main history",
+          "tox.ini"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "URL-hosted chimes are a documented input used by Home Assistant media targets.",
+        "evidence": [
+          "Issue #339 action",
+          "service chime_path field"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The fix covers any externally downloaded chime regardless of host or media player.",
+        "evidence": [
+          "generic descriptor path"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Preserving the descriptor restores local-file creation and the downstream media content id.",
+        "evidence": [
+          "two reported validation failures"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 95,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      95,
+      94
+    ],
+    "selectable": true
+  },
+  "durationMs": 3392
+}

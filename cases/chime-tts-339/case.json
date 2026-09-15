@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 2,
+  "id": "chime-tts-339",
+  "status": "ready",
+  "title": "Preserve downloaded external chimes through playback resolution",
+  "issue": "https://github.com/nimroddolev/chime_tts/issues/339",
+  "problem": "An external chime URL is downloaded during cache-key preparation, but the resulting descriptor is passed through the string-only path resolver a second time. It is discarded, leaving no local audio file or Media Content ID for the Google Audio target.",
+  "reproduce": "At pinned revision e754dc4, pass the descriptor returned by async_get_chime_path_with_offset to async_get_audio_from_path. It calls async_get_chime_path again, which rejects every non-string value.",
+  "acceptance": "A pre-resolved external-audio descriptor bypasses the second resolver, loads its local path, and retains existing cache/delete behavior; ordinary string paths still use the resolver.",
+  "repair": "Allow the audio loader to accept a string or download descriptor and invoke filesystem resolution only for strings, with a focused upstream regression test.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "nimroddolev/chime_tts",
+      "commit": "e754dc435a76a775422c2bf7ea35046b68e5cc34",
+      "directory": "sources/chime-tts-339"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/chime-tts-339",
+        "argv": ["git", "apply", "../../cases/chime-tts-339/repair.patch"]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/chime-tts-339/test.mjs",
+          "sources/chime-tts-339"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/chime-tts-339.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": true,
+    "limitations": "BCL proves the exact double-resolution failure and the candidate descriptor path. The upstream Home Assistant 2024.12 floor suite passed 264 tests locally. The reporter's private URL, Home Assistant 2026.9.2 installation, and Google Audio playback remain owner checks.",
+    "ownerCheck": "Run the YAML from issue #339 with the same external MP3 and Google Audio device. Confirm the chime plays and neither 'Unable to generate local audio file' nor 'Unable to generate Media Content Id' appears."
+  },
+  "selection": {
+    "report": "cases/chime-tts-339/triage.json",
+    "sha256": "99fb5480e00a11e4cd48dd1f3f0fa5941d3df0c7d1151c1b316c8eb94efaf937",
+    "reason": "A fresh owner supplied the failing action and exact local-file and Media Content ID errors. The double resolution is deterministic at the pinned source, has no competing PR, and has a small hardware-free repair."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "nimroddolev/chime_tts",
+    "base": "main",
+    "commitMessage": "fix: preserve downloaded external chimes",
+    "paths": [
+      "custom_components/chime_tts/__init__.py",
+      "tests/test_regressions.py"
+    ],
+    "verificationOnlyPaths": ["test_bcl_issue_339.py"]
+  },
+  "upstream": {
+    "kind": "python",
+    "sourceBytecode": true,
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": ["git", "apply", "../../cases/chime-tts-339/tests-only.patch"]
+      }
+    ],
+    "build": [],
+    "testFiles": ["test_bcl_issue_339.py"],
+    "regression": {
+      "cwd": ".",
+      "argv": ["python3", "test_bcl_issue_339.py"]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "pre-resolved descriptor must bypass second resolution"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": ["python3", "test_bcl_issue_339.py"]
+    },
+    "suiteOutputIncludes": "Ran 3 tests"
+  }
+}

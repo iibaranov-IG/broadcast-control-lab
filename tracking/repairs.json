@@ -3227,10 +3227,10 @@
       "title": "Keep USB audio choices stable across PortAudio renumbering",
       "issue": "https://github.com/KJ5HST-LABS/naudio/issues/107",
       "pr": "https://github.com/KJ5HST-LABS/naudio/pull/108",
-      "candidateSha256": null,
-      "testedHeadSha": null,
-      "evidenceStatus": "NOT_BOUND",
-      "run": null,
+      "candidateSha256": "ffa282edfaa8607ce66d69add379860728631fbf5e1e8e483de9a1e293d0c15e",
+      "testedHeadSha": "36f026b683193f106a8d8ad7b6f2ab8c009e7c10",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34920633229",
       "state": "draft",
       "hardware": {
         "status": "NOT_REVIEWED"
@@ -3248,7 +3248,7 @@
       "ci": "none",
       "lastSync": "2026-09-15T02:19:41.941Z",
       "syncError": null,
-      "attachment": "EXTERNAL_PR"
+      "attachment": "VERIFIED_EXISTING_PR"
     }
   ],
   "schemaVersion": 1

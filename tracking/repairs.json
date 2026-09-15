@@ -33,7 +33,7 @@
       "headSha": "1455b64bb57c44d501dc18cb7655a06c5f290e25",
       "id": "openmixercontrol-8",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/8",
-      "lastSync": "2026-09-15T13:41:09.267Z",
+      "lastSync": "2026-09-15T18:17:47.239Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/91",
       "reporter": "schulz-alexander",
       "run": null,
@@ -70,7 +70,7 @@
       "headSha": "bfb749b74f3b46ffb3751f6d8cfaaeff7ebfdecb",
       "id": "openmixercontrol-54",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/54",
-      "lastSync": "2026-09-15T13:41:12.904Z",
+      "lastSync": "2026-09-15T18:17:50.212Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/92",
       "reporter": "flipfi",
       "run": null,
@@ -118,7 +118,7 @@
       "headSha": "de3cd33a82c55c59a8d2189a8ced0d0b60a298ec",
       "id": "wirelessboard-93",
       "issue": "https://github.com/willcgage/wirelessboard/issues/93",
-      "lastSync": "2026-09-15T13:41:16.119Z",
+      "lastSync": "2026-09-15T18:17:53.894Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/103",
       "reporter": "willcgage",
       "run": null,
@@ -155,7 +155,7 @@
       "headSha": "d62d1cdacbb78398be452718e55c95a0b1929bc2",
       "id": "network-audio-controller-55",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/55",
-      "lastSync": "2026-09-15T13:41:19.528Z",
+      "lastSync": "2026-09-15T18:17:56.415Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/58",
       "reporter": "coaxk",
       "run": null,
@@ -225,7 +225,7 @@
       "headSha": "439962cba7a03b409b68e40ebb0b66f9f5d129c8",
       "id": "network-audio-controller-47",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/47",
-      "lastSync": "2026-09-15T13:41:22.581Z",
+      "lastSync": "2026-09-15T18:17:59.079Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/57",
       "reporter": "stanelie",
       "run": null,
@@ -702,7 +702,7 @@
       "headSha": "22d6db8b9c768233f8b1d0e39cab40bf3bacb09b",
       "id": "jammernetz-35",
       "issue": "https://github.com/christofmuc/JammerNetz/issues/35",
-      "lastSync": "2026-09-15T13:41:25.717Z",
+      "lastSync": "2026-09-15T18:18:01.522Z",
       "pr": "https://github.com/christofmuc/JammerNetz/pull/108",
       "reporter": "iamthechrisb",
       "run": null,
@@ -772,19 +772,19 @@
       "headSha": "f1536c3d1a395620edc73815deca2b5173f7c7de",
       "id": "low-latency-audio-32",
       "issue": "https://github.com/microsoft/low-latency-audio/issues/32",
-      "lastSync": "2026-09-15T13:41:29.182Z",
+      "lastSync": "2026-09-15T18:18:04.196Z",
       "pr": "https://github.com/microsoft/low-latency-audio/pull/35",
       "reporter": "tankoha",
       "run": null,
-      "state": "open",
+      "state": "merged",
       "syncError": null,
       "title": "Long ASIO channel names crash the host application",
       "unread": 4,
-      "mergeable": true,
-      "mergeableState": "clean",
+      "mergeable": null,
+      "mergeableState": "unknown",
       "issueCreatedAt": "2026-08-08T09:37:29Z",
       "prCreatedAt": "2026-09-11T07:45:40Z",
-      "mergedAt": null,
+      "mergedAt": "2026-09-15T14:51:57Z",
       "reporterResponseAt": "2026-08-10T18:40:45Z"
     },
     {
@@ -930,7 +930,7 @@
       "headSha": "37f1ad4f80ddc7ab42b52f8687b1175db53c6faa",
       "id": "dometools-47",
       "issue": "https://github.com/prefrontalcortex/DomeTools/issues/47",
-      "lastSync": "2026-09-15T13:41:32.781Z",
+      "lastSync": "2026-09-15T18:18:06.985Z",
       "pr": "https://github.com/prefrontalcortex/DomeTools/pull/49",
       "reporter": "Hanesto",
       "run": null,
@@ -1011,7 +1011,7 @@
       "headSha": "6e3694bbbf98930016c8e5e9ab0db4fec9c79d8c",
       "id": "wirelessboard-92",
       "issue": "https://github.com/willcgage/wirelessboard/issues/92",
-      "lastSync": "2026-09-15T13:41:36.215Z",
+      "lastSync": "2026-09-15T18:18:09.641Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/101",
       "reporter": "willcgage",
       "run": null,
@@ -1103,7 +1103,7 @@
       "headSha": "3b62b36abd58c780aaac7328c4c32e4c6a6630bd",
       "id": "ipcamlapse-33",
       "issue": "https://github.com/KalyteraSystems/IPCamLapse/issues/33",
-      "lastSync": "2026-09-15T13:41:39.536Z",
+      "lastSync": "2026-09-15T18:18:12.161Z",
       "pr": "https://github.com/KalyteraSystems/IPCamLapse/pull/50",
       "reporter": "elkampu",
       "run": null,
@@ -1128,7 +1128,7 @@
       "headSha": "a2f96d5143b5e87a45d68b9086d1fd80ae2afe27",
       "id": "midimonster-150",
       "issue": "https://github.com/cbdevnet/midimonster/issues/150",
-      "lastSync": "2026-09-15T13:41:43.415Z",
+      "lastSync": "2026-09-15T18:18:16.140Z",
       "pr": "https://github.com/cbdevnet/midimonster/pull/151",
       "reporter": "jetryco",
       "run": null,
@@ -1198,7 +1198,7 @@
       "headSha": "e0b946103373552baca68fb8d18446ea87f9b277",
       "id": "fader-x-5",
       "issue": "https://github.com/stagehacks/FADER_X/issues/5",
-      "lastSync": "2026-09-15T13:41:46.575Z",
+      "lastSync": "2026-09-15T18:18:18.977Z",
       "pr": "https://github.com/stagehacks/FADER_X/pull/8",
       "reporter": "istnv",
       "run": null,
@@ -1249,7 +1249,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2025-02-24T22:58:56Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:41:54.690Z",
+      "lastSync": "2026-09-15T18:18:21.576Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1277,7 +1277,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:41:58.328Z",
+      "lastSync": "2026-09-15T18:18:25.189Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1317,7 +1317,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T13:42:01.578Z",
+      "lastSync": "2026-09-15T18:18:27.709Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1345,7 +1345,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:42:04.637Z",
+      "lastSync": "2026-09-15T18:18:30.223Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1442,7 +1442,7 @@
       "mergedAt": "2026-09-14T08:02:35Z",
       "reporterResponseAt": "2026-09-14T08:02:08Z",
       "ci": "success",
-      "lastSync": "2026-09-15T13:42:07.517Z",
+      "lastSync": "2026-09-15T18:18:32.787Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-14T10:47:47.991Z"
@@ -1483,7 +1483,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:42:11.006Z",
+      "lastSync": "2026-09-15T18:18:35.572Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1557,6 +1557,17 @@
           "read": false
         },
         {
+          "key": "issue-comment:5684111395",
+          "kind": "issue-comment",
+          "author": "xpertvoip",
+          "reporter": false,
+          "url": "https://github.com/open-nvr/open-nvr/issues/468#issuecomment-5684111395",
+          "updatedAt": "2026-09-15T16:35:08Z",
+          "state": null,
+          "body": "Thanks @Emily-35 for confirming! Now can you test again the main branch and confirm things work good then it will be a great help ! As we don't have tapo ip cam and we have done some further improvements",
+          "read": false
+        },
+        {
           "key": "review:5200324380",
           "kind": "review",
           "author": "xpertvoip",
@@ -1568,7 +1579,7 @@
           "read": false
         }
       ],
-      "unread": 6,
+      "unread": 7,
       "mergeable": null,
       "mergeableState": "unknown",
       "headSha": "55558ea314ae39f001190cb6719eb8fc85a312c2",
@@ -1578,7 +1589,7 @@
       "mergedAt": "2026-09-14T16:58:12Z",
       "reporterResponseAt": "2026-09-15T00:24:25Z",
       "ci": "success",
-      "lastSync": "2026-09-15T13:42:14.152Z",
+      "lastSync": "2026-09-15T18:18:38.171Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1640,7 +1651,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T19:35:00Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:42:17.097Z",
+      "lastSync": "2026-09-15T18:18:40.700Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1680,7 +1691,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T13:42:20.400Z",
+      "lastSync": "2026-09-15T18:18:43.575Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1742,7 +1753,7 @@
       "mergedAt": "2026-09-14T11:43:45Z",
       "reporterResponseAt": "2026-09-14T09:51:57Z",
       "ci": "success",
-      "lastSync": "2026-09-15T13:42:23.806Z",
+      "lastSync": "2026-09-15T18:18:45.982Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1826,7 +1837,7 @@
       "mergedAt": "2026-09-14T14:52:37Z",
       "reporterResponseAt": "2026-09-14T12:57:21Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:42:26.971Z",
+      "lastSync": "2026-09-15T18:18:48.769Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1910,7 +1921,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T16:02:33Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:42:30.023Z",
+      "lastSync": "2026-09-15T18:18:51.101Z",
       "syncError": null
     },
     {
@@ -1982,7 +1993,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T10:33:28Z",
       "ci": "success",
-      "lastSync": "2026-09-15T13:42:33.435Z",
+      "lastSync": "2026-09-15T18:18:53.450Z",
       "syncError": null
     },
     {
@@ -2043,7 +2054,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T13:42:36.937Z",
+      "lastSync": "2026-09-15T18:18:56.172Z",
       "syncError": null
     },
     {
@@ -2174,7 +2185,7 @@
         }
       ],
       "unread": 10,
-      "evidenceStaleSince": "2026-09-15T13:42:40.884Z",
+      "evidenceStaleSince": "2026-09-15T18:18:59.156Z",
       "mergeable": true,
       "mergeableState": "clean",
       "headSha": "158d24bd1ac7b9fd7e02ae9cc3027a1c0c83e6da",
@@ -2184,7 +2195,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T08:45:51Z",
       "ci": "success",
-      "lastSync": "2026-09-15T13:42:40.884Z",
+      "lastSync": "2026-09-15T18:18:59.156Z",
       "syncError": null
     },
     {
@@ -2234,7 +2245,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T13:42:44.062Z",
+      "lastSync": "2026-09-15T18:19:01.764Z",
       "syncError": null
     },
     {
@@ -2284,7 +2295,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T13:43:10Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:42:47.420Z",
+      "lastSync": "2026-09-15T18:19:04.448Z",
       "syncError": null
     },
     {
@@ -2294,11 +2305,13 @@
       "pr": "https://github.com/themactep/thingino-firmware/pull/1656",
       "candidateSha256": "dbc26dd459197b14ad051bdac86d6bbd3c07b34399e26ed99481b6d80d4faf45",
       "testedHeadSha": "b1e94bf750930ee0d09ac0b95e8f02a57807aee5",
-      "evidenceStatus": "BOUND_CANDIDATE",
+      "evidenceStatus": "STALE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34840592749",
       "state": "draft",
       "hardware": {
-        "status": "NOT_REVIEWED"
+        "status": "NOT_REVIEWED",
+        "priorStatus": "NOT_REVIEWED",
+        "testedHeadSha": "b1e94bf750930ee0d09ac0b95e8f02a57807aee5"
       },
       "events": [
         {
@@ -2349,15 +2362,16 @@
       "unread": 4,
       "mergeable": true,
       "mergeableState": "unstable",
-      "headSha": "b1e94bf750930ee0d09ac0b95e8f02a57807aee5",
+      "headSha": "17f3dea24588e388ffd5ea5456ecb7411b37cd5d",
       "reporter": "alump",
       "issueCreatedAt": "2026-09-12T11:47:59Z",
       "prCreatedAt": "2026-09-14T11:56:33Z",
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T15:54:33Z",
       "ci": "success",
-      "lastSync": "2026-09-15T13:42:51.023Z",
-      "syncError": null
+      "lastSync": "2026-09-15T18:19:07.662Z",
+      "syncError": null,
+      "evidenceStaleSince": "2026-09-15T18:19:07.662Z"
     },
     {
       "id": "surge-8569",
@@ -2461,7 +2475,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T12:47:41Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:42:54.029Z",
+      "lastSync": "2026-09-15T18:19:10.220Z",
       "syncError": null
     },
     {
@@ -2515,7 +2529,7 @@
         }
       ],
       "unread": 3,
-      "evidenceStaleSince": "2026-09-15T13:42:57.135Z",
+      "evidenceStaleSince": "2026-09-15T18:19:12.948Z",
       "mergeable": true,
       "mergeableState": "blocked",
       "headSha": "926c4bb6ff5d2ee95f3c35eab1d378fef10983b8",
@@ -2525,7 +2539,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:42:57.135Z",
+      "lastSync": "2026-09-15T18:19:12.948Z",
       "syncError": null
     },
     {
@@ -2588,8 +2602,8 @@
         }
       ],
       "unread": 4,
-      "mergeable": true,
-      "mergeableState": "blocked",
+      "mergeable": null,
+      "mergeableState": "unknown",
       "headSha": "87a7a8f1696b193f5656586ec84489d8ae5b550e",
       "reporter": "fututukamono",
       "issueCreatedAt": "2026-07-10T15:30:31Z",
@@ -2597,7 +2611,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-07-15T14:15:08Z",
       "ci": "success",
-      "lastSync": "2026-09-15T13:43:00.370Z",
+      "lastSync": "2026-09-15T18:19:15.712Z",
       "syncError": null
     },
     {
@@ -2636,7 +2650,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:03.996Z",
+      "lastSync": "2026-09-15T18:19:18.344Z",
       "syncError": null
     },
     {
@@ -2675,7 +2689,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:07.446Z",
+      "lastSync": "2026-09-15T18:19:20.770Z",
       "syncError": null,
       "attachment": "BCL_EXISTING_PR"
     },
@@ -2703,7 +2717,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T13:43:10.792Z",
+      "lastSync": "2026-09-15T18:19:23.522Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2731,7 +2745,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:15.077Z",
+      "lastSync": "2026-09-15T18:19:26.302Z",
       "syncError": null
     },
     {
@@ -2770,7 +2784,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T07:47:44Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:19.044Z",
+      "lastSync": "2026-09-15T18:19:28.726Z",
       "syncError": null
     },
     {
@@ -2809,7 +2823,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:22.332Z",
+      "lastSync": "2026-09-15T18:19:31.396Z",
       "syncError": null
     },
     {
@@ -2836,7 +2850,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:25.853Z",
+      "lastSync": "2026-09-15T18:19:34.176Z",
       "syncError": null
     },
     {
@@ -2863,7 +2877,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:28.828Z",
+      "lastSync": "2026-09-15T18:19:36.712Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2891,7 +2905,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:33.221Z",
+      "lastSync": "2026-09-15T18:19:39.648Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2904,7 +2918,7 @@
       "testedHeadSha": null,
       "evidenceStatus": "NOT_BOUND",
       "run": null,
-      "state": "open",
+      "state": "merged",
       "hardware": {
         "status": "NOT_REVIEWED"
       },
@@ -2922,16 +2936,16 @@
         }
       ],
       "unread": 1,
-      "mergeable": true,
-      "mergeableState": "unstable",
+      "mergeable": null,
+      "mergeableState": "unknown",
       "headSha": "dfe58ed02cb202882e11203835abe84d40a2c9ae",
       "reporter": "YupItzAfi",
       "issueCreatedAt": "2026-09-14T13:51:53Z",
       "prCreatedAt": "2026-09-14T21:26:05Z",
-      "mergedAt": null,
+      "mergedAt": "2026-09-15T17:16:54Z",
       "reporterResponseAt": null,
       "ci": "failure",
-      "lastSync": "2026-09-15T13:43:36.415Z",
+      "lastSync": "2026-09-15T18:19:42.128Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2971,7 +2985,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T13:43:39.542Z",
+      "lastSync": "2026-09-15T18:19:44.586Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3000,7 +3014,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T13:43:42.729Z",
+      "lastSync": "2026-09-15T18:19:47.309Z",
       "syncError": null
     },
     {
@@ -3173,7 +3187,7 @@
       "mergedAt": "2026-09-15T04:04:28Z",
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T13:43:46.187Z",
+      "lastSync": "2026-09-15T18:19:50.152Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-15T03:45:55.082Z"
@@ -3242,7 +3256,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:51.449Z",
+      "lastSync": "2026-09-15T18:19:54.253Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3282,7 +3296,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T01:25:47Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:54.631Z",
+      "lastSync": "2026-09-15T18:19:56.739Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3310,7 +3324,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:43:58.810Z",
+      "lastSync": "2026-09-15T18:19:59.072Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3361,7 +3375,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T04:18:34Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:44:01.795Z",
+      "lastSync": "2026-09-15T18:20:01.521Z",
       "syncError": null,
       "attachment": "VERIFIED_EXISTING_PR"
     },
@@ -3401,7 +3415,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T02:24:37Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:44:05.426Z",
+      "lastSync": "2026-09-15T18:20:04.110Z",
       "syncError": null
     },
     {
@@ -3473,7 +3487,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T01:38:54Z",
       "ci": "failure",
-      "lastSync": "2026-09-15T13:44:08.538Z",
+      "lastSync": "2026-09-15T18:20:06.697Z",
       "syncError": null
     },
     {
@@ -3534,7 +3548,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T13:44:11.530Z",
+      "lastSync": "2026-09-15T18:20:09.262Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "priorCandidates": [
@@ -3608,7 +3622,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:44:15.250Z",
+      "lastSync": "2026-09-15T18:20:12.523Z",
       "syncError": null
     },
     {
@@ -3647,7 +3661,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:44:18.681Z",
+      "lastSync": "2026-09-15T18:20:15.520Z",
       "syncError": null
     },
     {
@@ -3677,8 +3691,8 @@
         }
       ],
       "unread": 1,
-      "mergeable": true,
-      "mergeableState": "unstable",
+      "mergeable": null,
+      "mergeableState": "unknown",
       "headSha": "7f74db19d84091c2742af51622dd6e218060a74e",
       "reporter": "fruzz-urban",
       "issueCreatedAt": "2026-09-15T00:10:49Z",
@@ -3686,7 +3700,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T13:44:22.041Z",
+      "lastSync": "2026-09-15T18:20:18.284Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3727,7 +3741,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T06:08:16Z",
       "ci": "none",
-      "lastSync": "2026-09-15T13:44:26.356Z",
+      "lastSync": "2026-09-15T18:20:20.838Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "testedTreeSha": "3adfe79930cfce5bde6d8a150cf2e6636b90fe4b",

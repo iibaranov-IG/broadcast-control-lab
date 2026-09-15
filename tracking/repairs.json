@@ -3508,10 +3508,10 @@
       "title": "Use four-slot bank labels for HX Effects presets",
       "issue": "https://github.com/crmne/tonepush/issues/9",
       "pr": "https://github.com/crmne/tonepush/pull/12",
-      "candidateSha256": null,
-      "testedHeadSha": null,
-      "evidenceStatus": "NOT_BOUND",
-      "run": null,
+      "candidateSha256": "71ee0cbe4f6696dd2d4a45b41e7ca7589475bcc3e11df5b5b9c02f5bb1077383",
+      "testedHeadSha": "7f74db19d84091c2742af51622dd6e218060a74e",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34931740469",
       "state": "open",
       "hardware": {
         "status": "NOT_REVIEWED"

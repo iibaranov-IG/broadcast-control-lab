@@ -72,7 +72,7 @@ Updated 2026-09-11.
 | paella-984 | [Issue](https://github.com/polimediaupv/paella/issues/984) | [PR](https://github.com/opencast/opencast/pull/8017) | open | failure | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-15T00:04:29.323Z |
 | sendspin-54 | [Issue](https://github.com/Sendspin/sendspin-cpp-cli/issues/54) | [PR](https://github.com/Sendspin/sendspin-cpp-cli/pull/55) | draft | none | BOUND_CANDIDATE | 0 | NOT_REVIEWED | 2026-09-15T00:25:48.218Z |
 | openterface-642 | [Issue](https://github.com/TechxArtisanStudio/Openterface_QT/issues/642) | [PR](https://github.com/TechxArtisanStudio/Openterface_QT/pull/643) | draft | none | BOUND_CANDIDATE | 0 | NOT_REVIEWED | 2026-09-15T00:57:10.282Z |
-| node-av-349 | [Issue](https://github.com/seydx/node-av/issues/349) | [PR](https://github.com/seydx/node-av/pull/350) | draft | none | NOT_BOUND | 0 | NOT_REVIEWED | 2026-09-15T01:15:54.278Z |
+| node-av-349 | [Issue](https://github.com/seydx/node-av/issues/349) | [PR](https://github.com/seydx/node-av/pull/350) | draft | none | BOUND_CANDIDATE | 0 | NOT_REVIEWED | 2026-09-15T01:15:54.278Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

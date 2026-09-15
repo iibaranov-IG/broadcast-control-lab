@@ -3143,10 +3143,10 @@
       "title": "Report MJPEG USB-camera modes as a compressed codec",
       "issue": "https://github.com/seydx/node-av/issues/349",
       "pr": "https://github.com/seydx/node-av/pull/350",
-      "candidateSha256": null,
-      "testedHeadSha": null,
-      "evidenceStatus": "NOT_BOUND",
-      "run": null,
+      "candidateSha256": "f5fe07a0cf8abd0403f2283ef7e4d3f6befa3f7e3504f53271a86ff985e516a5",
+      "testedHeadSha": "97b5b398b1acecdff613dd3c04f6a3a0f8d382c9",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34916446276",
       "state": "draft",
       "hardware": {
         "status": "NOT_REVIEWED"

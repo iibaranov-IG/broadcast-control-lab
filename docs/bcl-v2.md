@@ -41,6 +41,9 @@ CI cancellation or runner termination can prevent final evidence export.
 Implemented: v2 passports, multiple source checkouts, Node/Python runtimes, optional
 packages, common CI, changed-case selection, cancellation, nightly full matrix,
 draft generator, generic application verification, durations and hashed packet logs.
+Pull requests and ordinary pushes compare against their event baseline, so a case-only
+commit runs that case alone. Shared runner, workflow, package or test changes still run
+the full matrix; scheduled and manually dispatched workflows remain full sweeps.
 
 Existing transport helpers remain reusable. The named OSC/VISCA/SSC examples do
 not constitute complete protocol profiles. Full protocol libraries, generalized

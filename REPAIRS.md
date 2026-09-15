@@ -78,6 +78,7 @@ Updated 2026-09-11.
 | advanced-camera-card-2794 | [Issue](https://github.com/dermotduffy/advanced-camera-card/issues/2794) | [PR](https://github.com/dermotduffy/advanced-camera-card/pull/2797) | draft | failure | BOUND_CANDIDATE | 3 | NOT_REVIEWED | 2026-09-15T03:46:11.758Z |
 | logic-pro-mcp-38 | [Issue](https://github.com/koltyj/logic-pro-mcp/issues/38) | [PR](https://github.com/koltyj/logic-pro-mcp/pull/42) | open | success | BOUND_CANDIDATE | 3 | NOT_REVIEWED | 2026-09-15T03:46:14.054Z |
 | audacity-12147 | [Issue](https://github.com/audacity/audacity/issues/12147) | [PR](https://github.com/audacity/audacity/pull/12148) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
+| pipewirecontroller-19 | [Issue](https://github.com/knightinfected/PipeWireController/issues/19) | [PR](https://github.com/knightinfected/PipeWireController/pull/20) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

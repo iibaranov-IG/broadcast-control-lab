@@ -3486,6 +3486,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "pipewirecontroller-19",
+      "title": "Refresh device volume and mute changed outside the app",
+      "issue": "https://github.com/knightinfected/PipeWireController/issues/19",
+      "pr": "https://github.com/knightinfected/PipeWireController/pull/20",
+      "candidateSha256": "68be07a11dc6cf3a14987660dc14dbd13840021ad1b23bf2060271932eaf684f",
+      "testedHeadSha": "05952b318eb039abe1f169c8a41f1badcdec9cf3",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34930059017",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

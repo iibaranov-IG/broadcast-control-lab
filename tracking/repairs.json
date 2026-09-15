@@ -3041,6 +3041,46 @@
       "lastSync": "2026-09-14T23:38:27.406Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
+    },
+    {
+      "id": "paella-984",
+      "title": "Deliver audio-only playback support to Opencast 21",
+      "issue": "https://github.com/polimediaupv/paella/issues/984",
+      "pr": "https://github.com/opencast/opencast/pull/8017",
+      "candidateSha256": null,
+      "testedHeadSha": null,
+      "evidenceStatus": "NOT_BOUND",
+      "run": null,
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [
+        {
+          "key": "pr-comment:5672583837",
+          "kind": "pr-comment",
+          "author": "github-actions[bot]",
+          "reporter": false,
+          "url": "https://github.com/opencast/opencast/pull/8017#issuecomment-5672583837",
+          "updatedAt": "2026-09-15T00:04:19Z",
+          "state": null,
+          "body": "Hi @iibaranov-IG\nThank you for contributing to Opencast.\nWe noticed that you have not yet filed an [Individual Contributor License Agreement](https://www.apereo.org/licensing/agreements/icla). Doing that (once) helps us to ensure that Opencast stays free for all. If you make your contribution on behalf of an institution, you might also want to file a [Corporate Contributor License Agreement](https://www.apereo.org/licensing/agreements/ccla) (giving you as individual contributor a bit more security as well). It can take a while for this bot to find out about new filings, so if you just filed one or both of the above do not worry about this message!\nPlease let us know if you have any questions regarding the CLA.",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "mergeable": true,
+      "mergeableState": "unstable",
+      "headSha": "229a37c554201a0a79f733c8bc803382780ed29c",
+      "reporter": "gregorydlogan",
+      "issueCreatedAt": "2026-09-14T21:56:11Z",
+      "prCreatedAt": "2026-09-15T00:04:07Z",
+      "mergedAt": null,
+      "reporterResponseAt": null,
+      "ci": "failure",
+      "lastSync": "2026-09-15T00:04:29.323Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

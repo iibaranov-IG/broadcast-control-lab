@@ -3265,6 +3265,22 @@
       },
       "events": [],
       "unread": 0
+    },
+    {
+      "id": "advanced-camera-card-2794",
+      "title": "Render non-template camera controls during startup",
+      "issue": "https://github.com/dermotduffy/advanced-camera-card/issues/2794",
+      "pr": "https://github.com/dermotduffy/advanced-camera-card/pull/2797",
+      "candidateSha256": "5fe23979920933d342f66feb658f9f2a0853e11de692b2fddbb199011325e48c",
+      "testedHeadSha": "3b8d1962295bd5ad7ad43feca69e474c7bf41dde",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34923799938",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

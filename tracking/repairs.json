@@ -3549,8 +3549,8 @@
       "issue": "https://github.com/SUNET/scribe-worker/issues/49",
       "pr": "https://github.com/SUNET/scribe-worker/pull/50",
       "candidateSha256": "92c9bba5c85af8b9cdae0a77510affe06984f03195ce14f45a492cf1c2e7e92d",
-      "testedHeadSha": "7a725fa7744110d7e40dc3c526f4fe552057dc9d",
-      "evidenceStatus": "STALE",
+      "testedHeadSha": "fb9ab246a1f642f1664e5aea28100b75211ac92c",
+      "evidenceStatus": "BOUND_CANDIDATE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34936122124",
       "state": "draft",
       "hardware": {
@@ -3571,7 +3571,6 @@
         }
       ],
       "unread": 1,
-      "evidenceStaleSince": "2026-09-15T06:29:53.621Z",
       "mergeable": true,
       "mergeableState": "clean",
       "headSha": "fb9ab246a1f642f1664e5aea28100b75211ac92c",
@@ -3581,9 +3580,11 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T06:08:16Z",
       "ci": "none",
-      "lastSync": "2026-09-15T06:29:53.621Z",
+      "lastSync": "2026-09-15T06:33:41.863Z",
       "syncError": null,
-      "attachment": "EXTERNAL_PR"
+      "attachment": "EXTERNAL_PR",
+      "testedTreeSha": "3adfe79930cfce5bde6d8a150cf2e6636b90fe4b",
+      "testedParentSha": "2b4e84b3a974b6e4121a3fbe09584933488a281f"
     }
   ],
   "schemaVersion": 1

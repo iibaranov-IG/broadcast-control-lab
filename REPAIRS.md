@@ -80,7 +80,7 @@ Updated 2026-09-11.
 | audacity-12147 | [Issue](https://github.com/audacity/audacity/issues/12147) | [PR](https://github.com/audacity/audacity/pull/12148) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | pipewirecontroller-19 | [Issue](https://github.com/knightinfected/PipeWireController/issues/19) | [PR](https://github.com/knightinfected/PipeWireController/pull/20) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 | tonepush-9 | [Issue](https://github.com/crmne/tonepush/issues/9) | [PR](https://github.com/crmne/tonepush/pull/12) | open | none | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-15T05:19:52.074Z |
-| scribe-worker-49 | [Issue](https://github.com/SUNET/scribe-worker/issues/49) | [PR](https://github.com/SUNET/scribe-worker/pull/50) | draft | none | STALE | 1 | NOT_REVIEWED | 2026-09-15T06:29:53.621Z |
+| scribe-worker-49 | [Issue](https://github.com/SUNET/scribe-worker/issues/49) | [PR](https://github.com/SUNET/scribe-worker/pull/50) | draft | none | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-15T06:33:41.863Z |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

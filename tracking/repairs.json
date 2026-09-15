@@ -33,7 +33,7 @@
       "headSha": "1455b64bb57c44d501dc18cb7655a06c5f290e25",
       "id": "openmixercontrol-8",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/8",
-      "lastSync": "2026-09-15T07:53:07.403Z",
+      "lastSync": "2026-09-15T13:41:09.267Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/91",
       "reporter": "schulz-alexander",
       "run": null,
@@ -70,7 +70,7 @@
       "headSha": "bfb749b74f3b46ffb3751f6d8cfaaeff7ebfdecb",
       "id": "openmixercontrol-54",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/54",
-      "lastSync": "2026-09-15T07:53:10.469Z",
+      "lastSync": "2026-09-15T13:41:12.904Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/92",
       "reporter": "flipfi",
       "run": null,
@@ -118,7 +118,7 @@
       "headSha": "de3cd33a82c55c59a8d2189a8ced0d0b60a298ec",
       "id": "wirelessboard-93",
       "issue": "https://github.com/willcgage/wirelessboard/issues/93",
-      "lastSync": "2026-09-15T07:53:13.441Z",
+      "lastSync": "2026-09-15T13:41:16.119Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/103",
       "reporter": "willcgage",
       "run": null,
@@ -155,7 +155,7 @@
       "headSha": "d62d1cdacbb78398be452718e55c95a0b1929bc2",
       "id": "network-audio-controller-55",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/55",
-      "lastSync": "2026-09-15T07:53:16.224Z",
+      "lastSync": "2026-09-15T13:41:19.528Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/58",
       "reporter": "coaxk",
       "run": null,
@@ -225,7 +225,7 @@
       "headSha": "439962cba7a03b409b68e40ebb0b66f9f5d129c8",
       "id": "network-audio-controller-47",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/47",
-      "lastSync": "2026-09-15T07:53:19.089Z",
+      "lastSync": "2026-09-15T13:41:22.581Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/57",
       "reporter": "stanelie",
       "run": null,
@@ -702,7 +702,7 @@
       "headSha": "22d6db8b9c768233f8b1d0e39cab40bf3bacb09b",
       "id": "jammernetz-35",
       "issue": "https://github.com/christofmuc/JammerNetz/issues/35",
-      "lastSync": "2026-09-15T07:53:21.757Z",
+      "lastSync": "2026-09-15T13:41:25.717Z",
       "pr": "https://github.com/christofmuc/JammerNetz/pull/108",
       "reporter": "iamthechrisb",
       "run": null,
@@ -772,7 +772,7 @@
       "headSha": "f1536c3d1a395620edc73815deca2b5173f7c7de",
       "id": "low-latency-audio-32",
       "issue": "https://github.com/microsoft/low-latency-audio/issues/32",
-      "lastSync": "2026-09-15T07:53:24.755Z",
+      "lastSync": "2026-09-15T13:41:29.182Z",
       "pr": "https://github.com/microsoft/low-latency-audio/pull/35",
       "reporter": "tankoha",
       "run": null,
@@ -930,7 +930,7 @@
       "headSha": "37f1ad4f80ddc7ab42b52f8687b1175db53c6faa",
       "id": "dometools-47",
       "issue": "https://github.com/prefrontalcortex/DomeTools/issues/47",
-      "lastSync": "2026-09-15T07:53:27.993Z",
+      "lastSync": "2026-09-15T13:41:32.781Z",
       "pr": "https://github.com/prefrontalcortex/DomeTools/pull/49",
       "reporter": "Hanesto",
       "run": null,
@@ -1011,7 +1011,7 @@
       "headSha": "6e3694bbbf98930016c8e5e9ab0db4fec9c79d8c",
       "id": "wirelessboard-92",
       "issue": "https://github.com/willcgage/wirelessboard/issues/92",
-      "lastSync": "2026-09-15T07:53:30.949Z",
+      "lastSync": "2026-09-15T13:41:36.215Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/101",
       "reporter": "willcgage",
       "run": null,
@@ -1103,7 +1103,7 @@
       "headSha": "3b62b36abd58c780aaac7328c4c32e4c6a6630bd",
       "id": "ipcamlapse-33",
       "issue": "https://github.com/KalyteraSystems/IPCamLapse/issues/33",
-      "lastSync": "2026-09-15T07:53:33.546Z",
+      "lastSync": "2026-09-15T13:41:39.536Z",
       "pr": "https://github.com/KalyteraSystems/IPCamLapse/pull/50",
       "reporter": "elkampu",
       "run": null,
@@ -1128,7 +1128,7 @@
       "headSha": "a2f96d5143b5e87a45d68b9086d1fd80ae2afe27",
       "id": "midimonster-150",
       "issue": "https://github.com/cbdevnet/midimonster/issues/150",
-      "lastSync": "2026-09-15T07:53:37.046Z",
+      "lastSync": "2026-09-15T13:41:43.415Z",
       "pr": "https://github.com/cbdevnet/midimonster/pull/151",
       "reporter": "jetryco",
       "run": null,
@@ -1198,7 +1198,7 @@
       "headSha": "e0b946103373552baca68fb8d18446ea87f9b277",
       "id": "fader-x-5",
       "issue": "https://github.com/stagehacks/FADER_X/issues/5",
-      "lastSync": "2026-09-15T07:53:40.070Z",
+      "lastSync": "2026-09-15T13:41:46.575Z",
       "pr": "https://github.com/stagehacks/FADER_X/pull/8",
       "reporter": "istnv",
       "run": null,
@@ -1249,7 +1249,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2025-02-24T22:58:56Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:53:42.892Z",
+      "lastSync": "2026-09-15T13:41:54.690Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1277,7 +1277,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:53:45.966Z",
+      "lastSync": "2026-09-15T13:41:58.328Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1308,8 +1308,8 @@
         }
       ],
       "unread": 1,
-      "mergeable": true,
-      "mergeableState": "unstable",
+      "mergeable": null,
+      "mergeableState": "unknown",
       "headSha": "06756e78f7a1b4214271b7a4e1d7b2bb4ac9a228",
       "reporter": "tato123",
       "issueCreatedAt": "2026-09-13T13:28:13Z",
@@ -1317,7 +1317,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T07:53:48.715Z",
+      "lastSync": "2026-09-15T13:42:01.578Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1345,7 +1345,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:53:51.475Z",
+      "lastSync": "2026-09-15T13:42:04.637Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1442,7 +1442,7 @@
       "mergedAt": "2026-09-14T08:02:35Z",
       "reporterResponseAt": "2026-09-14T08:02:08Z",
       "ci": "success",
-      "lastSync": "2026-09-15T07:53:54.239Z",
+      "lastSync": "2026-09-15T13:42:07.517Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-14T10:47:47.991Z"
@@ -1483,7 +1483,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:53:57.177Z",
+      "lastSync": "2026-09-15T13:42:11.006Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1578,7 +1578,7 @@
       "mergedAt": "2026-09-14T16:58:12Z",
       "reporterResponseAt": "2026-09-15T00:24:25Z",
       "ci": "success",
-      "lastSync": "2026-09-15T07:53:59.926Z",
+      "lastSync": "2026-09-15T13:42:14.152Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1640,7 +1640,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T19:35:00Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:02.783Z",
+      "lastSync": "2026-09-15T13:42:17.097Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1680,7 +1680,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T07:54:05.929Z",
+      "lastSync": "2026-09-15T13:42:20.400Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1742,7 +1742,7 @@
       "mergedAt": "2026-09-14T11:43:45Z",
       "reporterResponseAt": "2026-09-14T09:51:57Z",
       "ci": "success",
-      "lastSync": "2026-09-15T07:54:08.848Z",
+      "lastSync": "2026-09-15T13:42:23.806Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1826,7 +1826,7 @@
       "mergedAt": "2026-09-14T14:52:37Z",
       "reporterResponseAt": "2026-09-14T12:57:21Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:12.159Z",
+      "lastSync": "2026-09-15T13:42:26.971Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1910,7 +1910,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T16:02:33Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:15.093Z",
+      "lastSync": "2026-09-15T13:42:30.023Z",
       "syncError": null
     },
     {
@@ -1982,7 +1982,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T10:33:28Z",
       "ci": "success",
-      "lastSync": "2026-09-15T07:54:17.878Z",
+      "lastSync": "2026-09-15T13:42:33.435Z",
       "syncError": null
     },
     {
@@ -2043,7 +2043,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T07:54:21.096Z",
+      "lastSync": "2026-09-15T13:42:36.937Z",
       "syncError": null
     },
     {
@@ -2140,6 +2140,17 @@
           "read": false
         },
         {
+          "key": "issue-comment:5681176573",
+          "kind": "issue-comment",
+          "author": "andrewk-prog",
+          "reporter": true,
+          "url": "https://github.com/jeffvli/feishin/issues/2451#issuecomment-5681176573",
+          "updatedAt": "2026-09-15T13:41:43Z",
+          "state": null,
+          "body": "Tested PR #2464 at commit `70305c895e8a5ea6c18fe02053f346c953ae960e`.\n\n### Environment\n\n* Feishin Web/Docker build\n* Microsoft Edge\n* Ampache 8.1.0 via OpenSubsonic\n* Ampache transcoding disabled\n* Separate test Feishin container on port 8289\n* Production Feishin on port 8290 remained untouched\n\n### Test result\n\nThe `getTranscodeDecision.view` request still fails with the expected CORS error:\n\n`Request header field content-type is not allowed by Access-Control-Allow-Headers in preflight response`\n\nThe browser reports `net::ERR_FAILED`.\n\nWith PR #2464, Feishin now correctly catches this failure and logs:\n\n`Failed to request a transcode decision for song so-23061, falling back to direct stream`\n\nThe fallback was confirmed by inspecting the active HTML audio elements.\n\nFor example:\n\n`currentSrc = http://192.168.2.10:8085/rest/stream.view?id=so-23061&v=1.13.0&c=Feishin&u=apitest&p=apitest01`\n\nThe audio element was:\n\n* `paused: false`\n* `currentTime: 11.58`\n* `duration: 276.53`\n* `readyState: 4`\n\nThe second tested track also received a direct `stream.view` URL.\n\nSo the complete flow is confirmed:\n\n`getTranscodeDecision.view` → CORS failure → Feishin fallback → `stream.view` → playback\n\nAudio is audible and playback progresses normally.\n\nThe unrelated `getMusicDirectory.view` HTTP 500 errors were also observed, but they do not prevent playback and appear to be separate from this issue.\n\n### Conclusion\n\n**PASS — PR #2464 fixes the playback problem in my Web/Docker + Ampache 8.1.0 setup.**\n\nThe direct-stream fallback works as intended when the OpenSubsonic transcode-decision request is blocked by CORS.\n",
+          "read": false
+        },
+        {
           "key": "pr-comment:5662886108",
           "kind": "pr-comment",
           "author": "vercel[bot]",
@@ -2149,12 +2160,23 @@
           "state": null,
           "body": "[vc]: #oq0wkdS/UMm+nV9F5OiE41NeTN87SOJv1j07ROLmI4k=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJmZWlzaGluIiwicHJvamVjdElkIjoicHJqX3FHcWNTRmFUc3l3Y0NwMmN2cHhOMnRXYVY3Um0iLCJyb290RGlyZWN0b3J5IjpudWxsLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vamVmZnZsaXMtcHJvamVjdHMvZmVpc2hpbi9EWHhHUlhvNkZSUWV0YUNVNFNMZEg4ZlVwZ0VGIiwicHJldmlld1VybCI6ImZlaXNoaW4tZ2l0LWZvcmstaWliYXJhbm92LWlnLWJjbC1mZWlzLWY4OGIxOS1qZWZmdmxpcy1wcm9qZWN0cy52ZXJjZWwuYXBwIiwibmV4dENvbW1pdFN0YXR1cyI6IkRFUExPWUVEIiwibGl2ZUZlZWRiYWNrIjp7InJlc29sdmVkIjowLCJ1bnJlc29sdmVkIjowLCJ0b3RhbCI6MCwibGluayI6ImZlaXNoaW4tZ2l0LWZvcmstaWliYXJhbm92LWlnLWJjbC1mZWlzLWY4OGIxOS1qZWZmdmxpcy1wcm9qZWN0cy52ZXJjZWwuYXBwIn0sInYwIjpmYWxzZX1dfQ==\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated |\n| :--- | :----- | :------ | :------ |\n| <a href=\"https://vercel.com/jeffvlis-projects/feishin\"><sup><img src=\"https://vercel.com/api/www/avatar?projectId=prj_qGqcSFaTsywcCp2cvpxN2tWaV7Rm&teamId=team_Hug1sS6XsM6zVAdg4475Z5jB&s=32\" width=\"16\" height=\"16\" align=\"middle\" alt=\"\" /></sup></a> [feishin](https://vercel.com/jeffvlis-projects/feishin) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/jeffvlis-projects/feishin/DXxGRXo6FRQetaCU4SLdH8fUpgEF) | [Preview](https://feishin-git-fork-iibaranov-ig-bcl-feis-f88b19-jeffvlis-projects.vercel.app) | <relative-time datetime=\"2026-09-14T15:23:20.863Z\">Sep 14, 2026 3:23pm UTC</relative-time> |\n\n",
           "read": false
+        },
+        {
+          "key": "pr-comment:5680603861",
+          "kind": "pr-comment",
+          "author": "andrewk-prog",
+          "reporter": true,
+          "url": "https://github.com/jeffvli/feishin/pull/2464#issuecomment-5680603861",
+          "updatedAt": "2026-09-15T13:02:07Z",
+          "state": null,
+          "body": "Tested PR #2464 at commit `70305c895e8a5ea6c18fe02053f346c953ae960e`.\r\n\r\n### Environment\r\n\r\n* Feishin Web/Docker build\r\n* Microsoft Edge\r\n* Ampache 8.1.0 via OpenSubsonic\r\n* Ampache transcoding disabled\r\n* Separate test Feishin container on port 8289\r\n* Production Feishin on port 8290 remained untouched\r\n\r\n### Test result\r\n\r\nThe `getTranscodeDecision.view` request still fails with the expected CORS error:\r\n\r\n`Request header field content-type is not allowed by Access-Control-Allow-Headers in preflight response`\r\n\r\nThe browser reports `net::ERR_FAILED`.\r\n\r\nWith PR #2464, Feishin now correctly catches this failure and logs:\r\n\r\n`Failed to request a transcode decision for song so-23061, falling back to direct stream`\r\n\r\nThe fallback was confirmed by inspecting the active HTML audio elements.\r\n\r\nFor example:\r\n\r\n`currentSrc = http://192.168.2.10:8085/rest/stream.view?id=so-23061&v=1.13.0&c=Feishin&u=apitest&p=apitest01`\r\n\r\nThe audio element was:\r\n\r\n* `paused: false`\r\n* `currentTime: 11.58`\r\n* `duration: 276.53`\r\n* `readyState: 4`\r\n\r\nThe second tested track also received a direct `stream.view` URL.\r\n\r\nSo the complete flow is confirmed:\r\n\r\n`getTranscodeDecision.view` → CORS failure → Feishin fallback → `stream.view` → playback\r\n\r\nAudio is audible and playback progresses normally.\r\n\r\nThe unrelated `getMusicDirectory.view` HTTP 500 errors were also observed, but they do not prevent playback and appear to be separate from this issue.\r\n\r\n### Conclusion\r\n\r\n**PASS — PR #2464 fixes the playback problem in my Web/Docker + Ampache 8.1.0 setup.**\r\n\r\nThe direct-stream fallback works as intended when the OpenSubsonic transcode-decision request is blocked by CORS.\r\n",
+          "read": false
         }
       ],
-      "unread": 8,
-      "evidenceStaleSince": "2026-09-15T07:54:24.261Z",
-      "mergeable": null,
-      "mergeableState": "unknown",
+      "unread": 10,
+      "evidenceStaleSince": "2026-09-15T13:42:40.884Z",
+      "mergeable": true,
+      "mergeableState": "clean",
       "headSha": "158d24bd1ac7b9fd7e02ae9cc3027a1c0c83e6da",
       "reporter": "andrewk-prog",
       "issueCreatedAt": "2026-09-13T14:08:01Z",
@@ -2162,7 +2184,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T08:45:51Z",
       "ci": "success",
-      "lastSync": "2026-09-15T07:54:24.261Z",
+      "lastSync": "2026-09-15T13:42:40.884Z",
       "syncError": null
     },
     {
@@ -2212,7 +2234,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T07:54:27.101Z",
+      "lastSync": "2026-09-15T13:42:44.062Z",
       "syncError": null
     },
     {
@@ -2262,7 +2284,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T13:43:10Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:30.161Z",
+      "lastSync": "2026-09-15T13:42:47.420Z",
       "syncError": null
     },
     {
@@ -2334,7 +2356,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T15:54:33Z",
       "ci": "success",
-      "lastSync": "2026-09-15T07:54:33.234Z",
+      "lastSync": "2026-09-15T13:42:51.023Z",
       "syncError": null
     },
     {
@@ -2439,7 +2461,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T12:47:41Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:36.199Z",
+      "lastSync": "2026-09-15T13:42:54.029Z",
       "syncError": null
     },
     {
@@ -2493,7 +2515,7 @@
         }
       ],
       "unread": 3,
-      "evidenceStaleSince": "2026-09-15T07:54:39.192Z",
+      "evidenceStaleSince": "2026-09-15T13:42:57.135Z",
       "mergeable": true,
       "mergeableState": "blocked",
       "headSha": "926c4bb6ff5d2ee95f3c35eab1d378fef10983b8",
@@ -2503,7 +2525,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:39.192Z",
+      "lastSync": "2026-09-15T13:42:57.135Z",
       "syncError": null
     },
     {
@@ -2575,7 +2597,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-07-15T14:15:08Z",
       "ci": "success",
-      "lastSync": "2026-09-15T07:54:42.241Z",
+      "lastSync": "2026-09-15T13:43:00.370Z",
       "syncError": null
     },
     {
@@ -2614,7 +2636,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:45.404Z",
+      "lastSync": "2026-09-15T13:43:03.996Z",
       "syncError": null
     },
     {
@@ -2653,7 +2675,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:48.035Z",
+      "lastSync": "2026-09-15T13:43:07.446Z",
       "syncError": null,
       "attachment": "BCL_EXISTING_PR"
     },
@@ -2681,7 +2703,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T07:54:51.050Z",
+      "lastSync": "2026-09-15T13:43:10.792Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2709,7 +2731,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:54.168Z",
+      "lastSync": "2026-09-15T13:43:15.077Z",
       "syncError": null
     },
     {
@@ -2748,7 +2770,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T07:47:44Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:56.795Z",
+      "lastSync": "2026-09-15T13:43:19.044Z",
       "syncError": null
     },
     {
@@ -2787,7 +2809,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:54:59.732Z",
+      "lastSync": "2026-09-15T13:43:22.332Z",
       "syncError": null
     },
     {
@@ -2814,7 +2836,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:02.591Z",
+      "lastSync": "2026-09-15T13:43:25.853Z",
       "syncError": null
     },
     {
@@ -2841,7 +2863,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:05.377Z",
+      "lastSync": "2026-09-15T13:43:28.828Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2869,7 +2891,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:08.448Z",
+      "lastSync": "2026-09-15T13:43:33.221Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2909,7 +2931,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "failure",
-      "lastSync": "2026-09-15T07:55:11.088Z",
+      "lastSync": "2026-09-15T13:43:36.415Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2949,7 +2971,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T07:55:13.836Z",
+      "lastSync": "2026-09-15T13:43:39.542Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2978,7 +3000,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T07:55:16.820Z",
+      "lastSync": "2026-09-15T13:43:42.729Z",
       "syncError": null
     },
     {
@@ -3151,7 +3173,7 @@
       "mergedAt": "2026-09-15T04:04:28Z",
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T07:55:20.191Z",
+      "lastSync": "2026-09-15T13:43:46.187Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-15T03:45:55.082Z"
@@ -3220,7 +3242,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:24.582Z",
+      "lastSync": "2026-09-15T13:43:51.449Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3260,7 +3282,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T01:25:47Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:27.182Z",
+      "lastSync": "2026-09-15T13:43:54.631Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3288,7 +3310,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:29.944Z",
+      "lastSync": "2026-09-15T13:43:58.810Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3339,7 +3361,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T04:18:34Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:32.679Z",
+      "lastSync": "2026-09-15T13:44:01.795Z",
       "syncError": null,
       "attachment": "VERIFIED_EXISTING_PR"
     },
@@ -3379,7 +3401,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T02:24:37Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:35.393Z",
+      "lastSync": "2026-09-15T13:44:05.426Z",
       "syncError": null
     },
     {
@@ -3451,7 +3473,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T01:38:54Z",
       "ci": "failure",
-      "lastSync": "2026-09-15T07:55:38.208Z",
+      "lastSync": "2026-09-15T13:44:08.538Z",
       "syncError": null
     },
     {
@@ -3512,7 +3534,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T07:55:41.018Z",
+      "lastSync": "2026-09-15T13:44:11.530Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "priorCandidates": [
@@ -3586,7 +3608,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:44.317Z",
+      "lastSync": "2026-09-15T13:44:15.250Z",
       "syncError": null
     },
     {
@@ -3625,7 +3647,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:47.361Z",
+      "lastSync": "2026-09-15T13:44:18.681Z",
       "syncError": null
     },
     {
@@ -3664,7 +3686,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:50.352Z",
+      "lastSync": "2026-09-15T13:44:22.041Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3705,7 +3727,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T06:08:16Z",
       "ci": "none",
-      "lastSync": "2026-09-15T07:55:53.181Z",
+      "lastSync": "2026-09-15T13:44:26.356Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "testedTreeSha": "3adfe79930cfce5bde6d8a150cf2e6636b90fe4b",

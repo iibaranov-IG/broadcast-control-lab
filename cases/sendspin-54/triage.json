@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T00:22:20.407Z",
+  "issue": {
+    "repository": "Sendspin/sendspin-cpp-cli",
+    "number": "54",
+    "url": "https://github.com/Sendspin/sendspin-cpp-cli/issues/54",
+    "title": "ALSA: after a replugged USB DAC is recovered, playback stalls in a loop of underruns until the player restarts",
+    "state": "open",
+    "updatedAt": "2026-09-14T23:47:57Z"
+  },
+  "source": {
+    "repository": "Sendspin/sendspin-cpp-cli",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "Apache-2.0",
+    "commit": "c33c0e09ec4fea2a758abfbd9bd36af61dc4faa8",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "src/alsa_sink.cpp",
+      "src/alsa_sink.h",
+      "src/audio_sink.cpp",
+      "src/audio_sink.h",
+      "src/cli.cpp",
+      "src/cli.h",
+      "src/config_file.cpp",
+      "src/config_file.h",
+      "src/control.h",
+      "src/control_client.cpp"
+    ],
+    "buildFiles": [
+      {
+        "path": "CMakeLists.txt",
+        "kind": "cpp-cmake",
+        "url": "https://github.com/Sendspin/sendspin-cpp-cli/blob/c33c0e09ec4fea2a758abfbd9bd36af61dc4faa8/CMakeLists.txt"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "code": "ACTIVE_RELATED_PR",
+      "severity": "question",
+      "detail": "A related PR is active. Review its scope: help validate it or identify a distinct repair; do not assume it already solves this issue.",
+      "url": "https://github.com/Sendspin/sendspin-cpp-cli/issues/54"
+    }
+  ],
+  "relatedPRs": [
+    {
+      "url": "https://github.com/mguaylam/openwrt-sendspin/pull/8",
+      "relation": "issue timeline cross-reference",
+      "title": "sendspin-cli: restart the player when a USB DAC is plugged back in",
+      "author": "mguaylam",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "headSha": "d474040bc6d1dd4d641728fdea32567a2c939943",
+      "updatedAt": "2026-09-15T00:16:35Z"
+    },
+    {
+      "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55",
+      "relation": "open PR explicitly mentions issue",
+      "title": "Fix ALSA playback clock after device recovery",
+      "author": "iibaranov-IG",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "headSha": "87ab6fe692c0941da5162d7932558f6060046d8a",
+      "updatedAt": "2026-09-15T00:22:01Z"
+    }
+  ],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:Sendspin/sendspin-cpp-cli": "complete"
+  },
+  "decision": "REJECT",
+  "nextActions": [
+    "A related PR is active. Review its scope: help validate it or identify a distinct repair; do not assume it already solves this issue."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [
+      "An active related PR already occupies this issue; competition must be resolved before selection"
+    ],
+    "unknownGates": [
+      "allowedProject",
+      "nonSecurity",
+      "organicIssue",
+      "sourceAvailable",
+      "licenseAvailable",
+      "unclaimed",
+      "resourcesAvailable",
+      "externalChangesWelcome"
+    ],
+    "assessmentBoundToRevision": false,
+    "eligible": false,
+    "score": null,
+    "scoreRange": [
+      0,
+      100
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": null
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": null
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": null
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": null
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": null
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": null
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": null
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": null
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": null
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": null
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": null
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": null
+      }
+    ],
+    "class": "REJECT",
+    "deliveryReadiness": null,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": null,
+    "selectable": false
+  },
+  "durationMs": 4151
+}

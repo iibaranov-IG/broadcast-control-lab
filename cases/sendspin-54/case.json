@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 2,
+  "id": "sendspin-54",
+  "status": "ready",
+  "title": "Resume ALSA playback after a USB DAC replug",
+  "issue": "https://github.com/Sendspin/sendspin-cpp-cli/issues/54",
+  "problem": "During a USB DAC outage, the ALSA sink consumes and discards audio to keep the sync task moving, but the discarded frames remain in its buffered-frame accounting. The first real timestamp after reopening projects playback ahead by the entire outage and starts a repeated hard-sync/XRUN cycle.",
+  "reproduce": "Model the reporter's 14-second outage at 48 kHz. The pinned baseline has no way to retire the resulting 672,000 accepted-but-discarded frames when the PCM returns.",
+  "acceptance": "The discarded gap is counted without overflow, returned exactly once on recovery, and the ALSA sink reports it before the first real post-recovery write. The focused baseline fails and the unchanged test passes on the candidate.",
+  "repair": "Accumulate frames discarded during device loss in SinkRecovery and publish one playback-progress update outside the device mutex immediately after ALSA successfully reopens.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "Sendspin/sendspin-cpp-cli",
+      "commit": "c33c0e09ec4fea2a758abfbd9bd36af61dc4faa8",
+      "directory": "sources/sendspin-54"
+    }
+  ],
+  "runtime": {"node": "22.20.0", "python": "3.12.14"},
+  "watch": [],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {"cwd": "sources/sendspin-54", "argv": ["git", "apply", "../../cases/sendspin-54/repair.patch"]}
+    ],
+    "test": [
+      {"cwd": ".", "argv": ["node", "cases/sendspin-54/test.mjs", "sources/sendspin-54"]}
+    ],
+    "build": []
+  },
+  "artifacts": {"report": "reports/sendspin-54.json"},
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL proves the outage-frame accounting with the reporter's exact 14-second/48-kHz scale and checks overflow behavior. A separate Debian build compiled the ALSA backend and passed all 18 recovery tests. Only the reporter can confirm continuous sound on the physical OpenWrt USB DAC.",
+    "ownerCheck": "Build PR #55 for the reported OpenWrt target, play from Music Assistant, unplug the USB DAC for about five seconds, reconnect it, and confirm continuous playback resumes without periodic XRUNs or Lost sync/Regained sync cycling."
+  },
+  "selection": {
+    "report": "cases/sendspin-54/triage.json",
+    "sha256": "644f6900021236b9420311aa46caaa56b36980004f0cbe0df4038f3b7c936c18",
+    "purpose": "EXISTING_PR_VALIDATION",
+    "existingPR": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55",
+    "reason": "Revalidate our already published draft PR against the pinned baseline and capture reproducible evidence without authorizing a competing publication."
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "Sendspin/sendspin-cpp-cli",
+    "base": "main",
+    "commitMessage": "Fix ALSA playback clock after device recovery",
+    "paths": ["src/alsa_sink.cpp", "src/sink_recovery.cpp", "src/sink_recovery.h", "tests/sink_recovery_test.cpp"],
+    "verificationOnlyPaths": ["tests/bcl_alsa_recovery_gap.py"]
+  },
+  "upstream": {
+    "kind": "python",
+    "sourceBytecode": true,
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {"cwd": ".", "argv": ["git", "apply", "../../cases/sendspin-54/tests-only.patch"]}
+    ],
+    "build": [],
+    "testFiles": ["tests/bcl_alsa_recovery_gap.py"],
+    "regression": {"cwd": ".", "argv": ["python3", "tests/bcl_alsa_recovery_gap.py"]},
+    "negative": {"exitCode": 1, "outputIncludes": "discard_frames"},
+    "suite": {"cwd": ".", "argv": ["python3", "tests/bcl_alsa_recovery_gap.py"]},
+    "suiteOutputIncludes": "Ran 1 test"
+  }
+}

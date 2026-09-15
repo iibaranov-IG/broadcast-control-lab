@@ -1,0 +1,202 @@
+diff --git a/src/alsa_sink.cpp b/src/alsa_sink.cpp
+index 7992381..1b16f22 100644
+--- a/src/alsa_sink.cpp
++++ b/src/alsa_sink.cpp
+@@ -612,7 +612,11 @@ size_t AlsaAudioSink::write(const uint8_t* data, size_t length, uint32_t timeout
+                                      ? this->bytes_per_frame_
+                                      : static_cast<size_t>(this->last_format_.channels) *
+                                            (static_cast<size_t>(this->last_format_.bit_depth) / 8U);
+-            return (frame == 0) ? length : length - (length % frame);
++            const size_t consumed = (frame == 0) ? length : length - (length % frame);
++            if (frame != 0) {
++                this->recovery_.discard_frames(static_cast<uint32_t>(consumed / frame));
++            }
++            return consumed;
+         }
+ 
+         bytes_per_frame = this->bytes_per_frame_;
+@@ -797,13 +801,15 @@ void AlsaAudioSink::poll(int64_t now_ms) {
+         return;
+     }
+ 
+-    const std::lock_guard<std::mutex> lock(this->device_mutex_);
+-    if (this->last_format_.sample_rate == 0) {
+-        return;  // nothing was ever configured, so there is nothing to reopen at
+-    }
+-    if (!this->recovery_.rescan_due(now_ms)) {
+-        return;
+-    }
++    uint32_t discarded_frames = 0;
++    {
++        const std::lock_guard<std::mutex> lock(this->device_mutex_);
++        if (this->last_format_.sample_rate == 0) {
++            return;  // nothing was ever configured, so there is nothing to reopen at
++        }
++        if (!this->recovery_.rescan_due(now_ms)) {
++            return;
++        }
+ 
+     // The expensive half of recovery, on the main loop because snd_pcm_open() cannot be bounded
+     // and write() has a deadline to keep. It is also the attempt a *replugged* device needs,
+@@ -811,28 +817,38 @@ void AlsaAudioSink::poll(int64_t now_ms) {
+     // the device name at open, so `hw:CARD=NAME` finds a card that has come back even on a
+     // different index -- but only once it has come back, which an immediate retry is too early
+     // for.
+-    const StreamFormat format = this->last_format_;
+-    this->close_device_();  // idempotent; recover_() has normally closed it already
+-    if (!this->open_device_(format.sample_rate, format.channels, format.bit_depth)) {
++        const StreamFormat format = this->last_format_;
++        this->close_device_();  // idempotent; recover_() has normally closed it already
++        if (!this->open_device_(format.sample_rate, format.channels, format.bit_depth)) {
+         // Reported as a failure, which is what buys another attempt behind a longer delay -- a
+         // device still absent now may be back in a few seconds. open_device_() has already said
+         // why, so this only has to say what happens next: quiet while more attempts are coming,
+         // because each is a normal step of a replug, and loud once when the budget is gone.
+-        this->recovery_.rescan_done(false);
+-        const bool retrying = this->recovery_.pending();
+-        cli_log(retrying ? LogLevel::DEBUG : LogLevel::WARN, "alsa: '%s' is not back%s",
+-                this->device_.c_str(),
+-                retrying ? " -- trying again shortly" : " -- discarding until the next stream");
+-        return;
+-    }
+-    if (this->stopping_.load()) {
++            this->recovery_.rescan_done(false);
++            const bool retrying = this->recovery_.pending();
++            cli_log(retrying ? LogLevel::DEBUG : LogLevel::WARN, "alsa: '%s' is not back%s",
++                    this->device_.c_str(), retrying ? " -- trying again shortly"
++                                                   : " -- discarding until the next stream");
++            return;
++        }
++        if (this->stopping_.load()) {
+         // stop() latches before it takes device_mutex_, so it can arrive while the open above is
+         // running. Hand the device straight back rather than leave a live one for the destructor.
+-        this->recovery_.rescan_done(true);  // shutting down; there is nothing left to retry for
+-        this->close_device_();
+-        return;
++            this->recovery_.rescan_done(true);  // shutting down; nothing is left to retry for
++            this->close_device_();
++            return;
++        }
++        this->recovery_.rescan_done(true);
++        discarded_frames = this->recovery_.take_discarded_frames();
++    }
++
++    // write() deliberately consumed audio while there was no device, keeping the sync task from
++    // spinning. Retire those frames before its first real post-recovery write: otherwise they
++    // remain in the task's buffered-frame count, and that first device timestamp projects the
++    // playhead ahead by the whole outage. Fire outside device_mutex_, like write()'s callback.
++    if (discarded_frames > 0 && this->on_frames_played) {
++        this->on_frames_played(discarded_frames, now_us());
+     }
+-    this->recovery_.rescan_done(true);
+     cli_log(LogLevel::INFO, "alsa: '%s' is back -- recovered without waiting for the next stream",
+             this->device_.c_str());
+ }
+diff --git a/src/sink_recovery.cpp b/src/sink_recovery.cpp
+index 1b26ee5..9de4b15 100644
+--- a/src/sink_recovery.cpp
++++ b/src/sink_recovery.cpp
+@@ -14,6 +14,8 @@
+ 
+ #include "sink_recovery.h"
+ 
++#include <limits>
++
+ namespace sendspin_cli {
+ 
+ bool SinkRecovery::reopen_due() {
+@@ -86,6 +88,17 @@ bool SinkRecovery::pending() const {
+     return this->rescan_owed_.load(std::memory_order_relaxed);
+ }
+ 
++void SinkRecovery::discard_frames(uint32_t frames) {
++    const uint32_t room = std::numeric_limits<uint32_t>::max() - this->discarded_frames_;
++    this->discarded_frames_ += (frames < room) ? frames : room;
++}
++
++uint32_t SinkRecovery::take_discarded_frames() {
++    const uint32_t frames = this->discarded_frames_;
++    this->discarded_frames_ = 0;
++    return frames;
++}
++
+ void SinkRecovery::reset() {
+     this->reopen_spent_ = false;
+     this->rescan_spent_ = false;
+@@ -93,6 +106,7 @@ void SinkRecovery::reset() {
+     this->rescan_attempts_ = 0;
+     this->rescan_owed_.store(false, std::memory_order_relaxed);
+     this->rescan_at_ms_ = NOT_STAMPED;
++    this->discarded_frames_ = 0;
+ }
+ 
+ void SinkRecovery::escalate_() {
+diff --git a/src/sink_recovery.h b/src/sink_recovery.h
+index 6f7bba1..b44175d 100644
+--- a/src/sink_recovery.h
++++ b/src/sink_recovery.h
+@@ -166,6 +166,17 @@ public:
+     /// as an errand for the main loop.
+     bool pending() const;
+ 
++    /// Records frames the sink accepted only to discard while its device was absent.
++    ///
++    /// A sink normally reports playback progress as its device consumes frames. During an
++    /// outage it must keep accepting audio so the producer does not spin, but those accepted
++    /// frames still enter the producer's buffered-frame accounting. The count is returned when
++    /// the device comes back so the sink can retire that gap before reporting real playback.
++    void discard_frames(uint32_t frames);
++
++    /// Returns and clears the frames accumulated by discard_frames().
++    uint32_t take_discarded_frames();
++
+     /// @brief Puts both attempts back in hand, for a configure() that really opened a stream.
+     void reset();
+ 
+@@ -197,6 +208,7 @@ private:
+     bool rescan_in_flight_{false};
+     /// How many second attempts have been handed out for this configured stream.
+     int rescan_attempts_{0};
++    uint32_t discarded_frames_{0};
+     /// Read by the main loop without the sink's lock; see pending().
+     std::atomic<bool> rescan_owed_{false};
+     int64_t rescan_at_ms_{NOT_STAMPED};
+diff --git a/tests/sink_recovery_test.cpp b/tests/sink_recovery_test.cpp
+index 326df73..41e6b2b 100644
+--- a/tests/sink_recovery_test.cpp
++++ b/tests/sink_recovery_test.cpp
+@@ -25,6 +25,7 @@
+ #include <gtest/gtest.h>
+ 
+ #include <cstdint>
++#include <limits>
+ 
+ namespace sendspin_cli {
+ namespace {
+@@ -88,6 +89,26 @@ TEST(SinkRecovery, AFailedReopenEscalatesToTheRescan) {
+     EXPECT_TRUE(recovery.pending());
+ }
+ 
++TEST(SinkRecovery, ReturnsTheDiscardedGapOnceWhenADeviceComesBack) {
++    SinkRecovery recovery;
++    escalate(recovery);
++
++    // Fourteen seconds at the reporter's 48 kHz: these writes were accepted to prevent the
++    // producer spinning, but no DAC played them.
++    recovery.discard_frames(14U * 48'000U);
++
++    EXPECT_EQ(recovery.take_discarded_frames(), 672'000U);
++    EXPECT_EQ(recovery.take_discarded_frames(), 0U);
++}
++
++TEST(SinkRecovery, DiscardedGapSaturatesInsteadOfWrapping) {
++    SinkRecovery recovery;
++    recovery.discard_frames(std::numeric_limits<uint32_t>::max() - 10U);
++    recovery.discard_frames(100U);
++
++    EXPECT_EQ(recovery.take_discarded_frames(), std::numeric_limits<uint32_t>::max());
++}
++
+ TEST(SinkRecovery, EveryFurtherWriteOfTheOutageIsToldToDiscard) {
+     SinkRecovery recovery;
+     escalate(recovery);

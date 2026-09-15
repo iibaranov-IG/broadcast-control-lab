@@ -1,0 +1,48 @@
+diff --git a/tests/bcl_alsa_recovery_gap.py b/tests/bcl_alsa_recovery_gap.py
+new file mode 100644
+index 0000000..72bad05
+--- /dev/null
++++ b/tests/bcl_alsa_recovery_gap.py
+@@ -0,0 +1,42 @@
++import pathlib
++import subprocess
++import tempfile
++import unittest
++
++ROOT = pathlib.Path(__file__).resolve().parents[1]
++PROGRAM = r'''
++#include "sink_recovery.h"
++#include <cstdint>
++#include <iostream>
++#include <limits>
++int main() {
++    sendspin_cli::SinkRecovery recovery;
++    recovery.discard_frames(14U * 48000U);
++    if (recovery.take_discarded_frames() != 672000U) return 1;
++    if (recovery.take_discarded_frames() != 0U) return 2;
++    recovery.discard_frames(std::numeric_limits<uint32_t>::max() - 10U);
++    recovery.discard_frames(100U);
++    if (recovery.take_discarded_frames() != std::numeric_limits<uint32_t>::max()) return 3;
++    std::cout << "discarded playback gap accounted once without overflow\n";
++}
++'''
++
++class AlsaRecoveryGapTest(unittest.TestCase):
++    def test_discarded_gap_is_retired_once(self):
++        with tempfile.TemporaryDirectory() as directory:
++            source = pathlib.Path(directory) / "gap.cpp"
++            binary = pathlib.Path(directory) / "gap"
++            source.write_text(PROGRAM)
++            compile_result = subprocess.run(
++                ["c++", "-std=c++20", "-Wall", "-Wextra", "-Werror", "-I", str(ROOT / "src"),
++                 str(source), str(ROOT / "src" / "sink_recovery.cpp"), "-o", str(binary)],
++                text=True, capture_output=True)
++            if compile_result.returncode:
++                print(compile_result.stdout + compile_result.stderr)
++            self.assertEqual(compile_result.returncode, 0)
++            run_result = subprocess.run([str(binary)], text=True, capture_output=True)
++            self.assertEqual(run_result.returncode, 0, run_result.stdout + run_result.stderr)
++            self.assertIn("accounted once without overflow", run_result.stdout)
++
++if __name__ == "__main__":
++    unittest.main()

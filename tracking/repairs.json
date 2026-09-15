@@ -3249,6 +3249,22 @@
       "lastSync": "2026-09-15T02:19:41.941Z",
       "syncError": null,
       "attachment": "VERIFIED_EXISTING_PR"
+    },
+    {
+      "id": "chime-tts-339",
+      "title": "Preserve downloaded external chimes through playback resolution",
+      "issue": "https://github.com/nimroddolev/chime_tts/issues/339",
+      "pr": "https://github.com/nimroddolev/chime_tts/pull/340",
+      "candidateSha256": "c8a8158f9763dbb20ca083eb61ae5da5b521b8616dcbb7feecb31cf56506b0b8",
+      "testedHeadSha": "7d5843b46c2694d276ce78ae4bd4d32b92ac8511",
+      "evidenceStatus": "BOUND_CANDIDATE",
+      "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34922087038",
+      "state": "open",
+      "hardware": {
+        "status": "NOT_REVIEWED"
+      },
+      "events": [],
+      "unread": 0
     }
   ],
   "schemaVersion": 1

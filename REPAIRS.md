@@ -74,6 +74,7 @@ Updated 2026-09-11.
 | openterface-642 | [Issue](https://github.com/TechxArtisanStudio/Openterface_QT/issues/642) | [PR](https://github.com/TechxArtisanStudio/Openterface_QT/pull/643) | draft | none | BOUND_CANDIDATE | 1 | NOT_REVIEWED | 2026-09-15T01:37:12.642Z |
 | node-av-349 | [Issue](https://github.com/seydx/node-av/issues/349) | [PR](https://github.com/seydx/node-av/pull/350) | draft | none | BOUND_CANDIDATE | 0 | NOT_REVIEWED | 2026-09-15T01:37:15.322Z |
 | naudio-107 | [Issue](https://github.com/KJ5HST-LABS/naudio/issues/107) | [PR](https://github.com/KJ5HST-LABS/naudio/pull/108) | draft | none | BOUND_CANDIDATE | 0 | NOT_REVIEWED | 2026-09-15T02:19:41.941Z |
+| chime-tts-339 | [Issue](https://github.com/nimroddolev/chime_tts/issues/339) | [PR](https://github.com/nimroddolev/chime_tts/pull/340) | open | unknown | BOUND_CANDIDATE | 0 | NOT_REVIEWED | Not synced |
 
 Hardware status records an explicitly imported report; comments never grant hardware verification.
 <!-- BCL:TRACKING:END -->

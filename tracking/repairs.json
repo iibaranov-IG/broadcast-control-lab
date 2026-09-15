@@ -3550,14 +3550,40 @@
       "pr": "https://github.com/SUNET/scribe-worker/pull/50",
       "candidateSha256": "92c9bba5c85af8b9cdae0a77510affe06984f03195ce14f45a492cf1c2e7e92d",
       "testedHeadSha": "7a725fa7744110d7e40dc3c526f4fe552057dc9d",
-      "evidenceStatus": "BOUND_CANDIDATE",
+      "evidenceStatus": "STALE",
       "run": "https://github.com/iibaranov-IG/broadcast-control-lab/actions/runs/34936122124",
-      "state": "open",
+      "state": "draft",
       "hardware": {
-        "status": "NOT_REVIEWED"
+        "status": "NOT_REVIEWED",
+        "priorStatus": "NOT_REVIEWED"
       },
-      "events": [],
-      "unread": 0
+      "events": [
+        {
+          "key": "issue-comment:5675512384",
+          "kind": "issue-comment",
+          "author": "erklu",
+          "reporter": true,
+          "url": "https://github.com/SUNET/scribe-worker/issues/49#issuecomment-5675512384",
+          "updatedAt": "2026-09-15T06:08:16Z",
+          "state": null,
+          "body": "The issue sould be connected to the generation of the web/preview media version, not in the transcription audio extraction, which is already audio-only.\n\nA possible approach is to inspect the input streams with `ffprobe` and ignore video streams where `disposition.attached_pic = 1`. Embedded album art in MP3 files is exposed by FFmpeg as such a video stream, but it should not cause the file to be treated as actual video.\n\nSuggested logic:\n\n- If the input contains a real video stream, generate the normal video preview.\n- If the only video stream is `attached_pic`, treat the input as audio-only and generate the normal audio preview.\n- Do not include the `attached_pic` stream in the web-streaming output.\n\nA possible workaround is to explicitly select the audio stream and disable video processing in FFmpeg when the album art is detected:\n\nffmpeg -i input.mp3 -map 0:a:0 -vn ... output\n\n-map 0:a:0 selects the first audio stream, while -vn prevents embedded album art, which FFmpeg may expose as an attached_pic video stream, from being processed. This should allow MP3 files with embedded artwork to pass through the audio preprocessing pipeline normally.",
+          "read": false
+        }
+      ],
+      "unread": 1,
+      "evidenceStaleSince": "2026-09-15T06:29:53.621Z",
+      "mergeable": true,
+      "mergeableState": "clean",
+      "headSha": "fb9ab246a1f642f1664e5aea28100b75211ac92c",
+      "reporter": "erklu",
+      "issueCreatedAt": "2026-09-14T11:11:37Z",
+      "prCreatedAt": "2026-09-15T06:24:16Z",
+      "mergedAt": null,
+      "reporterResponseAt": "2026-09-15T06:08:16Z",
+      "ci": "none",
+      "lastSync": "2026-09-15T06:29:53.621Z",
+      "syncError": null,
+      "attachment": "EXTERNAL_PR"
     }
   ],
   "schemaVersion": 1

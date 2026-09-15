@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T06:10:01.795Z",
+  "issue": {
+    "repository": "SUNET/scribe-worker",
+    "number": "49",
+    "url": "https://github.com/SUNET/scribe-worker/issues/49",
+    "title": "Bug: MP3 files with embedded album art fail during processing",
+    "state": "open",
+    "updatedAt": "2026-09-15T06:08:16Z"
+  },
+  "source": {
+    "repository": "SUNET/scribe-worker",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "Apache-2.0",
+    "commit": "2b4e84b3a974b6e4121a3fbe09584933488a281f",
+    "licenseMissing": false,
+    "ruleFiles": [],
+    "codeExamples": [
+      "main.py",
+      "oidc_get_token.py",
+      "utils/args.py",
+      "utils/job.py",
+      "utils/log.py",
+      "utils/media.py",
+      "utils/settings.py",
+      "utils/whisper.py",
+      "utils/words.py"
+    ],
+    "buildFiles": [
+      {
+        "path": "pyproject.toml",
+        "kind": "python",
+        "url": "https://github.com/SUNET/scribe-worker/blob/2b4e84b3a974b6e4121a3fbe09584933488a281f/pyproject.toml"
+      }
+    ]
+  },
+  "findings": [],
+  "relatedPRs": [],
+  "workClaims": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20,
+    "maxWorkClaims": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "issueComments": "complete",
+    "openPRs:SUNET/scribe-worker": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Explicit PR references and explicit first-person work claims are matched; semantically related work, off-platform coordination and unusual wording can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 95,
+    "scoreRange": [
+      94,
+      95
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "Valid Pro Tools MP3 exports fail solely because they contain album art.",
+        "evidence": [
+          "Issue #49"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report and collaborator follow-up were posted within the last day.",
+        "evidence": [
+          "Issue #49 timestamps"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The project collaborator supplied a reproduction comparison and a concrete FFmpeg observation.",
+        "evidence": [
+          "Issue #49",
+          "issue comment 5675512384"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Attached artwork must not classify an audio file as video, and audio outputs must select the audio stream.",
+        "evidence": [
+          "acceptance criteria",
+          "FFmpeg stream dispositions"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "A generated MP3 with attached_pic deterministically entered the video branch and failed preview conversion.",
+        "evidence": [
+          "local red fixture run with FFmpeg 9.0.1"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repair changes three FFmpeg stream-selection arguments in one module.",
+        "evidence": [
+          "candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Generated fixtures cover plain MP3, covered MP3, and actual video without hardware.",
+        "evidence": [
+          "local fixture verification"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 5,
+        "reason": "Real video detection remains enabled while audio conversion explicitly chooses the first audio stream.",
+        "evidence": [
+          "three-format green fixture run"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository has current commits and an active collaborator response.",
+        "evidence": [
+          "main at 2b4e84b",
+          "Issue #49"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "Embedded artwork is common in MP3 files uploaded for transcription.",
+        "evidence": [
+          "Issue #49"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 5,
+        "reason": "The selection applies to any audio input with attached artwork or unrelated non-audio streams.",
+        "evidence": [
+          "generic media helper functions"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 4,
+        "reason": "Correct classification restores both transcription WAV creation and the audio preview path.",
+        "evidence": [
+          "Job processing pipeline",
+          "fixture verification"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 100,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      100,
+      95
+    ],
+    "selectable": true
+  },
+  "durationMs": 3343
+}

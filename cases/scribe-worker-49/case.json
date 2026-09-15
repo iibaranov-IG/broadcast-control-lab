@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 2,
+  "id": "scribe-worker-49",
+  "status": "ready",
+  "title": "Ignore attached artwork when classifying audio uploads",
+  "issue": "https://github.com/SUNET/scribe-worker/issues/49",
+  "problem": "MP3 files with embedded artwork are classified as video because FFprobe reports cover art as an attached video stream. The audio preview command then auto-selects that image and fails while creating its MP4 output.",
+  "reproduce": "At pinned revision 2b4e84b, a generated MP3 with a PNG attached as cover art makes has_video_stream return true. Sending the same file through the audio preview command fails because FFmpeg maps both the attached image and audio.",
+  "acceptance": "An MP3 with attached artwork remains an audio input, produces both the transcription WAV and audio-only MP4 preview, and a genuine video file continues to be classified as video.",
+  "repair": "Use FFprobe's real-video stream selector, which excludes attached pictures, and explicitly map the first audio stream while disabling video in both audio conversion commands.",
+  "sources": [
+    {
+      "id": "baseline",
+      "repository": "SUNET/scribe-worker",
+      "commit": "2b4e84b3a974b6e4121a3fbe09584933488a281f",
+      "directory": "sources/scribe-worker-49"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [
+    "cases/scribe-worker-49/"
+  ],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/scribe-worker-49",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/scribe-worker-49/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/scribe-worker-49/test.mjs",
+          "sources/scribe-worker-49"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/scribe-worker-49.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": false,
+    "limitations": "BCL generates the affected MP3 structure with FFmpeg, proves the baseline misclassification, and verifies WAV and MP4 output after the repair. It does not submit a complete transcription job to the deployed SUNET service.",
+    "ownerCheck": "Upload the original Pro Tools MP3 with album art and confirm the job reaches transcription, publishes its audio preview, and matches the result from the otherwise identical file without artwork."
+  },
+  "selection": {
+    "report": "cases/scribe-worker-49/triage.json",
+    "sha256": "798735e51df068e62c778ae0e01536ccff68b2686608306177a19b2065a4fec4"
+  },
+  "template": {
+    "language": "python",
+    "protocol": "media"
+  },
+  "publish": {
+    "source": "baseline",
+    "target": "SUNET/scribe-worker",
+    "base": "main",
+    "commitMessage": "Fix audio processing for MP3 files with album art",
+    "paths": [
+      "utils/media.py"
+    ],
+    "verificationOnlyPaths": [
+      "bcl_album_art_test.py"
+    ]
+  },
+  "upstream": {
+    "kind": "python",
+    "source": "baseline",
+    "sourceBytecode": false,
+    "timeoutMs": 120000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/scribe-worker-49/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "bcl_album_art_test.py"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "bcl_album_art_test.AlbumArtMediaTest.test_attached_artwork_is_not_video"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "COVER_ART_CLASSIFIED_AS_VIDEO"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "bcl_album_art_test.py"
+      ]
+    },
+    "suiteOutputIncludes": "Ran 3 tests"
+  }
+}

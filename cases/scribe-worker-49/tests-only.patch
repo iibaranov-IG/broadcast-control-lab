@@ -1,0 +1,68 @@
+diff --git a/bcl_album_art_test.py b/bcl_album_art_test.py
+new file mode 100644
+index 0000000..660e911
+--- /dev/null
++++ b/bcl_album_art_test.py
+@@ -0,0 +1,62 @@
++import subprocess
++import sys
++import tempfile
++import types
++import unittest
++from pathlib import Path
++
++settings_module = types.ModuleType("utils.settings")
++settings_module.get_settings = lambda: types.SimpleNamespace(FFMPEG_PATH="ffmpeg")
++log_module = types.ModuleType("utils.log")
++log_module.get_logger = lambda *args, **kwargs: None
++sys.modules["utils.settings"] = settings_module
++sys.modules["utils.log"] = log_module
++
++from utils.media import downsample_audio, has_video_stream, transcode_to_wav
++
++
++class AlbumArtMediaTest(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.tempdir = tempfile.TemporaryDirectory()
++        root = Path(cls.tempdir.name)
++        cls.plain = root / "plain.mp3"
++        cls.cover = root / "cover.png"
++        cls.covered = root / "covered.mp3"
++        cls.video = root / "video.mp4"
++        cls._ffmpeg("-f", "lavfi", "-i", "sine=frequency=440:duration=1", "-q:a", "4", cls.plain)
++        cls._ffmpeg("-f", "lavfi", "-i", "color=c=blue:s=32x32:d=1", "-frames:v", "1", cls.cover)
++        cls._ffmpeg(
++            "-i", cls.plain, "-i", cls.cover, "-map", "0:a", "-map", "1:v", "-c:a", "copy", "-c:v",
++            "png", "-disposition:v", "attached_pic", cls.covered,
++        )
++        cls._ffmpeg(
++            "-f", "lavfi", "-i", "color=c=black:s=32x32:d=1", "-f", "lavfi", "-i",
++            "sine=frequency=440:duration=1", "-shortest", "-c:v", "libx264", "-c:a", "aac", cls.video,
++        )
++
++    @classmethod
++    def tearDownClass(cls):
++        cls.tempdir.cleanup()
++
++    @staticmethod
++    def _ffmpeg(*args):
++        subprocess.run(
++            ["ffmpeg", "-hide_banner", "-loglevel", "error", *map(str, args[:-1]), "-y", str(args[-1])],
++            check=True,
++        )
++
++    def test_attached_artwork_is_not_video(self):
++        self.assertFalse(has_video_stream(str(self.covered)), "COVER_ART_CLASSIFIED_AS_VIDEO")
++
++    def test_covered_mp3_produces_audio_outputs(self):
++        self.assertTrue(transcode_to_wav(str(self.covered)).startswith(b"RIFF"))
++        self.assertGreater(len(downsample_audio(str(self.covered))), 0)
++
++    def test_plain_audio_and_real_video_keep_their_classification(self):
++        self.assertFalse(has_video_stream(str(self.plain)))
++        self.assertTrue(has_video_stream(str(self.video)))
++
++
++if __name__ == "__main__":
++    unittest.main()

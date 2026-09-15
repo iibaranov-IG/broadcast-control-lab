@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-15T03:03:07.725Z",
+  "issue": {
+    "repository": "dermotduffy/advanced-camera-card",
+    "number": "2794",
+    "url": "https://github.com/dermotduffy/advanced-camera-card/issues/2794",
+    "title": "Button icons take too long to appear after v8",
+    "state": "open",
+    "updatedAt": "2026-09-15T01:41:07Z"
+  },
+  "source": {
+    "repository": "dermotduffy/advanced-camera-card",
+    "requestedRef": null,
+    "defaultBranch": "main",
+    "archived": false,
+    "license": "MIT",
+    "commit": "d2ce00c4deb3e978893ef3b585492bd8bde518b6",
+    "licenseMissing": false,
+    "ruleFiles": [
+      {
+        "path": "AGENTS.md",
+        "url": "https://github.com/dermotduffy/advanced-camera-card/blob/d2ce00c4deb3e978893ef3b585492bd8bde518b6/AGENTS.md",
+        "content": "# Advanced Camera Card\n\n## Stack & Workflow\n\nTypeScript (strict), Lit v3, Zod, Vitest, Vite, Yarn.\n\nCommands: `yarn install`, `yarn run build`, `yarn run test`, `yarn run coverage`, `yarn run format`, `yarn run lint`, `yarn run prune`, `yarn run docs-check-links`.\n\n## Code Style\n\n- Conventional Commits (used by semantic-release).\n- Comments explain **why**, not what -- only when intent isn't obvious from code.\n\n## TypeScript\n\n- `interface` for object structures; `type` for unions/intersections.\n- Never use `any`; use `unknown`, generics, or `as unknown as T`. In tests, use `assert` from `vitest` for type narrowing.\n- Never use non-null assertions (`!`); null-check with early return instead.\n- `noUnusedParameters` and `noImplicitReturns` are enforced.\n- Return `null` (not `undefined`) for absent values.\n- `async`/`await` over `.then()` chains.\n- `Date` objects over raw `Date.now()`.\n\n## Testing\n\n- `mock<T>()` from `vitest-mock-extended` for type-safe mocks.\n- Test files: `*.test.ts` under `tests/`, mirroring source hierarchy.\n- 100% coverage required for: `camera-manager/`, `card-controller/`, `components-lib/`, `config/`, `conditions/`, `ha/`, `utils/`, `view/`. Web components (`components/*`) exempt; push logic into `components-lib/` controllers.\n- Reuse factories from `tests/test-utils.ts` (`createHASS()`, `createCameraConfig()`, etc.).\n- Test names describe observable behavior, not internals.\n\n## Architecture\n\n- Consolidate duplicate logic when adding helpers; don't leave redundant inline expressions.\n- **Naming consistency:** Renames span all layers -- schema, types, CSS, localization keys, templates, docs. All schema fields must appear in the documentation table.\n- **Separation of concerns:** `components/` renders only; logic in `components-lib/` controllers (using `ReactiveController` where needed).\n- **Manager pattern:** `CardController` orchestrates managers (`ConfigManager`, `HASSManager`, `ViewManager`, etc.). New cross-cutting concerns → new manager.\n- **Module conventions:** `types.ts` for types/schemas, `*-manager.ts` for coordinators, `*-controller.ts` for logic, `utils/` for helpers.\n\n## Preferences\n\n- Think through UX states and edge cases **before** writing code.\n- No re-exports or pass-through files -- import from source directly.\n- Derive TypeScript types from Zod schemas (`z.infer<typeof schema>`); no parallel interfaces.\n- User-facing schemas: only user-configurable fields. Internal fields go in a derived interface (`interface InternalFoo extends Foo { ... }`).\n- Shared schemas go in `config/schema/common/` from the start.\n- Name fields for semantic purpose, not implementation detail.\n- Comment headings must reflect all items in the section.\n- Verify CSS cascade (e.g. `pointer-events`) before adding interactive children.\n- Preserve alphabetical ordering when inserting into sorted lists/sections.\n- Prefer structural CSS selectors (`.parent child-element`) over permanently-enabled classes.\n",
+        "requirementHints": [
+          "TypeScript (strict), Lit v3, Zod, Vitest, Vite, Yarn.",
+          "Commands: `yarn install`, `yarn run build`, `yarn run test`, `yarn run coverage`, `yarn run format`, `yarn run lint`, `yarn run prune`, `yarn run docs-check-links`.",
+          "- Conventional Commits (used by semantic-release).",
+          "- Comments explain **why**, not what -- only when intent isn't obvious from code.",
+          "- Never use `any`; use `unknown`, generics, or `as unknown as T`. In tests, use `assert` from `vitest` for type narrowing.",
+          "## Testing",
+          "- `mock<T>()` from `vitest-mock-extended` for type-safe mocks.",
+          "- Test files: `*.test.ts` under `tests/`, mirroring source hierarchy.",
+          "- 100% coverage required for: `camera-manager/`, `card-controller/`, `components-lib/`, `config/`, `conditions/`, `ha/`, `utils/`, `view/`. Web components (`components/*`) exempt; push logic into `components-lib/` controllers.",
+          "- Reuse factories from `tests/test-utils.ts` (`createHASS()`, `createCameraConfig()`, etc.).",
+          "- Test names describe observable behavior, not internals.",
+          "- **Naming consistency:** Renames span all layers -- schema, types, CSS, localization keys, templates, docs. All schema fields must appear in the documentation table.",
+          "- **Manager pattern:** `CardController` orchestrates managers (`ConfigManager`, `HASSManager`, `ViewManager`, etc.). New cross-cutting concerns → new manager.",
+          "- Think through UX states and edge cases **before** writing code.",
+          "- Comment headings must reflect all items in the section.",
+          "- Verify CSS cascade (e.g. `pointer-events`) before adding interactive children."
+        ],
+        "reviewStatus": "HUMAN_REVIEW_REQUIRED"
+      }
+    ],
+    "codeExamples": [
+      "eslint.config.mjs",
+      "eslint.dist.config.mjs",
+      "prettier.config.js",
+      "scripts/browser-targets.ts",
+      "scripts/vite/build-defines.ts",
+      "scripts/vite/plugins/build-date.ts",
+      "scripts/vite/plugins/clean-dist.ts",
+      "scripts/vite/plugins/facade-entry.ts",
+      "scripts/vite/plugins/svg-path.ts",
+      "scripts/vite/public-entries.ts"
+    ],
+    "buildFiles": [
+      {
+        "path": "package.json",
+        "kind": "node",
+        "url": "https://github.com/dermotduffy/advanced-camera-card/blob/d2ce00c4deb3e978893ef3b585492bd8bde518b6/package.json"
+      }
+    ],
+    "nodeScripts": [
+      "start",
+      "preview",
+      "deployment-update",
+      "build",
+      "docs",
+      "docs-check-links",
+      "docs-update-images",
+      "docs-update-dependencies",
+      "docs-update-uml",
+      "lint",
+      "lint:compat-dist",
+      "lint:compat-styles",
+      "typecheck",
+      "format",
+      "format-check",
+      "prune",
+      "test",
+      "test:browser",
+      "test:dist",
+      "coverage"
+    ],
+    "nodeDependencyCount": 72
+  },
+  "findings": [
+    {
+      "code": "SUBMODULES",
+      "severity": "info",
+      "detail": "Source uses submodules. Their availability and exact revisions need a separate dependency check. Resolved for this revision: The only submodule is the Frigate Home Assistant integration used by the development container. The repair changes card rendering and browser tests; package installation, the full unit suite, and all three browser engines run without checking out or executing that submodule.",
+      "url": "https://github.com/dermotduffy/advanced-camera-card/tree/d2ce00c4deb3e978893ef3b585492bd8bde518b6",
+      "resolution": {
+        "reason": "The only submodule is the Frigate Home Assistant integration used by the development container. The repair changes card rendering and browser tests; package installation, the full unit suite, and all three browser engines run without checking out or executing that submodule.",
+        "evidence": [
+          ".gitmodules maps only .devcontainer/frigate-hass-integration",
+          "gitlink is pinned at 421ed6594bad4ff78960abb92924fcafa038c08b",
+          "The affected files are src/card.ts, src/components-lib, and tests"
+        ]
+      }
+    }
+  ],
+  "relatedPRs": [],
+  "dependencies": [],
+  "errors": [],
+  "scope": {
+    "cloned": false,
+    "built": false,
+    "reproduced": false,
+    "maxPages": 5,
+    "maxRelatedPRs": 20
+  },
+  "coverage": {
+    "sourceTree": "complete",
+    "issueTimeline": "complete",
+    "openPRs:dermotduffy/advanced-camera-card": "complete"
+  },
+  "decision": "READY_TO_INVESTIGATE",
+  "nextActions": [
+    "Review the reported behavior and build instructions; define the baseline failure before cloning or scheduling a build."
+  ],
+  "limitations": [
+    "READY_TO_INVESTIGATE means metadata is sufficient to begin engineering review, not a reproduced or repaired bug.",
+    "Dependency manifests are scanned heuristically; transitive dependencies, availability of registry packages, native libraries and physical equipment are not verified.",
+    "Only explicit PR references are matched; semantically related work without links can be missed.",
+    "Runtime compatibility, contribution policy and complete reproduction steps still require engineering review."
+  ],
+  "ranking": {
+    "exclusions": [],
+    "unknownGates": [],
+    "assessmentBoundToRevision": true,
+    "eligible": true,
+    "score": 91,
+    "scoreRange": [
+      90,
+      91
+    ],
+    "dimensions": [
+      {
+        "key": "ownerPain",
+        "weight": 12,
+        "value": 4,
+        "reason": "Doorbell controls appear late on wall tablets, degrading a time-sensitive interaction.",
+        "evidence": [
+          "Issue description and videos"
+        ]
+      },
+      {
+        "key": "freshness",
+        "weight": 6,
+        "value": 5,
+        "reason": "The report was opened today against the current release.",
+        "evidence": [
+          "Opened 2026-09-15",
+          "card_version 8.1.0"
+        ]
+      },
+      {
+        "key": "ownerAvailability",
+        "weight": 12,
+        "value": 5,
+        "reason": "The reporter immediately supplied diagnostics and two recordings from affected installations.",
+        "evidence": [
+          "Issue #2794 timeline"
+        ]
+      },
+      {
+        "key": "resultClarity",
+        "weight": 10,
+        "value": 5,
+        "reason": "Non-template menu elements should render while unrelated camera initialization is still pending.",
+        "evidence": [
+          "Last working v7 behavior",
+          "Focused browser assertion"
+        ]
+      },
+      {
+        "key": "reproducibility",
+        "weight": 12,
+        "value": 5,
+        "reason": "The baseline fails deterministically in all three supported browser engines.",
+        "evidence": [
+          "Chromium, Firefox, and WebKit baseline-red run"
+        ]
+      },
+      {
+        "key": "repairSize",
+        "weight": 7,
+        "value": 5,
+        "reason": "The behavior change is one render predicate plus a small covered helper and regression tests.",
+        "evidence": [
+          "Candidate diff"
+        ]
+      },
+      {
+        "key": "verificationCost",
+        "weight": 7,
+        "value": 5,
+        "reason": "Unit, coverage, browser, build, lint, formatting, and pruning checks run locally.",
+        "evidence": [
+          "7425 unit tests",
+          "Three-engine focused browser test"
+        ]
+      },
+      {
+        "key": "regressionRisk",
+        "weight": 8,
+        "value": 4,
+        "reason": "Template-backed elements remain gated on their renderer and both branches are covered.",
+        "evidence": [
+          "elements-readiness unit tests"
+        ]
+      },
+      {
+        "key": "projectActivity",
+        "weight": 7,
+        "value": 5,
+        "reason": "The repository recently shipped v8.1.0 and actively merges fixes.",
+        "evidence": [
+          "Current release and recent merged PRs"
+        ]
+      },
+      {
+        "key": "communityValue",
+        "weight": 7,
+        "value": 4,
+        "reason": "The regression affects low-powered Home Assistant dashboards used for camera and doorbell control.",
+        "evidence": [
+          "Two affected tablet installations"
+        ]
+      },
+      {
+        "key": "reuse",
+        "weight": 6,
+        "value": 4,
+        "reason": "The repair helps every non-template picture element, including custom menu icons.",
+        "evidence": [
+          "Shared elements rendering path"
+        ]
+      },
+      {
+        "key": "cascade",
+        "weight": 6,
+        "value": 3,
+        "reason": "Earlier element creation also restores timely conditional menu controls.",
+        "evidence": [
+          "Elements dispatch dynamic menu additions"
+        ]
+      }
+    ],
+    "class": "TAKE_NOW",
+    "deliveryReadiness": 95,
+    "deliveryProbability": null,
+    "deliveryNote": "Readiness is an evidence-based human assessment, not a calibrated probability. Unknown inputs are never scored as facts.",
+    "queueKey": [
+      5,
+      95,
+      91
+    ],
+    "selectable": true
+  },
+  "durationMs": 3212
+}

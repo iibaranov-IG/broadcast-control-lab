@@ -1,0 +1,125 @@
+diff --git a/src/card.ts b/src/card.ts
+index 1900b659..421c6b2d 100644
+--- a/src/card.ts
++++ b/src/card.ts
+@@ -16,12 +16,14 @@ import 'web-dialog';
+ import { actionHandler } from './action-handler-directive.js';
+ import { ConfigManager } from './card-controller/config/config-manager';
+ import { CardController } from './card-controller/controller';
++import { InitializationAspect } from './card-controller/initialization/initialization-manager.js';
+ import type {
+   IssueKey,
+   IssueResolveEventData,
+   IssueTriggerEventData,
+ } from './card-controller/issues/types.js';
+ import { resolveAutoHideState, type AutoHideState } from './components-lib/auto-hide.js';
++import { areElementsReady } from './components-lib/elements-readiness.js';
+ import { MenuButtonController } from './components-lib/menu-button-controller';
+ 
+ import './components/effects/effects';
+@@ -504,13 +506,16 @@ export class AdvancedCameraCard extends LitElement {
+           </div>
+           ${this._renderMenuStatusContainer('bottom')}
+           ${this._config?.elements &&
+-          this._controller.getInitializationManager().areMandatoryAspectsInitialized()
++          areElementsReady(
++            this._controller.getConfigManager().hasTemplate(),
++            this._controller
++              .getInitializationManager()
++              .isInitialized(InitializationAspect.TEMPLATE_RENDERER),
++          )
+             ? // Elements need to render after the main views so it can render 'on
+-              // top'. They are held until the card is initialized: the template
+-              // renderer loads lazily as a mandatory init aspect (when the
+-              // config uses templates), so rendering elements earlier could
+-              // emit raw, unrendered templates or evaluate their visibility
+-              // conditions before the renderer is available.
++              // top'. Template-backed elements are held until their lazily loaded
++              // renderer is ready so they cannot emit raw template values or
++              // evaluate visibility conditions prematurely.
+               html` <advanced-camera-card-elements
+                 ${ref(this._refElements)}
+                 .hass=${this._hass}
+diff --git a/src/components-lib/elements-readiness.ts b/src/components-lib/elements-readiness.ts
+new file mode 100644
+index 00000000..adbc7bae
+--- /dev/null
++++ b/src/components-lib/elements-readiness.ts
+@@ -0,0 +1,9 @@
++/**
++ * Elements may render before card initialization unless they contain templates.
++ * Template-backed elements must wait until the renderer is ready so raw template
++ * values are never displayed or evaluated.
++ */
++export const areElementsReady = (
++  hasTemplate: boolean,
++  isTemplateRendererInitialized: boolean,
++): boolean => !hasTemplate || isTemplateRendererInitialized;
+diff --git a/tests/card.browser.test.ts b/tests/card.browser.test.ts
+new file mode 100644
+index 00000000..84ae1bac
+--- /dev/null
++++ b/tests/card.browser.test.ts
+@@ -0,0 +1,39 @@
++import { describe, expect, it, vi } from 'vitest';
++
++import type { CardController } from '../src/card-controller/controller';
++import { deepQuery } from './browser/dom';
++import { MountedCardFactory } from './browser/mounted-card';
++import {
++  createGenericCameraHASS,
++  createStillImageCardConfig,
++} from './browser/test-utils';
++
++describe('AdvancedCameraCard', () => {
++  it('should render elements without templates before mandatory initialization finishes', async () => {
++    const card = await MountedCardFactory.createFromSource(
++      createStillImageCardConfig({
++        elements: [
++          {
++            type: 'custom:advanced-camera-card-menu-icon',
++            icon: 'mdi:reload',
++            title: 'Reload',
++          },
++        ],
++      }),
++      createGenericCameraHASS(),
++    );
++    await card.waitForSelector('advanced-camera-card-elements');
++
++    const controller = (card.card as unknown as { _controller: CardController })
++      ._controller;
++    vi.spyOn(
++      controller.getInitializationManager(),
++      'areMandatoryAspectsInitialized',
++    ).mockReturnValue(false);
++
++    card.card.requestUpdate();
++    await card.updateComplete;
++
++    expect(deepQuery(card.card, 'advanced-camera-card-elements')).not.toBeNull();
++  });
++});
+diff --git a/tests/components-lib/elements-readiness.test.ts b/tests/components-lib/elements-readiness.test.ts
+new file mode 100644
+index 00000000..8fcc6631
+--- /dev/null
++++ b/tests/components-lib/elements-readiness.test.ts
+@@ -0,0 +1,17 @@
++import { describe, expect, it } from 'vitest';
++
++import { areElementsReady } from '../../src/components-lib/elements-readiness';
++
++describe('areElementsReady', () => {
++  it('should render elements without templates before card initialization', () => {
++    expect(areElementsReady(false, false)).toBe(true);
++  });
++
++  it('should wait for the template renderer when elements contain templates', () => {
++    expect(areElementsReady(true, false)).toBe(false);
++  });
++
++  it('should render template-backed elements once the renderer is initialized', () => {
++    expect(areElementsReady(true, true)).toBe(true);
++  });
++});

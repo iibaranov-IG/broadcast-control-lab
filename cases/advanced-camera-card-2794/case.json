@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 2,
+  "id": "advanced-camera-card-2794",
+  "status": "ready",
+  "title": "Render non-template camera controls during startup",
+  "issue": "https://github.com/dermotduffy/advanced-camera-card/issues/2794",
+  "problem": "Advanced Camera Card v8 holds all configured picture elements until every mandatory initialization aspect finishes. Custom menu icons are delivered through those elements, so they remain absent while camera and two-way-audio startup is pending on lower-powered tablets.",
+  "reproduce": "At pinned v8.1.0 revision d2ce00c4, render a card with non-template custom menu elements, force mandatory initialization to remain pending, and request an update. The advanced-camera-card-elements component is removed in Chromium, Firefox, and WebKit.",
+  "acceptance": "Configured elements without templates remain rendered while unrelated camera, microphone, view, or trigger initialization is pending. Template-backed elements still wait until the template renderer is initialized.",
+  "repair": "Replace the full mandatory-initialization gate with a focused template-readiness predicate, cover all predicate branches, and add a three-browser card regression.",
+  "sources": [
+    {
+      "id": "upstream",
+      "repository": "dermotduffy/advanced-camera-card",
+      "commit": "d2ce00c4deb3e978893ef3b585492bd8bde518b6",
+      "directory": "sources/advanced-camera-card-2794"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "python": "3.12.14"
+  },
+  "watch": [
+    "cases/advanced-camera-card-2794/"
+  ],
+  "steps": {
+    "dependencies": [],
+    "prepare": [
+      {
+        "cwd": "sources/advanced-camera-card-2794",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/advanced-camera-card-2794/repair.patch"
+        ]
+      }
+    ],
+    "test": [
+      {
+        "cwd": ".",
+        "argv": [
+          "node",
+          "cases/advanced-camera-card-2794/test.mjs",
+          "sources/advanced-camera-card-2794"
+        ]
+      }
+    ],
+    "build": []
+  },
+  "artifacts": {
+    "report": "reports/advanced-camera-card-2794.json"
+  },
+  "verification": {
+    "hardwareVerified": false,
+    "applicationVerified": true,
+    "limitations": "BCL proves the exact source gate and candidate predicate. Separately, the baseline regression failed and the candidate passed in Chromium, Firefox, and WebKit; all 7,425 unit tests, 100% covered logic, build, lint, formatting, typecheck, and prune checks passed. The full browser suite has one unrelated WebKit focus failure that reproduces unchanged on the baseline. Final wall-tablet timing remains the owner check.",
+    "ownerCheck": "On either affected wall tablet, reload the issue configuration and confirm the Reload and three entity-state menu icons appear immediately while go2rtc and two-way audio are still starting."
+  },
+  "selection": {
+    "report": "cases/advanced-camera-card-2794/triage.json",
+    "sha256": "e004baa00e85269b4a995dba24934c571b81ba46a454cd81b2651f8e6a9ef2a9",
+    "reason": "A contributor reported the current release today with exact diagnostics and videos from two affected wall tablets. The v8 gate fails deterministically in all three browser engines, no competing PR exists, and the repair is small and hardware-free."
+  },
+  "template": {
+    "language": "node",
+    "protocol": "none"
+  },
+  "publish": {
+    "source": "upstream",
+    "target": "dermotduffy/advanced-camera-card",
+    "base": "main",
+    "commitMessage": "fix: render non-template elements during startup",
+    "paths": [
+      "src/card.ts",
+      "src/components-lib/elements-readiness.ts",
+      "tests/card.browser.test.ts",
+      "tests/components-lib/elements-readiness.test.ts"
+    ],
+    "verificationOnlyPaths": [
+      "test_bcl_issue_2794.mjs"
+    ]
+  },
+  "upstream": {
+    "kind": "node",
+    "source": "upstream",
+    "timeoutMs": 60000,
+    "setup": [
+      {
+        "cwd": ".",
+        "argv": [
+          "git",
+          "apply",
+          "../../cases/advanced-camera-card-2794/tests-only.patch"
+        ]
+      }
+    ],
+    "build": [],
+    "testFiles": [
+      "test_bcl_issue_2794.mjs"
+    ],
+    "regression": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "test_bcl_issue_2794.mjs"
+      ]
+    },
+    "negative": {
+      "exitCode": 1,
+      "outputIncludes": "ELEMENTS_BLOCKED_BY_UNRELATED_INITIALIZATION"
+    },
+    "suite": {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "test_bcl_issue_2794.mjs"
+      ]
+    },
+    "suiteOutputIncludes": "PASS: non-template elements render before mandatory initialization completes"
+  }
+}

@@ -33,7 +33,7 @@
       "headSha": "1455b64bb57c44d501dc18cb7655a06c5f290e25",
       "id": "openmixercontrol-8",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/8",
-      "lastSync": "2026-09-15T21:30:36.414Z",
+      "lastSync": "2026-09-16T00:30:50.880Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/91",
       "reporter": "schulz-alexander",
       "run": null,
@@ -70,7 +70,7 @@
       "headSha": "bfb749b74f3b46ffb3751f6d8cfaaeff7ebfdecb",
       "id": "openmixercontrol-54",
       "issue": "https://github.com/OpenMixerProject/OpenMixerControl/issues/54",
-      "lastSync": "2026-09-15T21:30:40.839Z",
+      "lastSync": "2026-09-16T00:30:54.270Z",
       "pr": "https://github.com/OpenMixerProject/OpenMixerControl/pull/92",
       "reporter": "flipfi",
       "run": null,
@@ -118,7 +118,7 @@
       "headSha": "de3cd33a82c55c59a8d2189a8ced0d0b60a298ec",
       "id": "wirelessboard-93",
       "issue": "https://github.com/willcgage/wirelessboard/issues/93",
-      "lastSync": "2026-09-15T21:30:44.461Z",
+      "lastSync": "2026-09-16T00:30:57.317Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/103",
       "reporter": "willcgage",
       "run": null,
@@ -155,7 +155,7 @@
       "headSha": "d62d1cdacbb78398be452718e55c95a0b1929bc2",
       "id": "network-audio-controller-55",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/55",
-      "lastSync": "2026-09-15T21:30:47.945Z",
+      "lastSync": "2026-09-16T00:31:00.647Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/58",
       "reporter": "coaxk",
       "run": null,
@@ -225,7 +225,7 @@
       "headSha": "439962cba7a03b409b68e40ebb0b66f9f5d129c8",
       "id": "network-audio-controller-47",
       "issue": "https://github.com/chris-ritsen/network-audio-controller/issues/47",
-      "lastSync": "2026-09-15T21:30:51.388Z",
+      "lastSync": "2026-09-16T00:31:03.504Z",
       "pr": "https://github.com/chris-ritsen/network-audio-controller/pull/57",
       "reporter": "stanelie",
       "run": null,
@@ -702,7 +702,7 @@
       "headSha": "22d6db8b9c768233f8b1d0e39cab40bf3bacb09b",
       "id": "jammernetz-35",
       "issue": "https://github.com/christofmuc/JammerNetz/issues/35",
-      "lastSync": "2026-09-15T21:30:54.808Z",
+      "lastSync": "2026-09-16T00:31:06.286Z",
       "pr": "https://github.com/christofmuc/JammerNetz/pull/108",
       "reporter": "iamthechrisb",
       "run": null,
@@ -772,7 +772,7 @@
       "headSha": "f1536c3d1a395620edc73815deca2b5173f7c7de",
       "id": "low-latency-audio-32",
       "issue": "https://github.com/microsoft/low-latency-audio/issues/32",
-      "lastSync": "2026-09-15T21:30:58.349Z",
+      "lastSync": "2026-09-16T00:31:09.392Z",
       "pr": "https://github.com/microsoft/low-latency-audio/pull/35",
       "reporter": "tankoha",
       "run": null,
@@ -930,7 +930,7 @@
       "headSha": "37f1ad4f80ddc7ab42b52f8687b1175db53c6faa",
       "id": "dometools-47",
       "issue": "https://github.com/prefrontalcortex/DomeTools/issues/47",
-      "lastSync": "2026-09-15T21:31:01.889Z",
+      "lastSync": "2026-09-16T00:31:12.600Z",
       "pr": "https://github.com/prefrontalcortex/DomeTools/pull/49",
       "reporter": "Hanesto",
       "run": null,
@@ -1011,7 +1011,7 @@
       "headSha": "6e3694bbbf98930016c8e5e9ab0db4fec9c79d8c",
       "id": "wirelessboard-92",
       "issue": "https://github.com/willcgage/wirelessboard/issues/92",
-      "lastSync": "2026-09-15T21:31:05.297Z",
+      "lastSync": "2026-09-16T00:31:15.614Z",
       "pr": "https://github.com/willcgage/wirelessboard/pull/101",
       "reporter": "willcgage",
       "run": null,
@@ -1103,7 +1103,7 @@
       "headSha": "3b62b36abd58c780aaac7328c4c32e4c6a6630bd",
       "id": "ipcamlapse-33",
       "issue": "https://github.com/KalyteraSystems/IPCamLapse/issues/33",
-      "lastSync": "2026-09-15T21:31:08.751Z",
+      "lastSync": "2026-09-16T00:31:18.505Z",
       "pr": "https://github.com/KalyteraSystems/IPCamLapse/pull/50",
       "reporter": "elkampu",
       "run": null,
@@ -1128,7 +1128,7 @@
       "headSha": "a2f96d5143b5e87a45d68b9086d1fd80ae2afe27",
       "id": "midimonster-150",
       "issue": "https://github.com/cbdevnet/midimonster/issues/150",
-      "lastSync": "2026-09-15T21:31:13.154Z",
+      "lastSync": "2026-09-16T00:31:22.073Z",
       "pr": "https://github.com/cbdevnet/midimonster/pull/151",
       "reporter": "jetryco",
       "run": null,
@@ -1198,7 +1198,7 @@
       "headSha": "e0b946103373552baca68fb8d18446ea87f9b277",
       "id": "fader-x-5",
       "issue": "https://github.com/stagehacks/FADER_X/issues/5",
-      "lastSync": "2026-09-15T21:31:16.659Z",
+      "lastSync": "2026-09-16T00:31:25.127Z",
       "pr": "https://github.com/stagehacks/FADER_X/pull/8",
       "reporter": "istnv",
       "run": null,
@@ -1249,7 +1249,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2025-02-24T22:58:56Z",
       "ci": "none",
-      "lastSync": "2026-09-15T21:31:20.209Z",
+      "lastSync": "2026-09-16T00:31:28.029Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1277,7 +1277,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:31:23.974Z",
+      "lastSync": "2026-09-16T00:31:31.179Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1317,7 +1317,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T21:31:27.271Z",
+      "lastSync": "2026-09-16T00:31:33.965Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1345,7 +1345,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:31:30.513Z",
+      "lastSync": "2026-09-16T00:31:36.792Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1442,7 +1442,7 @@
       "mergedAt": "2026-09-14T08:02:35Z",
       "reporterResponseAt": "2026-09-14T08:02:08Z",
       "ci": "success",
-      "lastSync": "2026-09-15T21:31:33.928Z",
+      "lastSync": "2026-09-16T00:31:39.632Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-14T10:47:47.991Z"
@@ -1483,7 +1483,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:31:37.442Z",
+      "lastSync": "2026-09-16T00:31:42.580Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1589,7 +1589,7 @@
       "mergedAt": "2026-09-14T16:58:12Z",
       "reporterResponseAt": "2026-09-15T00:24:25Z",
       "ci": "success",
-      "lastSync": "2026-09-15T21:31:40.796Z",
+      "lastSync": "2026-09-16T00:31:45.458Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1651,7 +1651,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T19:35:00Z",
       "ci": "none",
-      "lastSync": "2026-09-15T21:31:44.234Z",
+      "lastSync": "2026-09-16T00:31:48.417Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1691,7 +1691,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T21:31:47.754Z",
+      "lastSync": "2026-09-16T00:31:51.514Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1753,7 +1753,7 @@
       "mergedAt": "2026-09-14T11:43:45Z",
       "reporterResponseAt": "2026-09-14T09:51:57Z",
       "ci": "success",
-      "lastSync": "2026-09-15T21:31:51.123Z",
+      "lastSync": "2026-09-16T00:31:54.460Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1837,7 +1837,7 @@
       "mergedAt": "2026-09-14T14:52:37Z",
       "reporterResponseAt": "2026-09-14T12:57:21Z",
       "ci": "none",
-      "lastSync": "2026-09-15T21:31:54.588Z",
+      "lastSync": "2026-09-16T00:31:57.560Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -1921,7 +1921,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T16:02:33Z",
       "ci": "none",
-      "lastSync": "2026-09-15T21:31:57.759Z",
+      "lastSync": "2026-09-16T00:32:00.428Z",
       "syncError": null
     },
     {
@@ -1993,7 +1993,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T10:33:28Z",
       "ci": "success",
-      "lastSync": "2026-09-15T21:32:01.163Z",
+      "lastSync": "2026-09-16T00:32:03.368Z",
       "syncError": null
     },
     {
@@ -2054,7 +2054,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T21:32:04.734Z",
+      "lastSync": "2026-09-16T00:32:07.079Z",
       "syncError": null
     },
     {
@@ -2185,7 +2185,7 @@
         }
       ],
       "unread": 10,
-      "evidenceStaleSince": "2026-09-15T21:32:08.559Z",
+      "evidenceStaleSince": "2026-09-16T00:32:10.282Z",
       "mergeable": true,
       "mergeableState": "clean",
       "headSha": "158d24bd1ac7b9fd7e02ae9cc3027a1c0c83e6da",
@@ -2195,7 +2195,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T08:45:51Z",
       "ci": "success",
-      "lastSync": "2026-09-15T21:32:08.559Z",
+      "lastSync": "2026-09-16T00:32:10.282Z",
       "syncError": null
     },
     {
@@ -2245,7 +2245,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T21:32:12.025Z",
+      "lastSync": "2026-09-16T00:32:13.208Z",
       "syncError": null
     },
     {
@@ -2295,7 +2295,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T13:43:10Z",
       "ci": "none",
-      "lastSync": "2026-09-15T21:32:15.702Z",
+      "lastSync": "2026-09-16T00:32:16.283Z",
       "syncError": null
     },
     {
@@ -2369,9 +2369,9 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T15:54:33Z",
       "ci": "success",
-      "lastSync": "2026-09-15T21:32:19.396Z",
+      "lastSync": "2026-09-16T00:32:19.457Z",
       "syncError": null,
-      "evidenceStaleSince": "2026-09-15T21:32:19.396Z"
+      "evidenceStaleSince": "2026-09-16T00:32:19.457Z"
     },
     {
       "id": "surge-8569",
@@ -2475,7 +2475,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-14T12:47:41Z",
       "ci": "none",
-      "lastSync": "2026-09-15T21:32:22.806Z",
+      "lastSync": "2026-09-16T00:32:22.356Z",
       "syncError": null
     },
     {
@@ -2529,7 +2529,7 @@
         }
       ],
       "unread": 3,
-      "evidenceStaleSince": "2026-09-15T21:32:26.381Z",
+      "evidenceStaleSince": "2026-09-16T00:32:25.185Z",
       "mergeable": true,
       "mergeableState": "blocked",
       "headSha": "926c4bb6ff5d2ee95f3c35eab1d378fef10983b8",
@@ -2539,7 +2539,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:32:26.381Z",
+      "lastSync": "2026-09-16T00:32:25.185Z",
       "syncError": null
     },
     {
@@ -2611,7 +2611,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-07-15T14:15:08Z",
       "ci": "success",
-      "lastSync": "2026-09-15T21:32:30.005Z",
+      "lastSync": "2026-09-16T00:32:28.388Z",
       "syncError": null
     },
     {
@@ -2650,7 +2650,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:32:33.682Z",
+      "lastSync": "2026-09-16T00:32:31.464Z",
       "syncError": null
     },
     {
@@ -2711,7 +2711,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:32:37.152Z",
+      "lastSync": "2026-09-16T00:32:34.631Z",
       "syncError": null,
       "attachment": "BCL_EXISTING_PR"
     },
@@ -2739,7 +2739,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T21:32:40.347Z",
+      "lastSync": "2026-09-16T00:32:37.270Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2767,7 +2767,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:32:44.383Z",
+      "lastSync": "2026-09-16T00:32:40.448Z",
       "syncError": null
     },
     {
@@ -2806,7 +2806,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T07:47:44Z",
       "ci": "none",
-      "lastSync": "2026-09-15T21:32:47.623Z",
+      "lastSync": "2026-09-16T00:32:43.292Z",
       "syncError": null
     },
     {
@@ -2845,7 +2845,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:32:51.283Z",
+      "lastSync": "2026-09-16T00:32:46.626Z",
       "syncError": null
     },
     {
@@ -2872,7 +2872,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:32:54.870Z",
+      "lastSync": "2026-09-16T00:32:49.627Z",
       "syncError": null
     },
     {
@@ -2899,7 +2899,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:32:58.329Z",
+      "lastSync": "2026-09-16T00:32:52.376Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2927,7 +2927,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:33:02.253Z",
+      "lastSync": "2026-09-16T00:32:55.606Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -2946,6 +2946,17 @@
       },
       "events": [
         {
+          "key": "issue-comment:5688704533",
+          "kind": "issue-comment",
+          "author": "YupItzAfi",
+          "reporter": true,
+          "url": "https://github.com/daidr/dualsense-tester/issues/222#issuecomment-5688704533",
+          "updatedAt": "2026-09-15T22:02:45Z",
+          "state": null,
+          "body": "Hello, the issue had not yet been fixed unfortunately.\nI didn't get to test because there was no deployment. But now that I can test it, the issue just shifted a bit. I think the issue is that when we press the audio button by default, it tries to go to a specific volume (now changed to 85% from the roughly 25% before this PR). That volume it gets stuck in even if we try to move the slider from 0%. Even still, the actual perceived volume when I play it, is still closer to the the volume of the 1 KHz test before this PR (it actually is quite finicky to get the \"full loud volume\" from the tester (maybe it was actually setting 255 to controller and overdrived the speakers?))\nNow what happens is volume goes to 85% when I press the 1KHz test, and perceived volume is similar to before. Playing an audio gives me option 0-100%, but I think the 50% is considered as 0% now, because the audio is completely quiet once I hit that point.",
+          "read": false
+        },
+        {
           "key": "pr-comment:5671030704",
           "kind": "pr-comment",
           "author": "vercel[bot]",
@@ -2957,7 +2968,7 @@
           "read": false
         }
       ],
-      "unread": 1,
+      "unread": 2,
       "mergeable": null,
       "mergeableState": "unknown",
       "headSha": "dfe58ed02cb202882e11203835abe84d40a2c9ae",
@@ -2965,9 +2976,9 @@
       "issueCreatedAt": "2026-09-14T13:51:53Z",
       "prCreatedAt": "2026-09-14T21:26:05Z",
       "mergedAt": "2026-09-15T17:16:54Z",
-      "reporterResponseAt": null,
+      "reporterResponseAt": "2026-09-15T22:02:45Z",
       "ci": "failure",
-      "lastSync": "2026-09-15T21:33:05.597Z",
+      "lastSync": "2026-09-16T00:32:58.443Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3007,7 +3018,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T21:33:08.654Z",
+      "lastSync": "2026-09-16T00:33:01.297Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3048,7 +3059,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T21:33:12.096Z",
+      "lastSync": "2026-09-16T00:33:04.305Z",
       "syncError": null
     },
     {
@@ -3221,7 +3232,7 @@
       "mergedAt": "2026-09-15T04:04:28Z",
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T21:33:15.891Z",
+      "lastSync": "2026-09-16T00:33:07.449Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "evidenceStaleSince": "2026-09-15T03:45:55.082Z"
@@ -3279,7 +3290,7 @@
       "hardware": {
         "status": "NOT_REVIEWED",
         "priorStatus": "NOT_REVIEWED",
-        "testedHeadSha": "87ab6fe692c0941da5162d7932558f6060046d8a"
+        "testedHeadSha": "a6b1c233148851cf7d1ebab733faf879f5bf028c"
       },
       "events": [
         {
@@ -3302,6 +3313,17 @@
           "updatedAt": "2026-09-15T19:16:21Z",
           "state": null,
           "body": "Also big thank you to @iibaranov-IG  for jumping in! Appreciate the energy and contribution!",
+          "read": false
+        },
+        {
+          "key": "pr-comment:5690023229",
+          "kind": "pr-comment",
+          "author": "mguaylam",
+          "reporter": true,
+          "url": "https://github.com/Sendspin/sendspin-cpp-cli/pull/55#issuecomment-5690023229",
+          "updatedAt": "2026-09-16T00:17:49Z",
+          "state": null,
+          "body": "Tested on the OpenWrt box from #54. Playback resumes on its own, with no XRUN loop and no sync cycling.\n\n**Setup**\n\nThe host is a plain home router, a D-Link DIR-3040 (MediaTek MT7621AT, dual-core MIPS at 880 MHz, no FPU, 256 MB RAM), with the DAC on one of its USB ports. It routes and serves WiFi while playing.\n\n| | |\n|---|---|\n| Build | PR head `a6b1c23`, packaged for OpenWrt (sendspin-cpp `v0.7.2`) |\n| Host | OpenWrt 25.12.5, `ramips/mt7621` (MIPS32 little-endian, musl), kernel 6.12.94 |\n| Output | `-o hw:0,0 --buffer-ms 100` (4800-frame ring, 960-frame period) |\n| Sink | generic USB Audio Class 1 adapter, `S16_LE` 2 ch 48000 Hz only |\n| Server | Music Assistant, FLAC 48 kHz/16-bit |\n\nMy OpenWrt package normally works around this bug by restarting the player when a playback device appears. That workaround was moved out of the way for this test, so the recovery below is this branch's alone.\n\n**What happened**: playing, DAC unplugged at 00:09:40, plugged back in at 00:09:54.\n\n```\n00:09:40 E audio: alsa: 'hw:0,0' is gone (No such device)\n00:09:40 E audio: alsa: 'hw:0,0' is not open -- discarding audio until it is back or a stream reconfigures it\n00:09:42 E audio: alsa: cannot open 'hw:0,0': No such file or directory\n00:09:46 E audio: alsa: cannot open 'hw:0,0': No such file or directory\n00:09:54 I audio: alsa: 'hw:0,0' open at 48000 Hz, 2 ch, 16-bit (4 bytes/frame, 4800-frame ring, 960-frame period)\n00:09:54 I audio: alsa: 'hw:0,0' is back -- recovered without waiting for the next stream\n00:09:54 W sendspin.sync_task: Lost sync (10840302us off), reporting error\n00:10:05 I sendspin.sync_task: Regained sync, reporting synchronized\n```\n\nNothing after that: no underrun, no further sync message, and audio was audible and steady.\n\n`/proc/asound/card0/pcm0p/sub0/status`, sampled every 2 s:\n\n- 144 samples over the ~5 minutes after recovery, every one of them `RUNNING`; no `XRUN`, no `PREPARED`.\n- `hw_ptr` went from 164,160 to 14,204,640, i.e. 292 s of audio, continuously.\n- The player's pid never changed, so this is the same process recovering.\n\nFor contrast, on v0.1.6 the same sequence left `hw_ptr` stuck at 3840 frames with `XRUN` and `PREPARED` alternating about every 14 s, and `Lost sync` / `Regained sync` repeating until the player was restarted.\n\n**One observation**, not a blocker: a single `Lost sync (10840302us off)` is reported the moment the device reopens, about 10.8 s for a ~14 s outage, and clears 11 s later. Is one hard resync expected here, with the retired gap making it a single event rather than a loop, or should the correction land early enough that the sync task never reports an error?\n\nHappy to rerun anything, including a longer outage or a second replug during the same stream.\n",
           "read": false
         },
         {
@@ -3382,20 +3404,20 @@
           "read": false
         }
       ],
-      "unread": 9,
-      "mergeable": true,
-      "mergeableState": "clean",
+      "unread": 10,
+      "mergeable": false,
+      "mergeableState": "dirty",
       "headSha": "a6b1c233148851cf7d1ebab733faf879f5bf028c",
       "reporter": "mguaylam",
       "issueCreatedAt": "2026-09-14T23:47:57Z",
       "prCreatedAt": "2026-09-15T00:22:01Z",
       "mergedAt": null,
-      "reporterResponseAt": null,
+      "reporterResponseAt": "2026-09-16T00:17:49Z",
       "ci": "success",
-      "lastSync": "2026-09-15T21:33:21.137Z",
+      "lastSync": "2026-09-16T00:33:12.003Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
-      "evidenceStaleSince": "2026-09-15T21:33:21.137Z"
+      "evidenceStaleSince": "2026-09-16T00:33:12.003Z"
     },
     {
       "id": "openterface-642",
@@ -3433,7 +3455,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T01:25:47Z",
       "ci": "none",
-      "lastSync": "2026-09-15T21:33:24.741Z",
+      "lastSync": "2026-09-16T00:33:15.068Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3461,7 +3483,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:33:28.515Z",
+      "lastSync": "2026-09-16T00:33:17.906Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3512,7 +3534,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T04:18:34Z",
       "ci": "none",
-      "lastSync": "2026-09-15T21:33:31.878Z",
+      "lastSync": "2026-09-16T00:33:20.750Z",
       "syncError": null,
       "attachment": "VERIFIED_EXISTING_PR"
     },
@@ -3574,7 +3596,7 @@
       "mergedAt": "2026-09-15T20:23:43Z",
       "reporterResponseAt": "2026-09-15T02:24:37Z",
       "ci": "success",
-      "lastSync": "2026-09-15T21:33:35.291Z",
+      "lastSync": "2026-09-16T00:33:23.550Z",
       "syncError": null
     },
     {
@@ -3646,7 +3668,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T01:38:54Z",
       "ci": "failure",
-      "lastSync": "2026-09-15T21:33:38.619Z",
+      "lastSync": "2026-09-16T00:33:26.414Z",
       "syncError": null
     },
     {
@@ -3707,7 +3729,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T21:33:42.114Z",
+      "lastSync": "2026-09-16T00:33:29.317Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "priorCandidates": [
@@ -3781,7 +3803,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:33:45.973Z",
+      "lastSync": "2026-09-16T00:33:32.672Z",
       "syncError": null
     },
     {
@@ -3820,7 +3842,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "none",
-      "lastSync": "2026-09-15T21:33:49.701Z",
+      "lastSync": "2026-09-16T00:33:35.767Z",
       "syncError": null
     },
     {
@@ -3903,7 +3925,7 @@
       "mergedAt": null,
       "reporterResponseAt": null,
       "ci": "success",
-      "lastSync": "2026-09-15T21:33:53.264Z",
+      "lastSync": "2026-09-16T00:33:38.778Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR"
     },
@@ -3944,7 +3966,7 @@
       "mergedAt": null,
       "reporterResponseAt": "2026-09-15T06:08:16Z",
       "ci": "none",
-      "lastSync": "2026-09-15T21:33:56.939Z",
+      "lastSync": "2026-09-16T00:33:41.949Z",
       "syncError": null,
       "attachment": "EXTERNAL_PR",
       "testedTreeSha": "3adfe79930cfce5bde6d8a150cf2e6636b90fe4b",
